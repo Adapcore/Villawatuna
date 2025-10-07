@@ -20,7 +20,7 @@ namespace Umbraco.Cms.Web.Common.PublishedModels
 {
 	/// <summary>Menu Category</summary>
 	[PublishedModel("menuCategory")]
-	public partial class MenuCategory : PublishedContentModel
+	public partial class MenuCategory : Page
 	{
 		// helpers
 #pragma warning disable 0109 // new is redundant
@@ -48,13 +48,5 @@ namespace Umbraco.Cms.Web.Common.PublishedModels
 		}
 
 		// properties
-
-		///<summary>
-		/// Category Name
-		///</summary>
-		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "13.10.0+c2890e1")]
-		[global::System.Diagnostics.CodeAnalysis.MaybeNull]
-		[ImplementPropertyType("categoryName")]
-		public virtual string CategoryName => this.Value<string>(_publishedValueFallback, "categoryName");
 	}
 }
