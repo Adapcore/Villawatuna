@@ -1,5 +1,7 @@
 using HotelManagement.Data;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Mvc;
+using HotelManagement.Services;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
@@ -9,6 +11,12 @@ builder.Services.AddDbContext<HotelContext>(options =>
 		builder.Configuration.GetConnectionString("DefaultConnection")
 	)
 );
+
+// Add MVC controllers with views for custom screens (e.g., Employees)
+builder.Services.AddControllersWithViews();
+
+// Application services
+builder.Services.AddScoped<IEmployeeService, EmployeeService>();
 
 builder.CreateUmbracoBuilder()
     .AddBackOffice()
@@ -34,5 +42,10 @@ app.UseUmbraco()
         u.UseBackOfficeEndpoints();
         u.UseWebsiteEndpoints();
     });
+
+// Map conventional MVC routes for custom controllers
+app.MapControllerRoute(
+	name: "default",
+	pattern: "{controller=Home}/{action=Index}/{id?}");
 
 await app.RunAsync();
