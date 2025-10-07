@@ -1,0 +1,32 @@
+﻿using System;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace HotelManagement.Models.Entities
+{
+	public class InvoiceDetail
+	{
+		[Key]
+		public int Id { get; set; } // EF PK
+
+		[Required]
+		public int InvoiceNo { get; set; } // FK to Invoice
+		public Invoice Invoice { get; set; }
+
+		public int LineNumber { get; set; } // Auto-increment per invoice
+
+		[MaxLength(250)]
+		public string Description { get; set; }
+
+		public DateTime? CheckIn { get; set; }
+		public DateTime? CheckOut { get; set; }
+
+		public int Quantity { get; set; }
+
+		[Column(TypeName = "decimal(18,2)")]
+		public decimal UnitPrice { get; set; }
+
+		[Column(TypeName = "decimal(18,2)")]
+		public decimal Amount { get; set; }
+	}
+}

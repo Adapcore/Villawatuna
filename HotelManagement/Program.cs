@@ -1,4 +1,14 @@
+using HotelManagement.Data;
+using Microsoft.EntityFrameworkCore;
+
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
+
+// EF Core DbContext registration
+builder.Services.AddDbContext<HotelContext>(options =>
+	options.UseSqlServer(
+		builder.Configuration.GetConnectionString("DefaultConnection")
+	)
+);
 
 builder.CreateUmbracoBuilder()
     .AddBackOffice()
