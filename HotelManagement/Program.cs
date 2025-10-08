@@ -18,6 +18,8 @@ builder.Services.AddControllersWithViews();
 // Application services
 builder.Services.AddScoped<IEmployeeService, EmployeeService>();
 builder.Services.AddScoped<ICustomerService, CustomerService>();
+builder.Services.AddScoped<IOrderService, OrderService>();
+
 
 builder.CreateUmbracoBuilder()
     .AddBackOffice()
