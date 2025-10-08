@@ -25,7 +25,7 @@ namespace HotelManagement.Models.Entities
 		public bool Dining { get; set; }
 
 		[MaxLength(500)]
-		public string Notes { get; set; }
+		public string? Notes { get; set; }
 
 		public DateTime CreatedDate { get; set; }
 		public int CreatedBy { get; set; } // EmployeeID
@@ -41,6 +41,6 @@ namespace HotelManagement.Models.Entities
 		[Column(TypeName = "decimal(18,2)")]
 		public decimal GrossAmount { get; set; }
 
-		public ICollection<OrderItem> OrderItems { get; set; } // Navigation
-	}
+        public List<OrderItem> OrderItems { get; set; } = new(); // MUST initialize
+    }
 }

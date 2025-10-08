@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.AspNetCore.Mvc.ModelBinding;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace HotelManagement.Models.Entities
@@ -10,6 +11,7 @@ namespace HotelManagement.Models.Entities
 
 		[Required]
 		public int OrderNo { get; set; } // Foreign key
+
 		public Order Order { get; set; }
 
 		public int LineNumber { get; set; } // Auto-increment per order
@@ -18,7 +20,7 @@ namespace HotelManagement.Models.Entities
 		public int ItemId { get; set; } // select from menu item
 
 		[MaxLength(250)]
-		public string Comments { get; set; }
+		public string? Comments { get; set; }
 
 		[Required]
 		public int Qty { get; set; }
