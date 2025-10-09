@@ -106,20 +106,50 @@ namespace HotelManagement.Controllers
         [HttpPost]
         public async Task<IActionResult> Create(CreateOrderViewModel model)
         {
-            if (!ModelState.IsValid)
-                return View(model);
+           
 
-            int lineNo = 1;
+            if (!ModelState.IsValid)
+            {
+                var customers = await _customerService.GetAllAsync();
+
+                ViewBag.Customers = customers.Select(c => new SelectListItem
+                {
+                    Value = c.ID.ToString(),
+                    Text = c.FirstName + " " + c.LastName
+                }).ToList();
+
+                //// Re-populate dropdowns before returning the view
+                //ViewBag.Customers = new SelectList(
+                //    await _customerService.GetAllAsync(),
+                //    "ID",
+                //    "FullName",
+                //    model.CustomerId // reselect chosen value
+                //);
+
+                // Keep whatever user typed
+                return View(model);
+            }
+
+            // subtotal/service/gross calculations 
+            decimal subtotal = 0;
             foreach (var item in model.OrderItems)
             {
                 item.Amount = item.Qty * item.UnitPrice;
+                subtotal += item.Amount;
             }
 
-            model.SubTotal = model.OrderItems.Sum(i => i.Amount);
-            model.ServiceCharge = model.SubTotal * 0.10m;
+            if (!model.IsFreeOfCharge)
+                model.SubTotal = subtotal;
+            else
+                model.SubTotal = 0;
+
+            if (model.Dining)
+                model.ServiceCharge = model.SubTotal * 0.10m;
+            else
+                model.ServiceCharge = 0;
+
             model.GrossAmount = model.SubTotal + model.ServiceCharge;
 
-            // Map ViewModel to EF entity
             var order = new Order
             {
                 Date = model.Date,
@@ -132,7 +162,7 @@ namespace HotelManagement.Controllers
                 ServiceCharge = model.ServiceCharge,
                 GrossAmount = model.GrossAmount,
                 CreatedDate = DateTime.UtcNow,
-                CreatedBy = 1, // replace with logged-in employee
+                CreatedBy = 1,
                 OrderItems = model.OrderItems.Select((i, idx) => new OrderItem
                 {
                     LineNumber = idx + 1,
@@ -148,6 +178,7 @@ namespace HotelManagement.Controllers
 
             return RedirectToAction(nameof(Index));
         }
+
 
 
         public async Task<IActionResult> Edit(int id)

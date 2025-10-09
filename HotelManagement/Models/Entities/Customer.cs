@@ -17,18 +17,22 @@ namespace HotelManagement.Models.Entities
 		public string Email { get; set; }
 
 		[Required, MaxLength(100)]
-		public string FirstName { get; set; }
+        [Display(Name = "First Name")]
+        public string FirstName { get; set; }
 
 		[Required, MaxLength(100)]
+        [Display(Name = "Last Name")]
 		public string LastName { get; set; }
 
 		[Required, MaxLength(50)]
-		public string PassportNo { get; set; }
+        [Display(Name = "Passport No")]
+        public string PassportNo { get; set; }
 
 		[Required, MaxLength(12)]
 		public string NIC { get; set; }
 
 		[Required, MaxLength(15)]
+        [Display(Name = "Contact No")]
 		public string ContactNo { get; set; }
 
 		[MaxLength(250)]
