@@ -56,7 +56,7 @@
                     alert("Customer is required.");
                     return;
                 }
-                if (parseFloat($("#grossAmount").val()) <= 0) {
+                if (parseFloat($("#grossAmount").html()) <= 0) {
                     alert("Gross amount must be greater than zero.");
                     return;
                 }
@@ -71,9 +71,9 @@
                     ReferenceNo: $("#ReferenceNo").val(),
                     CustomerId: $("#CustomerId").val(),
                     Note: $("#Note").val(),
-                    SubTotal: parseFloat($("#subTotal").val()) || 0,
-                    ServiceCharge: parseFloat($("#serviceCharge").val()) || 0,
-                    GrossAmount: parseFloat($("#grossAmount").val()) || 0,
+                    SubTotal: parseFloat($("#subTotal").html()) || 0,
+                    ServiceCharge: parseFloat($("#serviceCharge").html()) || 0,
+                    GrossAmount: parseFloat($("#grossAmount").html()) || 0,
                     InvoiceDetails: []
                 };
 
@@ -187,9 +187,9 @@
 
             var grossTotal = subtotal + serviceCharge;
 
-            $("#subTotal").val(subtotal.toFixed(2));
-            $("#serviceCharge").val(serviceCharge.toFixed(2));
-            $("#grossAmount").val(grossTotal.toFixed(2));
+            $("#subTotal").html(subtotal.toFixed(2));
+            $("#serviceCharge").html(serviceCharge.toFixed(2));
+            $("#grossAmount").html(grossTotal.toFixed(2));
         },
         RemoveItemRow: function (row) {
             row.remove();
