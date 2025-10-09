@@ -65,12 +65,7 @@ namespace HotelManagement.Data
 			modelBuilder.Entity<Invoice>(entity =>
 			{
 				entity.ToTable("Invoices");
-				entity.HasKey(i => i.InvoiceNo);
-
-				entity.HasOne(i => i.Order)
-					  .WithMany()
-					  .HasForeignKey(i => i.OrderNo)
-					  .OnDelete(DeleteBehavior.Restrict);
+				entity.HasKey(i => i.InvoiceNo);			
 
 				entity.HasOne(i => i.Customer)
 					  .WithMany()

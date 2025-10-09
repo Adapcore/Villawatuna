@@ -4,6 +4,7 @@ using HotelManagement.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HotelManagement.Migrations
 {
     [DbContext(typeof(HotelContext))]
-    partial class HotelContextModelSnapshot : ModelSnapshot
+    [Migration("20251009053030_Invoice_addNewColumns")]
+    partial class Invoice_addNewColumns
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -158,6 +161,9 @@ namespace HotelManagement.Migrations
                         .HasMaxLength(300)
                         .HasColumnType("nvarchar(300)");
 
+                    b.Property<int>("OrderNo")
+                        .HasColumnType("int");
+
                     b.Property<decimal>("Paid")
                         .HasColumnType("decimal(18,2)");
 
@@ -182,6 +188,8 @@ namespace HotelManagement.Migrations
 
                     b.HasIndex("CustomerId");
 
+                    b.HasIndex("OrderNo");
+
                     b.ToTable("Invoices", (string)null);
                 });
 
@@ -202,18 +210,16 @@ namespace HotelManagement.Migrations
                     b.Property<DateTime?>("CheckOut")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("InvoiceNo")
-                        .HasColumnType("int");
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("nvarchar(250)");
 
-                    b.Property<int>("ItemId")
+                    b.Property<int>("InvoiceNo")
                         .HasColumnType("int");
 
                     b.Property<int>("LineNumber")
                         .HasColumnType("int");
-
-                    b.Property<string>("Note")
-                        .HasMaxLength(250)
-                        .HasColumnType("nvarchar(250)");
 
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
@@ -328,7 +334,15 @@ namespace HotelManagement.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("HotelManagement.Models.Entities.Order", "Order")
+                        .WithMany()
+                        .HasForeignKey("OrderNo")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.Navigation("Customer");
+
+                    b.Navigation("Order");
                 });
 
             modelBuilder.Entity("HotelManagement.Models.Entities.InvoiceDetail", b =>

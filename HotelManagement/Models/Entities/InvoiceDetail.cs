@@ -15,8 +15,10 @@ namespace HotelManagement.Models.Entities
 
 		public int LineNumber { get; set; } // Auto-increment per invoice
 
-		[MaxLength(250)]
-		public string Description { get; set; }
+        public int ItemId { get; set; }
+
+        [MaxLength(250)]
+		public string? Note { get; set; }
 
 		public DateTime? CheckIn { get; set; }
 		public DateTime? CheckOut { get; set; }

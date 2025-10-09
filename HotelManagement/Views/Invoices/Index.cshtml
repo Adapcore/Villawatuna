@@ -1,0 +1,37 @@
+﻿@model IEnumerable<Invoice>
+
+<h2>Invoices</h2>
+<a href="@Url.Action("SelectType", "Invoices")" class="btn btn-primary">Create Invoice</a>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Invoice No</th>
+            <th>Customer</th>
+            <th>Type</th>
+            <th>Date</th>
+            <th>Status</th>
+            <th>Total</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var invoice in Model)
+        {
+            <tr>
+                <td>@invoice.InvoiceNo</td>
+                <td>@invoice.Customer?.FirstName @invoice.Customer?.LastName</td>
+                <td>@invoice.Type</td>
+                <td>@invoice.Date.ToShortDateString()</td>
+                <td>@invoice.Status</td>
+                <td>@invoice.GrossAmount</td>
+                <td>
+                    <a href="@Url.Action("Details", "Invoice", new { id = invoice.InvoiceNo })" class="btn btn-sm btn-info">View</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
