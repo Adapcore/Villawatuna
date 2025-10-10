@@ -24,6 +24,9 @@
         Init: function () {
             this.BindEvents();
             //this.LoadInvoices();
+            this.LoadItems();
+            this.BindItemSelection();
+            this.LoadServiceCharge();
         },
         BindEvents: function () {
             var self = this;
@@ -110,6 +113,22 @@
             });
 
         },
+
+        LoadServiceCharge: function () {
+            var self = this;
+            $.getJSON("/api/menu/GetServiceCharge", function (data) {
+                self.serviceCharge = data;
+            });
+        },
+
+        LoadItems: function () {
+            var self = this;
+            $.getJSON("/api/menu/getItems", function (data) {
+                self.menuItems = data; 
+
+                self.itemOptions = data.map(i => `<option value="${i.id}" data-price="${i.price}">${i.name}</option>`).join('');
+            });
+        },
         
         AddItemRow: function (item) {
             // item is an optional object: { Id, Description, UnitPrice } 
@@ -122,8 +141,11 @@
             var rowHtml = `
                         <tr>
                             <td>
-                                <input type="number" name="InvoiceDetails[${rowIndex}].ItemId" class="form-control itemId" value="${itemId}" />
-                            </td>
+                                <select class="form-select orderItemSelect">
+                                    <option value="">-- Select --</option>
+                                    ${this.itemOptions || ""}
+                                </select>
+                            </td>                            
                             <td>
                                 <input type="text" name="InvoiceDetails[${rowIndex}].Description" class="form-control description" value="${description}" readonly />
                             </td>
@@ -164,6 +186,26 @@
             this.CalculateTotals();
         },
 
+        BindItemSelection: function () {
+            var self = this;
+            $("#invoiceItems").on("change", ".orderItemSelect", function () {
+              
+                var $row = $(this).closest("tr");
+                var selected = $(this).find("option:selected");
+                var price = parseFloat(selected.data("price")) || 0;
+                var name = selected.text();
+
+                if ($(this).find("option:selected").val() > 0) {
+                    $row.find(".description").val(name);
+                }
+                else {
+                    $row.find(".description").val('');
+                }
+                $row.find(".itemPrice").val(price.toFixed(2));
+
+                self.UpdateRowTotal($row);
+            });
+        },
 
         UpdateRowTotal: function (row) {
             var qty = parseFloat(row.find(".orderQty").val()) || 0;
@@ -174,6 +216,7 @@
         },
 
         CalculateTotals: function () {
+            var self = this;
 
             var subtotal = 0;
             $("#invoiceItems tbody tr").each(function () {
@@ -182,7 +225,7 @@
 
             var serviceCharge = 0;
             if ($("#Type").val() == 1) {
-                serviceCharge = subtotal * 0.1; // 10% service charge 
+                serviceCharge = subtotal * self.serviceCharge;
             }
 
             var grossTotal = subtotal + serviceCharge;
