@@ -1,4 +1,9 @@
-﻿@model HotelManagement.Models.ViewModels.CreateInvoiceViewModel
+﻿@using HotelManagement.Enums
+@model HotelManagement.Models.ViewModels.CreateInvoiceViewModel
+
+@{
+    string invoiceTypeName = Enum.GetName(typeof(InvoiceType), Enum.Parse<InvoiceType>(Model.Type.ToString()));
+}
 
 <div class="container-fluid bg-light p-3" style="min-height:100vh;">
     <div class="row">
@@ -56,7 +61,8 @@
             <div class="card shadow-sm mb-3">
                 <div class="card-header bg-success text-white">
                     <h5 class="mb-0">Invoice Summary</h5>
-                    <span class="ps-1 pe-1 bg-warning text-dark">@ViewBag.InvoiceTypeName</span>
+                    @* <span class="ps-1 pe-1 bg-warning text-dark">@ViewBag.InvoiceTypeName</span> *@
+                    <span class="ps-1 pe-1 bg-warning text-dark">@invoiceTypeName</span>
                 </div>
                 <div class="card-body">
                     <input asp-for="InvoiceNo" class="form-control" hidden />
