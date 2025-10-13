@@ -11,5 +11,6 @@ namespace HotelManagement.Services
         //Task<int> CreateInvoiceAsync(CreateInvoiceViewModel model);
         Task UpdateInvoiceAsync(Invoice invoice);
         Task DeleteInvoiceAsync(int invoiceNo);
+        Task DeleteInvoiceDetailsAsync(int invoiceId);
     }
 }

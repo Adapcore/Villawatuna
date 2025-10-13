@@ -23,7 +23,24 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <!-- JS rows -->
+                                @foreach (var detail in Model.InvoiceDetails)
+                                {
+                                    <tr>
+                                        <td>
+                                            <input type="hidden" value="@detail.ItemId" class="itemId" />
+                                            <select class="form-select orderItemSelect" data-selected="@detail.ItemId">
+                                                <option value="">-- Select --</option>
+                                                @* Options will be populated by JS *@
+                                            </select>
+                                        </td>
+                                        <td><input type="text" class="form-control description" value="" readonly /></td>
+                                        <td><input type="text" class="form-control note" value="@detail.Note" /></td>
+                                        <td><input type="number" class="form-control orderQty" value="@detail.Quantity" /></td>
+                                        <td><input type="text" class="form-control itemPrice" value="@detail.UnitPrice.ToString("F2")" readonly /></td>
+                                        <td><input type="text" class="form-control itemTotal" value="@detail.Amount.ToString("F2")" readonly /></td>
+                                        <td><button type="button" class="btn btn-danger btn-sm removeItemBtn">X</button></td>
+                                    </tr>
+                                }
                             </tbody>
                         </table>
                     </div>
@@ -42,15 +59,22 @@
                     <span class="ps-1 pe-1 bg-warning text-dark">@ViewBag.InvoiceTypeName</span>
                 </div>
                 <div class="card-body">
-                    <input asp-for="InvoiceNo" class="form-control" hidden value="0"/>
+                    <input asp-for="InvoiceNo" class="form-control" hidden />
                     <input asp-for="Type" class="form-control" hidden />
 
                     <div class="mb-3">
                         <label class="form-label fw-bold">Date</label>
                         <input asp-for="Date" class="form-control" type="date" />
                         <span asp-validation-for="Date" class="text-danger"></span>
-                    </div>                   
+                    </div>
                     
+                    <div class="form-group">
+                        <label for="Status">Status</label>
+                        @Html.DropDownListFor(model => model.Status,
+                                 (IEnumerable<SelectListItem>)ViewBag.StatusList,new { @class = "form-control" })
+                    </div>
+
+
                     <div class="mb-3">
                         <label class="form-label fw-bold">Customer</label>
                         <select asp-for="CustomerId" class="form-select form-select-lg" asp-items="ViewBag.Customers">
@@ -59,27 +83,27 @@
                     </div>
                     <div class="d-flex justify-content-between fs-5 mb-2">
                         <span>Sub Total</span>
-                        <span id="subTotal">0.00</span>
+                        <span id="subTotal">@Model.SubTotal</span>
                     </div>
                     <div class="d-flex justify-content-between fs-5 mb-2">
                         <span>Service Charge</span>
-                        <span id="serviceCharge">0.00</span>
+                        <span id="serviceCharge">@Model.ServiceCharge</span>
                     </div>
                     <hr />
                     <div class="d-flex justify-content-between fs-4 fw-bold text-success">
                         <span>Gross</span>
-                        <span id="grossAmount">0.00</span>
+                        <span id="grossAmount">@Model.GrossAmount</span>
                     </div>
-                <hr />
-                <div class="mb-3">
-                    <label class="form-label fw-bold">Reference No</label>
-                    <input asp-for="ReferenceNo" class="form-control" />
-                    <span asp-validation-for="ReferenceNo" class="text-danger"></span>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label fw-bold">Note</label>
-                    <input asp-for="Note" class="form-control" />
-                    <span asp-validation-for="Note" class="text-danger"></span>
+                    <hr />
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Reference No</label>
+                        <input asp-for="ReferenceNo" class="form-control" />
+                        <span asp-validation-for="ReferenceNo" class="text-danger"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Note</label>
+                        <input asp-for="Note" class="form-control" />
+                        <span asp-validation-for="Note" class="text-danger"></span>
                     </div>
                 </div>
             </div>
@@ -106,7 +130,7 @@
 <script type="text/javascript">
     $(document).ready(function () {
         var obj = [];
-        obj.mode = 'Insert';
+        obj.mode = 'Edit';
         var invoice = $().invoice(obj);
     });
 </script>

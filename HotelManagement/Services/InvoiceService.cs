@@ -45,49 +45,9 @@ namespace HotelManagement.Services
             return invoice;
         }
 
-        //public async Task<int> CreateInvoiceAsync(CreateInvoiceViewModel model)
-        //{
-        //    var invoice = new Invoice
-        //    {
-        //        OrderNo = model.OrderNo,
-        //        Date = model.Date,
-        //        Type = model.Type,
-        //        ReferenceNo = model.ReferenceNo,
-        //        CustomerId = model.CustomerId,
-        //        Status = InvoiceStatus.InProgress,
-        //        Note = model.Note,
-        //        SubTotal = model.SubTotal,
-        //        ServiceCharge = model.ServiceCharge,
-        //        GrossAmount = model.GrossAmount,
-        //        Paid = 0,
-        //        Balance = model.GrossAmount,
-        //        InvoiceDetails = new List<InvoiceDetail>()
-        //    };
-
-        //    int lineNo = 1;
-        //    foreach (var d in model.InvoiceDetails)
-        //    {
-        //        invoice.InvoiceDetails.Add(new InvoiceDetail
-        //        {
-        //            LineNumber = lineNo++,
-        //            ItemId = d.ItemId,
-        //            Note = d.Note,
-        //            CheckIn = d.CheckIn,
-        //            CheckOut = d.CheckOut,
-        //            Quantity = d.Quantity,
-        //            UnitPrice = d.UnitPrice,
-        //            Amount = d.Amount
-        //        });
-        //    }
-
-        //    _context.Invoices.Add(invoice);
-        //    await _context.SaveChangesAsync();
-
-        //    return invoice.InvoiceNo;
-        //}
-
         public async Task UpdateInvoiceAsync(Invoice invoice)
         {
+
             _context.Entry(invoice).State = EntityState.Modified;
             await _context.SaveChangesAsync();
         }
@@ -98,6 +58,18 @@ namespace HotelManagement.Services
             if (invoice != null)
             {
                 _context.Invoices.Remove(invoice);
+                await _context.SaveChangesAsync();
+            }
+        }
+        public async Task DeleteInvoiceDetailsAsync(int invoiceNo)
+        {
+            var details = await _context.InvoiceDetails
+                .Where(d => d.InvoiceNo == invoiceNo)
+                .ToListAsync();
+
+            if (details.Any())
+            {
+                _context.InvoiceDetails.RemoveRange(details);
                 await _context.SaveChangesAsync();
             }
         }

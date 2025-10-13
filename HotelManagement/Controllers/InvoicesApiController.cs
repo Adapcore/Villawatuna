@@ -52,6 +52,52 @@ namespace HotelManagement.Controllers
 
             return Ok(new { success = true, invoiceNo = invoice.InvoiceNo });
         }
+
+        [HttpPost("update")]
+        public async Task<IActionResult> Update([FromBody] CreateInvoiceViewModel model)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            // Get the existing invoice
+            var invoice = await _invoiceService.GetByIdAsync(model.InvoiceNo);
+            if (invoice == null)
+                return NotFound(new { message = "Invoice not found." });
+
+            // Update header fields
+            invoice.Date = model.Date;
+            invoice.ReferenceNo = model.ReferenceNo;
+            invoice.CustomerId = model.CustomerId;
+            invoice.Note = model.Note;
+            invoice.Status = (InvoiceStatus)model.Status;
+            invoice.SubTotal = model.SubTotal;
+            invoice.ServiceCharge = model.ServiceCharge;
+            invoice.GrossAmount = model.GrossAmount;
+
+            // Delete existing details before adding new ones
+            await _invoiceService.DeleteInvoiceDetailsAsync(invoice.InvoiceNo);
+
+            // Add new details from the model
+            invoice.InvoiceDetails = model.InvoiceDetails.Select(d => new InvoiceDetail
+            {
+                ItemId = d.ItemId,
+                Note = d.Note,
+                Quantity = d.Quantity,
+                UnitPrice = d.UnitPrice,
+                Amount = d.Amount
+            }).ToList();
+
+            // Save changes
+            await _invoiceService.UpdateInvoiceAsync(invoice);
+
+            return Ok(new
+            {
+                success = true,
+                message = "Invoice updated successfully",
+                invoiceNo = invoice.InvoiceNo
+            });
+        }
+
     }
 
 }

@@ -5,7 +5,7 @@ namespace HotelManagement.Models.ViewModels
 {
     public class CreateInvoiceViewModel
     {
-        public int OrderNo { get; set; }
+        public int InvoiceNo { get; set; }
 
         [Required]
         public DateTime Date { get; set; }
@@ -14,6 +14,7 @@ namespace HotelManagement.Models.ViewModels
         public int Type { get; set; }
 
         public string? ReferenceNo { get; set; }
+        public int Status { get; set; }
 
         [Required]
         public int CustomerId { get; set; }

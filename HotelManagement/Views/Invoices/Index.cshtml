@@ -35,12 +35,10 @@
                                 @invoice.Status
                            @*  </span> *@
                         </td>
-                        <td class="text-end">@invoice.GrossAmount.ToString("N2")</td>
+                        <td class="text-end">@invoice.GrossAmount.ToString("N2")</td>                       
                         <td>
-                            <a href="@Url.Action("Details", "Invoice", new { id = invoice.InvoiceNo })"
-                               class="btn btn-sm btn-primary">
-                                <i class="bi bi-eye"></i> View
-                            </a>
+                            <a href="@Url.Action("Details", "Invoices", new { id = invoice.InvoiceNo })" class="btn btn-sm btn-info">View</a>
+                            <a href="@Url.Action("Edit", "Invoices", new { id = invoice.InvoiceNo })" class="btn btn-sm btn-warning">Edit</a>
                         </td>
                     </tr>
                 }

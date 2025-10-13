@@ -1,9 +1,12 @@
 ﻿using HotelManagement.Enums;
 using HotelManagement.Helper;
+using HotelManagement.Models.Entities;
 using HotelManagement.Models.ViewModels;
 using HotelManagement.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using System.ComponentModel.DataAnnotations;
+using System.Reflection;
 
 namespace HotelManagement.Controllers
 {
@@ -48,26 +51,74 @@ namespace HotelManagement.Controllers
                 Value = c.ID.ToString(),
                 Text = c.FirstName + " " + c.LastName
             }).ToList();
-                      
+
 
             var model = new CreateInvoiceViewModel
             {
                 Date = DateTime.Now,
-                Type = int.Parse(type) 
+                Type = int.Parse(type)
             };
             ViewBag.InvoiceTypeName = Enum.GetName(typeof(InvoiceType), Enum.Parse<InvoiceType>(type));
 
             return View(model);
         }
 
-        //[HttpPost]
-        //public async Task<IActionResult> Create([FromBody] CreateInvoiceViewModel model)
-        //{
-        //    if (!ModelState.IsValid) return BadRequest(ModelState);
+        // GET: /Invoices/Edit/5
+        public async Task<IActionResult> Edit(int id)
+        {
+            var invoice = await _invoiceService.GetByIdAsync(id);
+            if (invoice == null)
+                return NotFound();
 
-        //    var invoiceId = await _invoiceService.CreateInvoiceAsync(model);
-        //    return Ok(new { success = true, invoiceId });
-        //}
+            var customers = await _customerService.GetAllAsync();
 
+            ViewBag.Customers = customers.Select(c => new SelectListItem
+            {
+                Value = c.ID.ToString(),
+                Text = c.FirstName + " " + c.LastName
+            }).ToList();
+
+            ViewBag.StatusList = Enum.GetValues(typeof(InvoiceStatus))
+                .Cast<InvoiceStatus>().Select(s => new SelectListItem
+                {
+                    Text = s.GetType()
+                 .GetMember(s.ToString())
+                 .First()
+                 .GetCustomAttribute<DisplayAttribute>()?
+                 .Name ?? s.ToString(),
+                    Value = ((int)s).ToString()
+                }).ToList();
+
+
+            var model = new CreateInvoiceViewModel
+            {
+                InvoiceNo = invoice.InvoiceNo,
+                Date = invoice.Date,
+                Type = 1,
+                ReferenceNo = invoice.ReferenceNo,
+                CustomerId = invoice.CustomerId,
+                Note = invoice.Note,
+                SubTotal = invoice.SubTotal,
+                ServiceCharge = invoice.ServiceCharge,
+                GrossAmount = invoice.GrossAmount,
+                Status = (int)invoice.Status,
+                InvoiceDetails = invoice.InvoiceDetails.Select(d => new CreateInvoiceDetailViewModel
+                {
+                    ItemId = d.ItemId,
+                    Note = d.Note,
+                    Quantity = d.Quantity,
+                    UnitPrice = d.UnitPrice,
+                    Amount = d.Amount
+                }).ToList()
+            };
+
+            return View(model);
+        }
+        
+        private async Task<List<Customer>> GetCustomersAsync()
+        {
+            // Replace with your real service call
+            return await Task.FromResult(new List<Customer>());
+        }
     }
 }

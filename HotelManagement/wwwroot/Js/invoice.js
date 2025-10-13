@@ -5,11 +5,12 @@
 
     $.invoice = function (el, options) {
         var defaults = {
-            serviceChargeRate: 0.1, // 10% by default
+            mode: 'Insert', // 10% by default
             createUrl: "/Invoices/Create"
         };
 
         this.options = $.extend(defaults, options);
+        this._mode = this.options.mode;
         this.$container = $(el);
         this.itemIndex = 0;
 
@@ -69,8 +70,10 @@
                 //}
 
                 var invoice = {
+                    InvoiceNo: $("#InvoiceNo").val(),
                     Date: $("#Date").val(),
                     Type: $("#Type").val(),
+                    Status: $("#Status").val(),
                     ReferenceNo: $("#ReferenceNo").val(),
                     CustomerId: $("#CustomerId").val(),
                     Note: $("#Note").val(),
@@ -93,9 +96,16 @@
                     });
                 });
 
+                if (self._mode === "Edit") {
+                    var url = "/api/InvoicesApi/update"
+                }
+                else {
+                    "/api/InvoicesApi/Create";
+                }
+
                 // Call the API
                 $.ajax({
-                    url: "/api/InvoicesApi/Create",
+                    url: url,
                     type: "POST",
                     contentType: "application/json",
                     data: JSON.stringify(invoice),
@@ -114,6 +124,38 @@
 
         },
 
+        BuildInvoice: function () {
+            var invoice = {
+                Id: $("#Id").val(),
+                Date: $("#Date").val(),
+                Type: $("#Type").val(),
+                ReferenceNo: $("#ReferenceNo").val(),
+                CustomerId: $("#CustomerId").val(),
+                Note: $("#Note").val(),
+                Status: $("#Status").val(),
+                SubTotal: parseFloat($("#subTotal").val()) || 0,
+                ServiceCharge: parseFloat($("#serviceCharge").val()) || 0,
+                GrossAmount: parseFloat($("#grossAmount").val()) || 0,
+                InvoiceDetails: []
+            };
+
+            $("#invoiceItems tbody tr").each(function () {
+                var $row = $(this);
+                var itemId = $row.find(".orderItemSelect").val();
+                if (itemId) {
+                    invoice.InvoiceDetails.push({
+                        Id: $row.find(".detailId").val(),
+                        ItemId: parseInt(itemId),
+                        Note: $row.find(".orderNote").val(),
+                        Quantity: parseInt($row.find(".orderQty").val()) || 0,
+                        UnitPrice: parseFloat($row.find(".orderPrice").val()) || 0,
+                        Amount: parseFloat($row.find(".itemTotal").val()) || 0
+                    });
+                }
+            });
+            return invoice;
+        },
+
         LoadServiceCharge: function () {
             var self = this;
             $.getJSON("/api/menu/GetServiceCharge", function (data) {
@@ -124,12 +166,32 @@
         LoadItems: function () {
             var self = this;
             $.getJSON("/api/menu/getItems", function (data) {
-                self.menuItems = data; 
-
+                self.menuItems = data;
                 self.itemOptions = data.map(i => `<option value="${i.id}" data-price="${i.price}">${i.name}</option>`).join('');
+
+                // Populate all selects in the table
+                $("#invoiceItems tbody tr").each(function () {
+                    var $row = $(this);
+                    var $select = $row.find(".orderItemSelect");
+                    var selectedId = $row.find(".itemId").val(); // <-- pick from hidden field
+
+                    $select.html('<option value="">-- Select --</option>' + self.itemOptions);
+
+                    if (selectedId) {
+                        $select.val(selectedId); // set dropdown
+                        var selected = $select.find("option:selected");
+
+                        // update description & price
+                        //var price = parseFloat(selected.data("price")) || 0;
+                        var name = selected.text();
+
+                        $row.find(".description").val(name);
+
+                    }
+                });
             });
         },
-        
+
         AddItemRow: function (item) {
             // item is an optional object: { Id, Description, UnitPrice } 
             var rowIndex = $("#invoiceItems tbody tr").length;
@@ -141,6 +203,7 @@
             var rowHtml = `
                         <tr>
                             <td>
+                                <input type="hidden" value="@detail.ItemId" class="itemId" />
                                 <select class="form-select orderItemSelect">
                                     <option value="">-- Select --</option>
                                     ${this.itemOptions || ""}
@@ -189,13 +252,15 @@
         BindItemSelection: function () {
             var self = this;
             $("#invoiceItems").on("change", ".orderItemSelect", function () {
-              
+
                 var $row = $(this).closest("tr");
                 var selected = $(this).find("option:selected");
                 var price = parseFloat(selected.data("price")) || 0;
                 var name = selected.text();
 
-                if ($(this).find("option:selected").val() > 0) {
+                $row.find(".itemId").val(selected.val());
+
+                if (selected.val() > 0) {
                     $row.find(".description").val(name);
                 }
                 else {
@@ -224,6 +289,7 @@
             });
 
             var serviceCharge = 0;
+            //Service charges applyes to Dining only
             if ($("#Type").val() == 1) {
                 serviceCharge = subtotal * self.serviceCharge;
             }
