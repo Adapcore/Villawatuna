@@ -127,6 +127,17 @@ namespace HotelManagement.Controllers
             return View("View", invoice);
         }
 
+        // GET: /Invoices/Print/123
+        public async Task<IActionResult> Print(int id)
+        {
+            var invoice = await _invoiceService.GetByIdAsync(id);
+
+            if (invoice == null)
+                return NotFound();
+
+            return View("PrintInvoice", invoice);
+        }
+
         private async Task<List<Customer>> GetCustomersAsync()
         {
             // Replace with your real service call

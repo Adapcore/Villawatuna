@@ -11,6 +11,9 @@
         <a href="@Url.Action("Index", "Invoices")" class="btn btn-secondary">
             <i class="bi bi-arrow-left"></i> Back to List
         </a>
+        <a href="@Url.Action("Print", "Invoices", new { id = Model.InvoiceNo })" target="_blank" class="btn btn-sm btn-warning">
+            <i class="bi bi-printer"></i> Print
+        </a>
     </div>
 
     <!-- Invoice Info -->
