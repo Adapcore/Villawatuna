@@ -14,11 +14,13 @@ namespace HotelManagement.Controllers
     {
         private readonly IInvoiceService _invoiceService;
         private readonly ICustomerService _customerService;
+        private readonly IMenuService _menuService;
 
-        public InvoicesController(IInvoiceService invoiceService, ICustomerService customerService)
+        public InvoicesController(IInvoiceService invoiceService, ICustomerService customerService, IMenuService menuService)
         {
             _invoiceService = invoiceService;
             _customerService = customerService;
+            _menuService = menuService;
         }
 
         public async Task<IActionResult> Index()
@@ -114,7 +116,17 @@ namespace HotelManagement.Controllers
 
             return View(model);
         }
-        
+
+        [HttpGet("view/{id}")]
+        public async Task<IActionResult> Details(int id)
+        {
+            Invoice invoice = await _invoiceService.GetByIdAsync(id);
+            if (invoice == null)
+                return NotFound();
+
+            return View("View", invoice);
+        }
+
         private async Task<List<Customer>> GetCustomersAsync()
         {
             // Replace with your real service call

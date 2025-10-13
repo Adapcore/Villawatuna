@@ -1,4 +1,5 @@
-﻿using System;
+﻿using HotelManagement.Services;
+using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -14,8 +15,12 @@ namespace HotelManagement.Models.Entities
 		public Invoice Invoice { get; set; }
 
 		public int LineNumber { get; set; } // Auto-increment per invoice
-
+				
         public int ItemId { get; set; }
+		
+		//Non-persistent property for Umbraco data
+        [NotMapped]
+        public MenuItemDto? MenuItem { get; set; }
 
         [MaxLength(250)]
 		public string? Note { get; set; }

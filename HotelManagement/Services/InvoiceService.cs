@@ -9,11 +9,14 @@ namespace HotelManagement.Services
     public class InvoiceService : IInvoiceService
     {
         private readonly HotelContext _context;
+        private readonly IMenuService _menuService;
 
-        public InvoiceService(HotelContext context)
+        public InvoiceService(HotelContext context, IMenuService menuService)
         {
             _context = context;
+            _menuService = menuService;
         }
+
 
         public async Task<List<Invoice>> GetAllInvoicesAsync()
         {
@@ -25,10 +28,19 @@ namespace HotelManagement.Services
 
         public async Task<Invoice?> GetByIdAsync(int invoiceNo)
         {
-            return await _context.Invoices
+            Invoice invoice = await _context.Invoices
                 .Include(i => i.Customer)
                 .Include(i => i.InvoiceDetails)
                 .FirstOrDefaultAsync(i => i.InvoiceNo == invoiceNo);
+
+            var menuItems = await _menuService.GetItemsAsync();
+
+            foreach (var detail in invoice.InvoiceDetails)
+            {
+                detail.MenuItem = menuItems.FirstOrDefault(m => m.Id == detail.ItemId);
+            }
+
+            return invoice;
         }
 
         public async Task<Invoice> CreateAsync(Invoice invoice)
