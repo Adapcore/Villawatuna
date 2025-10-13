@@ -1,0 +1,143 @@
+﻿@model HotelManagement.Models.Entities.Invoice
+
+@{
+    ViewBag.Title = "Print Receipt";
+    // choose "width-80" or "width-58" — you can change here or via CSS
+    var paperClass = "width-80"; 
+    // optional logo url (set null to hide)
+    var logoUrl = Url.Content("~/images/logo.png"); 
+}
+
+<!-- receipt container -->
+<div id="receiptRoot" class="@paperClass" style="margin:0 auto; font-family: 'Courier New', monospace;">
+    <div id="receipt" style="padding:6px;">
+        <!-- header -->
+        <div style="text-align:center; margin-bottom:6px;">
+            @* Logo (optional) *@
+            @if (!string.IsNullOrEmpty(logoUrl))
+            {
+                <img src="@logoUrl" alt="logo" style="max-width:100%; height:auto; display:block; margin:0 auto 4px;" />
+            }
+            <div style="font-size:14px; font-weight:700;">Villawatuna / Restaurant</div>
+            <div style="font-size:10px; color:#333;">Address line 1</div>
+            <div style="font-size:10px; color:#333;">Phone: 0123-456789</div>
+            <div style="height:6px;"></div>
+            <div style="border-top:1px dashed #444; margin-top:6px;"></div>
+        </div>
+
+        <!-- invoice meta -->
+        <div style="font-size:11px; margin-top:6px;">
+            <div><strong>Invoice No:</strong> @Model.InvoiceNo</div>
+            <div><strong>Date:</strong> @Model.Date.ToString("yyyy-MM-dd HH:mm")</div>
+            <div><strong>Customer:</strong> @Model.Customer?.FirstName @Model.Customer?.LastName</div>
+            @if (!string.IsNullOrWhiteSpace(Model.ReferenceNo))
+            {
+                <div><strong>Ref:</strong> @Model.ReferenceNo</div>
+            }
+            <div style="height:6px;"></div>
+            <div style="border-top:1px dashed #444; margin-top:6px;"></div>
+        </div>
+
+        <!-- items -->
+        <table style="width:100%; font-size:11px; border-collapse:collapse; margin-top:6px;">
+            <thead>
+                <tr>
+                    <th style="text-align:left; width:50%;">Item</th>
+                    <th style="text-align:center; width:10%;">Qty</th>
+                    <th style="text-align:right; width:20%;">Price</th>
+                    <th style="text-align:right; width:20%;">Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var d in Model.InvoiceDetails ?? Enumerable.Empty<HotelManagement.Models.Entities.InvoiceDetail>())
+                {
+                    <tr>
+                        <td style="text-align:left; padding-top:4px;">@d.ItemId @d.MenuItem?.Name</td>
+                        <td style="text-align:center;">@d.Quantity</td>
+                        <td style="text-align:right;">@d.UnitPrice.ToString("F2")</td>
+                        <td style="text-align:right;">@d.Amount.ToString("F2")</td>
+                    </tr>
+                    @* optional description line *@
+                    @if (!string.IsNullOrWhiteSpace(d.Note))
+                    {
+                        <tr>
+                            <td colspan="4" style="font-size:10px; color:#444; padding-top:2px;">Note: @d.Note</td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+
+        <div style="border-top:1px dashed #444; margin-top:8px;"></div>
+
+        <!-- totals -->
+        <div style="margin-top:6px; font-size:11px;">
+            <div style="display:flex; justify-content:space-between;">
+                <div>Sub Total</div>
+                <div style="text-align:right;">@Model.SubTotal.ToString("F2")</div>
+            </div>
+            <div style="display:flex; justify-content:space-between;">
+                <div>Service Charge</div>
+                <div style="text-align:right;">@Model.ServiceCharge.ToString("F2")</div>
+            </div>
+            <div style="display:flex; justify-content:space-between; font-weight:700; margin-top:6px; font-size:12px;">
+                <div>GROSS</div>
+                <div style="text-align:right;">@Model.GrossAmount.ToString("F2")</div>
+            </div>
+        </div>
+
+        <div style="height:8px;"></div>
+
+        <!-- footer -->
+        <div style="text-align:center; font-size:10px;">
+            Thank you for your visit!
+            <div style="height:4px;"></div>
+            <div style="font-size:9px; color:#666;">Powered by Adapcore</div>
+        </div>
+
+        <div style="height:6px;"></div>
+    </div>
+</div>
+
+<!-- Print button (hidden when printing) -->
+<div class="no-print" style="text-align:center; margin-top:8px;">
+    <button onclick="window.print();" style="padding:8px 14px; font-size:13px;">Print Receipt</button>
+</div>
+
+<style>
+    /* paper widths: 58mm and 80mm */
+    .width-58 { width: 58mm; max-width: 58mm; }
+    .width-80 { width: 80mm; max-width: 80mm; }
+
+    @@page { size: auto; margin: 0; }
+    @@media print {
+        html, body { width: 100%; height: 100%; margin: 0; padding: 0; }
+        .no-print { display: none !important; }
+        /* ensure the receipt uses full paper width */
+        .width-58, .width-80 { margin: 0; }
+    }
+
+    /* general */
+    body { background: #f5f5f5; }
+    #receipt { background: #fff; color: #111; }
+    table { width:100%; }
+    th, td { padding: 2px 0; }
+</style>
+
+<!-- auto print on open (useful if opened in new tab) -->
+<script>
+    (function () {
+        // If you want to auto print when the page loads (useful when opening in new tab),
+        // uncomment the line below. It's common to open print pages in a new window and auto-print:
+        // window.onload = function() { window.print(); setTimeout(function(){ window.close(); }, 500); };
+
+        // small helper: switch paper size from client side
+        window.setPaper = function(width) {
+            var root = document.getElementById('receiptRoot');
+            if (!root) return;
+            root.classList.remove('width-58','width-80');
+            if (width === 58) root.classList.add('width-58');
+            else root.classList.add('width-80');
+        };
+    })();
+</script>

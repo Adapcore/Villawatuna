@@ -138,6 +138,27 @@ namespace HotelManagement.Controllers
             return View("PrintInvoice", invoice);
         }
 
+        // Print invoice (thermal view)
+        [HttpGet("Invoices/PrintThermal/{id}")]
+        public async Task<IActionResult> PrintThermal(int id)
+        {    
+
+            var invoice = await _invoiceService.GetByIdAsync(id);
+
+            if (invoice == null)
+                return NotFound();
+
+            // OPTIONAL: if you have MenuService or MenuController data cached
+            // you can map the MenuItem details here
+            // Example:
+            // foreach (var detail in invoice.InvoiceDetails)
+            // {
+            //     detail.MenuItem = await _menuService.GetItemByIdAsync(detail.ItemId);
+            // }
+
+            return View("PrintThermal", invoice);
+        }
+
         private async Task<List<Customer>> GetCustomersAsync()
         {
             // Replace with your real service call
