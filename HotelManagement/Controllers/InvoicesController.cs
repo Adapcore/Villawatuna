@@ -10,6 +10,7 @@ using System.Reflection;
 
 namespace HotelManagement.Controllers
 {
+    [Route("Internal/Invoices")]
     public class InvoicesController : Controller
     {
         private readonly IInvoiceService _invoiceService;
@@ -23,11 +24,14 @@ namespace HotelManagement.Controllers
             _menuService = menuService;
         }
 
+        [HttpGet]
         public async Task<IActionResult> Index()
         {
             var invoices = await _invoiceService.GetAllInvoicesAsync();
             return View(invoices);
         }
+
+        [HttpGet("SelectType")]
         public IActionResult SelectType()
         {
             var types = EnumHelper.ToSelectList<InvoiceType>();
@@ -36,12 +40,13 @@ namespace HotelManagement.Controllers
             return View();
         }
 
-        [HttpPost]
+        [HttpPost("SelectType")]
         public IActionResult SelectType(string selectedType)
         {
             return RedirectToAction("Create", new { type = selectedType });
         }
-
+        
+        [HttpGet("Create/{type}")]
         public async Task<IActionResult> Create(string type)
         {
             if (string.IsNullOrEmpty(type)) return RedirectToAction("SelectType");
@@ -65,7 +70,7 @@ namespace HotelManagement.Controllers
             return View(model);
         }
 
-        // GET: /Invoices/Edit/5
+        [HttpGet("Edit/{id}")]
         public async Task<IActionResult> Edit(int id)
         {
             var invoice = await _invoiceService.GetByIdAsync(id);
@@ -117,7 +122,7 @@ namespace HotelManagement.Controllers
             return View(model);
         }
 
-        [HttpGet("view/{id}")]
+        [HttpGet("Details/{id}")]
         public async Task<IActionResult> Details(int id)
         {
             Invoice invoice = await _invoiceService.GetByIdAsync(id);
@@ -127,7 +132,7 @@ namespace HotelManagement.Controllers
             return View("View", invoice);
         }
 
-        // GET: /Invoices/Print/123
+        [HttpGet("Print/{id}")]
         public async Task<IActionResult> Print(int id)
         {
             var invoice = await _invoiceService.GetByIdAsync(id);
@@ -138,8 +143,7 @@ namespace HotelManagement.Controllers
             return View("PrintInvoice", invoice);
         }
 
-        // Print invoice (thermal view)
-        [HttpGet("Invoices/PrintThermal/{id}")]
+        [HttpGet("PrintThermal/{id}")]
         public async Task<IActionResult> PrintThermal(int id)
         {    
 
