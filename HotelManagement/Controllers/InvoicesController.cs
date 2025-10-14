@@ -129,7 +129,7 @@ namespace HotelManagement.Controllers
             if (invoice == null)
                 return NotFound();
 
-            return View("View", invoice);
+            return View("Details", invoice);
         }
 
         [HttpGet("Print/{id}")]

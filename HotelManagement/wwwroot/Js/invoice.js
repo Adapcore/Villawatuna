@@ -177,17 +177,17 @@
 
                     $select.html('<option value="">-- Select --</option>' + self.itemOptions);
 
-                    if (selectedId) {
-                        $select.val(selectedId); // set dropdown
-                        var selected = $select.find("option:selected");
+                    //if (selectedId) {
+                    //    $select.val(selectedId); // set dropdown
+                    //    var selected = $select.find("option:selected");
 
-                        // update description & price
-                        //var price = parseFloat(selected.data("price")) || 0;
-                        var name = selected.text();
+                    //    // update description & price
+                    //    //var price = parseFloat(selected.data("price")) || 0;
+                    //    var name = selected.text();
 
-                        $row.find(".description").val(name);
+                    //    $row.find(".description").val(name);
 
-                    }
+                    //}
                 });
             });
         },
@@ -208,11 +208,11 @@
                                     <option value="">-- Select --</option>
                                     ${this.itemOptions || ""}
                                 </select>
-                            </td>                            
-                            <td>
-                                <input type="text" name="InvoiceDetails[${rowIndex}].Description" class="form-control description" value="${description}" readonly />
-                            </td>
-                            <td>
+                            </td>`+                            
+                            //<td>
+                            //    <input type="text" name="InvoiceDetails[${rowIndex}].Description" class="form-control description" value="${description}" readonly />
+                            //</td>
+                            `<td>
                                 <input type="text" name="InvoiceDetails[${rowIndex}].Note" class="form-control note" placeholder="Note" />
                             </td>
                             <td>
