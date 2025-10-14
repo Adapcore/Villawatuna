@@ -96,11 +96,11 @@
                     });
                 });
 
+               
+                var url = "/api/InvoicesApi/Create";
+               
                 if (self._mode === "Edit") {
                     var url = "/api/InvoicesApi/update"
-                }
-                else {
-                    "/api/InvoicesApi/Create";
                 }
 
                 // Call the API
@@ -112,7 +112,7 @@
                     success: function (res) {
                         if (res.success) {
                             alert("Invoice created successfully! No: " + res.invoiceNo);
-                            window.location.href = "/Invoices/Index";
+                            window.location.href = "/Internal/Invoices";
                         }
                     },
                     error: function (err) {

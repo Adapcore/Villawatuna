@@ -46,7 +46,7 @@ namespace HotelManagement.Controllers
             return RedirectToAction("Create", new { type = selectedType });
         }
         
-        [HttpGet("Create/{type}")]
+        [HttpGet("Create")]
         public async Task<IActionResult> Create(string type)
         {
             if (string.IsNullOrEmpty(type)) return RedirectToAction("SelectType");
