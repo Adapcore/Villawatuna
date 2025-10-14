@@ -89,19 +89,18 @@ namespace HotelManagement.Controllers
                 .Cast<InvoiceStatus>().Select(s => new SelectListItem
                 {
                     Text = s.GetType()
-                 .GetMember(s.ToString())
-                 .First()
-                 .GetCustomAttribute<DisplayAttribute>()?
-                 .Name ?? s.ToString(),
+                    .GetMember(s.ToString())
+                    .First()
+                    .GetCustomAttribute<DisplayAttribute>()?
+                    .Name ?? s.ToString(),
                     Value = ((int)s).ToString()
                 }).ToList();
-
 
             var model = new CreateInvoiceViewModel
             {
                 InvoiceNo = invoice.InvoiceNo,
                 Date = invoice.Date,
-                Type = 1,
+                Type = (int)invoice.Type,
                 ReferenceNo = invoice.ReferenceNo,
                 CustomerId = invoice.CustomerId,
                 Note = invoice.Note,
@@ -112,6 +111,8 @@ namespace HotelManagement.Controllers
                 InvoiceDetails = invoice.InvoiceDetails.Select(d => new CreateInvoiceDetailViewModel
                 {
                     ItemId = d.ItemId,
+                    CheckIn = d.CheckIn,
+                    CheckOut = d.CheckOut,
                     Note = d.Note,
                     Quantity = d.Quantity,
                     UnitPrice = d.UnitPrice,

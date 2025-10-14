@@ -1,9 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using HotelManagement.Services;
+using Microsoft.AspNetCore.Mvc;
 using Umbraco.Cms.Web.Common.Controllers;
-using Umbraco.Cms.Core.Web;
-using HotelManagement.Services;
 
-namespace HotelManagement.Controllers
+namespace HotelManagement.Controllers.API
 {
     [Route("api/[controller]")]
     public class MenuController : UmbracoApiController

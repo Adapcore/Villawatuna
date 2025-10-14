@@ -22,15 +22,23 @@
     <!-- Invoice Info -->
     <div class="card shadow-sm p-4 mb-4 border-primary">
         <div class="row mb-3">
-            <div class="col-md-4">
+            <div class="col-md-3">
                 <label class="form-label fw-bold text-secondary">Invoice No:</label>
                 <p class="fs-5 text-dark">@Model.InvoiceNo</p>
             </div>
-            <div class="col-md-4">
+            <div class="col-md-3">
                 <label class="form-label fw-bold text-secondary">Date:</label>
                 <p class="fs-5 text-dark">@Model.Date.ToShortDateString()</p>
             </div>
-            <div class="col-md-4">
+            <div class="col-md-3">
+                <label class="form-label fw-bold text-secondary">Type:</label>
+                <p class="fs-5">
+                    <span class="badge bg-primary">
+                        @Model.Type.ToString()
+                    </span>
+                </p>
+            </div>
+            <div class="col-md-3">
                 <label class="form-label fw-bold text-secondary">Status:</label>
                 <p class="fs-5">
                     <span class="badge bg-@(Model.Status == InvoiceStatus.Paid ? "success" : Model.Status == InvoiceStatus.InProgress ? "warning" : "secondary")">
@@ -41,15 +49,15 @@
         </div>
 
         <div class="row mb-3">
-            <div class="col-md-4">
+            <div class="col-md-3">
                 <label class="form-label fw-bold text-secondary">Customer:</label>
                 <p class="fs-6 text-dark">@Model.Customer?.FirstName @Model.Customer?.LastName</p>
             </div>
-            <div class="col-md-4">
+            <div class="col-md-3">
                 <label class="form-label fw-bold text-secondary">Reference No:</label>
                 <p class="fs-6 text-dark">@Model.ReferenceNo</p>
             </div>
-            <div class="col-md-4">
+            <div class="col-md-3">
                 <label class="form-label fw-bold text-secondary">Note:</label>
                 <p class="fs-6 text-dark">@Model.Note</p>
             </div>
@@ -64,6 +72,11 @@
                 <tr>
                     <th colspan="2" class="text-start">Item</th>
                     @* <th>Description</th> *@
+                    @if (Model.Type == InvoiceType.Stay)
+                    {
+                        <th>Check-In</th>
+                        <th>Check-Out</th>
+                    }
                     <th>Note</th>
                     <th class="text-end">Quantity</th>
                     <th class="text-end">Unit Price</th>
@@ -78,6 +91,11 @@
                         <tr>
                             <td>@detail.ItemId</td>
                             <td>@detail.MenuItem?.Name</td>
+                            @if (Model.Type == InvoiceType.Stay)
+                            {
+                                <td>@detail.CheckIn?.ToShortDateString()</td>
+                                <td>@detail.CheckOut?.ToShortDateString()</td>
+                            }
                             <td>@detail.Note</td>
                             <td class="text-end">@detail.Quantity</td>
                             <td class="text-end">@detail.UnitPrice.ToString("F2")</td>

@@ -5,12 +5,13 @@
 
     $.invoice = function (el, options) {
         var defaults = {
-            mode: 'Insert', // 10% by default
+            mode: 'Insert',
             createUrl: "/Invoices/Create"
         };
 
         this.options = $.extend(defaults, options);
         this._mode = this.options.mode;
+        this._type = this.options.type;
         this.$container = $(el);
         this.itemIndex = 0;
 
@@ -50,78 +51,8 @@
             });
 
             $("#btnCreateInvoice").on("click", function () {
-
-                // basic checks
-                //if (!$("#ReferenceNo").val()) {
-                //    alert("Reference No is required.");
-                //    return;
-                //}
-                if (!$("#CustomerId").val()) {
-                    alert("Customer is required.");
-                    return;
-                }
-                if (parseFloat($("#grossAmount").html()) <= 0) {
-                    alert("Gross amount must be greater than zero.");
-                    return;
-                }
-                //if ($("#invoiceDetailsTable tbody tr").length === 0) {
-                //    alert("Please add at least one invoice detail.");
-                //    return;
-                //}
-
-                var invoice = {
-                    InvoiceNo: $("#InvoiceNo").val(),
-                    Date: $("#Date").val(),
-                    Type: $("#Type").val(),
-                    Status: $("#Status").val(),
-                    ReferenceNo: $("#ReferenceNo").val(),
-                    CustomerId: $("#CustomerId").val(),
-                    Note: $("#Note").val(),
-                    SubTotal: parseFloat($("#subTotal").html()) || 0,
-                    ServiceCharge: parseFloat($("#serviceCharge").html()) || 0,
-                    GrossAmount: parseFloat($("#grossAmount").html()) || 0,
-                    InvoiceDetails: []
-                };
-
-                $("#invoiceItems tbody tr").each(function () {
-                    var $row = $(this);
-                    invoice.InvoiceDetails.push({
-                        ItemId: parseInt($row.find(".itemId").val()),
-                        Note: $row.find(".note").val(),
-                        CheckIn: $row.find(".checkIn").val(),
-                        CheckOut: $row.find(".checkOut").val(),
-                        Quantity: parseInt($row.find(".orderQty").val()) || 0,
-                        UnitPrice: parseFloat($row.find(".itemPrice").val()) || 0,
-                        Amount: parseFloat($row.find(".itemTotal").val()) || 0
-                    });
-                });
-
-               
-                var url = "/api/InvoicesApi/Create";
-               
-                if (self._mode === "Edit") {
-                    var url = "/api/InvoicesApi/update"
-                }
-
-                // Call the API
-                $.ajax({
-                    url: url,
-                    type: "POST",
-                    contentType: "application/json",
-                    data: JSON.stringify(invoice),
-                    success: function (res) {
-                        if (res.success) {
-                            alert("Invoice created successfully! No: " + res.invoiceNo);
-                            window.location.href = "/Internal/Invoices";
-                        }
-                    },
-                    error: function (err) {
-                        console.error(err);
-                        alert("Error creating invoice. Check console for details.");
-                    }
-                });
+                self.Save();
             });
-
         },
 
         BuildInvoice: function () {
@@ -146,6 +77,8 @@
                     invoice.InvoiceDetails.push({
                         Id: $row.find(".detailId").val(),
                         ItemId: parseInt(itemId),
+                        CheckIn: $(".checkIn").val(),
+                        CheckOut: $(".checkOut").val(),
                         Note: $row.find(".orderNote").val(),
                         Quantity: parseInt($row.find(".orderQty").val()) || 0,
                         UnitPrice: parseFloat($row.find(".orderPrice").val()) || 0,
@@ -165,34 +98,50 @@
 
         LoadItems: function () {
             var self = this;
-            $.getJSON("/api/menu/getItems", function (data) {
-                self.menuItems = data;
-                self.itemOptions = data.map(i => `<option value="${i.id}" data-price="${i.price}">${i.name}</option>`).join('');
 
-                // Populate all selects in the table
-                $("#invoiceItems tbody tr").each(function () {
-                    var $row = $(this);
-                    var $select = $row.find(".orderItemSelect");
-                    var selectedId = $row.find(".itemId").val(); // <-- pick from hidden field
-
-                    $select.html('<option value="">-- Select --</option>' + self.itemOptions);
-
-                    //if (selectedId) {
-                    //    $select.val(selectedId); // set dropdown
-                    //    var selected = $select.find("option:selected");
-
-                    //    // update description & price
-                    //    //var price = parseFloat(selected.data("price")) || 0;
-                    //    var name = selected.text();
-
-                    //    $row.find(".description").val(name);
-
-                    //}
+            if (self._type == 1 || self._type == 2)// Dining, Take away
+            {
+                $.getJSON("/api/menu/getItems", function (data) {
+                    self.itemOptions = data.map(i => `<option value="${i.id}" data-price="${i.price}">${i.name}</option>`).join('');
+                    self.SelectDropDownValue();
                 });
+            }
+            else if (self._type == 3)// Stay
+            {
+                $.getJSON("/api/room/GetRoomCategories", function (data) {
+                    self.itemOptions = data.map(i => `<option value="${i.id}">${i.name}</option>`).join('');
+                    self.SelectDropDownValue()
+                });
+            }
+        },
+        SelectDropDownValue: function () {
+            var self = this;
+
+            // Populate all selects in the table
+            $("#invoiceItems tbody tr").each(function () {
+                var $row = $(this);
+                var $select = $row.find(".orderItemSelect");
+                var selectedId = $row.find(".itemId").val(); // <-- pick from hidden field
+
+                $select.html('<option value="">-- Select --</option>' + self.itemOptions);
+
+                if (selectedId) {
+                    $select.val(selectedId); // set dropdown
+                    //var selected = $select.find("option:selected");
+
+                    //// update description & price
+                    ////var price = parseFloat(selected.data("price")) || 0;
+                    //var name = selected.text();
+
+                    //$row.find(".description").val(name);
+
+                }
             });
         },
 
         AddItemRow: function (item) {
+            var self = this;
+
             // item is an optional object: { Id, Description, UnitPrice } 
             var rowIndex = $("#invoiceItems tbody tr").length;
 
@@ -208,11 +157,18 @@
                                     <option value="">-- Select --</option>
                                     ${this.itemOptions || ""}
                                 </select>
-                            </td>`+                            
-                            //<td>
-                            //    <input type="text" name="InvoiceDetails[${rowIndex}].Description" class="form-control description" value="${description}" readonly />
-                            //</td>
-                            `<td>
+                            </td>`;
+
+            if (self._type == 3) {
+                rowHtml = rowHtml + `<td>
+                                <input type="date" name="InvoiceDetails[${rowIndex}].Note" class="form-control checkIn" placeholder="checkIn" />
+                            </td>
+                            <td>
+                                <input type="date" name="InvoiceDetails[${rowIndex}].Quantity" class="form-control checkOut" value="1"  />
+                            </td>`;
+            }
+
+            rowHtml = rowHtml + `<td>
                                 <input type="text" name="InvoiceDetails[${rowIndex}].Note" class="form-control note" placeholder="Note" />
                             </td>
                             <td>
@@ -227,8 +183,7 @@
                             <td>
                                 <button type="button" class="btn btn-danger btn-sm removeItemBtn">X</button>
                             </td>
-                        </tr>
-                    `;
+                        </tr>`;
 
             $("#invoiceItems tbody").append(rowHtml);
 
@@ -278,6 +233,137 @@
             var total = qty * price;
             row.find(".itemTotal").val(total.toFixed(2));
             this.CalculateTotals();
+        },
+
+        Save: function () {
+            var self = this;
+
+            // Validate before submitting
+            if (!self.ValidateInvoice()) {
+                return;
+            }
+
+            var invoice = {
+                InvoiceNo: $("#InvoiceNo").val(),
+                Date: $("#Date").val(),
+                Type: $("#Type").val(),
+                Status: $("#Status").val(),
+                ReferenceNo: $("#ReferenceNo").val(),
+                CustomerId: $("#CustomerId").val(),
+                Note: $("#Note").val(),
+                SubTotal: parseFloat($("#subTotal").html()) || 0,
+                ServiceCharge: parseFloat($("#serviceCharge").html()) || 0,
+                GrossAmount: parseFloat($("#grossAmount").html()) || 0,
+                InvoiceDetails: []
+            };
+
+            $("#invoiceItems tbody tr").each(function () {
+                var $row = $(this);
+                invoice.InvoiceDetails.push({
+                    ItemId: parseInt($row.find(".itemId").val()),
+                    Note: $row.find(".note").val(),
+                    CheckIn: $row.find(".checkIn").val(),
+                    CheckOut: $row.find(".checkOut").val(),
+                    Quantity: parseInt($row.find(".orderQty").val()) || 0,
+                    UnitPrice: parseFloat($row.find(".itemPrice").val()) || 0,
+                    Amount: parseFloat($row.find(".itemTotal").val()) || 0
+                });
+            });
+
+            var url = "/api/InvoicesApi/Create";
+
+            if (self._mode === "Edit") {
+                var url = "/api/InvoicesApi/update"
+            }
+
+            // Call the API
+            $.ajax({
+                url: url,
+                type: "POST",
+                contentType: "application/json",
+                data: JSON.stringify(invoice),
+                success: function (res) {
+                    if (res.success) {
+                        alert("Invoice created successfully! No: " + res.invoiceNo);
+                        window.location.href = "/Internal/Invoices";
+                    }
+                },
+                error: function (err) {
+                    console.error(err);
+                    alert("Error creating invoice. Check console for details.");
+                }
+            });
+        },
+
+        ValidateInvoice: function () {
+            let isValid = true;
+            let errors = [];
+
+            //if (!$("#ReferenceNo").val()) {
+            //    alert("Reference No is required.");
+            //    return;
+            //}
+            if (!$("#CustomerId").val()) {
+                $("#CustomerId").addClass("is-invalid");
+                alert("Customer is required.");
+                isValid = false;
+                return false;
+            }
+            else {
+                $("#CustomerId").removeClass("is-invalid");
+            }
+            if (parseFloat($("#grossAmount").html()) <= 0) {
+                alert("Gross amount must be greater than zero.");
+                isValid = false;
+                return false;
+            }
+            //if ($("#invoiceDetailsTable tbody tr").length === 0) {
+            //    alert("Please add at least one invoice detail.");
+            //   isValid = false;
+            //}
+
+            // Check each invoice detail row
+            $("#invoiceItems tbody tr").each(function (index) {
+                const itemId = $(this).find(".orderItemSelect").val();
+                const checkIn = $(this).find(".checkIn").val();
+                const checkOut = $(this).find(".checkOut").val();
+
+                if (!itemId) {
+                    $(this).find(".orderItemSelect").addClass("is-invalid");
+                    alert('Invalid item slected');
+                    isValid = false;
+                    return false;
+                }
+                else {
+                    $(this).find(".orderItemSelect").removeClass("is-invalid");
+                }
+
+                if (!checkIn || !checkOut) {
+                    $(this).find(".checkIn, .checkOut").addClass("is-invalid");
+                    alert('Invalid check-in & check-out dates');
+                    isValid = false;
+                    return false;
+                }
+                else {
+                    $(this).find(".checkIn, .checkOut").removeClass("is-invalid");
+                }
+
+                if (checkIn && checkOut) {
+                    const inDate = new Date(checkIn);
+                    const outDate = new Date(checkOut);
+
+                    if (inDate > outDate) {
+                        isValid = false;
+                        errors.push(`Row ${index + 1}: Check-In cannot be after Check-Out.`);
+                        $(this).find(".checkIn, .checkOut").addClass("is-invalid");
+                        alert('Invalid check-in & check-out dates');
+                    } else {
+                        $(this).find(".checkIn, .checkOut").removeClass("is-invalid");
+                    }
+                }
+            });
+
+            return isValid;
         },
 
         CalculateTotals: function () {

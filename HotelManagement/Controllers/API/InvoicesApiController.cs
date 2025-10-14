@@ -2,10 +2,9 @@
 using HotelManagement.Models.Entities;
 using HotelManagement.Models.ViewModels;
 using HotelManagement.Services;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
-namespace HotelManagement.Controllers
+namespace HotelManagement.Controllers.API
 {
     [ApiController]
     [Route("api/[controller]")]
@@ -82,6 +81,8 @@ namespace HotelManagement.Controllers
             {
                 ItemId = d.ItemId,
                 Note = d.Note,
+                CheckIn = d.CheckIn,
+                CheckOut = d.CheckOut,
                 Quantity = d.Quantity,
                 UnitPrice = d.UnitPrice,
                 Amount = d.Amount

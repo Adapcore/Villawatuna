@@ -22,7 +22,7 @@ namespace HotelManagement.Services
         {
             return await _context.Invoices
                 .Include(i => i.Customer)
-                .OrderByDescending(i => i.Date)
+                .OrderByDescending(i => i.Date).ThenByDescending(i => i.InvoiceNo)
                 .ToListAsync();
         }
 
