@@ -42,21 +42,32 @@
                     <span class="ps-1 pe-1 bg-warning text-dark">@ViewBag.InvoiceTypeName</span>
                 </div>
                 <div class="card-body">
-                    <input asp-for="InvoiceNo" class="form-control" hidden value="0"/>
+                    <input asp-for="InvoiceNo" class="form-control" hidden value="0" />
                     <input asp-for="Type" class="form-control" hidden />
 
                     <div class="mb-3">
                         <label class="form-label fw-bold">Date</label>
                         <input asp-for="Date" class="form-control" type="date" />
                         <span asp-validation-for="Date" class="text-danger"></span>
-                    </div>                   
-                    
+                    </div>
+
                     <div class="mb-3">
                         <label class="form-label fw-bold">Customer</label>
                         <select asp-for="CustomerId" class="form-select form-select-lg" asp-items="ViewBag.Customers">
                             <option value="">-- Select Customer --</option>
                         </select>
                     </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Reference No</label>
+                        <input asp-for="ReferenceNo" class="form-control" />
+                        <span asp-validation-for="ReferenceNo" class="text-danger"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Note</label>
+                        <input asp-for="Note" class="form-control" />
+                        <span asp-validation-for="Note" class="text-danger"></span>
+                    </div>
+                    <hr />
                     <div class="d-flex justify-content-between fs-5 mb-2">
                         <span>Sub Total</span>
                         <span id="subTotal">0.00</span>
@@ -67,20 +78,10 @@
                     </div>
                     <hr />
                     <div class="d-flex justify-content-between fs-4 fw-bold text-success">
-                        <span>Gross</span>
+                        <span>Gross Amount</span>
                         <span id="grossAmount">0.00</span>
                     </div>
-                <hr />
-                <div class="mb-3">
-                    <label class="form-label fw-bold">Reference No</label>
-                    <input asp-for="ReferenceNo" class="form-control" />
-                    <span asp-validation-for="ReferenceNo" class="text-danger"></span>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label fw-bold">Note</label>
-                    <input asp-for="Note" class="form-control" />
-                    <span asp-validation-for="Note" class="text-danger"></span>
-                    </div>
+                    <hr />
                 </div>
             </div>
 
