@@ -14,7 +14,10 @@ namespace HotelManagement.Enums
         Stay = 3,
 
         [Display(Name = "Other")]
-        Other = 4
+        Other = 4,
+
+        [Display(Name = "Tour")]
+        Tour = 5
     }
 
     public enum InvoiceStatus

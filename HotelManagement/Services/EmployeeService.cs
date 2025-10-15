@@ -1,10 +1,11 @@
 using HotelManagement.Data;
 using HotelManagement.Models.Entities;
+using HotelManagement.Services.Interface;
 using Microsoft.EntityFrameworkCore;
 
 namespace HotelManagement.Services
 {
-	public class EmployeeService : IEmployeeService
+    public class EmployeeService : IEmployeeService
 	{
 		private readonly HotelContext _dbContext;
 

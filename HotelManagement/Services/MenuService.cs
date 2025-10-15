@@ -1,4 +1,5 @@
-﻿using Umbraco.Cms.Core.Web;
+﻿using HotelManagement.Services.Interface;
+using Umbraco.Cms.Core.Web;
 
 namespace HotelManagement.Services
 {

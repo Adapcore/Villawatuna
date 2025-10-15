@@ -1,11 +1,11 @@
-﻿using HotelManagement.Services;
+﻿using HotelManagement.Services.Interface;
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace HotelManagement.Models.Entities
 {
-	public class InvoiceDetail
+    public class InvoiceDetail
 	{
 		[Key]
 		public int Id { get; set; } // EF PK

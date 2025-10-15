@@ -1,10 +1,10 @@
-﻿using HotelManagement.Services;
-using HotelManagement.Models;
+﻿using HotelManagement.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using HotelManagement.Data;
 using HotelManagement.Models.Entities;
 using Microsoft.AspNetCore.Authorization;
+using HotelManagement.Services.Interface;
 
 namespace HotelManagement.Controllers
 {
@@ -50,60 +50,6 @@ namespace HotelManagement.Controllers
                 Date = DateTime.UtcNow
             });
         }
-
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //public async Task<IActionResult> Create(Order order) //[Bind("Date,CustomerId,TableNo,IsFreeOfCharge,Dining,Notes,SubTotal")]
-        //{
-        //    // remove validation errors for fields we set in code
-        //    ModelState.Remove(nameof(order.Customer));
-        //    ModelState.Remove(nameof(order.ServiceCharge));
-        //    ModelState.Remove(nameof(order.Notes));
-        //    ModelState.Remove(nameof(order.GrossAmount));
-        //    ModelState.Remove(nameof(order.CreatedDate));
-        //    ModelState.Remove(nameof(order.CreatedBy));
-        //    //ModelState.Remove(nameof(order.OrderItems));
-
-        //    var errors = ModelState.Where(ms => ms.Value.Errors.Count > 0).Select(ms => new
-        //    {
-        //        Key = ms.Key,
-        //        Errors = ms.Value.Errors.Select(e => e.ErrorMessage).ToList()
-        //    }).ToList();
-
-
-        //    if (ModelState.IsValid)
-        //    {
-        //        // Calculate service + gross
-        //        order.ServiceCharge = order.SubTotal * 0.10m;
-        //        order.GrossAmount = order.SubTotal + order.ServiceCharge;
-        //        order.CreatedDate = DateTime.UtcNow;
-        //        order.CreatedBy = 1; // TODO: replace with logged-in employee
-
-        //        // Line numbers + totals
-        //        int lineNo = 1;
-        //        foreach (var item in order.OrderItems)
-        //        {
-        //            item.LineNumber = lineNo++;
-        //            item.Amount = item.Qty * item.UnitPrice;
-        //        }
-
-        //        order.SubTotal = order.OrderItems.Sum(i => i.Amount);
-        //        order.ServiceCharge = order.SubTotal * 0.10m;
-        //        order.GrossAmount = order.SubTotal + order.ServiceCharge;
-
-        //        await _orderService.CreateOrderAsync(order);
-        //        return RedirectToAction(nameof(Index));
-        //    }
-
-        //    var customers = await _customerService.GetAllAsync();
-
-        //    ViewBag.Customers = customers.Select(c => new SelectListItem
-        //    {
-        //        Value = c.ID.ToString(),
-        //        Text = c.FirstName + " " + c.LastName
-        //    }).ToList();
-        //    return View(order);
-        //}
 
         [HttpPost]
         public async Task<IActionResult> Create(CreateOrderViewModel model)
@@ -180,8 +126,6 @@ namespace HotelManagement.Controllers
 
             return RedirectToAction(nameof(Index));
         }
-
-
 
         public async Task<IActionResult> Edit(int id)
         {

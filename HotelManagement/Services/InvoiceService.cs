@@ -2,6 +2,7 @@
 using HotelManagement.Enums;
 using HotelManagement.Models.Entities;
 using HotelManagement.Models.ViewModels;
+using HotelManagement.Services.Interface;
 using Microsoft.EntityFrameworkCore;
 
 namespace HotelManagement.Services
@@ -10,13 +11,18 @@ namespace HotelManagement.Services
     {
         private readonly HotelContext _context;
         private readonly IMenuService _menuService;
+        private readonly IRoomService _roomsService;
+        private readonly IOtherTypeService _otherTypeService;
+        private readonly ITourTypeService _tourTypeService;
 
-        public InvoiceService(HotelContext context, IMenuService menuService)
+        public InvoiceService(HotelContext context, IMenuService menuService, IRoomService roomService, IOtherTypeService otherTypeService, ITourTypeService tourTypeService)
         {
             _context = context;
             _menuService = menuService;
+            _roomsService = roomService;
+            _otherTypeService = otherTypeService;
+            _tourTypeService = tourTypeService;
         }
-
 
         public async Task<List<Invoice>> GetAllInvoicesAsync()
         {
@@ -33,7 +39,27 @@ namespace HotelManagement.Services
                 .Include(i => i.InvoiceDetails)
                 .FirstOrDefaultAsync(i => i.InvoiceNo == invoiceNo);
 
-            var menuItems = await _menuService.GetItemsAsync();
+            IEnumerable<ItemDto> menuItems = new List<ItemDto>();
+
+            switch (invoice.Type)
+            {
+                case InvoiceType.Dining:
+                case InvoiceType.TakeAway:
+                    menuItems = await _menuService.GetItemsAsync();
+                    break;
+
+                case InvoiceType.Stay:
+                    menuItems = await _roomsService.GetRoomCategoriesAsync();
+                    break;
+
+                case InvoiceType.Other:
+                    menuItems = await _otherTypeService.GetItemsAsync();
+                    break;
+
+                case InvoiceType.Tour:
+                    menuItems = await _tourTypeService.GetItemsAsync();
+                    break;
+            }
 
             foreach (var detail in invoice.InvoiceDetails)
             {

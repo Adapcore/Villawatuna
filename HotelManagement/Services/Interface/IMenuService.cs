@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace HotelManagement.Services
+namespace HotelManagement.Services.Interface
 {
     public interface IMenuService
     {

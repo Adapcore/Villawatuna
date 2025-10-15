@@ -1,7 +1,7 @@
 ﻿using HotelManagement.Models;
 using HotelManagement.Models.Entities;
 
-namespace HotelManagement.Services
+namespace HotelManagement.Services.Interface
 {
     public interface IOrderService
     {

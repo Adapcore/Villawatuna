@@ -2,7 +2,7 @@
 using HotelManagement.Helper;
 using HotelManagement.Models.Entities;
 using HotelManagement.Models.ViewModels;
-using HotelManagement.Services;
+using HotelManagement.Services.Interface;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;

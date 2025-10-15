@@ -1,5 +1,5 @@
 ﻿using HotelManagement.Models.Entities;
-using HotelManagement.Services;
+using HotelManagement.Services.Interface;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 

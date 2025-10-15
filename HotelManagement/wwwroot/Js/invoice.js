@@ -14,6 +14,7 @@
         this._type = this.options.type;
         this.$container = $(el);
         this.itemIndex = 0;
+        this.serviceCharge = 0;
 
         this.Init();
         return this;
@@ -109,7 +110,21 @@
             else if (self._type == 3)// Stay
             {
                 $.getJSON("/api/room/GetRoomCategories", function (data) {
-                    self.itemOptions = data.map(i => `<option value="${i.id}">${i.name}</option>`).join('');
+                    self.itemOptions = data.map(i => `<option value="${i.id}" data-price="0">${i.name}</option>`).join('');
+                    self.SelectDropDownValue()
+                });
+            }
+            else if (self._type == 4)// Other Types
+            {
+                $.getJSON("/api/otherType/GetItems", function (data) {
+                    self.itemOptions = data.map(i => `<option value="${i.id}" data-price="${i.price}">${i.name}</option>`).join('');
+                    self.SelectDropDownValue()
+                });
+            }
+            else if (self._type == 5)// Tour Types
+            {
+                $.getJSON("/api/tourType/GetItems", function (data) {
+                    self.itemOptions = data.map(i => `<option value="${i.id}" data-price="${i.price}">${i.name}</option>`).join('');
                     self.SelectDropDownValue()
                 });
             }
@@ -322,46 +337,48 @@
             //   isValid = false;
             //}
 
-            // Check each invoice detail row
-            $("#invoiceItems tbody tr").each(function (index) {
-                const itemId = $(this).find(".orderItemSelect").val();
-                const checkIn = $(this).find(".checkIn").val();
-                const checkOut = $(this).find(".checkOut").val();
+            if (self._type == 3) {
+                // Check each invoice detail row
+                $("#invoiceItems tbody tr").each(function (index) {
+                    const itemId = $(this).find(".orderItemSelect").val();
+                    const checkIn = $(this).find(".checkIn").val();
+                    const checkOut = $(this).find(".checkOut").val();
 
-                if (!itemId) {
-                    $(this).find(".orderItemSelect").addClass("is-invalid");
-                    alert('Invalid item slected');
-                    isValid = false;
-                    return false;
-                }
-                else {
-                    $(this).find(".orderItemSelect").removeClass("is-invalid");
-                }
-
-                if (!checkIn || !checkOut) {
-                    $(this).find(".checkIn, .checkOut").addClass("is-invalid");
-                    alert('Invalid check-in & check-out dates');
-                    isValid = false;
-                    return false;
-                }
-                else {
-                    $(this).find(".checkIn, .checkOut").removeClass("is-invalid");
-                }
-
-                if (checkIn && checkOut) {
-                    const inDate = new Date(checkIn);
-                    const outDate = new Date(checkOut);
-
-                    if (inDate > outDate) {
+                    if (!itemId) {
+                        $(this).find(".orderItemSelect").addClass("is-invalid");
+                        alert('Invalid item slected');
                         isValid = false;
-                        errors.push(`Row ${index + 1}: Check-In cannot be after Check-Out.`);
+                        return false;
+                    }
+                    else {
+                        $(this).find(".orderItemSelect").removeClass("is-invalid");
+                    }
+
+                    if (!checkIn || !checkOut) {
                         $(this).find(".checkIn, .checkOut").addClass("is-invalid");
                         alert('Invalid check-in & check-out dates');
-                    } else {
+                        isValid = false;
+                        return false;
+                    }
+                    else {
                         $(this).find(".checkIn, .checkOut").removeClass("is-invalid");
                     }
-                }
-            });
+
+                    if (checkIn && checkOut) {
+                        const inDate = new Date(checkIn);
+                        const outDate = new Date(checkOut);
+
+                        if (inDate > outDate) {
+                            isValid = false;
+                            errors.push(`Row ${index + 1}: Check-In cannot be after Check-Out.`);
+                            $(this).find(".checkIn, .checkOut").addClass("is-invalid");
+                            alert('Invalid check-in & check-out dates');
+                        } else {
+                            $(this).find(".checkIn, .checkOut").removeClass("is-invalid");
+                        }
+                    }
+                });
+            }
 
             return isValid;
         },

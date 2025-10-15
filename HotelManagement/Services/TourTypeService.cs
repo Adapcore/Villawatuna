@@ -3,16 +3,16 @@ using Umbraco.Cms.Core.Web;
 
 namespace HotelManagement.Services
 {
-    public class RoomService : IRoomService
+    public class TourTypeService : ITourTypeService
     {
         private readonly IUmbracoContextAccessor _umbracoContextAccessor;
 
-        public RoomService(IUmbracoContextAccessor umbracoContextAccessor)
+        public TourTypeService(IUmbracoContextAccessor umbracoContextAccessor)
         {
             _umbracoContextAccessor = umbracoContextAccessor;
         }
 
-        public async Task<IEnumerable<ItemDto>> GetRoomCategoriesAsync()
+        public async Task<IEnumerable<ItemDto>> GetItemsAsync()
         {
             var context = _umbracoContextAccessor.GetRequiredUmbracoContext();
             var root = context.Content?.GetAtRoot().FirstOrDefault();
@@ -20,12 +20,20 @@ namespace HotelManagement.Services
             if (root == null)
                 return Enumerable.Empty<ItemDto>();
 
-            var items = root
-                .DescendantsOfType("roomCategory")
+            // Find the "TourTypes" node under the root
+            var tourTypeNode = root.DescendantsOrSelfOfType("tourTypes").FirstOrDefault();
+
+            if (tourTypeNode == null)
+                return Enumerable.Empty<ItemDto>();
+
+            // Get items only under Tour
+            var items = tourTypeNode
+                .DescendantsOfType("item")
                 .Select(x => new ItemDto
                 {
                     Id = x.Id,
-                    Name = x.Name
+                    Name = x.Name,
+                    Price = x.Value<decimal>("price")
                 })
                 .ToList();
 

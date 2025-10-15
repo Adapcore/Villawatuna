@@ -1,7 +1,7 @@
 ﻿using HotelManagement.Models.Entities;
 using HotelManagement.Models.ViewModels;
 
-namespace HotelManagement.Services
+namespace HotelManagement.Services.Interface
 {
     public interface IInvoiceService
     {

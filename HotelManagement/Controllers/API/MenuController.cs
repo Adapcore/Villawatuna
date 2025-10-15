@@ -1,4 +1,4 @@
-﻿using HotelManagement.Services;
+﻿using HotelManagement.Services.Interface;
 using Microsoft.AspNetCore.Mvc;
 using Umbraco.Cms.Web.Common.Controllers;
 

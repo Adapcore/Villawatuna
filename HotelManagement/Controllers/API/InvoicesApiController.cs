@@ -1,7 +1,7 @@
 ﻿using HotelManagement.Enums;
 using HotelManagement.Models.Entities;
 using HotelManagement.Models.ViewModels;
-using HotelManagement.Services;
+using HotelManagement.Services.Interface;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HotelManagement.Controllers.API
