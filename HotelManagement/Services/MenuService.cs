@@ -1,8 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Umbraco.Cms.Core.Web;
-using Umbraco.Extensions;
+﻿using Umbraco.Cms.Core.Web;
 
 namespace HotelManagement.Services
 {
@@ -15,17 +11,24 @@ namespace HotelManagement.Services
             _umbracoContextAccessor = umbracoContextAccessor;
         }
 
-        public async Task<IEnumerable<MenuItemDto>> GetItemsAsync()
+        public async Task<IEnumerable<ItemDto>> GetItemsAsync()
         {
             var context = _umbracoContextAccessor.GetRequiredUmbracoContext();
             var root = context.Content?.GetAtRoot().FirstOrDefault();
 
             if (root == null)
-                return Enumerable.Empty<MenuItemDto>();
+                return Enumerable.Empty<ItemDto>();
 
-            var items = root
-                .DescendantsOfType("menuItem")
-                .Select(x => new MenuItemDto
+            // Find the "Menu" node under the root
+            var menuNode = root.DescendantsOrSelfOfType("menu").FirstOrDefault();
+
+            if (menuNode == null)
+                return Enumerable.Empty<ItemDto>();
+
+            // Get items only under Menu
+            var items = menuNode
+                .DescendantsOfType("item")
+                .Select(x => new ItemDto
                 {
                     Id = x.Id,
                     Name = x.Name,
@@ -35,6 +38,7 @@ namespace HotelManagement.Services
 
             return await Task.FromResult(items);
         }
+
 
         public async Task<decimal> GetServiceChargeAsync()
         {

@@ -5,11 +5,11 @@ namespace HotelManagement.Services
 {
     public interface IMenuService
     {
-        Task<IEnumerable<MenuItemDto>> GetItemsAsync();
+        Task<IEnumerable<ItemDto>> GetItemsAsync();
         Task<decimal> GetServiceChargeAsync();
     }
 
-    public class MenuItemDto
+    public class ItemDto
     {
         public int Id { get; set; }
         public string Name { get; set; } = string.Empty;

@@ -20,7 +20,7 @@ namespace HotelManagement.Models.Entities
 		
 		//Non-persistent property for Umbraco data
         [NotMapped]
-        public MenuItemDto? MenuItem { get; set; }
+        public ItemDto? Item { get; set; }
 
         [MaxLength(250)]
 		public string? Note { get; set; }

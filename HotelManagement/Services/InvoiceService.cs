@@ -37,7 +37,7 @@ namespace HotelManagement.Services
 
             foreach (var detail in invoice.InvoiceDetails)
             {
-                detail.MenuItem = menuItems.FirstOrDefault(m => m.Id == detail.ItemId);
+                detail.Item = menuItems.FirstOrDefault(m => m.Id == detail.ItemId);
             }
 
             return invoice;

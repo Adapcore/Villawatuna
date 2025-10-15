@@ -90,7 +90,7 @@
                     {
                         <tr>
                             <td>@detail.ItemId</td>
-                            <td>@detail.MenuItem?.Name</td>
+                            <td>@detail.Item?.Name</td>
                             @if (Model.Type == InvoiceType.Stay)
                             {
                                 <td>@detail.CheckIn?.ToShortDateString()</td>

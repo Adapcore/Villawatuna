@@ -52,7 +52,7 @@
                 @foreach (var d in Model.InvoiceDetails ?? Enumerable.Empty<HotelManagement.Models.Entities.InvoiceDetail>())
                 {
                     <tr>
-                        <td style="text-align:left; padding-top:4px;">@d.ItemId @d.MenuItem?.Name</td>
+                        <td style="text-align:left; padding-top:4px;">@d.ItemId @d.Item?.Name</td>
                         <td style="text-align:center;">@d.Quantity</td>
                         <td style="text-align:right;">@d.UnitPrice.ToString("F2")</td>
                         <td style="text-align:right;">@d.Amount.ToString("F2")</td>
