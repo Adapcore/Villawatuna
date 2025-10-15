@@ -35,6 +35,10 @@ WebApplication app = builder.Build();
 
 await app.BootUmbracoAsync();
 
+app.MapControllerRoute(
+    name: "account",
+    pattern: "Account/{action=Login}/{id?}",
+    defaults: new { controller = "Account" });
 
 app.UseUmbraco()
     .WithMiddleware(u =>
@@ -47,6 +51,11 @@ app.UseUmbraco()
         u.UseInstallerEndpoints();
         u.UseBackOfficeEndpoints();
         u.UseWebsiteEndpoints();
+
+        u.EndpointRouteBuilder.MapControllerRoute(
+            name: "AccountLogin",
+            pattern: "account/{action=login}",
+            defaults: new { controller = "Account" });
     });
 
 // Map conventional MVC routes for custom controllers

@@ -4,9 +4,11 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using HotelManagement.Data;
 using HotelManagement.Models.Entities;
+using Microsoft.AspNetCore.Authorization;
 
 namespace HotelManagement.Controllers
 {
+    [Authorize]
     public class OrdersController : Controller
     {
         private readonly IOrderService _orderService;

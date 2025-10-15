@@ -2,10 +2,12 @@ using HotelManagement.Models.Entities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using HotelManagement.Services;
+using Microsoft.AspNetCore.Authorization;
 
 namespace HotelManagement.Controllers
 {
-	public class EmployeesController : Controller
+    [Authorize]
+    public class EmployeesController : Controller
 	{
 
 		private readonly IEmployeeService _employeeService;

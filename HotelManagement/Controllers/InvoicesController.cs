@@ -3,6 +3,7 @@ using HotelManagement.Helper;
 using HotelManagement.Models.Entities;
 using HotelManagement.Models.ViewModels;
 using HotelManagement.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.ComponentModel.DataAnnotations;
@@ -10,6 +11,7 @@ using System.Reflection;
 
 namespace HotelManagement.Controllers
 {
+    [Authorize]
     [Route("Internal/Invoices")]
     public class InvoicesController : Controller
     {

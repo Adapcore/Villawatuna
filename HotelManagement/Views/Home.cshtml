@@ -6,3 +6,11 @@
 }
 
 Welcome to Villawatina 
+
+@if (User.Identity?.IsAuthenticated ?? false)
+{
+    <form asp-controller="Account" asp-action="Logout" method="post" style="display:inline;">
+        @Html.AntiForgeryToken()
+        <button type="submit" class="btn btn-link">Logout (@User.Identity.Name)</button>
+    </form>
+}
