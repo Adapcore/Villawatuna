@@ -2,7 +2,13 @@
 using HotelManagement.Models.Entities;
 using HotelManagement.Models.ViewModels;
 using HotelManagement.Services.Interface;
+using Lucene.Net.Documents;
+using Lucene.Net.Util.Packed;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Abstractions;
+using NUglify.JavaScript.Syntax;
+using SixLabors.ImageSharp.Metadata.Profiles.Icc;
+using Umbraco.Cms.Core.Models.ContentEditing;
 
 namespace HotelManagement.Controllers.API
 {
@@ -34,6 +40,7 @@ namespace HotelManagement.Controllers.API
                 ServiceCharge = model.ServiceCharge,
                 GrossAmount = model.GrossAmount,
                 Status = InvoiceStatus.InProgress,
+                Paid = model.Paid,
                 InvoiceDetails = model.InvoiceDetails.Select((d, index) => new InvoiceDetail
                 {
                     LineNumber = index + 1,
@@ -47,6 +54,17 @@ namespace HotelManagement.Controllers.API
                 }).ToList()
             };
 
+            if (invoice.Paid > invoice.GrossAmount)
+                return BadRequest(ModelState);
+
+            else if (invoice.Paid == invoice.GrossAmount)
+                invoice.Status = InvoiceStatus.Paid;
+
+            else if (invoice.Paid > 0)
+                invoice.Status = InvoiceStatus.PartiallyPaid;
+
+            invoice.Balance = invoice.GrossAmount - invoice.Paid;
+
             await _invoiceService.CreateAsync(invoice);
 
             return Ok(new { success = true, invoiceNo = invoice.InvoiceNo });
@@ -56,6 +74,9 @@ namespace HotelManagement.Controllers.API
         public async Task<IActionResult> Update([FromBody] CreateInvoiceViewModel model)
         {
             if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            if (model.Paid < 0)
                 return BadRequest(ModelState);
 
             // Get the existing invoice
@@ -72,6 +93,21 @@ namespace HotelManagement.Controllers.API
             invoice.SubTotal = model.SubTotal;
             invoice.ServiceCharge = model.ServiceCharge;
             invoice.GrossAmount = model.GrossAmount;
+
+
+            if (model.Paid > 0)
+            {
+                if (model.Paid > invoice.Balance)
+                    return BadRequest(ModelState);
+
+                else if (model.Paid == invoice.Balance)
+                    invoice.Status = InvoiceStatus.Complete;
+
+                else 
+                    invoice.Status = InvoiceStatus.PartiallyPaid;
+
+                invoice.Balance = invoice.Balance - model.Paid;
+            }
 
             // Delete existing details before adding new ones
             await _invoiceService.DeleteInvoiceDetailsAsync(invoice.InvoiceNo);

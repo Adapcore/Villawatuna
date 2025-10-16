@@ -110,6 +110,7 @@ namespace HotelManagement.Controllers
                 ServiceCharge = invoice.ServiceCharge,
                 GrossAmount = invoice.GrossAmount,
                 Status = (int)invoice.Status,
+                Balance = invoice.Balance,                
                 InvoiceDetails = invoice.InvoiceDetails.Select(d => new CreateInvoiceDetailViewModel
                 {
                     ItemId = d.ItemId,

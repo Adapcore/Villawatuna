@@ -121,6 +121,15 @@
                         <span id="grossAmount">@Model.GrossAmount</span>
                     </div>
                     <hr />
+                    <div class="d-flex justify-content-between fs-5 mb-2">
+                        <span>Balance</span>
+                        <span id="Balance">@Model.Balance</span>
+                    </div>
+                    <div class="mb-3 @(Model.Status == (int)InvoiceStatus.Complete ? "d-none" : "")">
+                        <label class="form-label fw-bold">Paid Amount</label>
+                        <input asp-for="Paid" type="number" class="form-control" />
+                        <span asp-validation-for="Paid" class="text-danger"></span>
+                    </div>
                 </div>
             </div>
 

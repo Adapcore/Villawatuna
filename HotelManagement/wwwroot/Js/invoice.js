@@ -56,39 +56,39 @@
             });
         },
 
-        BuildInvoice: function () {
-            var invoice = {
-                Id: $("#Id").val(),
-                Date: $("#Date").val(),
-                Type: $("#Type").val(),
-                ReferenceNo: $("#ReferenceNo").val(),
-                CustomerId: $("#CustomerId").val(),
-                Note: $("#Note").val(),
-                Status: $("#Status").val(),
-                SubTotal: parseFloat($("#subTotal").val()) || 0,
-                ServiceCharge: parseFloat($("#serviceCharge").val()) || 0,
-                GrossAmount: parseFloat($("#grossAmount").val()) || 0,
-                InvoiceDetails: []
-            };
+        //BuildInvoice: function () {
+        //    var invoice = {
+        //        Id: $("#Id").val(),
+        //        Date: $("#Date").val(),
+        //        Type: $("#Type").val(),
+        //        ReferenceNo: $("#ReferenceNo").val(),
+        //        CustomerId: $("#CustomerId").val(),
+        //        Note: $("#Note").val(),
+        //        Status: $("#Status").val(),
+        //        SubTotal: parseFloat($("#subTotal").val()) || 0,
+        //        ServiceCharge: parseFloat($("#serviceCharge").val()) || 0,
+        //        GrossAmount: parseFloat($("#grossAmount").val()) || 0,
+        //        InvoiceDetails: []
+        //    };
 
-            $("#invoiceItems tbody tr").each(function () {
-                var $row = $(this);
-                var itemId = $row.find(".orderItemSelect").val();
-                if (itemId) {
-                    invoice.InvoiceDetails.push({
-                        Id: $row.find(".detailId").val(),
-                        ItemId: parseInt(itemId),
-                        CheckIn: $(".checkIn").val(),
-                        CheckOut: $(".checkOut").val(),
-                        Note: $row.find(".orderNote").val(),
-                        Quantity: parseInt($row.find(".orderQty").val()) || 0,
-                        UnitPrice: parseFloat($row.find(".orderPrice").val()) || 0,
-                        Amount: parseFloat($row.find(".itemTotal").val()) || 0
-                    });
-                }
-            });
-            return invoice;
-        },
+        //    $("#invoiceItems tbody tr").each(function () {
+        //        var $row = $(this);
+        //        var itemId = $row.find(".orderItemSelect").val();
+        //        if (itemId) {
+        //            invoice.InvoiceDetails.push({
+        //                Id: $row.find(".detailId").val(),
+        //                ItemId: parseInt(itemId),
+        //                CheckIn: $(".checkIn").val(),
+        //                CheckOut: $(".checkOut").val(),
+        //                Note: $row.find(".orderNote").val(),
+        //                Quantity: parseInt($row.find(".orderQty").val()) || 0,
+        //                UnitPrice: parseFloat($row.find(".orderPrice").val()) || 0,
+        //                Amount: parseFloat($row.find(".itemTotal").val()) || 0
+        //            });
+        //        }
+        //    });
+        //    return invoice;
+        //},
 
         LoadServiceCharge: function () {
             var self = this;
@@ -269,6 +269,7 @@
                 SubTotal: parseFloat($("#subTotal").html()) || 0,
                 ServiceCharge: parseFloat($("#serviceCharge").html()) || 0,
                 GrossAmount: parseFloat($("#grossAmount").html()) || 0,
+                Paid: parseFloat($("#Paid").val()),
                 InvoiceDetails: []
             };
 
@@ -327,7 +328,9 @@
             else {
                 $("#CustomerId").removeClass("is-invalid");
             }
-            if (parseFloat($("#grossAmount").html()) <= 0) {
+
+            var grossAmount = parseFloat($("#grossAmount").html());
+            if (grossAmount <= 0) {
                 alert("Gross amount must be greater than zero.");
                 isValid = false;
                 return false;
@@ -336,6 +339,24 @@
             //    alert("Please add at least one invoice detail.");
             //   isValid = false;
             //}
+
+            var paidAmount = parseFloat($("#Paid").val());
+            var balanceAmount = parseFloat($("#Balance").html());
+
+            if ($("#InvoiceNo").val() == 0) {
+                balanceAmount = grossAmount;
+            }
+
+            if (paidAmount > balanceAmount) {
+                if ($("#InvoiceNo").val() == 0) {
+                    alert("Paid amount must be less than or equals to Gross Amount");
+                } else {
+                    alert("Paid amount must be less than or equals to Balance Amount");
+                }
+
+                isValid = false;
+                return false;
+            }
 
             if (self._type == 3) {
                 // Check each invoice detail row
