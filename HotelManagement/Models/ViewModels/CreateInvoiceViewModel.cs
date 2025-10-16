@@ -25,6 +25,7 @@ namespace HotelManagement.Models.ViewModels
         public decimal SubTotal { get; set; }
         public decimal ServiceCharge { get; set; }
         public decimal GrossAmount { get; set; }
+        public decimal Paid { get; set; }
 
         public List<CreateInvoiceDetailViewModel> InvoiceDetails { get; set; } = new();
     }

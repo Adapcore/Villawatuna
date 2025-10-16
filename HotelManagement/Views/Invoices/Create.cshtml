@@ -87,11 +87,19 @@
                         <span id="grossAmount">0.00</span>
                     </div>
                     <hr />
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Paid Amount</label>
+                        <input asp-for="Paid" class="form-control" />
+                        <span asp-validation-for="Note" class="text-danger"></span>
+                    </div>
                 </div>
             </div>
 
             <div class="d-grid gap-2">
                 <button id="btnCreateInvoice" type="button" class="btn btn-lg btn-success">
+                    <i class="bi bi-save"></i> Save
+                </button>
+                <button id="btnPayInvoice" type="button" class="btn btn-lg btn-success">
                     <i class="bi bi-cash-coin"></i> Pay & Save
                 </button>
                 <a asp-action="Index" class="btn btn-lg btn-secondary">

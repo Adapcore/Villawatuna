@@ -11,7 +11,7 @@ using System.Reflection;
 
 namespace HotelManagement.Controllers
 {
-    [Authorize]
+    [AuthorizeUserType("Admin")]
     [Route("Internal/Invoices")]
     public class InvoicesController : Controller
     {
