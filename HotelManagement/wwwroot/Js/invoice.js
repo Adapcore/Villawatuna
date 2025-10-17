@@ -15,6 +15,7 @@
         this.$container = $(el);
         this.itemIndex = 0;
         this.serviceCharge = 0;
+        this._baseCurrency = 'LKR';
 
         this.Init();
         return this;
@@ -30,19 +31,34 @@
             this.LoadItems();
             this.BindItemSelection();
             this.LoadServiceCharge();
+
+            // hardcoded rates (will later be replaced by API) 
+            this._rates = [
+                { 'from': 'LKR', 'to': 'USD', 'rate': 0.00300 },
+                { 'from': 'USD', 'to': 'LKR', 'rate': 300 },
+
+                { 'from': 'LKR', 'to': 'GBP', 'rate': 0.0026 },
+                { 'from': 'GBP', 'to': 'LKR', 'rate': 380 },
+
+                { 'from': 'LKR', 'to': 'EUR', 'rate': 0.0030 },
+                { 'from': 'EUR', 'to': 'LKR', 'rate': 330 },
+
+                { 'from': 'USD', 'to': 'GBP', 'rate': 0.78 },
+                { 'from': 'GBP', 'to': 'USD', 'rate': 1.28 },
+            ]
         },
         BindEvents: function () {
             var self = this;
 
             // Item Add
             $('#addItemBtn').on("click", () => {
-                this.AddItemRow();
+                self.AddItemRow();
             });
 
             // Item Remove
             $('.removeItemBtn').on("click", (e) => {
                 var row = $(e.currentTarget).closest("tr");
-                this.RemoveItemRow(row);
+                self.RemoveItemRow(row);
             });
 
             // Quantity change
@@ -54,41 +70,11 @@
             $("#btnCreateInvoice").on("click", function () {
                 self.Save();
             });
+
+            $("#currencyType").on("change", function () {
+                self.CalculateTotals();
+            });
         },
-
-        //BuildInvoice: function () {
-        //    var invoice = {
-        //        Id: $("#Id").val(),
-        //        Date: $("#Date").val(),
-        //        Type: $("#Type").val(),
-        //        ReferenceNo: $("#ReferenceNo").val(),
-        //        CustomerId: $("#CustomerId").val(),
-        //        Note: $("#Note").val(),
-        //        Status: $("#Status").val(),
-        //        SubTotal: parseFloat($("#subTotal").val()) || 0,
-        //        ServiceCharge: parseFloat($("#serviceCharge").val()) || 0,
-        //        GrossAmount: parseFloat($("#grossAmount").val()) || 0,
-        //        InvoiceDetails: []
-        //    };
-
-        //    $("#invoiceItems tbody tr").each(function () {
-        //        var $row = $(this);
-        //        var itemId = $row.find(".orderItemSelect").val();
-        //        if (itemId) {
-        //            invoice.InvoiceDetails.push({
-        //                Id: $row.find(".detailId").val(),
-        //                ItemId: parseInt(itemId),
-        //                CheckIn: $(".checkIn").val(),
-        //                CheckOut: $(".checkOut").val(),
-        //                Note: $row.find(".orderNote").val(),
-        //                Quantity: parseInt($row.find(".orderQty").val()) || 0,
-        //                UnitPrice: parseFloat($row.find(".orderPrice").val()) || 0,
-        //                Amount: parseFloat($row.find(".itemTotal").val()) || 0
-        //            });
-        //        }
-        //    });
-        //    return invoice;
-        //},
 
         LoadServiceCharge: function () {
             var self = this;
@@ -262,10 +248,12 @@
                 InvoiceNo: $("#InvoiceNo").val(),
                 Date: $("#Date").val(),
                 Type: $("#Type").val(),
+                Currency: $("#currencyType").val(),
                 Status: $("#Status").val(),
                 ReferenceNo: $("#ReferenceNo").val(),
                 CustomerId: $("#CustomerId").val(),
                 Note: $("#Note").val(),
+                CurySubTotal: parseFloat($("#curySubTotal").html()) || 0,
                 SubTotal: parseFloat($("#subTotal").html()) || 0,
                 ServiceCharge: parseFloat($("#serviceCharge").html()) || 0,
                 GrossAmount: parseFloat($("#grossAmount").html()) || 0,
@@ -423,10 +411,51 @@
             $("#subTotal").html(subtotal.toFixed(2));
             $("#serviceCharge").html(serviceCharge.toFixed(2));
             $("#grossAmount").html(grossTotal.toFixed(2));
+
+            self.CalculateCurrySubTotal();
         },
+
+        CalculateCurrySubTotal: function () {
+            var self = this;
+
+            var subTotal = $("#subTotal").html();
+
+            // convert to selected currency
+            const selectedCurrency = $("#currencyType").val();
+            const convertedTotal = self.ConvertCurrency(subTotal, self._baseCurrency, selectedCurrency);
+            $("#curySubTotal").text(convertedTotal.toFixed(2));
+        },
+
+        FindRate: function (from, to) {
+            var self = this;
+
+            if (from === to) return 1;
+            const direct = self._rates.find(r => r.from === from && r.to === to);
+            if (direct) return direct.rate;
+
+            // Try indirect conversion via base currency
+            const base = self._baseCurrency;
+            const viaBase1 = self._rates.find(r => r.from === from && r.to === base);
+            const viaBase2 = self._rates.find(r => r.from === base && r.to === to);
+            if (viaBase1 && viaBase2) {
+                return viaBase1.rate * viaBase2.rate;
+            }
+
+            console.warn(`⚠️ No rate found for ${from} → ${to}`);
+            return 1;
+        },
+
+        ConvertCurrency: function (amount, from, to) {
+            var self = this;
+
+            const rate = self.FindRate(from, to);
+            return amount * rate;
+        },
+
         RemoveItemRow: function (row) {
             row.remove();
             this.CalculateTotals();
-        }
+        },
+
     });
 })(jQuery);

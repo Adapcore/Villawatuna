@@ -16,6 +16,9 @@ namespace HotelManagement.Models.Entities
 			
 		public InvoiceType Type { get; set; }		     
 
+		[MaxLength(5)]
+		public string Currency { get; set; }
+		
 		[MaxLength(100)]
 		public string ReferenceNo { get; set; }
 
@@ -29,6 +32,9 @@ namespace HotelManagement.Models.Entities
         public string? Note{ get; set; }
 
         [Column(TypeName = "decimal(18,2)")]
+		public decimal CurySubTotal { get; set; }
+		
+		[Column(TypeName = "decimal(18,2)")]
 		public decimal SubTotal { get; set; }
 
 		[Column(TypeName = "decimal(18,2)")]

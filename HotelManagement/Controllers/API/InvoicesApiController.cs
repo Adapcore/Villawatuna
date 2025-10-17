@@ -33,9 +33,11 @@ namespace HotelManagement.Controllers.API
             {
                 Date = model.Date,
                 Type = Enum.Parse<InvoiceType>(model.Type.ToString()),
+                Currency = model.Currency,
                 ReferenceNo = model.ReferenceNo,
                 CustomerId = model.CustomerId,
                 Note = model.Note,
+                CurySubTotal = model.CurySubTotal,
                 SubTotal = model.SubTotal,
                 ServiceCharge = model.ServiceCharge,
                 GrossAmount = model.GrossAmount,
@@ -90,10 +92,10 @@ namespace HotelManagement.Controllers.API
             invoice.CustomerId = model.CustomerId;
             invoice.Note = model.Note;
             invoice.Status = (InvoiceStatus)model.Status;
+            invoice.CurySubTotal = model.CurySubTotal;
             invoice.SubTotal = model.SubTotal;
             invoice.ServiceCharge = model.ServiceCharge;
             invoice.GrossAmount = model.GrossAmount;
-
 
             if (model.Paid > 0)
             {

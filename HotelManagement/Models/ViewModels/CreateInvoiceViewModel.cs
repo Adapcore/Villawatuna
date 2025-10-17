@@ -12,6 +12,7 @@ namespace HotelManagement.Models.ViewModels
 
         [Required]
         public int Type { get; set; }
+        public string Currency { get; set; }
 
         public string? ReferenceNo { get; set; }
         public int Status { get; set; }
@@ -22,6 +23,7 @@ namespace HotelManagement.Models.ViewModels
         [StringLength(500)]
         public string? Note { get; set; }
 
+        public decimal CurySubTotal { get; set; }
         public decimal SubTotal { get; set; }
         public decimal ServiceCharge { get; set; }
         public decimal GrossAmount { get; set; }
