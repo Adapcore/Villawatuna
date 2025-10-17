@@ -18,12 +18,18 @@ namespace HotelManagement.Controllers
         private readonly IInvoiceService _invoiceService;
         private readonly ICustomerService _customerService;
         private readonly IMenuService _menuService;
+        private readonly ICurrencyService _currencyService;
 
-        public InvoicesController(IInvoiceService invoiceService, ICustomerService customerService, IMenuService menuService)
+        public InvoicesController(
+            IInvoiceService invoiceService, 
+            ICustomerService customerService,
+            IMenuService menuService,
+            ICurrencyService currencyService)
         {
             _invoiceService = invoiceService;
             _customerService = customerService;
             _menuService = menuService;
+            _currencyService = currencyService;
         }
 
         [HttpGet]
@@ -54,13 +60,18 @@ namespace HotelManagement.Controllers
             if (string.IsNullOrEmpty(type)) return RedirectToAction("SelectType");
 
             var customers = await _customerService.GetAllAsync();
-
             ViewBag.Customers = customers.Select(c => new SelectListItem
             {
                 Value = c.ID.ToString(),
                 Text = c.FirstName + " " + c.LastName
             }).ToList();
-
+            
+            var currencyTypes = await _currencyService.GetCurencyTypesAsync();
+            ViewBag.CurrencyTypes = currencyTypes.Select(c => new SelectListItem
+            {
+                Value = c.Code.ToString(),
+                Text = c.Name
+            }).ToList();
 
             var model = new CreateInvoiceViewModel
             {
@@ -97,6 +108,13 @@ namespace HotelManagement.Controllers
                     .Name ?? s.ToString(),
                     Value = ((int)s).ToString()
                 }).ToList();
+
+            var currencyTypes = await _currencyService.GetCurencyTypesAsync();
+            ViewBag.CurrencyTypes = currencyTypes.Select(c => new SelectListItem
+            {
+                Value = c.Code.ToString(),
+                Text = c.Name
+            }).ToList();
 
             var model = new CreateInvoiceViewModel
             {

@@ -26,6 +26,7 @@ builder.Services.AddScoped<IMenuService, MenuService>();
 builder.Services.AddScoped<IRoomService, RoomService>();
 builder.Services.AddScoped<IOtherTypeService, OtherTypeService>();
 builder.Services.AddScoped<ITourTypeService, TourTypeService>();
+builder.Services.AddScoped<ICurrencyService, CurrencyService>();
 
 
 builder.CreateUmbracoBuilder()

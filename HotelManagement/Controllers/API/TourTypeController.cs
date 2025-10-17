@@ -21,5 +21,5 @@ namespace HotelManagement.Controllers.API
             if (!items.Any()) return NotFound("No other items found.");
             return Ok(items);
         }
-            }
+    }
 }

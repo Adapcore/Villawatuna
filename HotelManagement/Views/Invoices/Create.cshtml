@@ -74,11 +74,7 @@
                     </div>
                     <div class="mb-3">
                         <label class="form-label fw-bold">Currency</label>
-                        <select id="currencyType" class="form-select form-select-lg">
-                            <option value="LKR" selected>LKR</option>
-                            <option value="USD">Dollar</option>
-                            <option value="GBP">GBP</option>
-                            <option value="EUR">EUR</option>
+                        <select asp-for="Currency" class="form-select form-select-lg" asp-items="ViewBag.CurrencyTypes">
                         </select>
                     </div>
                     <hr />
@@ -105,7 +101,7 @@
                         <span>Balance</span>
                         <span id="Balance">0.00</span>
                     </div>
-                   
+
                     <div class="mb-3">
                         <label class="form-label fw-bold">Paid Amount</label>
                         <input asp-for="Paid" type="number" class="form-control" />
@@ -116,7 +112,7 @@
 
             <div class="d-grid gap-2">
                 @* <button id="btnCreateInvoice" type="button" class="btn btn-lg btn-success">
-                    <i class="bi bi-save"></i> Save
+                <i class="bi bi-save"></i> Save
                 </button> *@
                 <button id="btnCreateInvoice" type="button" class="btn btn-lg btn-success">
                     <i class="bi bi-cash-coin"></i> Pay & Save

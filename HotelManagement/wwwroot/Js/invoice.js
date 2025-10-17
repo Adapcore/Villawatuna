@@ -71,7 +71,7 @@
                 self.Save();
             });
 
-            $("#currencyType").on("change", function () {
+            $("#Currency").on("change", function () {
                 self.CalculateTotals();
             });
         },
@@ -248,7 +248,7 @@
                 InvoiceNo: $("#InvoiceNo").val(),
                 Date: $("#Date").val(),
                 Type: $("#Type").val(),
-                Currency: $("#currencyType").val(),
+                Currency: $("#Currency").val(),
                 Status: $("#Status").val(),
                 ReferenceNo: $("#ReferenceNo").val(),
                 CustomerId: $("#CustomerId").val(),
@@ -421,7 +421,7 @@
             var subTotal = $("#subTotal").html();
 
             // convert to selected currency
-            const selectedCurrency = $("#currencyType").val();
+            const selectedCurrency = $("#Currency").val();
             const convertedTotal = self.ConvertCurrency(subTotal, self._baseCurrency, selectedCurrency);
             $("#curySubTotal").text(convertedTotal.toFixed(2));
         },
