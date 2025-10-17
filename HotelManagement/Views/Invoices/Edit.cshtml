@@ -108,11 +108,7 @@
                     </div>
                     <div class="mb-3">
                         <label class="form-label fw-bold">Currency</label>
-                        <select asp-for="Currency" id="currencyType" class="form-select form-select-lg" disabled>                        
-                            <option value="LKR" selected>LKR</option>
-                            <option value="USD">Dollar</option>
-                            <option value="GBP">GBP</option>
-                            <option value="EUR">EUR</option>
+                        <select asp-for="Currency" class="form-select form-select-lg" asp-items="ViewBag.CurrencyTypes">
                         </select>
                     </div>
                     <hr />
