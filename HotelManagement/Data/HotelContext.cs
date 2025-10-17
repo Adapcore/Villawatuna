@@ -1,13 +1,18 @@
 ﻿using HotelManagement.Models.Entities;
 using Microsoft.EntityFrameworkCore;
+using System.Diagnostics.SymbolStore;
 
 namespace HotelManagement.Data
 {
 	public class HotelContext : DbContext
 	{
-		public HotelContext(DbContextOptions<HotelContext> options) : base(options)
+        private readonly IHttpContextAccessor _httpContextAccessor;
+
+        public HotelContext(DbContextOptions<HotelContext> options,
+            IHttpContextAccessor httpContextAccessor) : base(options)
 		{
-		}
+            _httpContextAccessor = httpContextAccessor;
+        }
 
 		public DbSet<Employee> Employees { get; set; }
         public DbSet<Customer> Customers { get; set; }
@@ -15,6 +20,49 @@ namespace HotelManagement.Data
         public DbSet<OrderItem> OrderItems { get; set; }
         public DbSet<Invoice> Invoices { get; set; }
         public DbSet<InvoiceDetail> InvoiceDetails { get; set; }
+
+        public override int SaveChanges()
+        {
+            AddAuditInfo();
+            return base.SaveChanges();
+        }
+
+        public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+        {
+            AddAuditInfo();
+            return await base.SaveChangesAsync(cancellationToken);
+        }
+
+        private int GetCurrentUser()
+        {
+            string strUserId = _httpContextAccessor.HttpContext?.User?.Identity?.GetUserId() ?? "0";
+
+			int userId = 0;
+			int.TryParse(strUserId, out userId);
+			return userId;
+        }
+
+        private void AddAuditInfo()
+        {
+            var entries = ChangeTracker.Entries<BaseEntity>();
+
+            foreach (var entry in entries)
+            {
+                var now = DateTime.UtcNow;
+                var currentUser = GetCurrentUser();
+
+                if (entry.State == EntityState.Added)
+                {
+                    entry.Entity.CreatedDate = now;
+                    entry.Entity.CreatedBy = currentUser;
+                }
+                else if (entry.State == EntityState.Modified)
+                {
+                    entry.Entity.LastModifiedDate = now;
+                    entry.Entity.LastModifiedBy = currentUser;
+                }
+            }
+        }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
 		{

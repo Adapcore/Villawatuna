@@ -6,8 +6,8 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace HotelManagement.Models.Entities
 {
 	[Index(nameof(Email), IsUnique = true)]   // <-- Enforces UNIQUE constraint
-	public class Employee
-	{
+	public class Employee : BaseEntity
+    {
 		[Key]
 		[DatabaseGenerated(DatabaseGeneratedOption.Identity)]
 		public int ID { get; set; }
