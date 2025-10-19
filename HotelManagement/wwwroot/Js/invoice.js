@@ -395,36 +395,45 @@
         CalculateTotals: function () {
             var self = this;
 
-            var subtotal = 0;
-            $("#invoiceItems tbody tr").each(function () {
-                subtotal += parseFloat($(this).find(".itemTotal").val()) || 0;
-            });
-
-            var serviceCharge = 0;
-            //Service charges applyes to Dining only
-            if ($("#Type").val() == 1) {
-                serviceCharge = subtotal * self.serviceCharge;
-            }
-
-            var grossTotal = subtotal + serviceCharge;
-
-            $("#subTotal").html(subtotal.toFixed(2));
-            $("#serviceCharge").html(serviceCharge.toFixed(2));
-            $("#grossAmount").html(grossTotal.toFixed(2));
-
             self.CalculateCurrySubTotal();
         },
 
         CalculateCurrySubTotal: function () {
             var self = this;
 
-            var subTotal = $("#subTotal").html();
-
-            // convert to selected currency
             const selectedCurrency = $("#Currency").val();
-            const convertedTotal = self.ConvertCurrency(subTotal, self._baseCurrency, selectedCurrency);
-            $("#curySubTotal").text(convertedTotal.toFixed(2));
+
+            var subtotal = 0;
+            $("#invoiceItems tbody tr").each(function () {
+                subtotal += parseFloat($(this).find(".itemTotal").val()) || 0;
+            });
+            $("#curySubTotal").text(subtotal.toFixed(2));
+            $("#curySubTotal_code").text(selectedCurrency);
+
+            self.CalculateGrossTotal();            
         },
+
+        CalculateGrossTotal: function () {
+            var self = this;
+
+            var curySubTotal = $("#curySubTotal").html();
+            const selectedCurrency = $("#Currency").val();
+            const subTotal = self.ConvertCurrency(curySubTotal, selectedCurrency, self._baseCurrency);
+
+            var serviceCharge = 0;
+            //Service charges applyes to Dining only
+            if ($("#Type").val() == 1) {
+                serviceCharge = subTotal * self.serviceCharge;
+            }
+
+            var grossTotal = subTotal + serviceCharge;
+
+            $("#subTotal").html(subTotal.toFixed(2));
+            $("#serviceCharge").html(serviceCharge.toFixed(2));
+            $("#grossAmount").html(grossTotal.toFixed(2));
+        },
+
+
 
         FindRate: function (from, to) {
             var self = this;
