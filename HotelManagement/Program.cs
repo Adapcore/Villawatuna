@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using HotelManagement.Services;
 using Umbraco.Cms.Web.Common.PublishedModels;
 using HotelManagement.Services.Interface;
+using HotelManagement.Services.Interfaces;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
@@ -27,6 +28,8 @@ builder.Services.AddScoped<IRoomService, RoomService>();
 builder.Services.AddScoped<IOtherTypeService, OtherTypeService>();
 builder.Services.AddScoped<ITourTypeService, TourTypeService>();
 builder.Services.AddScoped<ICurrencyService, CurrencyService>();
+builder.Services.AddScoped<IExpenseService, ExpenseService>();
+builder.Services.AddScoped<IExpenseTypeService, ExpenseTypeService>();
 
 
 builder.CreateUmbracoBuilder()

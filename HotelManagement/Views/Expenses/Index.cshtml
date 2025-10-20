@@ -1,0 +1,57 @@
+﻿@using HotelManagement.Helper
+@model IEnumerable<HotelManagement.Models.Entities.Expense>
+
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold text-primary mb-0">💰 Expenses</h2>
+        <a asp-action="Create" class="btn btn-success">
+            <i class="bi bi-plus-circle"></i> Add Expense
+        </a>
+    </div>
+
+    <table class="table table-striped table-hover table-bordered align-middle shadow-sm">
+        <thead class="table-dark">
+            <tr>
+                <th>ID</th>
+                <th style="width: 12%">Date</th>
+                <th style="width: 20%">Expense Type</th>
+                <th style="width: 20%">Payee</th>
+                <th style="width: 15%" class="text-end">Amount</th>
+                <th style="width: 15%">Payment Method</th>
+                <th style="width: 10%" class="text-center">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (!Model.Any())
+            {
+                <tr>
+                    <td colspan="6" class="text-center text-muted py-4">
+                        No expenses found.
+                    </td>
+                </tr>
+            }
+            else
+            {
+                foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@item.ID</td>
+                        <td>@item.Date.ToString("yyyy-MM-dd")</td>
+                        <td>@item.ExpenseType?.Name</td>
+                        <td>@item.PayeeName</td>
+                        <td class="text-end fw-bold">@item.Amount.ToString("N2")</td>
+                        <td>@EnumHelper.GetDisplayName(item.PaymentMethod)</td>
+                        <td>
+                            <a href="@Url.Action("Details", "Expenses", new { id = item.ID })" class="btn btn-sm btn-info">View</a>
+                            <a href="@Url.Action("Edit", "Expenses", new { id = item.ID })" class="btn btn-sm btn-warning">Edit</a>
+                        </td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+</div>
+</div>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet" />

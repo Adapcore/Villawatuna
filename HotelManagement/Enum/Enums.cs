@@ -7,7 +7,7 @@ namespace HotelManagement.Enums
         [Display(Name = "Dining")]
         Dining = 1,
 
-        [Display(Name = "TakeAway")]
+        [Display(Name = "Take Away")]
         TakeAway = 2,
 
         [Display(Name = "Stay")]
@@ -22,16 +22,31 @@ namespace HotelManagement.Enums
 
     public enum InvoiceStatus
     {
-        [Display(Name = "InProgress")]
+        [Display(Name = "In Progress")]
         InProgress = 1,
 
         [Display(Name = "Complete")]
         Complete = 2,
 
-        [Display(Name = "PartiallyPaid")]
+        [Display(Name = "Partially Paid")]
         PartiallyPaid = 3,
 
         [Display(Name = "Paid")]
         Paid = 4
+    }
+
+    public enum PaymentMethod
+    {
+        [Display(Name = "Cash")]
+        Cash = 1,
+
+        [Display(Name = "Bank Transfer")]
+        BankTransfer = 2,
+
+        [Display(Name = "Card")]
+        Card = 3,
+
+        [Display(Name = "Cheque")]
+        Cheque = 4
     }
 }

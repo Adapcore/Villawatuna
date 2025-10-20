@@ -1,4 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc.Rendering;
+using System.ComponentModel.DataAnnotations;
+using System.Reflection;
 
 namespace HotelManagement.Helper
 {
@@ -13,6 +15,13 @@ namespace HotelManagement.Helper
                            Value = Convert.ToInt32(e).ToString(),
                            Text = e.ToString()
                        });
+        }
+
+        public static string GetDisplayName(Enum value)
+        {
+            var field = value.GetType().GetField(value.ToString());
+            var attr = field?.GetCustomAttribute<DisplayAttribute>();
+            return attr?.Name ?? value.ToString();
         }
     }
 
