@@ -2,13 +2,8 @@
 using HotelManagement.Models.Entities;
 using HotelManagement.Models.ViewModels;
 using HotelManagement.Services.Interface;
-using Lucene.Net.Documents;
-using Lucene.Net.Util.Packed;
+using HotelManagement.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Abstractions;
-using NUglify.JavaScript.Syntax;
-using SixLabors.ImageSharp.Metadata.Profiles.Icc;
-using Umbraco.Cms.Core.Models.ContentEditing;
 
 namespace HotelManagement.Controllers.API
 {
@@ -17,10 +12,12 @@ namespace HotelManagement.Controllers.API
     public class InvoicesApiController : ControllerBase
     {
         private readonly IInvoiceService _invoiceService;
+        private readonly IPaymentService _paymentService;
 
-        public InvoicesApiController(IInvoiceService invoiceService)
+        public InvoicesApiController(IInvoiceService invoiceService, IPaymentService paymentService)
         {
             _invoiceService = invoiceService;
+            _paymentService = paymentService;
         }
 
         [HttpPost("Create")]
@@ -69,6 +66,11 @@ namespace HotelManagement.Controllers.API
 
             await _invoiceService.CreateAsync(invoice);
 
+            if (model.Paid > 0)
+            {
+                await _paymentService.AddPaymentAsync(invoice.InvoiceNo, model.Paid);
+            }
+
             return Ok(new { success = true, invoiceNo = invoice.InvoiceNo });
         }
 
@@ -105,10 +107,11 @@ namespace HotelManagement.Controllers.API
                 else if (model.Paid == invoice.Balance)
                     invoice.Status = InvoiceStatus.Complete;
 
-                else 
+                else
                     invoice.Status = InvoiceStatus.PartiallyPaid;
 
                 invoice.Balance = invoice.Balance - model.Paid;
+                invoice.Paid = invoice.GrossAmount - invoice.Balance;
             }
 
             // Delete existing details before adding new ones
@@ -128,6 +131,12 @@ namespace HotelManagement.Controllers.API
 
             // Save changes
             await _invoiceService.UpdateInvoiceAsync(invoice);
+
+            // Add a payment record
+            if (model.Paid > 0)
+            {
+                await _paymentService.AddPaymentAsync(invoice.InvoiceNo, model.Paid);
+            }
 
             return Ok(new
             {

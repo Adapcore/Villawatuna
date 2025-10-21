@@ -21,6 +21,8 @@ namespace HotelManagement.Data
         public DbSet<Invoice> Invoices { get; set; }
         public DbSet<InvoiceDetail> InvoiceDetails { get; set; }
         public DbSet<Expense> Expenses { get; set; }
+        public DbSet<Payment> Payments { get; set; }
+
 
         public override int SaveChanges()
         {

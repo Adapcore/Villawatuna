@@ -30,6 +30,7 @@ builder.Services.AddScoped<ITourTypeService, TourTypeService>();
 builder.Services.AddScoped<ICurrencyService, CurrencyService>();
 builder.Services.AddScoped<IExpenseService, ExpenseService>();
 builder.Services.AddScoped<IExpenseTypeService, ExpenseTypeService>();
+builder.Services.AddScoped<IPaymentService, PaymentService>();
 
 
 builder.CreateUmbracoBuilder()

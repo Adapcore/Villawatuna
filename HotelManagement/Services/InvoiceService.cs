@@ -1,7 +1,6 @@
 ﻿using HotelManagement.Data;
 using HotelManagement.Enums;
 using HotelManagement.Models.Entities;
-using HotelManagement.Models.ViewModels;
 using HotelManagement.Services.Interface;
 using Microsoft.EntityFrameworkCore;
 
@@ -87,7 +86,7 @@ namespace HotelManagement.Services
         {
 
             _context.Entry(invoice).State = EntityState.Modified;
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync();        
         }
 
         public async Task DeleteInvoiceAsync(int invoiceNo)
@@ -99,6 +98,7 @@ namespace HotelManagement.Services
                 await _context.SaveChangesAsync();
             }
         }
+
         public async Task DeleteInvoiceDetailsAsync(int invoiceNo)
         {
             var details = await _context.InvoiceDetails
