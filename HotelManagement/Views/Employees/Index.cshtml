@@ -33,7 +33,7 @@
                 <td>@e.ContactNo</td>
                 <td>
                     <a class="btn btn-sm btn-warning me-2" href="@Url.Action("Edit", "Employees", new { id = e.ID })">Edit</a>
-                    <a class="btn btn-sm btn-danger" href="@Url.Action("Delete", "Employees", new { id = e.ID })">Delete</a>
+                    @* <a class="btn btn-sm btn-danger" href="@Url.Action("Delete", "Employees", new { id = e.ID })">Delete</a> *@
                 </td>
             </tr>
         }

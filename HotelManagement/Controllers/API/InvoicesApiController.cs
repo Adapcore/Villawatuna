@@ -68,7 +68,7 @@ namespace HotelManagement.Controllers.API
 
             if (model.Paid > 0)
             {
-                await _paymentService.AddPaymentAsync(invoice.InvoiceNo, model.Paid);
+                await _paymentService.AddPaymentForInvoiceAsync(invoice.InvoiceNo, model.Paid);
             }
 
             return Ok(new { success = true, invoiceNo = invoice.InvoiceNo });
@@ -135,7 +135,7 @@ namespace HotelManagement.Controllers.API
             // Add a payment record
             if (model.Paid > 0)
             {
-                await _paymentService.AddPaymentAsync(invoice.InvoiceNo, model.Paid);
+                await _paymentService.AddPaymentForInvoiceAsync(invoice.InvoiceNo, model.Paid);
             }
 
             return Ok(new
