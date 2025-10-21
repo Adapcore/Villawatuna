@@ -14,7 +14,9 @@ namespace HotelManagement.Models.Entities
         public DateTime Date { get; set; }
 
         [Required]
-        public int InvoiceNo { get; set; } 
+        public int InvoiceNo { get; set; } //FK
+        public Invoice Invoice { get; set; }
+
 
         [Required]
         [Column(TypeName = "decimal(18,2)")]

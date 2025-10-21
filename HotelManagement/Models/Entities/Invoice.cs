@@ -48,5 +48,7 @@ namespace HotelManagement.Models.Entities
         public decimal Balance { get; set; }
 
         public ICollection<InvoiceDetail> InvoiceDetails { get; set; }
+        public ICollection<Payment>? Payments { get; set; }
+
     }
 }

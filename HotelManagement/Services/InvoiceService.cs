@@ -36,6 +36,7 @@ namespace HotelManagement.Services
             Invoice invoice = await _context.Invoices
                 .Include(i => i.Customer)
                 .Include(i => i.InvoiceDetails)
+                .Include(i => i.Payments)
                 .FirstOrDefaultAsync(i => i.InvoiceNo == invoiceNo);
 
             IEnumerable<ItemDto> menuItems = new List<ItemDto>();

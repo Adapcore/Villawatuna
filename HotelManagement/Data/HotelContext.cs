@@ -143,6 +143,12 @@ namespace HotelManagement.Data
 				entity.Property(d => d.UnitPrice).HasColumnType("decimal(18,2)");
 				entity.Property(d => d.Amount).HasColumnType("decimal(18,2)");
 			});
-		}
+
+            // Payment  Order (optional)
+            modelBuilder.Entity<Payment>()
+                .HasOne(p => p.Invoice)
+                .WithMany(o => o.Payments)
+                .HasForeignKey(p => p.InvoiceNo);
+        }
 	}
 }
