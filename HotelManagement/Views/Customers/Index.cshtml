@@ -1,12 +1,13 @@
-﻿@model IEnumerable<HotelManagement.Models.Entities.Customer>
+﻿@model X.PagedList.IPagedList<HotelManagement.Models.Entities.Customer>
 
 @{
+    ViewData["Title"] = "Customers";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
 <div class="container-fluid py-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="fw-bold text-primary mb-0"> Customers</h2>
+        <h2 class="fw-bold text-primary mb-0">Customers</h2>
         <a asp-action="Create" class="btn btn-success">
             <i class="bi bi-plus-circle"></i> Add Customer
         </a>
@@ -37,4 +38,5 @@
             }
         </tbody>
     </table>
+    @await Html.PartialAsync("_Pagination", Model)
 </div>

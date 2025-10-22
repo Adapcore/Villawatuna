@@ -1,9 +1,10 @@
-﻿using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using HotelManagement.Models;
-using HotelManagement.Services.Interfaces;
+﻿using HotelManagement.Models.DTO;
 using HotelManagement.Models.Entities;
+using HotelManagement.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
+using X.PagedList.Extensions;
 
 namespace HotelManagement.Controllers
 {
@@ -11,16 +12,23 @@ namespace HotelManagement.Controllers
     public class PaymentsController : Controller
     {
         private readonly IPaymentService _paymentService;
+        private readonly int _pageSize;
 
-        public PaymentsController(IPaymentService paymentService)
+        public PaymentsController(IPaymentService paymentService,
+            IOptions<PaginationSettings> paginationSettings)
         {
             _paymentService = paymentService;
+            _pageSize = paginationSettings.Value.DefaultPageSize;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int page = 1)
         {
+            int pageNumber = page < 1 ? 1 : page;
+
             var payments = await _paymentService.GetAllAsync();
-            return View(payments);
+            var pagedList = payments.ToPagedList(pageNumber, _pageSize);
+
+            return View(pagedList);
         }
 
         public async Task<IActionResult> Details(int id)

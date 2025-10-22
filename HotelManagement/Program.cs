@@ -5,6 +5,7 @@ using HotelManagement.Services;
 using Umbraco.Cms.Web.Common.PublishedModels;
 using HotelManagement.Services.Interface;
 using HotelManagement.Services.Interfaces;
+using HotelManagement.Models.DTO;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
@@ -32,6 +33,8 @@ builder.Services.AddScoped<IExpenseService, ExpenseService>();
 builder.Services.AddScoped<IExpenseTypeService, ExpenseTypeService>();
 builder.Services.AddScoped<IPaymentService, PaymentService>();
 
+
+builder.Services.Configure<PaginationSettings>(builder.Configuration.GetSection("Pagination"));
 
 builder.CreateUmbracoBuilder()
     .AddBackOffice()

@@ -1,21 +1,17 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Umbraco.Cms.Web.Common.Controllers;
-using Umbraco.Cms.Core.Services;
-using Umbraco.Cms.Core.Security;
-using Umbraco.Cms.Core.Web;
-using Umbraco.Cms.Infrastructure.Persistence;
+﻿using HotelManagement.Models.ViewModels;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
+using System.Text.Json;
 using Umbraco.Cms.Core.Cache;
-using Microsoft.Extensions.Logging;
-using HotelManagement.Models.ViewModels;
-using System.Threading.Tasks;
-using Umbraco.Cms.Web.Common.Security;
-using Umbraco.Cms.Web.Common;
-using Umbraco.Cms.Web.Website.Controllers;
 using Umbraco.Cms.Core.Logging;
 using Umbraco.Cms.Core.Routing;
-using System.Text.Json;
-using Microsoft.AspNetCore.Authentication;
-using System.Security.Claims;
+using Umbraco.Cms.Core.Security;
+using Umbraco.Cms.Core.Services;
+using Umbraco.Cms.Core.Web;
+using Umbraco.Cms.Infrastructure.Persistence;
+using Umbraco.Cms.Web.Common.Security;
+using Umbraco.Cms.Web.Website.Controllers;
 
 namespace HotelManagement.Controllers
 {

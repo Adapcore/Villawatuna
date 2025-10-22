@@ -1,13 +1,15 @@
 ﻿using HotelManagement.Enums;
 using HotelManagement.Helper;
+using HotelManagement.Models.DTO;
 using HotelManagement.Models.Entities;
 using HotelManagement.Models.ViewModels;
 using HotelManagement.Services.Interface;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.Extensions.Options;
 using System.ComponentModel.DataAnnotations;
 using System.Reflection;
+using X.PagedList.Extensions;
 
 namespace HotelManagement.Controllers
 {
@@ -19,24 +21,31 @@ namespace HotelManagement.Controllers
         private readonly ICustomerService _customerService;
         private readonly IMenuService _menuService;
         private readonly ICurrencyService _currencyService;
+        private readonly int _pageSize;
 
         public InvoicesController(
-            IInvoiceService invoiceService, 
+            IInvoiceService invoiceService,
             ICustomerService customerService,
             IMenuService menuService,
-            ICurrencyService currencyService)
+            ICurrencyService currencyService,
+            IOptions<PaginationSettings> paginationSettings)
         {
             _invoiceService = invoiceService;
             _customerService = customerService;
             _menuService = menuService;
             _currencyService = currencyService;
+            _pageSize = paginationSettings.Value.DefaultPageSize;
         }
 
         [HttpGet]
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int page = 1)
         {
+            int pageNumber = page < 1 ? 1 : page;
+
             var invoices = await _invoiceService.GetAllInvoicesAsync();
-            return View(invoices);
+            var pagedList = invoices.ToPagedList(pageNumber, _pageSize);
+
+            return View(pagedList);
         }
 
         [HttpGet("SelectType")]
@@ -53,7 +62,7 @@ namespace HotelManagement.Controllers
         {
             return RedirectToAction("Create", new { type = selectedType });
         }
-        
+
         [HttpGet("Create")]
         public async Task<IActionResult> Create(string type)
         {
@@ -65,7 +74,7 @@ namespace HotelManagement.Controllers
                 Value = c.ID.ToString(),
                 Text = c.FirstName + " " + c.LastName
             }).ToList();
-            
+
             var currencyTypes = await _currencyService.GetCurencyTypesAsync();
             ViewBag.CurrencyTypes = currencyTypes.Select(c => new SelectListItem
             {
@@ -130,7 +139,7 @@ namespace HotelManagement.Controllers
                 ServiceCharge = invoice.ServiceCharge,
                 GrossAmount = invoice.GrossAmount,
                 Status = (int)invoice.Status,
-                Balance = invoice.Balance,                
+                Balance = invoice.Balance,
                 InvoiceDetails = invoice.InvoiceDetails.Select(d => new CreateInvoiceDetailViewModel
                 {
                     ItemId = d.ItemId,
@@ -169,7 +178,7 @@ namespace HotelManagement.Controllers
 
         [HttpGet("PrintThermal/{id}")]
         public async Task<IActionResult> PrintThermal(int id)
-        {    
+        {
 
             var invoice = await _invoiceService.GetByIdAsync(id);
 

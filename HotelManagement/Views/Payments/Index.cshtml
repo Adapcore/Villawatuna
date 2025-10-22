@@ -1,4 +1,4 @@
-﻿@model IEnumerable<HotelManagement.Models.Entities.Payment>
+﻿@model X.PagedList.IPagedList<HotelManagement.Models.Entities.Payment>
 
 @{
     ViewData["Title"] = "Payments";
@@ -50,3 +50,4 @@
         </div>
     }
 </div>
+@await Html.PartialAsync("_Pagination", Model)

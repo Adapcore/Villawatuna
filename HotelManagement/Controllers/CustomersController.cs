@@ -1,7 +1,10 @@
-﻿using HotelManagement.Models.Entities;
+﻿using HotelManagement.Models.DTO;
+using HotelManagement.Models.Entities;
 using HotelManagement.Services.Interface;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
+using X.PagedList.Extensions;
 
 namespace HotelManagement.Controllers
 {
@@ -9,16 +12,23 @@ namespace HotelManagement.Controllers
     public class CustomersController : Controller
     {
         private readonly ICustomerService _customerService;
+        private readonly int _pageSize;
 
-        public CustomersController(ICustomerService customerService)
+        public CustomersController(ICustomerService customerService,
+            IOptions<PaginationSettings> paginationSettings)
         {
             _customerService = customerService;
+            _pageSize = paginationSettings.Value.DefaultPageSize;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int page = 1)
         {
+            int pageNumber = page < 1 ? 1 : page;
+
             var customers = await _customerService.GetAllAsync();
-            return View(customers);
+            var pagedList = customers.ToPagedList(pageNumber, _pageSize);
+
+            return View(pagedList);
         }
 
         public IActionResult Create()

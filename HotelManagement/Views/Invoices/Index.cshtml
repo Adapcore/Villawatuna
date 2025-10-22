@@ -1,7 +1,8 @@
 ﻿@using HotelManagement.Helper
-@model IEnumerable<Invoice>
+@model X.PagedList.IPagedList<HotelManagement.Models.Entities.Invoice>
 
 @{
+    ViewData["Title"] = "Invoices";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
@@ -52,4 +53,5 @@
             }
         </tbody>
     </table>
+    @await Html.PartialAsync("_Pagination", Model)
 </div>

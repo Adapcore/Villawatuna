@@ -1,12 +1,15 @@
 ﻿using HotelManagement.Enums;
 using HotelManagement.Helper;
+using HotelManagement.Models.DTO;
 using HotelManagement.Models.Entities;
 using HotelManagement.Services.Interface;
 using HotelManagement.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.Extensions.Options;
 using System.ComponentModel.DataAnnotations;
 using System.Reflection;
+using X.PagedList.Extensions;
 
 namespace HotelManagement.Controllers
 {
@@ -16,18 +19,27 @@ namespace HotelManagement.Controllers
         private readonly IExpenseService _expenseService;
         private readonly IWebHostEnvironment _env;
         private readonly IExpenseTypeService _expenseTypeService;
+        private readonly int _pageSize;
 
-        public ExpensesController(IExpenseService expenseService, IWebHostEnvironment env, IExpenseTypeService expenseTypeService)
+        public ExpensesController(IExpenseService expenseService,
+            IWebHostEnvironment env,
+            IExpenseTypeService expenseTypeService, 
+            IOptions<PaginationSettings> paginationSettings)
         {
             _expenseService = expenseService;
             _env = env;
             _expenseTypeService = expenseTypeService;
+            _pageSize = paginationSettings.Value.DefaultPageSize;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int page = 1)
         {
-            var expenses = await _expenseService.GetAllAsync();
-            return View(expenses);
+            int pageNumber = page < 1 ? 1 : page;
+
+            IEnumerable<Expense> expenses = await _expenseService.GetAllAsync();
+            var pagedList = expenses.ToPagedList(pageNumber, _pageSize);
+
+            return View(pagedList);
         }
 
         public async Task<IActionResult> Create()

@@ -1,27 +1,35 @@
+using HotelManagement.Models.DTO;
 using HotelManagement.Models.Entities;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Authorization;
 using HotelManagement.Services.Interface;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
+using X.PagedList.Extensions;
 
 namespace HotelManagement.Controllers
 {
     [Authorize]
     public class EmployeesController : Controller
 	{
-
 		private readonly IEmployeeService _employeeService;
+        private readonly int _pageSize;
 
-		public EmployeesController(IEmployeeService employeeService)
+        public EmployeesController(IEmployeeService employeeService,
+             IOptions<PaginationSettings> paginationSettings)
 		{
 			_employeeService = employeeService;
-		}
+            _pageSize = paginationSettings.Value.DefaultPageSize;
+        }
 
-		public async Task<IActionResult> Index()
-		{
-			List<Employee> employees = await _employeeService.GetAllAsync();
-			return View(employees);
-		}
+        public async Task<IActionResult> Index(int page = 1)
+        {
+            int pageNumber = page < 1 ? 1 : page;
+
+            List<Employee> employees = await _employeeService.GetAllAsync();
+            var pagedList = employees.ToPagedList(pageNumber, _pageSize);
+
+            return View(pagedList);
+        }
 
 		public IActionResult Create()
 		{

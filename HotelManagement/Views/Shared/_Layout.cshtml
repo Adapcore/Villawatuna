@@ -30,10 +30,10 @@
             padding: 0.5rem 1rem;
         }
 
-        header a.nav-link:hover {
-            background-color: #00509e;
-            border-radius: 6px;
-        }
+            header a.nav-link:hover {
+                background-color: #00509e;
+                border-radius: 6px;
+            }
 
         footer {
             background-color: #003366;
@@ -66,11 +66,18 @@
 
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
-                    <li class="nav-item"><a class="nav-link" href="/Employees">Employees</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/Customers">Customers</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/Internal/Invoices">Invoices</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/Expenses">Expenses</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/Payments">Payments</a></li>
+                    <li class="nav-item">
+                        <a asp-controller="Employees" asp-action="Index" class="nav-link">Employees</a>
+                    </li>
+                    <li class="nav-item">
+                        <a asp-controller="Customers" asp-action="Index" class="nav-link">Customers</a>
+                    </li>
+                    <li class="nav-item">
+                        <a asp-controller="Invoices" asp-action="Index" class="nav-link">Invoices</a>
+                    <li class="nav-item">
+                        <a asp-controller="Expenses" asp-action="Index" class="nav-link">Expenses</a>
+                    <li class="nav-item">
+                        <a asp-controller="Payments" asp-action="Index" class="nav-link">Payments</a>
 
                     @if (Context.User?.Identity != null && Context.User.Identity.IsAuthenticated)
                     {
