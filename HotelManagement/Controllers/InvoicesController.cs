@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Options;
 using System.ComponentModel.DataAnnotations;
 using System.Reflection;
+using uSync.Core;
 using X.PagedList.Extensions;
 
 namespace HotelManagement.Controllers
@@ -39,13 +40,13 @@ namespace HotelManagement.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Index(InvoiceStatus? invoiceStatus = null, int page = 1)
+        public async Task<IActionResult> Index(InvoiceStatus? invoiceStatus = null, int customerId = 0, int page = 1)
         {
             int pageNumber = page < 1 ? 1 : page;
-            int customerId = 0;
+            customerId = customerId < 0 ? 0 : customerId;
 
             var pagedList = await _invoiceService.GetPagedInvoicesAsync(pageNumber, _pageSize, customerId: customerId, invoiceStatus: invoiceStatus);
-           
+
             // badge counts by status
             ViewBag.CountAll = await _invoiceService.GetPagedInvoicesCountAsync(customerId: customerId);
             ViewBag.CountOpen = await _invoiceService.GetPagedInvoicesCountAsync(customerId: customerId, invoiceStatus: InvoiceStatus.InProgress);
@@ -55,6 +56,9 @@ namespace HotelManagement.Controllers
 
             ViewBag.InvoiceStatus = invoiceStatus;
             ViewBag.CustomerId = customerId;
+
+            var customers = await _customerService.GetAllAsync();
+            ViewBag.Customers = customers;
 
             return View(pagedList);
         }
