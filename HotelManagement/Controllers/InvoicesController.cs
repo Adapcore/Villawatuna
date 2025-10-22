@@ -4,6 +4,7 @@ using HotelManagement.Models.DTO;
 using HotelManagement.Models.Entities;
 using HotelManagement.Models.ViewModels;
 using HotelManagement.Services.Interface;
+using Lucene.Net.Search;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Options;
@@ -38,12 +39,22 @@ namespace HotelManagement.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Index(int page = 1)
+        public async Task<IActionResult> Index(InvoiceStatus? invoiceStatus = null, int page = 1)
         {
             int pageNumber = page < 1 ? 1 : page;
+            int customerId = 0;
 
-            var invoices = await _invoiceService.GetAllInvoicesAsync();
-            var pagedList = invoices.ToPagedList(pageNumber, _pageSize);
+            var pagedList = await _invoiceService.GetPagedInvoicesAsync(pageNumber, _pageSize, customerId: customerId, invoiceStatus: invoiceStatus);
+           
+            // badge counts by status
+            ViewBag.CountAll = await _invoiceService.GetPagedInvoicesCountAsync(customerId: customerId);
+            ViewBag.CountOpen = await _invoiceService.GetPagedInvoicesCountAsync(customerId: customerId, invoiceStatus: InvoiceStatus.InProgress);
+            ViewBag.CountComplete = await _invoiceService.GetPagedInvoicesCountAsync(customerId: customerId, invoiceStatus: InvoiceStatus.Complete);
+            ViewBag.CountPartial = await _invoiceService.GetPagedInvoicesCountAsync(customerId: customerId, invoiceStatus: InvoiceStatus.PartiallyPaid);
+            ViewBag.CountPaid = await _invoiceService.GetPagedInvoicesCountAsync(customerId: customerId, invoiceStatus: InvoiceStatus.Paid);
+
+            ViewBag.InvoiceStatus = invoiceStatus;
+            ViewBag.CustomerId = customerId;
 
             return View(pagedList);
         }

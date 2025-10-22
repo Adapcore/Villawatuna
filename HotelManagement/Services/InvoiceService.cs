@@ -3,6 +3,8 @@ using HotelManagement.Enums;
 using HotelManagement.Models.Entities;
 using HotelManagement.Services.Interface;
 using Microsoft.EntityFrameworkCore;
+using X.PagedList;
+using X.PagedList.Extensions;
 
 namespace HotelManagement.Services
 {
@@ -29,6 +31,44 @@ namespace HotelManagement.Services
                 .Include(i => i.Customer)
                 .OrderByDescending(i => i.Date).ThenByDescending(i => i.InvoiceNo)
                 .ToListAsync();
+        }
+
+        public async Task<IPagedList<Invoice>> GetPagedInvoicesAsync(
+            int pageNumber,
+            int pageSize,
+            int customerId = 0,   
+            InvoiceStatus? invoiceStatus = null)
+        {
+            var query = _context.Invoices
+                .Include(i => i.Customer)
+                .AsQueryable();
+
+            if (customerId > 0)
+                query = query.Where(x => x.CustomerId == customerId);
+
+            if (invoiceStatus.HasValue)
+                query = query.Where(x => x.Status == invoiceStatus.Value);
+
+            query = query
+                .OrderByDescending(i => i.Date)
+                .ThenByDescending(i => i.InvoiceNo);
+
+            return query.ToPagedList(pageNumber, pageSize); ;
+        }
+
+
+        public async Task<int> GetPagedInvoicesCountAsync( int customerId = 0, InvoiceStatus? invoiceStatus = null)
+        {
+            var query = _context.Invoices
+                .Include(i => i.Customer).AsQueryable();
+
+            if (customerId > 0)
+                query = query.Where(x => x.CustomerId == customerId);
+
+            if (invoiceStatus != null)
+                query = query.Where(x => x.Status == invoiceStatus);
+
+            return await query.CountAsync();
         }
 
         public async Task<Invoice?> GetByIdAsync(int invoiceNo)
@@ -87,7 +127,7 @@ namespace HotelManagement.Services
         {
 
             _context.Entry(invoice).State = EntityState.Modified;
-            await _context.SaveChangesAsync();        
+            await _context.SaveChangesAsync();
         }
 
         public async Task DeleteInvoiceAsync(int invoiceNo)
