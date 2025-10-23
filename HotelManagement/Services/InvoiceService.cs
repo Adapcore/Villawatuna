@@ -50,8 +50,7 @@ namespace HotelManagement.Services
                 query = query.Where(x => x.Status == invoiceStatus.Value);
 
             query = query
-                .OrderByDescending(i => i.Date)
-                .ThenByDescending(i => i.InvoiceNo);
+                .OrderByDescending(i => i.InvoiceNo);
 
             return query.ToPagedList(pageNumber, pageSize); ;
         }

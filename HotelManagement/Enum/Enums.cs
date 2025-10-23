@@ -25,14 +25,14 @@ namespace HotelManagement.Enums
         [Display(Name = "In Progress")]
         InProgress = 1,
 
-        [Display(Name = "Complete")]
-        Complete = 2,
-
         [Display(Name = "Partially Paid")]
         PartiallyPaid = 3,
 
         [Display(Name = "Paid")]
-        Paid = 4
+        Paid = 4,
+
+        [Display(Name = "Complete")]
+        Complete = 2
     }
 
     public enum PaymentMethod

@@ -1,6 +1,7 @@
 ﻿@model HotelManagement.Models.Entities.Customer
 
 @{
+    ViewData["Title"] = "Create Customers";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
@@ -14,10 +15,12 @@
             <div class="col-md-6">
                 <label asp-for="FirstName" class="form-label"></label>
                 <input asp-for="FirstName" class="form-control" />
+                <span asp-validation-for="FirstName" class="text-danger"></span>
             </div>
             <div class="col-md-6">
                 <label asp-for="LastName" class="form-label"></label>
                 <input asp-for="LastName" class="form-control" />
+                <span asp-validation-for="LastName" class="text-danger"></span>
             </div>
         </div>
 
@@ -25,26 +28,31 @@
             <div class="col-md-6">
                 <label asp-for="Email" class="form-label"></label>
                 <input asp-for="Email" class="form-control" />
+                <span asp-validation-for="Email" class="text-danger"></span>
             </div>
             <div class="col-md-6">
                 <label asp-for="ContactNo" class="form-label"></label>
                 <input asp-for="ContactNo" class="form-control" />
+                <span asp-validation-for="ContactNo" class="text-danger"></span>
             </div>
         </div>
 
         <div class="mb-3">
             <label asp-for="Address" class="form-label"></label>
             <input asp-for="Address" class="form-control" />
+            <span asp-validation-for="Address" class="text-danger"></span>
         </div>
 
         <div class="row mb-3">
             <div class="col-md-6">
                 <label asp-for="NIC" class="form-label"></label>
                 <input asp-for="NIC" class="form-control" />
+                <span asp-validation-for="NIC" class="text-danger"></span>
             </div>
             <div class="col-md-6">
                 <label asp-for="PassportNo" class="form-label"></label>
                 <input asp-for="PassportNo" class="form-control" />
+                <span asp-validation-for="PassportNo" class="text-danger"></span>
             </div>
         </div>
 

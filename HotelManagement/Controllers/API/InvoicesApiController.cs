@@ -105,7 +105,7 @@ namespace HotelManagement.Controllers.API
                     return BadRequest(ModelState);
 
                 else if (model.Paid == invoice.Balance)
-                    invoice.Status = InvoiceStatus.Complete;
+                    invoice.Status = InvoiceStatus.Paid;
 
                 else
                     invoice.Status = InvoiceStatus.PartiallyPaid;

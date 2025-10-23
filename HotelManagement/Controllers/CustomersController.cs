@@ -54,6 +54,12 @@ namespace HotelManagement.Controllers
                 ModelState.AddModelError(nameof(model.Email), "Email is already in use.");
                 return View(model);
             }
+            
+            if (!string.IsNullOrWhiteSpace(model.ContactNo) && await _customerService.ContactExistsAsync(model.ContactNo))
+            {
+                ModelState.AddModelError(nameof(model.ContactNo), "Contact is already in use.");
+                return View(model);
+            }
 
             await _customerService.CreateAsync(model);
             return RedirectToAction(nameof(Index));

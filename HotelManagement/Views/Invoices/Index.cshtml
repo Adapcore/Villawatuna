@@ -92,12 +92,6 @@
             </a>
         </li>
         <li class="nav-item">
-            <a class="nav-link @(_invoiceStatus == InvoiceStatus.Complete ? "active" : "")" href="@Url.Action("Index", new { invoiceStatus = 2 , customerId = _customerId})">
-                Complete
-                <span class="badge bg-warning text-dark">@ViewBag.CountComplete</span>
-            </a>
-        </li>
-        <li class="nav-item">
             <a class="nav-link @(_invoiceStatus == InvoiceStatus.PartiallyPaid ? "active" : "")" href="@Url.Action("Index", new { invoiceStatus = 3, customerId = _customerId })">
                 Partially Paid
                 <span class="badge bg-warning text-dark">@ViewBag.CountPartial</span>
@@ -107,6 +101,12 @@
             <a class="nav-link @(_invoiceStatus == InvoiceStatus.Paid ? "active" : "")" href="@Url.Action("Index", new { invoiceStatus = 4, customerId = _customerId })">
                 Paid
                 <span class="badge bg-success">@ViewBag.CountPaid</span>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link @(_invoiceStatus == InvoiceStatus.Complete ? "active" : "")" href="@Url.Action("Index", new { invoiceStatus = 2 , customerId = _customerId})">
+                Complete
+                <span class="badge bg-primary">@ViewBag.CountComplete</span>
             </a>
         </li>
     </ul>

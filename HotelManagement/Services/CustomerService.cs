@@ -39,6 +39,19 @@ namespace HotelManagement.Services
 
             return await query.AnyAsync();
         }
+        public async Task<bool> ContactExistsAsync(string contact, int? excludeId = null)
+        {
+            if (string.IsNullOrWhiteSpace(contact))
+                return false;
+
+            IQueryable<Customer> query = _dbContext.Customers.Where(c => c.ContactNo == contact);
+            if (excludeId.HasValue)
+            {
+                query = query.Where(c => c.ID != excludeId.Value);
+            }
+
+            return await query.AnyAsync();
+        }
 
         public async Task<Customer> CreateAsync(Customer customer)
         {

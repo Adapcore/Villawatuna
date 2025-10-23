@@ -56,6 +56,10 @@ namespace HotelManagement.Controllers
 			{
 				ModelState.AddModelError(nameof(model.LastName), "Last name is required.");
 			}
+			if (string.IsNullOrWhiteSpace(model.ContactNo))
+			{
+				ModelState.AddModelError(nameof(model.ContactNo), "Contact No is required.");
+			}
 
 			if (!ModelState.IsValid)
 			{
