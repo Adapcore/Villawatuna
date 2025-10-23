@@ -27,18 +27,26 @@
         header a.nav-link, header .navbar-brand {
             color: white !important;
             font-weight: 500;
-            padding: 0.5rem 1rem;
+            padding: 0.75rem 1rem;
+            font-size: 1.1rem;
+            border-radius: 8px;
+            transition: all 0.2s ease;
         }
 
-            header a.nav-link:hover {
-                background-color: #00509e;
-                border-radius: 6px;
-            }
+        header a.nav-link:hover {
+            background-color: #00509e;
+            transform: translateY(-1px);
+        }
+
+        header .navbar-brand {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
 
         footer {
             background-color: #003366;
             color: white;
-            padding: 1rem;
+            padding: 1.5rem;
             margin-top: auto;
             text-align: center;
         }
@@ -48,10 +56,70 @@
             padding-bottom: 3rem;
         }
 
+        /* Touch Screen Optimizations */
+        .btn {
+            border-radius: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        /* Larger touch targets */
+        .nav-link {
+            min-height: 48px;
+            display: flex;
+            align-items: center;
+        }
+
+        /* Mobile optimizations */
         @@media (max-width: 768px) {
             header .navbar-nav {
                 text-align: center;
             }
+            
+            header a.nav-link, header .navbar-brand {
+                padding: 1rem;
+                font-size: 1.2rem;
+                min-height: 56px;
+            }
+            
+            header .navbar-brand {
+                font-size: 1.8rem;
+            }
+            
+            main.container {
+                padding-top: 1rem;
+                padding-bottom: 2rem;
+            }
+            
+            footer {
+                padding: 2rem 1rem;
+            }
+        }
+
+        /* Tablet optimizations */
+        @@media (min-width: 769px) and (max-width: 1024px) {
+            header a.nav-link {
+                padding: 0.75rem 1.25rem;
+                font-size: 1.15rem;
+            }
+        }
+
+        /* Focus states for accessibility */
+        .nav-link:focus, .btn:focus {
+            outline: 3px solid #007bff;
+            outline-offset: 2px;
+        }
+
+        /* Smooth scrolling */
+        html {
+            scroll-behavior: smooth;
         }
     </style>
 </head>

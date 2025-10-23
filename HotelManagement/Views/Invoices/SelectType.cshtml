@@ -2,31 +2,199 @@
     ViewBag.Title = "Select Invoice Type";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
-<div class="container mt-5">
+
+<div class="container-fluid py-4">
+    <!-- Touch-Optimized Header -->
+    <div class="row mb-4">
+        <div class="col-12 text-center">
+            <h1 class="fw-bold text-primary mb-3 fs-1">📋 Select Invoice Type</h1>
+            <p class="text-muted fs-5">Choose the type of invoice you want to create</p>
+        </div>
+    </div>
+
+    <!-- Touch-Optimized Invoice Type Selection -->
     <div class="row justify-content-center">
-        <div class="col-md-6">
-            <div class="card shadow-sm rounded-3">
-                <div class="card-header bg-dark text-white">
-                    <h4 class="mb-0">Select Invoice Type</h4>
+        <div class="col-12 col-lg-10">
+            <div class="row g-4">
+                <!-- Dining Invoice -->
+                <div class="col-12 col-md-6 col-lg-4">
+                    <div class="card h-100 shadow-sm border-0 invoice-type-card" style="cursor: pointer;" onclick="selectInvoiceType(1)">
+                        <div class="card-body text-center p-4">
+                            <div class="mb-4">
+                                <i class="bi bi-cup-hot-fill display-1 text-danger"></i>
+                            </div>
+                            <h4 class="fw-bold mb-3">🍽️ Dining</h4>
+                            <p class="text-muted mb-4">Create invoices for restaurant dining Service</p>
+                            <div class="d-grid">
+                                <button type="button" class="btn btn-outline-danger btn-lg">
+                                    <i class="bi bi-arrow-right-circle me-2"></i>Select Dining
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="card-body">
-                    <form asp-action="SelectType" method="post">
-                        <div class="mb-3">
-                            <label for="selectedType" class="form-label">Invoice Type</label>
-                            <select id="selectedType" name="selectedType"
-                                    asp-items="ViewBag.InvoiceTypes"
-                                    class="form-select">
-                            </select>
+
+                <!-- Take Away Invoice -->
+                <div class="col-12 col-md-6 col-lg-4">
+                    <div class="card h-100 shadow-sm border-0 invoice-type-card" style="cursor: pointer;" onclick="selectInvoiceType(2)">
+                        <div class="card-body text-center p-4">
+                            <div class="mb-4">
+                                <i class="bi bi-bag-check-fill display-1 text-warning"></i>
+                            </div>
+                            <h4 class="fw-bold mb-3">🥡 Take Away</h4>
+                            <p class="text-muted mb-4">Create invoices for takeaway food orders </p>
+                            <div class="d-grid">
+                                <button type="button" class="btn btn-outline-warning btn-lg">
+                                    <i class="bi bi-arrow-right-circle me-2"></i>Select Take Away
+                                </button>
+                            </div>
                         </div>
-                        <div class="d-flex justify-content-end">
-                            <a href="@Url.Action("Index", "Invoices")" class="btn btn-secondary me-2">Cancel</a>
-                            <button type="submit" class="btn btn-success">
-                                <i class="bi bi-arrow-right-circle"></i> Continue
-                            </button>
+                    </div>
+                </div>
+
+                <!-- Stay Invoice -->
+                <div class="col-12 col-md-6 col-lg-4">
+                    <div class="card h-100 shadow-sm border-0 invoice-type-card" style="cursor: pointer;" onclick="selectInvoiceType(3)">
+                        <div class="card-body text-center p-4">
+                            <div class="mb-4">
+                                <i class="bi bi-building-check display-1 text-primary"></i>
+                            </div>
+                            <h4 class="fw-bold mb-3">🏨 Stay</h4>
+                            <p class="text-muted mb-4">Create invoices for hotel accommodation</p>
+                            <div class="d-grid">
+                                <button type="button" class="btn btn-outline-primary btn-lg">
+                                    <i class="bi bi-arrow-right-circle me-2"></i>Select Stay
+                                </button>
+                            </div>
                         </div>
-                    </form>
+                    </div>
+                </div>
+
+                <!-- Other Invoice -->
+                <div class="col-12 col-md-6 col-lg-4">
+                    <div class="card h-100 shadow-sm border-0 invoice-type-card" style="cursor: pointer;" onclick="selectInvoiceType(4)">
+                        <div class="card-body text-center p-4">
+                            <div class="mb-4">
+                                <i class="bi bi-gear-fill display-1 text-secondary"></i>
+                            </div>
+                            <h4 class="fw-bold mb-3">⚙️ Other</h4>
+                            <p class="text-muted mb-4">Create invoices for other services</p>
+                            <div class="d-grid">
+                                <button type="button" class="btn btn-outline-secondary btn-lg">
+                                    <i class="bi bi-arrow-right-circle me-2"></i>Select Other
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tour Invoice -->
+                <div class="col-12 col-md-6 col-lg-4">
+                    <div class="card h-100 shadow-sm border-0 invoice-type-card" style="cursor: pointer;" onclick="selectInvoiceType(5)">
+                        <div class="card-body text-center p-4">
+                            <div class="mb-4">
+                                <i class="bi bi-bus-front-fill display-1 text-success"></i>
+                            </div>
+                            <h4 class="fw-bold mb-3">🚌 Tour</h4>
+                            <p class="text-muted mb-4">Create invoices for tour services</p>
+                            <div class="d-grid">
+                                <button type="button" class="btn btn-outline-success btn-lg">
+                                    <i class="bi bi-arrow-right-circle me-2"></i>Select Tour
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
+
+    <!-- Action Buttons -->
+    <div class="row mt-5">
+        <div class="col-12 text-center">
+            <a href="@Url.Action("Index", "Invoices")" class="btn btn-secondary btn-lg px-5 py-3">
+                <i class="bi bi-arrow-left-circle me-2"></i>Back to Invoices
+            </a>
+        </div>
+    </div>
 </div>
+
+<!-- Hidden Form for Submission -->
+<form id="invoiceTypeForm" asp-action="SelectType" method="post" style="display: none;">
+    <input id="selectedType" name="selectedType" type="hidden" />
+</form>
+
+<script>
+    function selectInvoiceType(type) {
+        document.getElementById('selectedType').value = type;
+        document.getElementById('invoiceTypeForm').submit();
+    }
+</script>
+
+<style>
+    /* Touch Screen Optimizations for Select Type */
+    .invoice-type-card {
+        transition: all 0.3s ease;
+        border-radius: 16px;
+        border: 2px solid transparent;
+    }
+    
+    .invoice-type-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 12px 30px rgba(0,0,0,0.15);
+        border-color: #007bff;
+    }
+    
+    .invoice-type-card:active {
+        transform: translateY(-4px);
+    }
+    
+    .btn-lg {
+        min-height: 56px;
+        font-size: 1.1rem;
+        border-radius: 12px;
+    }
+    
+    /* Mobile optimizations */
+    @@media (max-width: 768px) {
+        .btn-lg {
+            min-height: 64px;
+            font-size: 1.2rem;
+        }
+        
+        .display-1 {
+            font-size: 4rem !important;
+        }
+        
+        .fs-1 {
+            font-size: 2.5rem !important;
+        }
+        
+        .fs-5 {
+            font-size: 1.3rem !important;
+        }
+        
+        .card-body {
+            padding: 2rem !important;
+        }
+    }
+    
+    /* Focus states for accessibility */
+    .invoice-type-card:focus {
+        outline: 3px solid #007bff;
+        outline-offset: 2px;
+    }
+    
+    /* Animation for card selection */
+    @@keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+        100% { transform: scale(1); }
+    }
+    
+    .invoice-type-card.selected {
+        animation: pulse 0.6s ease-in-out;
+        border-color: #28a745;
+        background-color: #f8f9fa;
+    }
+</style>
