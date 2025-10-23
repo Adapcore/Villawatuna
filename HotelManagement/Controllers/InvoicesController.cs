@@ -58,9 +58,21 @@ namespace HotelManagement.Controllers
             ViewBag.CustomerId = customerId;
 
             var customers = await _customerService.GetAllAsync();
-            ViewBag.Customers = customers;
+            //ViewBag.Customers = customers;
 
-            return View(pagedList);
+            ViewBag.Customers = customers.Select(c => new SelectListItem
+            {
+                Value = c.ID.ToString(),
+                Text = c.FirstName + " " + c.LastName
+            }).ToList();
+
+            var model = new InvoiceIndexViewModel
+            {
+                CustomerId = customerId,
+                Invoices = pagedList
+            };
+
+            return View(model);
         }
 
         [HttpGet("SelectType")]
