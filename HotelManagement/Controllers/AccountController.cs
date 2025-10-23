@@ -115,9 +115,9 @@ namespace HotelManagement.Controllers
 
                     // Redirect based on role
                     if (string.Equals(userType, "Admin", StringComparison.OrdinalIgnoreCase))
-                        return Redirect("/Internal/Invoices");
+                        return Redirect("/Dashboard");
                     else if (string.Equals(userType, "User", StringComparison.OrdinalIgnoreCase))
-                        return Redirect("/Internal/Invoices");
+                        return Redirect("/Dashboard");
                     else
                         return Redirect("/");
                 }

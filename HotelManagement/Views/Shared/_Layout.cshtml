@@ -121,6 +121,37 @@
         html {
             scroll-behavior: smooth;
         }
+
+        /* Touch-friendly styles */
+        .touch-card {
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .touch-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15) !important;
+        }
+
+        .touch-card:active {
+            transform: translateY(0);
+        }
+
+        /* Larger touch targets for mobile */
+        @@media (max-width: 768px) {
+            .btn-lg {
+                min-height: 60px;
+                font-size: 1.1rem;
+            }
+            
+            .card-body {
+                padding: 1.5rem !important;
+            }
+            
+            .fs-1 {
+                font-size: 2.5rem !important;
+            }
+        }
     </style>
 </head>
 <body>
@@ -133,22 +164,37 @@
             </button>
 
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a asp-controller="Employees" asp-action="Index" class="nav-link">Employees</a>
-                    </li>
-                    <li class="nav-item">
-                        <a asp-controller="Customers" asp-action="Index" class="nav-link">Customers</a>
-                    </li>
-                    <li class="nav-item">
-                        <a asp-controller="Invoices" asp-action="Index" class="nav-link">Invoices</a>
-                    <li class="nav-item">
-                        <a asp-controller="Expenses" asp-action="Index" class="nav-link">Expenses</a>
-                    <li class="nav-item">
-                        <a asp-controller="Payments" asp-action="Index" class="nav-link">Payments</a>
+                <ul class="navbar-nav ms-auto align-items-lg-center">
+                    @if (Context.User?.Identity != null && Context.User.Identity.IsAuthenticated)
+                    {
+                        <li class="nav-item">
+                            <a asp-controller="Dashboard" asp-action="Index" class="nav-link">Dashboard</a>
+                        </li>
+                        <li class="nav-item">
+                            <a asp-controller="Employees" asp-action="Index" class="nav-link">Employees</a>
+                        </li>
+                        <li class="nav-item">
+                            <a asp-controller="Customers" asp-action="Index" class="nav-link">Customers</a>
+                        </li>
+                        <li class="nav-item">
+                            <a asp-controller="Invoices" asp-action="Index" class="nav-link">Invoices</a>
+                        </li>
+                        <li class="nav-item">
+                            <a asp-controller="Expenses" asp-action="Index" class="nav-link">Expenses</a>
+                        </li>
+                        <li class="nav-item">
+                            <a asp-controller="Payments" asp-action="Index" class="nav-link">Payments</a>
+                        </li>
+                    }
 
                     @if (Context.User?.Identity != null && Context.User.Identity.IsAuthenticated)
                     {
+                        <li class="nav-item me-2">
+                            <span class="navbar-text text-white d-flex align-items-center">
+                                <i class="bi bi-person-circle me-2"></i>
+                                @Context.User.Identity.Name
+                            </span>
+                        </li>
                         <li class="nav-item">
                             <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
                                 <button type="submit" class="btn btn-sm btn-outline-light ms-2">Logout</button>

@@ -3,116 +3,111 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<div class="container-fluid py-3">
+<div class="container-fluid py-4">
+    <!-- Hero Section -->
+    <div class="row mb-5">
+        <div class="col-12 text-center">
+            <h1 class="display-4 fw-bold text-primary mb-3">🏨 Vilawatuna Hotel</h1>
+            <p class="lead text-muted mb-4">Experience luxury and comfort in the heart of Sri Lanka</p>
+            @if (!(Context.User?.Identity?.IsAuthenticated ?? false))
+            {
+                <a href="/Account/Login" class="btn btn-primary btn-lg px-5 py-3">
+                    <i class="bi bi-box-arrow-in-right me-2"></i>Staff Login
+                </a>
+            }
+        </div>
+    </div>
 
-    <!-- Top row: Summary cards -->
-    <div class="row g-3 mb-4">
-        <div class="col-6 col-md-3">
-            <div class="card shadow-sm border-0 rounded-3 p-3 text-center bg-primary text-white">
-                <i class="bi bi-person-check fs-2 mb-2"></i>
-                <h6>Today's Bookings</h6>
-                <h4 class="fw-bold">24</h4>
+    <!-- Features Section -->
+    <div class="row g-4 mb-5">
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body text-center p-4">
+                    <i class="bi bi-geo-alt-fill fs-1 text-primary mb-3"></i>
+                    <h5 class="fw-semibold">Prime Location</h5>
+                    <p class="text-muted">Located in the beautiful coastal town of Vilawatuna, just steps away from pristine beaches and local attractions.</p>
+                </div>
             </div>
         </div>
-
-        <div class="col-6 col-md-3">
-            <div class="card shadow-sm border-0 rounded-3 p-3 text-center bg-success text-white">
-                <i class="bi bi-cash-coin fs-2 mb-2"></i>
-                <h6>Total Revenue</h6>
-                <h4 class="fw-bold">LKR 125,000</h4>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body text-center p-4">
+                    <i class="bi bi-star-fill fs-1 text-warning mb-3"></i>
+                    <h5 class="fw-semibold">Luxury Amenities</h5>
+                    <p class="text-muted">Enjoy world-class facilities including spa services, fine dining, and modern room amenities for a memorable stay.</p>
+                </div>
             </div>
         </div>
-
-        <div class="col-6 col-md-3">
-            <div class="card shadow-sm border-0 rounded-3 p-3 text-center bg-warning text-dark">
-                <i class="bi bi-wallet2 fs-2 mb-2"></i>
-                <h6>Expenses</h6>
-                <h4 class="fw-bold">LKR 32,500</h4>
-            </div>
-        </div>
-
-        <div class="col-6 col-md-3">
-            <div class="card shadow-sm border-0 rounded-3 p-3 text-center bg-info text-dark">
-                <i class="bi bi-building fs-2 mb-2"></i>
-                <h6>Occupancy Rate</h6>
-                <h4 class="fw-bold">82%</h4>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body text-center p-4">
+                    <i class="bi bi-people-fill fs-1 text-success mb-3"></i>
+                    <h5 class="fw-semibold">Exceptional Service</h5>
+                    <p class="text-muted">Our dedicated staff is committed to providing personalized service and ensuring your comfort throughout your stay.</p>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- Middle section: Tables -->
+    <!-- Contact Information -->
     <div class="row g-4">
-        <div class="col-lg-6">
-            <div class="card shadow-sm border-0 rounded-3">
-                <div class="card-header bg-light fw-semibold">Recent Bookings</div>
-                <div class="card-body p-0">
-                    <table class="table table-hover align-middle mb-0">
-                        <thead class="table-light">
-                            <tr>
-                                <th>Guest</th>
-                                <th>Room</th>
-                                <th>Check-In</th>
-                                <th>Check-Out</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>John Perera</td>
-                                <td>Deluxe #203</td>
-                                <td>16 Oct</td>
-                                <td>18 Oct</td>
-                            </tr>
-                            <tr>
-                                <td>Kasun Silva</td>
-                                <td>Suite #101</td>
-                                <td>15 Oct</td>
-                                <td>20 Oct</td>
-                            </tr>
-                            <tr>
-                                <td>Mary Rodrigo</td>
-                                <td>Standard #305</td>
-                                <td>16 Oct</td>
-                                <td>17 Oct</td>
-                            </tr>
-                        </tbody>
-                    </table>
+        <div class="col-md-6">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="bi bi-telephone me-2"></i>Contact Information</h5>
+                </div>
+                <div class="card-body p-4">
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <div class="d-flex align-items-center">
+                                <i class="bi bi-geo-alt text-primary me-3 fs-5"></i>
+                                <div>
+                                    <strong>Address:</strong><br>
+                                    Vilawatuna Beach Road,<br>
+                                    Galle, Sri Lanka
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="d-flex align-items-center">
+                                <i class="bi bi-telephone text-primary me-3 fs-5"></i>
+                                <div>
+                                    <strong>Phone:</strong><br>
+                                    +94 91 2 345 678
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="d-flex align-items-center">
+                                <i class="bi bi-envelope text-primary me-3 fs-5"></i>
+                                <div>
+                                    <strong>Email:</strong><br>
+                                    info@vilawatunahotel.com
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-
-        <div class="col-lg-6">
-            <div class="card shadow-sm border-0 rounded-3">
-                <div class="card-header bg-light fw-semibold">Recent Expenses</div>
-                <div class="card-body p-0">
-                    <table class="table table-hover align-middle mb-0">
-                        <thead class="table-light">
-                            <tr>
-                                <th>Description</th>
-                                <th>Date</th>
-                                <th>Amount</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>Kitchen Supplies</td>
-                                <td>16 Oct</td>
-                                <td>LKR 5,200</td>
-                            </tr>
-                            <tr>
-                                <td>Room Maintenance</td>
-                                <td>15 Oct</td>
-                                <td>LKR 8,000</td>
-                            </tr>
-                            <tr>
-                                <td>Staff Salary</td>
-                                <td>14 Oct</td>
-                                <td>LKR 19,300</td>
-                            </tr>
-                        </tbody>
-                    </table>
+        <div class="col-md-6">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0"><i class="bi bi-clock me-2"></i>Hotel Services</h5>
+                </div>
+                <div class="card-body p-4">
+                    <ul class="list-unstyled mb-0">
+                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>24/7 Front Desk Service</li>
+                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Free WiFi in all areas</li>
+                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Airport Transfer Service</li>
+                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Restaurant & Bar</li>
+                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Spa & Wellness Center</li>
+                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Swimming Pool</li>
+                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Tour Booking Assistance</li>
+                        <li class="mb-0"><i class="bi bi-check-circle-fill text-success me-2"></i>Laundry Service</li>
+                    </ul>
                 </div>
             </div>
         </div>
     </div>
-
 </div>
