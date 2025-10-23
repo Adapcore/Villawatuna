@@ -55,15 +55,31 @@ namespace Umbraco.Cms.Web.Common.PublishedModels
 		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "13.10.0+c2890e1")]
 		[global::System.Diagnostics.CodeAnalysis.MaybeNull]
 		[ImplementPropertyType("bannerImage")]
-		public virtual global::Umbraco.Cms.Core.Models.MediaWithCrops BannerImage => this.Value<global::Umbraco.Cms.Core.Models.MediaWithCrops>(_publishedValueFallback, "bannerImage");
+		public virtual global::System.Collections.Generic.IEnumerable<global::Umbraco.Cms.Core.Models.MediaWithCrops> BannerImage => this.Value<global::System.Collections.Generic.IEnumerable<global::Umbraco.Cms.Core.Models.MediaWithCrops>>(_publishedValueFallback, "bannerImage");
 
 		///<summary>
-		/// Description
+		/// Book Now CTA
+		///</summary>
+		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "13.10.0+c2890e1")]
+		[global::System.Diagnostics.CodeAnalysis.MaybeNull]
+		[ImplementPropertyType("bookNowCTA")]
+		public virtual global::Umbraco.Cms.Core.Models.Link BookNowCta => this.Value<global::Umbraco.Cms.Core.Models.Link>(_publishedValueFallback, "bookNowCTA");
+
+		///<summary>
+		/// Description: Shows below the Title
 		///</summary>
 		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "13.10.0+c2890e1")]
 		[global::System.Diagnostics.CodeAnalysis.MaybeNull]
 		[ImplementPropertyType("description")]
 		public virtual string Description => this.Value<string>(_publishedValueFallback, "description");
+
+		///<summary>
+		/// More CTA
+		///</summary>
+		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "13.10.0+c2890e1")]
+		[global::System.Diagnostics.CodeAnalysis.MaybeNull]
+		[ImplementPropertyType("moreCTA")]
+		public virtual global::Umbraco.Cms.Core.Models.Link MoreCta => this.Value<global::Umbraco.Cms.Core.Models.Link>(_publishedValueFallback, "moreCTA");
 
 		///<summary>
 		/// Tile Links
@@ -80,5 +96,13 @@ namespace Umbraco.Cms.Web.Common.PublishedModels
 		[global::System.Diagnostics.CodeAnalysis.MaybeNull]
 		[ImplementPropertyType("title")]
 		public virtual string Title => this.Value<string>(_publishedValueFallback, "title");
+
+		///<summary>
+		/// Upper Title: Shows in small font
+		///</summary>
+		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "13.10.0+c2890e1")]
+		[global::System.Diagnostics.CodeAnalysis.MaybeNull]
+		[ImplementPropertyType("upperTitle")]
+		public virtual string UpperTitle => this.Value<string>(_publishedValueFallback, "upperTitle");
 	}
 }
