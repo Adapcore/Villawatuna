@@ -6,80 +6,89 @@
 }
 
 <form asp-action="@(Model.ID == 0 ? "Create" : "Edit")" enctype="multipart/form-data" class="p-4 shadow-sm rounded bg-light">
-    <h4 class="mb-4 fw-bold text-primary">@((Model.ID == 0 ? "Add New Expense" : "Edit Expense"))</h4>
+   <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold text-primary mb-0">💰 Add New Expense</h2>
+    </div>
 
     <div class="row g-4">
-        <!-- Left Column -->
+
         <div class="col-md-6">
-            <div class="mb-3">
-                <label class="form-label fw-bold">Date</label>
-                <input asp-for="Date" type="date" class="form-control form-control-lg" />
-                <span asp-validation-for="Date" class="text-danger"></span>
-            </div>
-
-            <div class="mb-3">
-                <label class="form-label fw-bold">Expense Type</label>
-                <select asp-for="ExpenseTypeID" class="form-select form-select-lg" asp-items="ViewBag.ExpenseTypes">
-                    <option value="0">-- Select Expense Type --</option>
-                </select>
-                <span asp-validation-for="ExpenseTypeID" class="text-danger"></span>
-            </div>
-
-            <div class="mb-3">
-                <label class="form-label fw-bold">Payee Name</label>
-                <input asp-for="PayeeName" class="form-control form-control-lg" placeholder="Enter payee name" />
-                <span asp-validation-for="PayeeName" class="text-danger"></span>
-            </div>
-
-            <div class="mb-3">
-                <label class="form-label fw-bold">Amount</label>
-                <input asp-for="Amount" type="number" step="0.01" class="form-control form-control-lg" placeholder="Enter amount" />
-                <span asp-validation-for="Amount" class="text-danger"></span>
-            </div>
+            <label class="form-label fw-bold">Date</label>
+            <input asp-for="Date" type="date" class="form-control form-control-lg" />
+            <span asp-validation-for="Date" class="text-danger"></span>
         </div>
 
-        <!-- Right Column -->
         <div class="col-md-6">
-            <div class="mb-3">
-                <label class="form-label fw-bold">Payment Method</label>
-                <select asp-for="PaymentMethod" class="form-select form-select-lg" asp-items="ViewBag.PaymentMethods">
-                    <option value="0">-- Select Payment Method --</option>
-                </select>
-                <span asp-validation-for="PaymentMethod" class="text-danger"></span>
-            </div>
-
-            <div class="mb-3">
-                <label class="form-label fw-bold">Description</label>
-                <textarea asp-for="Description" class="form-control form-control-lg" rows="3" placeholder="Add details here..."></textarea>
-                <span asp-validation-for="Description" class="text-danger"></span>
-            </div>
-
-            <div class="mb-3">
-                <label class="form-label fw-bold">Attachment</label>
-                <input type="file" name="attachment" class="form-control form-control-lg" />
-                @if (!string.IsNullOrEmpty(Model.Attachment))
-                {
-                    <div class="mt-2">
-                        <img src="@Model.Attachment" alt="Attachment" width="140" class="rounded border shadow-sm" />
-                    </div>
-                }
-            </div>
+            <label class="form-label fw-bold">Expense Type</label>
+            <select asp-for="ExpenseTypeID" class="form-select form-select-lg" asp-items="ViewBag.ExpenseTypes">
+                <option value="">-- Select Expense Type --</option>
+            </select>
+            <span asp-validation-for="ExpenseTypeID" class="text-danger"></span>
         </div>
+
+        <div class="col-md-12">
+            <label class="form-label fw-bold">Payee Name</label>
+            <input asp-for="PayeeName" class="form-control form-control-lg" placeholder="Enter payee name" />
+            <span asp-validation-for="PayeeName" class="text-danger"></span>
+        </div>
+
+        <div class="col-md-12">
+            <label class="form-label fw-bold">Description</label>
+            <textarea asp-for="Description" class="form-control form-control-lg" rows="3" placeholder="Add details here..."></textarea>
+            <span asp-validation-for="Description" class="text-danger"></span>
+        </div>
+
+        <div class="col-md-6">
+            <label class="form-label fw-bold">Payment Method</label>
+            <select asp-for="PaymentMethod" class="form-select form-select-lg" asp-items="ViewBag.PaymentMethods">
+                <option value="">-- Select Payment Method --</option>
+            </select>
+            <span asp-validation-for="PaymentMethod" class="text-danger"></span>
+        </div>
+
+        <div class="col-md-6">
+            <label class="form-label fw-bold">Amount</label>
+            <input asp-for="Amount" type="number" step="0.01" class="form-control form-control-lg" placeholder="Enter amount" />
+            <span asp-validation-for="Amount" class="text-danger"></span>
+        </div>
+
+        <!-- Attachment -->
+        <div class="col-md-6">
+            <label class="form-label fw-bold">Attachment</label>
+            <input type="file" name="attachment" class="form-control form-control-lg" />
+            @if (!string.IsNullOrEmpty(Model.Attachment))
+            {
+                <div class="mt-2">
+                    <img src="@Model.Attachment" alt="Attachment" width="140" class="rounded border shadow-sm" />
+                </div>
+            }
+        </div>
+
     </div>
 
     <div class="d-flex justify-content-end mt-4 gap-3">
-        <button type="submit" class="btn btn-success btn-lg px-5">💾 Save</button>
+        <button type="submit" class="btn btn-success btn-lg px-5">
+            💾 Save
+        </button>
         <a asp-action="Index" class="btn btn-secondary btn-lg px-5">Cancel</a>
     </div>
 </form>
 
-
 <style>
+    .form-label {
+        font-weight: 600;
+    }
+
+    .form-control-lg,
+    .form-select-lg {
+        font-size: 1.1rem;
+        padding: 0.75rem 1rem;
+    }
+
     @@media (max-width: 768px) {
-        form .form-control-lg,
-        form .form-select-lg {
-            font-size: 1.1rem;
-            padding: 0.8rem 1rem;
+        .form-control-lg,
+        .form-select-lg {
+            font-size: 1rem;
         }
     }
 </style>
