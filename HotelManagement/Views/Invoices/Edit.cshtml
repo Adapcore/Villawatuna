@@ -147,11 +147,17 @@
 
             <div class="d-grid gap-2">
                 <button id="btnCreateInvoice" type="button" class="btn btn-lg btn-success">
-                    <i class="bi bi-cash-coin"></i> Pay & Save
+                    <i class="bi bi-save"></i> Save
                 </button>
                 <a asp-action="Index" class="btn btn-lg btn-secondary">
                     <i class="bi bi-x-circle"></i> Cancel
                 </a>
+                @if (Model.InvoiceNo > 0)
+                {
+                    <a href="@Url.Action("PrintThermal", "Invoices", new { id = Model.InvoiceNo })" target="_blank" class="btn btn-lg btn-warning">
+                        <i class="bi bi-printer"></i> Print
+                    </a>
+                }
             </div>
         </div>
     </div>

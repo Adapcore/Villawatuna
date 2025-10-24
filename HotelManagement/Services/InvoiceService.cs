@@ -36,7 +36,7 @@ namespace HotelManagement.Services
         public async Task<IPagedList<Invoice>> GetPagedInvoicesAsync(
             int pageNumber,
             int pageSize,
-            int customerId = 0,   
+            int customerId = 0,
             InvoiceStatus? invoiceStatus = null)
         {
             var query = _context.Invoices
@@ -56,7 +56,7 @@ namespace HotelManagement.Services
         }
 
 
-        public async Task<int> GetPagedInvoicesCountAsync( int customerId = 0, InvoiceStatus? invoiceStatus = null)
+        public async Task<int> GetPagedInvoicesCountAsync(int customerId = 0, InvoiceStatus? invoiceStatus = null)
         {
             var query = _context.Invoices
                 .Include(i => i.Customer).AsQueryable();
@@ -72,6 +72,9 @@ namespace HotelManagement.Services
 
         public async Task<Invoice?> GetByIdAsync(int invoiceNo)
         {
+            if (invoiceNo <= 0)
+                return null;
+
             Invoice invoice = await _context.Invoices
                 .Include(i => i.Customer)
                 .Include(i => i.InvoiceDetails)

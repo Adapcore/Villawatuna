@@ -274,11 +274,11 @@
                 });
             });
 
-            var url = "/api/InvoicesApi/Create";
+            var url = "/api/InvoicesApi/Save";
 
-            if (self._mode === "Edit") {
-                var url = "/api/InvoicesApi/update"
-            }
+            //if (self._mode === "Edit") {
+            //    var url = "/api/InvoicesApi/update"
+            //}
 
             // Call the API
             $.ajax({
@@ -288,8 +288,12 @@
                 data: JSON.stringify(invoice),
                 success: function (res) {
                     if (res.success) {
+                        $("#InvoiceNo").val(res.invoiceNo);
                         alert("Invoice created successfully! No: " + res.invoiceNo);
-                        window.location.href = "/Internal/Invoices";
+
+                        if (self._mode === "Create") {
+                            window.location.href = "/Internal/Invoices/Edit/" + res.invoiceNo;
+                        }
                     }
                 },
                 error: function (err) {
@@ -410,7 +414,7 @@
             $("#curySubTotal").text(subtotal.toFixed(2));
             $("#curySubTotal_code").text(selectedCurrency);
 
-            self.CalculateGrossTotal();            
+            self.CalculateGrossTotal();
         },
 
         CalculateGrossTotal: function () {
