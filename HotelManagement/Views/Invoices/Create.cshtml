@@ -135,15 +135,17 @@
                     <div class="d-flex justify-content-between fs-4 fw-bold text-success">
                         <span>Gross Amount</span>
                         <span id="grossAmount">@Model.GrossAmount</span>
-                    </div>                   
+                    </div>
+                    <div id="dv_paidWrapper">
                         <hr />
                         <div id="dv_paid" class="d-flex justify-content-between fs-5 mb-2">
-                            <span>Already Paid</span>
+                            <span>Paid Amount</span>
                             <span id="txtPaid">@Model.Paid</span>
                         </div>
                         <div id="dv_balance" class="d-flex justify-content-between fs-5 mb-2">
                             <span>Balance</span>
                             <span id="txtBalance">@Model.Balance</span>
+                        </div>
                     </div>
                     <div id="dv_paymentWrapper">
                         <hr />

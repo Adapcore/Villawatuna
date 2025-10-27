@@ -56,20 +56,21 @@
 
             $("#InvoiceNo").val(self._invoice.invoiceNo);
             $("#Status").val(self._invoice.status);
-            $('#txtPaid').html(self._invoice.paid);
-            $('#txtBalance').html(self._invoice.balance);
+            $('#txtPaid').html(self._invoice.paid.toFixed(2));
+            $('#txtBalance').html(self._invoice.balance.toFixed(2));
 
             $("#txtPayment").val(0);
             $("#txtCash").val(0);
             $("#txtBalanceDue").html('');
 
-            $('#dv_paid').hide();
-            $('#dv_balance').hide();
+            $('#dv_paidWrapper').hide();
+            //$('#dv_paid').addClass('d-none');
+            //$('#dv_balance').addClass('d-none');
 
             $('#dv_paymentWrapper').hide();
-            $('#dv_cash').hide();
-            $('#dv_payment').hide();
-            $('#dv_balanceDue').hide();
+            //$('#dv_cash').hide();
+            //$('#dv_payment').hide();
+            //$('#dv_balanceDue').addClass('d-none');
 
             $('#btnComplete').hide();
             $('#btnPay').hide();
@@ -93,15 +94,18 @@
                 $('#btnPay').show();
             }
             else if (self._invoice.status == 3) {
-                $('#dv_balance').show();
-                $('#dv_cash').show();
-                $('#dv_payment').show();
-                $('#dv_balanceDue').show();
+                //$('#dv_paid').removeClass('d-none');
+                //$('#dv_balance').removeClass('d-none');
+                $('#dv_paidWrapper').show();
+                //$('#dv_cash').show();
+                //$('#dv_payment').show();
+                //$('#dv_balanceDue').removeClass('d-none');
                 $('#dv_paymentWrapper').slideDown();
                 $('#btn_print').show();
             }
             else if (self._invoice.status == 4) {
-                $('#dv_balance').show();
+                $('#dv_paidWrapper').show();
+
             }
         },
         BindEvents: function () {
@@ -152,10 +156,10 @@
         EnablePayment: function () {
             var self = this;
             $('#btnPay').fadeOut();
-            $('#dv_balance').show();
-            $('#dv_cash').show();
-            $('#dv_payment').show();
-            $('#dv_balanceDue').show();
+            //$('#dv_balance').removeClass('d-none');
+            //$('#dv_cash').show();
+            //$('#dv_payment').show();
+            //$('#dv_balanceDue').removeClass('d-none');
             $('#dv_paymentWrapper').slideDown();
             $('#btn_print').show();
         },
