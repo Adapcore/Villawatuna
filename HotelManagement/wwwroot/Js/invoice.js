@@ -26,6 +26,8 @@
 
     $.invoice.fn.extend({
         Init: function () {
+            var self = this;
+
             this.BindEvents();
             //this.LoadInvoices();
             this.LoadItems();
@@ -46,6 +48,10 @@
                 { 'from': 'USD', 'to': 'GBP', 'rate': 0.78 },
                 { 'from': 'GBP', 'to': 'USD', 'rate': 1.28 },
             ]
+
+            if (self._mode == 'Edit') {
+                $('#btn_print').removeClass('d-none');
+            }
         },
         BindEvents: function () {
             var self = this;
@@ -287,12 +293,14 @@
                 contentType: "application/json",
                 data: JSON.stringify(invoice),
                 success: function (res) {
-                    if (res.success) {
-                        $("#InvoiceNo").val(res.invoiceNo);
-                        alert("Invoice created successfully! No: " + res.invoiceNo);
 
-                        if (self._mode === "Create") {
-                            window.location.href = "/Internal/Invoices/Edit/" + res.invoiceNo;
+                    if (res.success) {
+                        self.UpdateInvoice(res.invoice);
+                        alert("Invoice created successfully! No: " + res.invoice.invoiceNo);
+
+                        if (self._mode === "Insert") {
+                            history.pushState(null, "", "/Internal/Invoices/Edit/" + res.invoice.invoiceNo);
+                            //window.location.href = "/Internal/Invoices/Edit/" + res.invoice.invoiceNo;
                         }
                     }
                 },
@@ -416,7 +424,6 @@
 
             self.CalculateGrossTotal();
         },
-
         CalculateGrossTotal: function () {
             var self = this;
 
@@ -437,7 +444,15 @@
             $("#grossAmount").html(grossTotal.toFixed(2));
         },
 
+        UpdateInvoice: function (invoice) {
+            var self = this;
 
+            $("#InvoiceNo").val(invoice.invoiceNo);
+            $('#Balance').html(invoice.balance)
+            $('#dv_balance').removeClass('d-none');
+            $('#btn_print').removeClass('d-none');
+            $("#Paid").val(0);
+        },
 
         FindRate: function (from, to) {
             var self = this;
@@ -468,7 +483,6 @@
         RemoveItemRow: function (row) {
             row.remove();
             this.CalculateTotals();
-        },
-
+        }
     });
 })(jQuery);

@@ -30,36 +30,11 @@ namespace HotelManagement.Controllers.API
                 return BadRequest(ModelState);
 
             // Get the existing invoice
-            var invoice = await _invoiceService.GetByIdAsync(model.InvoiceNo);
+            Invoice invoice = await _invoiceService.GetByIdAsync(model.InvoiceNo);
 
             if (invoice == null)
             {
-                invoice = new Invoice
-                {
-                    Date = model.Date,
-                    Type = Enum.Parse<InvoiceType>(model.Type.ToString()),
-                    Currency = model.Currency,
-                    ReferenceNo = model.ReferenceNo,
-                    CustomerId = model.CustomerId,
-                    Note = model.Note,
-                    CurySubTotal = model.CurySubTotal,
-                    SubTotal = model.SubTotal,
-                    ServiceCharge = model.ServiceCharge,
-                    GrossAmount = model.GrossAmount,
-                    Status = InvoiceStatus.InProgress,
-                    Paid = model.Paid,
-                    InvoiceDetails = model.InvoiceDetails.Select((d, index) => new InvoiceDetail
-                    {
-                        LineNumber = index + 1,
-                        ItemId = d.ItemId,
-                        Note = d.Note,
-                        CheckIn = d.CheckIn,
-                        CheckOut = d.CheckOut,
-                        Quantity = d.Quantity,
-                        UnitPrice = d.UnitPrice,
-                        Amount = d.Amount
-                    }).ToList()
-                };
+                invoice = CreateInvoiceViewModel.ConvertToInvoice(model);
 
                 if (invoice.Paid > invoice.GrossAmount)
                     return BadRequest(ModelState);
@@ -75,9 +50,7 @@ namespace HotelManagement.Controllers.API
                 await _invoiceService.CreateAsync(invoice);
 
                 if (model.Paid > 0)
-                {
                     await _paymentService.AddPaymentForInvoiceAsync(invoice.InvoiceNo, model.Paid);
-                }
             }
             else
             {
@@ -127,12 +100,11 @@ namespace HotelManagement.Controllers.API
 
                 // Add a payment record
                 if (model.Paid > 0)
-                {
                     await _paymentService.AddPaymentForInvoiceAsync(invoice.InvoiceNo, model.Paid);
-                }
+
             }
 
-            return Ok(new { success = true, invoiceNo = invoice.InvoiceNo });
+            return Ok(new { success = true, invoice = new CreateInvoiceViewModel(invoice) });
         }
 
         [Obsolete]

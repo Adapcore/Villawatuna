@@ -86,8 +86,8 @@
                         <span asp-validation-for="Date" class="text-danger"></span>
                     </div>
 
-                    <div class="form-group">
-                        <label for="Status">Status</label>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold" for="Status">Status</label>
                         @Html.DropDownListFor(model => model.Status,
                                  (IEnumerable<SelectListItem>)ViewBag.StatusList, new { @class = "form-control" })
                     </div>
@@ -171,7 +171,7 @@
 <script type="text/javascript">
     $(document).ready(function () {
         var obj = [];
-        obj.mode = 'Edit';
+        obj.mode = @ViewBag.Mode;
         obj.type = @Model.Type;
         var invoice = $().invoice(obj);
     });

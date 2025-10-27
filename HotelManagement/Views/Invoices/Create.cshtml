@@ -1,8 +1,11 @@
-﻿@model HotelManagement.Models.ViewModels.CreateInvoiceViewModel
+﻿@using HotelManagement.Enums
+@model HotelManagement.Models.ViewModels.CreateInvoiceViewModel
 
 @{
     ViewData["Title"] = "Create Invoice";
     Layout = "~/Views/Shared/_Layout.cshtml";
+
+    string invoiceTypeName = Enum.GetName(typeof(InvoiceType), Enum.Parse<InvoiceType>(Model.Type.ToString()));
 }
 
 <div class="container-fluid bg-light p-3" style="min-height:100vh;">
@@ -33,7 +36,29 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <!-- JS rows -->
+                                @foreach (var detail in Model.InvoiceDetails)
+                                {
+                                    <tr>
+                                        <td>
+                                            <input type="hidden" value="@detail.ItemId" class="itemId" />
+                                            <select class="form-select orderItemSelect" data-selected="@detail.ItemId">
+                                                <option value="">-- Select --</option>
+                                                @* Options will be populated by JS *@
+                                            </select>
+                                        </td>
+                                        @*<td><input type="text" class="form-control description" value="" readonly /></td> *@
+                                        @if (Model.Type == 3)
+                                        {
+                                            <td><input type="date" class="form-control checkIn" value="@(detail.CheckIn?.ToString("yyyy-MM-dd"))" /></td>
+                                            <td><input type="date" class="form-control checkOut" value="@(detail.CheckOut?.ToString("yyyy-MM-dd"))" /></td>
+                                        }
+                                        <td><input type="text" class="form-control note" value="@detail.Note" /></td>
+                                        <td><input type="number" class="form-control orderQty" value="@detail.Quantity" /></td>
+                                        <td><input type="text" class="form-control itemPrice" value="@detail.UnitPrice.ToString("F2")" readonly /></td>
+                                        <td><input type="text" class="form-control itemTotal" value="@detail.Amount.ToString("F2")" readonly /></td>
+                                        <td><button type="button" class="btn btn-danger btn-sm removeItemBtn">X</button></td>
+                                    </tr>
+                                }
                             </tbody>
                         </table>
                     </div>
@@ -49,7 +74,8 @@
             <div class="card shadow-sm mb-3">
                 <div class="card-header bg-success text-white">
                     <h5 class="mb-0">Invoice Summary</h5>
-                    <span class="ps-1 pe-1 bg-warning text-dark">@ViewBag.InvoiceTypeName</span>
+                    @* <span class="ps-1 pe-1 bg-warning text-dark">@ViewBag.InvoiceTypeName</span> *@
+                    <span class="ps-1 pe-1 bg-warning text-dark">@invoiceTypeName</span>
                 </div>
                 <div class="card-body">
                     <input asp-for="InvoiceNo" class="form-control" hidden value="0" />
@@ -102,7 +128,7 @@
                         <span id="grossAmount">0.00</span>
                     </div>
                     <hr />
-                    <div class="d-flex justify-content-between fs-5 mb-2 d-none">
+                    <div id="dv_balance" class="d-flex justify-content-between fs-5 mb-2 d-none">
                         <span>Balance</span>
                         <span id="Balance">0.00</span>
                     </div>
@@ -122,12 +148,9 @@
                 <a asp-action="Index" class="btn btn-lg btn-secondary">
                     <i class="bi bi-x-circle"></i> Cancel
                 </a>
-                @if (Model.InvoiceNo > 0)
-                {
-                    <a href="@Url.Action("PrintThermal", "Invoices", new { id = Model.InvoiceNo })" target="_blank" class="btn btn-lg btn-warning">
-                        <i class="bi bi-printer"></i> Print
-                    </a>
-                }
+                <a id='btn_print' href="@Url.Action("PrintThermal", "Invoices", new { id = Model.InvoiceNo })" target="_blank" class="btn btn-lg btn-warning d-none">
+                    <i class="bi bi-printer"></i> Print
+                </a>
             </div>
         </div>
     </div>
@@ -141,7 +164,7 @@
 <script type="text/javascript">
     $(document).ready(function () {
         var obj = [];
-        obj.mode = 'Insert';
+        obj.mode = '@ViewBag.Mode';
         obj.type = @Model.Type;
         var invoice = $().invoice(obj);
     });

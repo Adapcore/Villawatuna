@@ -115,6 +115,7 @@ namespace HotelManagement.Controllers
                 Type = int.Parse(type)
             };
             ViewBag.InvoiceTypeName = Enum.GetName(typeof(InvoiceType), Enum.Parse<InvoiceType>(type));
+            ViewBag.Mode = "Insert";
 
             return View(model);
         }
@@ -151,6 +152,7 @@ namespace HotelManagement.Controllers
                 Value = c.Code.ToString(),
                 Text = c.Name
             }).ToList();
+            ViewBag.Mode = "Edit";
 
             var model = new CreateInvoiceViewModel
             {
@@ -179,7 +181,7 @@ namespace HotelManagement.Controllers
                 }).ToList()
             };
 
-            return View(model);
+            return View("Create", model);
         }
 
         [HttpGet("Details/{id}")]
