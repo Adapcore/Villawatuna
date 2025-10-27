@@ -1,4 +1,7 @@
 ﻿@using HotelManagement.Enums
+@using System.Text.Json
+@using Newtonsoft.Json
+@using Newtonsoft.Json.Serialization
 @model HotelManagement.Models.ViewModels.CreateInvoiceViewModel
 
 @{
@@ -78,13 +81,19 @@
                     <span class="ps-1 pe-1 bg-warning text-dark">@invoiceTypeName</span>
                 </div>
                 <div class="card-body">
-                    <input asp-for="InvoiceNo" class="form-control" hidden value="0" />
+                    <input asp-for="InvoiceNo" class="form-control" hidden />
                     <input asp-for="Type" class="form-control" hidden />
 
                     <div class="mb-3">
                         <label class="form-label fw-bold">Date</label>
                         <input asp-for="Date" class="form-control" type="date" />
                         <span asp-validation-for="Date" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold" for="Status">Status</label>
+                        @Html.DropDownListFor(model => model.Status,
+                                 (IEnumerable<SelectListItem>)ViewBag.StatusList, new { @class = "form-control" })
                     </div>
 
                     <div class="mb-3">
@@ -111,44 +120,65 @@
                     <hr />
                     <div class="d-flex justify-content-between fs-5 mb-2">
                         <span>Cury Sub Total</span>
-                        <span id="curySubTotal">0.00</span>
+                        <span id="curySubTotal">@Model.CurySubTotal</span>
                     </div>
                     <hr />
                     <div class="d-flex justify-content-between fs-5 mb-2">
                         <span>Sub Total</span>
-                        <span id="subTotal">0.00</span>
+                        <span id="subTotal">@Model.SubTotal</span>
                     </div>
                     <div class="d-flex justify-content-between fs-5 mb-2">
                         <span>Service Charge</span>
-                        <span id="serviceCharge">0.00</span>
+                        <span id="serviceCharge">@Model.ServiceCharge</span>
                     </div>
                     <hr />
                     <div class="d-flex justify-content-between fs-4 fw-bold text-success">
                         <span>Gross Amount</span>
-                        <span id="grossAmount">0.00</span>
+                        <span id="grossAmount">@Model.GrossAmount</span>
+                    </div>                   
+                        <hr />
+                        <div id="dv_paid" class="d-flex justify-content-between fs-5 mb-2">
+                            <span>Already Paid</span>
+                            <span id="txtPaid">@Model.Paid</span>
+                        </div>
+                        <div id="dv_balance" class="d-flex justify-content-between fs-5 mb-2">
+                            <span>Balance</span>
+                            <span id="txtBalance">@Model.Balance</span>
                     </div>
-                    <hr />
-                    <div id="dv_balance" class="d-flex justify-content-between fs-5 mb-2 d-none">
-                        <span>Balance</span>
-                        <span id="Balance">0.00</span>
-                    </div>
+                    <div id="dv_paymentWrapper">
+                        <hr />
+                        <div id="dv_cash" class="mb-3">
+                            <label class="form-label fw-bold">Cash</label>
+                            <input id="txtCash" type="number" class="form-control" />
+                        </div>
 
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">Paid Amount</label>
-                        <input asp-for="Paid" type="number" class="form-control" />
-                        <span asp-validation-for="Paid" class="text-danger"></span>
+                        <div id="dv_payment" class="mb-3 d-none">
+                            <label class="form-label fw-bold">Payment</label>
+                            <input id="txtPayment" type="number" class="form-control" readonly />
+                        </div>
+
+                        <div id="dv_balanceDue" class="d-flex justify-content-between fs-5 mb-2">
+                            <span>Balance Due</span>
+                            <span id="txtBalanceDue">0.00</span>
+                        </div>
                     </div>
                 </div>
             </div>
 
             <div class="d-grid gap-2">
-                <button id="btnCreateInvoice" type="button" class="btn btn-lg btn-success">
+                <button id="btnComplete" type="button" class="btn btn-lg btn-warning">
+                    <i class="bi bi-check2"></i> Complete
+                </button>
+                <button id="btnPay" type="button" class="btn btn-lg btn-danger">
+                    <i class="bi bi-currency-dollar"></i> Pay
+                </button>
+                <button id="btnSave" type="button" class="btn btn-lg btn-success">
                     <i class="bi bi-save"></i> Save
                 </button>
                 <a asp-action="Index" class="btn btn-lg btn-secondary">
                     <i class="bi bi-x-circle"></i> Cancel
                 </a>
-                <a id='btn_print' href="@Url.Action("PrintThermal", "Invoices", new { id = Model.InvoiceNo })" target="_blank" class="btn btn-lg btn-warning d-none">
+                <a id='btn_print' href="@Url.Action("PrintThermal", "Invoices", new { id = Model.InvoiceNo })" target="_blank" class="btn btn-lg btn-warning">
                     <i class="bi bi-printer"></i> Print
                 </a>
             </div>
@@ -162,10 +192,16 @@
 <!-- Custom Invoice JS -->
 <script src="~/js/invoice.js"></script>
 <script type="text/javascript">
+
+    var @Model.GetType().Name.ToLowerInvariant() = @Html.Raw(JsonConvert.SerializeObject(Model));
+
     $(document).ready(function () {
         var obj = [];
         obj.mode = '@ViewBag.Mode';
-        obj.type = @Model.Type;
+        obj.invoice = @Html.Raw(JsonConvert.SerializeObject(Model, new JsonSerializerSettings
+                 {
+                     ContractResolver = new CamelCasePropertyNamesContractResolver()
+                 }));
         var invoice = $().invoice(obj);
     });
 </script>

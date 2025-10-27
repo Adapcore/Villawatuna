@@ -47,6 +47,12 @@ namespace HotelManagement.Models.Entities
         [Column(TypeName = "decimal(18,2)")]
         public decimal Balance { get; set; }
 
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal Cash { get; set; }
+        
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal Change { get; set; }
+
         public ICollection<InvoiceDetail> InvoiceDetails { get; set; }
         public ICollection<Payment>? Payments { get; set; }
 

@@ -102,6 +102,17 @@ namespace HotelManagement.Controllers
                 Text = c.FirstName + " " + c.LastName
             }).ToList();
 
+            ViewBag.StatusList = Enum.GetValues(typeof(InvoiceStatus))
+               .Cast<InvoiceStatus>().Select(s => new SelectListItem
+               {
+                   Text = s.GetType()
+                   .GetMember(s.ToString())
+                   .First()
+                   .GetCustomAttribute<DisplayAttribute>()?
+                   .Name ?? s.ToString(),
+                   Value = ((int)s).ToString()
+               }).ToList();
+
             var currencyTypes = await _currencyService.GetCurencyTypesAsync();
             ViewBag.CurrencyTypes = currencyTypes.Select(c => new SelectListItem
             {
@@ -112,7 +123,8 @@ namespace HotelManagement.Controllers
             var model = new CreateInvoiceViewModel
             {
                 Date = DateTime.Now,
-                Type = int.Parse(type)
+                Type = int.Parse(type),
+                Status = (int)InvoiceStatus.InProgress
             };
             ViewBag.InvoiceTypeName = Enum.GetName(typeof(InvoiceType), Enum.Parse<InvoiceType>(type));
             ViewBag.Mode = "Insert";
@@ -154,11 +166,12 @@ namespace HotelManagement.Controllers
             }).ToList();
             ViewBag.Mode = "Edit";
 
-            var model = new CreateInvoiceViewModel
+            CreateInvoiceViewModel model = new CreateInvoiceViewModel
             {
                 InvoiceNo = invoice.InvoiceNo,
                 Date = invoice.Date,
                 Type = (int)invoice.Type,
+                Status = (int)invoice.Status,
                 Currency = invoice.Currency,
                 ReferenceNo = invoice.ReferenceNo,
                 CustomerId = invoice.CustomerId,
@@ -167,7 +180,7 @@ namespace HotelManagement.Controllers
                 CurySubTotal = invoice.CurySubTotal,
                 ServiceCharge = invoice.ServiceCharge,
                 GrossAmount = invoice.GrossAmount,
-                Status = (int)invoice.Status,
+                Paid = invoice.Paid,
                 Balance = invoice.Balance,
                 InvoiceDetails = invoice.InvoiceDetails.Select(d => new CreateInvoiceDetailViewModel
                 {

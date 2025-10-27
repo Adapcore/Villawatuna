@@ -1,5 +1,6 @@
 ﻿using HotelManagement.Enums;
 using HotelManagement.Models.Entities;
+using Microsoft.IdentityModel.Abstractions;
 using System.ComponentModel.DataAnnotations;
 
 namespace HotelManagement.Models.ViewModels
@@ -30,6 +31,8 @@ namespace HotelManagement.Models.ViewModels
         public decimal GrossAmount { get; set; }
         public decimal Paid { get; set; }
         public decimal Balance { get; set; }
+        public decimal Cash { get; set; }
+        public decimal Change { get; set; }
         public List<CreateInvoiceDetailViewModel> InvoiceDetails { get; set; } = new();
 
         public CreateInvoiceViewModel()
@@ -52,6 +55,8 @@ namespace HotelManagement.Models.ViewModels
             Status = (int)invoice.Status;
             Paid = invoice.Paid;
             Balance = invoice.GrossAmount - invoice.Paid;
+            Cash = invoice.Cash;
+            Change = invoice.Change;
         }
 
         public static Invoice ConvertToInvoice(CreateInvoiceViewModel model)
@@ -69,8 +74,11 @@ namespace HotelManagement.Models.ViewModels
                 SubTotal = model.SubTotal,
                 ServiceCharge = model.ServiceCharge,
                 GrossAmount = model.GrossAmount,
-                Status = InvoiceStatus.InProgress,
+                Status = (InvoiceStatus)model.Status,
                 Paid = model.Paid,
+                Cash = model.Cash,
+                Change = model.Change,
+
                 InvoiceDetails = model.InvoiceDetails.Select((d, index) => new InvoiceDetail
                 {
                     LineNumber = index + 1,

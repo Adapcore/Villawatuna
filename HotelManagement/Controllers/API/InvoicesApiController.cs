@@ -4,6 +4,7 @@ using HotelManagement.Models.ViewModels;
 using HotelManagement.Services.Interface;
 using HotelManagement.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using System.Linq.Expressions;
 
 namespace HotelManagement.Controllers.API
 {
@@ -64,6 +65,8 @@ namespace HotelManagement.Controllers.API
                 invoice.SubTotal = model.SubTotal;
                 invoice.ServiceCharge = model.ServiceCharge;
                 invoice.GrossAmount = model.GrossAmount;
+                invoice.Cash = model.Cash;
+                invoice.Change = model.Change;
 
                 if (model.Paid > 0)
                 {

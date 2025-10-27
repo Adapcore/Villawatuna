@@ -11,7 +11,8 @@
 
         this.options = $.extend(defaults, options);
         this._mode = this.options.mode;
-        this._type = this.options.type;
+        this._invoice = this.options.invoice;
+        this._type = this.options.invoice.type;
         this.$container = $(el);
         this.itemIndex = 0;
         this.serviceCharge = 0;
@@ -29,7 +30,7 @@
             var self = this;
 
             this.BindEvents();
-            //this.LoadInvoices();
+            this.LoadInvoice();
             this.LoadItems();
             this.BindItemSelection();
             this.LoadServiceCharge();
@@ -48,9 +49,59 @@
                 { 'from': 'USD', 'to': 'GBP', 'rate': 0.78 },
                 { 'from': 'GBP', 'to': 'USD', 'rate': 1.28 },
             ]
+        },
 
-            if (self._mode == 'Edit') {
-                $('#btn_print').removeClass('d-none');
+        LoadInvoice: function () {
+            var self = this;
+
+            $("#InvoiceNo").val(self._invoice.invoiceNo);
+            $("#Status").val(self._invoice.status);
+            $('#txtPaid').html(self._invoice.paid);
+            $('#txtBalance').html(self._invoice.balance);
+
+            $("#txtPayment").val(0);
+            $("#txtCash").val(0);
+            $("#txtBalanceDue").html('');
+
+            $('#dv_paid').hide();
+            $('#dv_balance').hide();
+
+            $('#dv_paymentWrapper').hide();
+            $('#dv_cash').hide();
+            $('#dv_payment').hide();
+            $('#dv_balanceDue').hide();
+
+            $('#btnComplete').hide();
+            $('#btnPay').hide();
+            $('#btn_print').hide();
+
+            $("#invoiceItems tbody .form-control").prop('disabled', true);
+            $("#invoiceItems tbody .form-select").prop('disabled', true);
+            $("#invoiceItems tbody .btn").prop('disabled', true);
+            $('#addItemBtn').prop('disabled', true);
+
+            if (self._invoice.status == 1) {
+                $('#btnComplete').show();
+                $('#btnSave').show();
+
+                $("#invoiceItems tbody .form-control").prop('disabled', false);
+                $("#invoiceItems tbody .form-select").prop('disabled', false);
+                $("#invoiceItems tbody .btn").prop('disabled', false);
+                $('#addItemBtn').prop('disabled', false);
+            }
+            else if (self._invoice.status == 2) {
+                $('#btnPay').show();
+            }
+            else if (self._invoice.status == 3) {
+                $('#dv_balance').show();
+                $('#dv_cash').show();
+                $('#dv_payment').show();
+                $('#dv_balanceDue').show();
+                $('#dv_paymentWrapper').slideDown();
+                $('#btn_print').show();
+            }
+            else if (self._invoice.status == 4) {
+                $('#dv_balance').show();
             }
         },
         BindEvents: function () {
@@ -73,22 +124,47 @@
                 self.UpdateRowTotal(row);
             });
 
-            $("#btnCreateInvoice").on("click", function () {
+            $("#btnComplete").on("click", function () {
+                $("#Status").val(2);
+                self.Save();
+            });
+
+            $("#btnPay").on("click", function () {
+                self.EnablePayment();
+            });
+
+            $("#btnSave").on("click", function () {
                 self.Save();
             });
 
             $("#Currency").on("change", function () {
                 self.CalculateTotals();
             });
-        },
 
+            $("#txtCash").on("change", function () {
+
+                if ($("#txtCash").val() === '')
+                    $("#txtCash").val(0);
+
+                self.CalculateBalanceDue();
+            });
+        },
+        EnablePayment: function () {
+            var self = this;
+            $('#btnPay').fadeOut();
+            $('#dv_balance').show();
+            $('#dv_cash').show();
+            $('#dv_payment').show();
+            $('#dv_balanceDue').show();
+            $('#dv_paymentWrapper').slideDown();
+            $('#btn_print').show();
+        },
         LoadServiceCharge: function () {
             var self = this;
             $.getJSON("/api/menu/GetServiceCharge", function (data) {
                 self.serviceCharge = data;
             });
         },
-
         LoadItems: function () {
             var self = this;
 
@@ -145,7 +221,6 @@
                 }
             });
         },
-
         AddItemRow: function (item) {
             var self = this;
 
@@ -210,7 +285,6 @@
             // Recalculate totals
             this.CalculateTotals();
         },
-
         BindItemSelection: function () {
             var self = this;
             $("#invoiceItems").on("change", ".orderItemSelect", function () {
@@ -233,7 +307,6 @@
                 self.UpdateRowTotal($row);
             });
         },
-
         UpdateRowTotal: function (row) {
             var qty = parseFloat(row.find(".orderQty").val()) || 0;
             var price = parseFloat(row.find(".itemPrice").val()) || 0;
@@ -241,13 +314,22 @@
             row.find(".itemTotal").val(total.toFixed(2));
             this.CalculateTotals();
         },
-
         Save: function () {
             var self = this;
 
             // Validate before submitting
             if (!self.ValidateInvoice()) {
                 return;
+            }
+
+            var grossAmount = parseFloat($("#grossAmount").html()) || 0;
+            var alreadyPaid = self._invoice.paid;
+            var cash = parseFloat($("#txtCash").val()) || 0;
+            var balance = grossAmount - alreadyPaid;
+            var change = cash - balance;
+
+            if (change < 0) {
+                change = 0;
             }
 
             var invoice = {
@@ -262,8 +344,11 @@
                 CurySubTotal: parseFloat($("#curySubTotal").html()) || 0,
                 SubTotal: parseFloat($("#subTotal").html()) || 0,
                 ServiceCharge: parseFloat($("#serviceCharge").html()) || 0,
-                GrossAmount: parseFloat($("#grossAmount").html()) || 0,
-                Paid: parseFloat($("#Paid").val()),
+                GrossAmount: grossAmount,
+                Paid: parseFloat($("#txtPayment").val()),
+                Cash: cash,
+                Balance: balance,
+                Change: change,
                 InvoiceDetails: []
             };
 
@@ -295,8 +380,10 @@
                 success: function (res) {
 
                     if (res.success) {
-                        self.UpdateInvoice(res.invoice);
                         alert("Invoice created successfully! No: " + res.invoice.invoiceNo);
+
+                        self._invoice = res.invoice;
+                        self.LoadInvoice();
 
                         if (self._mode === "Insert") {
                             history.pushState(null, "", "/Internal/Invoices/Edit/" + res.invoice.invoiceNo);
@@ -310,7 +397,6 @@
                 }
             });
         },
-
         ValidateInvoice: function () {
             let isValid = true;
             let errors = [];
@@ -340,8 +426,8 @@
             //   isValid = false;
             //}
 
-            var paidAmount = parseFloat($("#Paid").val());
-            var balanceAmount = parseFloat($("#Balance").html());
+            var paidAmount = parseFloat($("#txtPayment").val());
+            var balanceAmount = parseFloat($("#txtBalance").html());
 
             if ($("#InvoiceNo").val() == 0) {
                 balanceAmount = grossAmount;
@@ -403,13 +489,11 @@
 
             return isValid;
         },
-
         CalculateTotals: function () {
             var self = this;
 
             self.CalculateCurrySubTotal();
         },
-
         CalculateCurrySubTotal: function () {
             var self = this;
 
@@ -443,17 +527,29 @@
             $("#serviceCharge").html(serviceCharge.toFixed(2));
             $("#grossAmount").html(grossTotal.toFixed(2));
         },
-
-        UpdateInvoice: function (invoice) {
+        CalculateBalanceDue: function () {
             var self = this;
 
-            $("#InvoiceNo").val(invoice.invoiceNo);
-            $('#Balance').html(invoice.balance)
-            $('#dv_balance').removeClass('d-none');
-            $('#btn_print').removeClass('d-none');
-            $("#Paid").val(0);
-        },
+            var grossAmount = parseFloat($("#grossAmount").html());
+            var balance = parseFloat($("#txtBalance").html());
+            var cash = parseFloat($("#txtCash").val());
+            $("#txtCash").val(cash.toFixed(2));
 
+            var payment = 0;
+            var balanceDue = 0
+
+            if (cash >= balance) {
+                payment = balance;
+                balanceDue = payment - cash;
+            }
+            else {
+                payment = cash;
+                balanceDue = balance - cash;
+            }
+
+            $("#txtPayment").val(payment.toFixed(2));
+            $("#txtBalanceDue").html(balanceDue.toFixed(2));
+        },
         FindRate: function (from, to) {
             var self = this;
 
@@ -472,14 +568,12 @@
             console.warn(`⚠️ No rate found for ${from} → ${to}`);
             return 1;
         },
-
         ConvertCurrency: function (amount, from, to) {
             var self = this;
 
             const rate = self.FindRate(from, to);
             return amount * rate;
         },
-
         RemoveItemRow: function (row) {
             row.remove();
             this.CalculateTotals();
