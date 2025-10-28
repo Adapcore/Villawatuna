@@ -82,31 +82,31 @@
         <li class="nav-item">
             <a class="nav-link @(_invoiceStatus == null ? "active" : "")" href="@Url.Action("Index", new { invoiceStatus = 0, customerId = _customerId })">
                 All Invoices
-                <span class="badge bg-secondary">@ViewBag.CountAll</span>
+                <span class="badge bg-secondary ms-2">@ViewBag.CountAll</span>
             </a>
         </li>
         <li class="nav-item">
             <a class="nav-link @(_invoiceStatus == InvoiceStatus.InProgress ? "active" : "")" href="@Url.Action("Index", new { invoiceStatus = 1, customerId = _customerId })">
                 Open (In Progress)
-                <span class="badge bg-info text-dark">@ViewBag.CountOpen</span>
-            </a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link @(_invoiceStatus == InvoiceStatus.PartiallyPaid ? "active" : "")" href="@Url.Action("Index", new { invoiceStatus = 3, customerId = _customerId })">
-                Partially Paid
-                <span class="badge bg-warning text-dark">@ViewBag.CountPartial</span>
-            </a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link @(_invoiceStatus == InvoiceStatus.Paid ? "active" : "")" href="@Url.Action("Index", new { invoiceStatus = 4, customerId = _customerId })">
-                Paid
-                <span class="badge bg-success">@ViewBag.CountPaid</span>
+                <span class="badge bg-info text-dark ms-2">@ViewBag.CountOpen</span>
             </a>
         </li>
         <li class="nav-item">
             <a class="nav-link @(_invoiceStatus == InvoiceStatus.Complete ? "active" : "")" href="@Url.Action("Index", new { invoiceStatus = 2 , customerId = _customerId})">
                 Complete
-                <span class="badge bg-primary">@ViewBag.CountComplete</span>
+                <span class="badge bg-primary ms-2">@ViewBag.CountComplete</span>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link @(_invoiceStatus == InvoiceStatus.PartiallyPaid ? "active" : "")" href="@Url.Action("Index", new { invoiceStatus = 3, customerId = _customerId })">
+                Partially Paid
+                <span class="badge bg-warning text-dark ms-2">@ViewBag.CountPartial</span>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link @(_invoiceStatus == InvoiceStatus.Paid ? "active" : "")" href="@Url.Action("Index", new { invoiceStatus = 4, customerId = _customerId })">
+                Paid
+                <span class="badge bg-success ms-2">@ViewBag.CountPaid</span>
             </a>
         </li>
     </ul>
@@ -156,27 +156,3 @@
 
     @await Html.PartialAsync("_Pagination_invoice", Model.Invoices)
 </div>
-
-@* <style>
-    .btn-outline-primary:hover i,
-    .btn-outline-success:hover i,
-    .btn-outline-warning:hover i,
-    .btn-outline-secondary:hover i {
-        transform: scale(1.1);
-        transition: transform 0.2s;
-    }
-
-    .btn.rounded-circle {
-        width: 42px;
-        height: 42px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    }
-
-    @@media (max-width: 576px) {
-        .d-flex.flex-wrap.gap-2 {
-            justify-content: center;
-        }
-    }
-</style> *@

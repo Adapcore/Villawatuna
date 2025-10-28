@@ -64,6 +64,7 @@
             $("#txtBalanceDue").html('');
 
             $('#dv_paidWrapper').hide();
+            $('#dv_lastPaid').addClass('d-none');
             $('#dv_paymentWrapper').hide();
 
             $('#btnComplete').hide();
@@ -92,6 +93,7 @@
             }
             else if (self._invoice.status == 4) { // Paid
                 $('#dv_paidWrapper').show();
+                $('#dv_lastPaid').removeClass('d-none');
                 $('#btn_print').show();
             }
         },

@@ -22,7 +22,7 @@ namespace HotelManagement.Enums
 
     public enum InvoiceStatus
     {
-        [Display(Name = "In Progress")]
+        [Display(Name = "In Progress / Open")]
         InProgress = 1,
 
         [Display(Name = "Complete")]
