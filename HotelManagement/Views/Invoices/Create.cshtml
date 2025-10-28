@@ -1,5 +1,4 @@
 ﻿@using HotelManagement.Enums
-@using System.Text.Json
 @using Newtonsoft.Json
 @using Newtonsoft.Json.Serialization
 @model HotelManagement.Models.ViewModels.CreateInvoiceViewModel
@@ -11,21 +10,20 @@
     string invoiceTypeName = Enum.GetName(typeof(InvoiceType), Enum.Parse<InvoiceType>(Model.Type.ToString()));
 }
 
-<div class="container-fluid bg-light p-3" style="min-height:100vh;">
-    <div class="row">
+<div class="container-fluid bg-light py-2 px-2" style="min-height:40vh;">
+    <div class="row g-2">
         <!-- Left side: Invoice Details -->
-        <div class="col-md-8">
-            <div class="card shadow-sm mb-3">
-                <div class="card-header bg-dark text-white">
+        <div class="col-lg-8 col-md-7">
+            <div class="card shadow-sm mb-2">
+                <div class="card-header bg-dark text-white py-2 px-3">
                     <h5 class="mb-0">Invoice Items</h5>
                 </div>
                 <div class="card-body p-2">
                     <div class="table-responsive">
-                        <table id="invoiceItems" class="table table-bordered table-striped align-middle text-center">
+                        <table id="invoiceItems" class="table table-bordered table-striped align-middle text-center table-sm">
                             <thead class="table-dark">
                                 <tr>
                                     <th>Item</th>
-                                    @* <th>Description</th> *@
                                     @if (Model.Type == 3)
                                     {
                                         <th>Check-In</th>
@@ -44,28 +42,26 @@
                                     <tr>
                                         <td>
                                             <input type="hidden" value="@detail.ItemId" class="itemId" />
-                                            <select class="form-select orderItemSelect" data-selected="@detail.ItemId">
+                                            <select class="form-select orderItemSelect form-select-sm" data-selected="@detail.ItemId">
                                                 <option value="">-- Select --</option>
-                                                @* Options will be populated by JS *@
                                             </select>
                                         </td>
-                                        @*<td><input type="text" class="form-control description" value="" readonly /></td> *@
                                         @if (Model.Type == 3)
                                         {
-                                            <td><input type="date" class="form-control checkIn" value="@(detail.CheckIn?.ToString("yyyy-MM-dd"))" /></td>
-                                            <td><input type="date" class="form-control checkOut" value="@(detail.CheckOut?.ToString("yyyy-MM-dd"))" /></td>
+                                            <td><input type="date" class="form-control form-control-sm checkIn" value="@(detail.CheckIn?.ToString("yyyy-MM-dd"))" /></td>
+                                            <td><input type="date" class="form-control form-control-sm checkOut" value="@(detail.CheckOut?.ToString("yyyy-MM-dd"))" /></td>
                                         }
-                                        <td><input type="text" class="form-control note" value="@detail.Note" /></td>
-                                        <td><input type="number" class="form-control orderQty" value="@detail.Quantity" /></td>
-                                        <td><input type="text" class="form-control itemPrice" value="@detail.UnitPrice.ToString("F2")" readonly /></td>
-                                        <td><input type="text" class="form-control itemTotal" value="@detail.Amount.ToString("F2")" readonly /></td>
+                                        <td><input type="text" class="form-control form-control-sm note" value="@detail.Note" /></td>
+                                        <td><input type="number" class="form-control form-control-sm orderQty" value="@detail.Quantity" /></td>
+                                        <td><input type="text" class="form-control form-control-sm itemPrice" value="@detail.UnitPrice.ToString("F2")" readonly /></td>
+                                        <td><input type="text" class="form-control form-control-sm itemTotal" value="@detail.Amount.ToString("F2")" readonly /></td>
                                         <td><button type="button" class="btn btn-danger btn-sm removeItemBtn">X</button></td>
                                     </tr>
                                 }
                             </tbody>
                         </table>
                     </div>
-                    <button type="button" id="addItemBtn" class="btn btn-lg btn-primary w-100 mt-2">
+                    <button type="button" id="addItemBtn" class="btn btn-primary w-100 mt-2 py-2 fs-6">
                         <i class="bi bi-plus-circle"></i> Add Item
                     </button>
                 </div>
@@ -73,118 +69,117 @@
         </div>
 
         <!-- Right side: Summary & Actions -->
-        <div class="col-md-4">
-            <div class="card shadow-sm mb-3">
-                <div class="card-header bg-success text-white">
-                    <h5 class="mb-0">Invoice Summary</h5>
-                    @* <span class="ps-1 pe-1 bg-warning text-dark">@ViewBag.InvoiceTypeName</span> *@
-                    <span class="ps-1 pe-1 bg-warning text-dark">@invoiceTypeName</span>
+        <div class="col-lg-4 col-md-5">
+            <div class="card shadow-sm mb-2">
+                <div class="card-header bg-success text-white py-2 px-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Invoice Summary</h5>
+                        <span class="badge bg-warning text-dark">@invoiceTypeName</span>
+                    </div>
                 </div>
-                <div class="card-body">
-                    <input asp-for="InvoiceNo" class="form-control" hidden />
-                    <input asp-for="Type" class="form-control" hidden />
+                <div class="card-body p-2">
+                    <input asp-for="InvoiceNo" hidden />
+                    <input asp-for="Type" hidden />
 
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">Date</label>
-                        <input asp-for="Date" class="form-control" type="date" />
-                        <span asp-validation-for="Date" class="text-danger"></span>
+                    <!-- Two-column summary form -->
+                    <div class="row g-2 mb-2">
+                        <div class="col-6">
+                            <label class="form-label fw-bold ">Date</label>
+                            <input asp-for="Date" class="form-control form-control-sm fs-5" type="date" />
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label fw-bold small">Status</label>
+                            @Html.DropDownListFor(model => model.Status, (IEnumerable<SelectListItem>)ViewBag.StatusList, new { @class = "form-select form-select-sm fs-5" })
+                        </div>
+
+                        <div class="col-6">
+                            <label class="form-label fw-bold small">Customer</label>
+                            <select asp-for="CustomerId" class="form-select form-select-sm fs-5" asp-items="ViewBag.Customers">
+                                <option value="">-- Select Customer --</option>
+                            </select>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label fw-bold">Reference No</label>
+                            <input asp-for="ReferenceNo" class="form-control form-control-sm fs-5" />
+                        </div>
                     </div>
 
-                    <div class="mb-3">
-                        <label class="form-label fw-bold" for="Status">Status</label>
-                        @Html.DropDownListFor(model => model.Status,
-                                 (IEnumerable<SelectListItem>)ViewBag.StatusList, new { @class = "form-control" })
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">Customer</label>
-                        <select asp-for="CustomerId" class="form-select form-select-lg" asp-items="ViewBag.Customers">
-                            <option value="">-- Select Customer --</option>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">Reference No</label>
-                        <input asp-for="ReferenceNo" class="form-control" />
-                        <span asp-validation-for="ReferenceNo" class="text-danger"></span>
-                    </div>
-                    <div class="mb-3">
+                    <div class="mb-2">
+                       
                         <label class="form-label fw-bold">Note</label>
-                        <input asp-for="Note" class="form-control" />
-                        <span asp-validation-for="Note" class="text-danger"></span>
+                        <input asp-for="Note" class="form-control form-control-sm fs-5" />
                     </div>
-                    <div class="mb-3">
+
+                    <div class="mb-2">
                         <label class="form-label fw-bold">Currency</label>
-                        <select asp-for="Currency" class="form-select form-select-lg" asp-items="ViewBag.CurrencyTypes">
-                        </select>
+                        <select asp-for="Currency" class="form-select form-select-sm fs-5" asp-items="ViewBag.CurrencyTypes"></select>
                     </div>
-                    <hr />
-                    <div class="d-flex justify-content-between fs-5 mb-2">
+
+                    <hr class="my-2" />
+                    <div class="d-flex justify-content-between fs-4 mb-1">
                         <span>Cury Sub Total</span>
                         <span id="curySubTotal">@Model.CurySubTotal</span>
                     </div>
-                    <hr />
-                    <div class="d-flex justify-content-between fs-5 mb-2">
+                    <div class="d-flex justify-content-between fs-5 mb-1">
                         <span>Sub Total</span>
                         <span id="subTotal">@Model.SubTotal</span>
                     </div>
-                    <div class="d-flex justify-content-between fs-5 mb-2">
+                    <div class="d-flex justify-content-between fs-5 mb-1">
                         <span>Service Charge</span>
                         <span id="serviceCharge">@Model.ServiceCharge</span>
                     </div>
-                    <hr />
-                    <div class="d-flex justify-content-between fs-4 fw-bold text-success">
+
+                    <hr class="my-2" />
+                    <div class="d-flex justify-content-between fs-3 fw-bold text-success mb-1">
                         <span>Gross Amount</span>
                         <span id="grossAmount">@Model.GrossAmount</span>
                     </div>
+
                     <div id="dv_paidWrapper">
-                        <hr />
-                        <div id="dv_paid" class="d-flex justify-content-between fs-5 mb-2">
+                        <hr class="my-2" />
+                        <div class="d-flex justify-content-between fs-5 mb-1">
                             <span>Total Paid</span>
                             <span id="txtPaid">@Model.Paid</span>
                         </div>
-                        <div id="dv_balance" class="d-flex justify-content-between fs-5 mb-2">
+                        <div class="d-flex justify-content-between fs-5 mb-1 text-danger">
                             <span>Balance</span>
                             <span id="txtBalance">@Model.Balance</span>
                         </div>
-                        <div id="dv_lastPaid" class="d-flex justify-content-between fs-5 mb-2">
+                        <div class="d-flex justify-content-between fs-5 mb-1">
                             <span>Last Paid</span>
                             <span id="txtLastPaid">@Model.Cash</span>
                         </div>
                     </div>
-                    <div id="dv_paymentWrapper">
-                        <hr />
-                        <div id="dv_cash" class="mb-3">
-                            <label class="form-label fw-bold">Cash</label>
-                            <input id="txtCash" type="number" class="form-control" />
+
+                    <div id="dv_paymentWrapper" class="mt-2">
+                        <hr class="my-2" />
+                        <div class="mb-2 d-flex justify-content-between my-4 text-primary">
+                            <label class="form-label fw-bold fs-4 pe-5">Cash</label>
+                            <input id="txtCash" type="number" class="form-control form-control-sm fs-4 fw-bold text-primary ms-5 text-end" />
                         </div>
 
-                        <div id="dv_payment" class="mb-3 d-none">
-                            <label class="form-label fw-bold">Payment</label>
-                            <input id="txtPayment" type="number" class="form-control" readonly />
+                        <div id="dv_payment" class="mb-2 d-none">
+                            <label class="form-label fw-bold small">Payment</label>
+                            <input id="txtPayment" type="number" class="form-control form-control-sm" readonly />
                         </div>
 
-                        <div id="dv_balanceDue" class="d-flex justify-content-between fs-5 mb-2">
+                        <div id="dv_balanceDue" class="d-flex justify-content-between fw-bold fs-4 mb-1 text-danger">
                             <span>Balance Due</span>
-                            <span id="txtBalanceDue">0.00</span>
+                            <span id="txtBalanceDue" class="fs4">0.00</span>
                         </div>
                     </div>
                 </div>
             </div>
 
+            <!-- Action Buttons -->
             <div class="d-grid gap-2">
-                <button id="btnSave" type="button" class="btn btn-lg btn-success">
-                    <i class="bi bi-save"></i> Save
-                </button>
-                <button id="btnPay" type="button" class="btn btn-lg btn-danger">
-                    <i class="bi bi-currency-dollar"></i> Pay
-                </button>
-                <button id="btnComplete" type="button" class="btn btn-lg btn-warning">
-                    <i class="bi bi-check2"></i> Complete
-                </button>
-                <a id='btn_print' href="@Url.Action("PrintThermal", "Invoices", new { id = Model.InvoiceNo })" target="_blank" class="btn btn-lg btn-warning">
+                <button id="btnSave" type="button" class="btn btn-success btn-lg py-2"><i class="bi bi-save"></i> Save</button>
+                <button id="btnPay" type="button" class="btn btn-danger btn-lg py-2"><i class="bi bi-currency-dollar"></i> Pay</button>
+                <button id="btnComplete" type="button" class="btn btn-warning btn-lg py-2"><i class="bi bi-check2"></i> Complete</button>
+                <a id="btn_print" href="@Url.Action("PrintThermal", "Invoices", new { id = Model.InvoiceNo })" target="_blank" class="btn btn-warning btn-lg py-2">
                     <i class="bi bi-printer"></i> Print
                 </a>
-                <a asp-action="Index" class="btn btn-lg btn-secondary">
+                <a asp-action="Index" class="btn btn-secondary btn-lg py-2">
                     <i class="bi bi-x-circle"></i> Close
                 </a>
             </div>
@@ -192,22 +187,20 @@
     </div>
 </div>
 
+<!-- Scripts -->
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script src="~/js/invoice.js"></script>
-
-<!-- Custom Invoice JS -->
-<script src="~/js/invoice.js"></script>
-<script type="text/javascript">
-
-    var @Model.GetType().Name.ToLowerInvariant() = @Html.Raw(JsonConvert.SerializeObject(Model));
+<script>
+    const invoice = @Html.Raw(JsonConvert.SerializeObject(Model, new JsonSerializerSettings
+               {
+                   ContractResolver = new CamelCasePropertyNamesContractResolver()
+               }));
 
     $(document).ready(function () {
-        var obj = [];
-        obj.mode = '@ViewBag.Mode';
-        obj.invoice = @Html.Raw(JsonConvert.SerializeObject(Model, new JsonSerializerSettings
-                 {
-                     ContractResolver = new CamelCasePropertyNamesContractResolver()
-                 }));
-        var invoice = $().invoice(obj);
+        const obj = {
+            mode: '@ViewBag.Mode',
+            invoice: invoice
+        };
+        $().invoice(obj);
     });
 </script>
