@@ -139,12 +139,16 @@
                     <div id="dv_paidWrapper">
                         <hr />
                         <div id="dv_paid" class="d-flex justify-content-between fs-5 mb-2">
-                            <span>Paid Amount</span>
+                            <span>Total Paid</span>
                             <span id="txtPaid">@Model.Paid</span>
                         </div>
                         <div id="dv_balance" class="d-flex justify-content-between fs-5 mb-2">
                             <span>Balance</span>
                             <span id="txtBalance">@Model.Balance</span>
+                        </div>
+                        <div id="dv_lastPaid" class="d-flex justify-content-between fs-5 mb-2">
+                            <span>Last Paid</span>
+                            <span id="txtLastPaid">@Model.Cash</span>
                         </div>
                     </div>
                     <div id="dv_paymentWrapper">
@@ -168,20 +172,20 @@
             </div>
 
             <div class="d-grid gap-2">
-                <button id="btnComplete" type="button" class="btn btn-lg btn-warning">
-                    <i class="bi bi-check2"></i> Complete
+                <button id="btnSave" type="button" class="btn btn-lg btn-success">
+                    <i class="bi bi-save"></i> Save
                 </button>
                 <button id="btnPay" type="button" class="btn btn-lg btn-danger">
                     <i class="bi bi-currency-dollar"></i> Pay
                 </button>
-                <button id="btnSave" type="button" class="btn btn-lg btn-success">
-                    <i class="bi bi-save"></i> Save
+                <button id="btnComplete" type="button" class="btn btn-lg btn-warning">
+                    <i class="bi bi-check2"></i> Complete
                 </button>
-                <a asp-action="Index" class="btn btn-lg btn-secondary">
-                    <i class="bi bi-x-circle"></i> Cancel
-                </a>
                 <a id='btn_print' href="@Url.Action("PrintThermal", "Invoices", new { id = Model.InvoiceNo })" target="_blank" class="btn btn-lg btn-warning">
                     <i class="bi bi-printer"></i> Print
+                </a>
+                <a asp-action="Index" class="btn btn-lg btn-secondary">
+                    <i class="bi bi-x-circle"></i> Close
                 </a>
             </div>
         </div>

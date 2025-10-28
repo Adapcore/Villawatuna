@@ -37,16 +37,16 @@ namespace HotelManagement.Controllers.API
             {
                 invoice = CreateInvoiceViewModel.ConvertToInvoice(model);
 
-                if (invoice.Paid > invoice.GrossAmount)
+                if (invoice.TotalPaid > invoice.GrossAmount)
                     return BadRequest(ModelState);
 
-                else if (invoice.Paid == invoice.GrossAmount)
+                else if (invoice.TotalPaid == invoice.GrossAmount)
                     invoice.Status = InvoiceStatus.Paid;
 
-                else if (invoice.Paid > 0)
+                else if (invoice.TotalPaid > 0)
                     invoice.Status = InvoiceStatus.PartiallyPaid;
 
-                invoice.Balance = invoice.GrossAmount - invoice.Paid;
+                invoice.Balance = invoice.GrossAmount - invoice.TotalPaid;
 
                 await _invoiceService.CreateAsync(invoice);
 
@@ -65,7 +65,7 @@ namespace HotelManagement.Controllers.API
                 invoice.SubTotal = model.SubTotal;
                 invoice.ServiceCharge = model.ServiceCharge;
                 invoice.GrossAmount = model.GrossAmount;
-                invoice.Cash = model.Cash;
+                invoice.LastPaid = model.Cash;
                 invoice.Change = model.Change;
 
                 if (model.Paid > 0)
@@ -80,7 +80,7 @@ namespace HotelManagement.Controllers.API
                         invoice.Status = InvoiceStatus.PartiallyPaid;
 
                     invoice.Balance = invoice.Balance - model.Paid;
-                    invoice.Paid = invoice.GrossAmount - invoice.Balance;
+                    invoice.TotalPaid = invoice.GrossAmount - invoice.Balance;
                 }
 
                 // Delete existing details before adding new ones
@@ -148,7 +148,7 @@ namespace HotelManagement.Controllers.API
                     invoice.Status = InvoiceStatus.PartiallyPaid;
 
                 invoice.Balance = invoice.Balance - model.Paid;
-                invoice.Paid = invoice.GrossAmount - invoice.Balance;
+                invoice.TotalPaid = invoice.GrossAmount - invoice.Balance;
             }
 
             // Delete existing details before adding new ones

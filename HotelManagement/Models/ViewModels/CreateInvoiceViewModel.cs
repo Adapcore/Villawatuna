@@ -53,10 +53,21 @@ namespace HotelManagement.Models.ViewModels
             ServiceCharge = invoice.ServiceCharge;
             GrossAmount = invoice.GrossAmount;
             Status = (int)invoice.Status;
-            Paid = invoice.Paid;
-            Balance = invoice.GrossAmount - invoice.Paid;
-            Cash = invoice.Cash;
+            Paid = invoice.TotalPaid;
+            Balance = invoice.GrossAmount - invoice.TotalPaid;
+            Cash = invoice.LastPaid;
             Change = invoice.Change;
+
+            InvoiceDetails = invoice.InvoiceDetails.Select(d => new CreateInvoiceDetailViewModel
+            {
+                ItemId = d.ItemId,
+                CheckIn = d.CheckIn,
+                CheckOut = d.CheckOut,
+                Note = d.Note,
+                Quantity = d.Quantity,
+                UnitPrice = d.UnitPrice,
+                Amount = d.Amount
+            }).ToList();
         }
 
         public static Invoice ConvertToInvoice(CreateInvoiceViewModel model)
@@ -75,8 +86,8 @@ namespace HotelManagement.Models.ViewModels
                 ServiceCharge = model.ServiceCharge,
                 GrossAmount = model.GrossAmount,
                 Status = (InvoiceStatus)model.Status,
-                Paid = model.Paid,
-                Cash = model.Cash,
+                TotalPaid = model.Paid,
+                LastPaid = model.Cash,
                 Change = model.Change,
 
                 InvoiceDetails = model.InvoiceDetails.Select((d, index) => new InvoiceDetail

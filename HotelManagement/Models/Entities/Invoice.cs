@@ -42,13 +42,13 @@ namespace HotelManagement.Models.Entities
         public decimal GrossAmount { get; set; }
 
         [Column(TypeName = "decimal(18,2)")]
-        public decimal Paid { get; set; }
+        public decimal TotalPaid { get; set; }
 
         [Column(TypeName = "decimal(18,2)")]
         public decimal Balance { get; set; }
 
         [Column(TypeName = "decimal(18,2)")]
-        public decimal Cash { get; set; }
+        public decimal LastPaid { get; set; }
         
         [Column(TypeName = "decimal(18,2)")]
         public decimal Change { get; set; }

@@ -126,7 +126,7 @@ namespace HotelManagement.Data
 				entity.Property(i => i.SubTotal).HasColumnType("decimal(18,2)");
 				entity.Property(i => i.ServiceCharge).HasColumnType("decimal(18,2)");
 				entity.Property(i => i.GrossAmount).HasColumnType("decimal(18,2)");
-				entity.Property(i => i.Paid).HasColumnType("decimal(18,2)");
+				entity.Property(i => i.TotalPaid).HasColumnType("decimal(18,2)");
 				entity.Property(i => i.Balance).HasColumnType("decimal(18,2)");
 			});
 

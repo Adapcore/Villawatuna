@@ -166,33 +166,7 @@ namespace HotelManagement.Controllers
             }).ToList();
             ViewBag.Mode = "Edit";
 
-            CreateInvoiceViewModel model = new CreateInvoiceViewModel
-            {
-                InvoiceNo = invoice.InvoiceNo,
-                Date = invoice.Date,
-                Type = (int)invoice.Type,
-                Status = (int)invoice.Status,
-                Currency = invoice.Currency,
-                ReferenceNo = invoice.ReferenceNo,
-                CustomerId = invoice.CustomerId,
-                Note = invoice.Note,
-                SubTotal = invoice.SubTotal,
-                CurySubTotal = invoice.CurySubTotal,
-                ServiceCharge = invoice.ServiceCharge,
-                GrossAmount = invoice.GrossAmount,
-                Paid = invoice.Paid,
-                Balance = invoice.Balance,
-                InvoiceDetails = invoice.InvoiceDetails.Select(d => new CreateInvoiceDetailViewModel
-                {
-                    ItemId = d.ItemId,
-                    CheckIn = d.CheckIn,
-                    CheckOut = d.CheckOut,
-                    Note = d.Note,
-                    Quantity = d.Quantity,
-                    UnitPrice = d.UnitPrice,
-                    Amount = d.Amount
-                }).ToList()
-            };
+            CreateInvoiceViewModel model = new CreateInvoiceViewModel(invoice);                       
 
             return View("Create", model);
         }

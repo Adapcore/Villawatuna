@@ -64,48 +64,35 @@
             $("#txtBalanceDue").html('');
 
             $('#dv_paidWrapper').hide();
-            //$('#dv_paid').addClass('d-none');
-            //$('#dv_balance').addClass('d-none');
-
             $('#dv_paymentWrapper').hide();
-            //$('#dv_cash').hide();
-            //$('#dv_payment').hide();
-            //$('#dv_balanceDue').addClass('d-none');
 
             $('#btnComplete').hide();
             $('#btnPay').hide();
             $('#btn_print').hide();
 
-            $("#invoiceItems tbody .form-control").prop('disabled', true);
-            $("#invoiceItems tbody .form-select").prop('disabled', true);
-            $("#invoiceItems tbody .btn").prop('disabled', true);
-            $('#addItemBtn').prop('disabled', true);
+            self.DisableHeader();
+            self.DisableDetails();
 
-            if (self._invoice.status == 1) {
+            if (self._invoice.status == 1) { // In-Progress
+                self.EnableHeader();
+
                 $('#btnComplete').show();
                 $('#btnSave').show();
 
-                $("#invoiceItems tbody .form-control").prop('disabled', false);
-                $("#invoiceItems tbody .form-select").prop('disabled', false);
-                $("#invoiceItems tbody .btn").prop('disabled', false);
-                $('#addItemBtn').prop('disabled', false);
+                self.EnableDetails();
             }
-            else if (self._invoice.status == 2) {
+            else if (self._invoice.status == 2) { // Complete
                 $('#btnPay').show();
+                $('#btn_print').show();
             }
-            else if (self._invoice.status == 3) {
-                //$('#dv_paid').removeClass('d-none');
-                //$('#dv_balance').removeClass('d-none');
+            else if (self._invoice.status == 3) { // Partally Paid
                 $('#dv_paidWrapper').show();
-                //$('#dv_cash').show();
-                //$('#dv_payment').show();
-                //$('#dv_balanceDue').removeClass('d-none');
                 $('#dv_paymentWrapper').slideDown();
                 $('#btn_print').show();
             }
-            else if (self._invoice.status == 4) {
+            else if (self._invoice.status == 4) { // Paid
                 $('#dv_paidWrapper').show();
-
+                $('#btn_print').show();
             }
         },
         BindEvents: function () {
@@ -153,8 +140,32 @@
                 self.CalculateBalanceDue();
             });
         },
+        DisableHeader: function () {
+            $("#Date").prop('disabled', true);
+            $("#Status").prop('disabled', true);
+            $("#Customer").prop('disabled', true);
+            $("#Currency").prop('disabled', true);
+        },
+        EnableHeader: function () {
+            $("#Date").prop('disabled', false);
+            //$("#Status").prop('disabled', false);
+            $("#Customer").prop('disabled', false);
+            $("#Currency").prop('disabled', false);
+        },
+        DisableDetails: function () {
+            $("#invoiceItems tbody .form-control").prop('disabled', true);
+            $("#invoiceItems tbody .form-select").prop('disabled', true);
+            $("#invoiceItems tbody .btn").prop('disabled', true);
+            $('#addItemBtn').prop('disabled', true);
+        },
+        EnableDetails: function () {
+            $("#invoiceItems tbody .form-control").prop('disabled', false);
+            $("#invoiceItems tbody .form-select").prop('disabled', false);
+            $("#invoiceItems tbody .btn").prop('disabled', false);
+            $('#addItemBtn').prop('disabled', false);
+        },
         EnablePayment: function () {
-            var self = this;
+
             $('#btnPay').fadeOut();
             //$('#dv_balance').removeClass('d-none');
             //$('#dv_cash').show();
