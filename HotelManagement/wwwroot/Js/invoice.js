@@ -58,6 +58,8 @@
             $("#Status").val(self._invoice.status);
             $('#txtPaid').html(self._invoice.paid.toFixed(2));
             $('#txtBalance').html(self._invoice.balance.toFixed(2));
+            $('#txtChange').html(self._invoice.change.toFixed(2));
+            $('#txtLastPaid').html(self._invoice.cash.toFixed(2));
 
             $("#txtPayment").val(0);
             $("#txtCash").val(0);
@@ -75,7 +77,7 @@
             self.DisableDetails();
 
             if (self._invoice.status == 1) { // In-Progress
-                self.EnableHeader();
+                self.EnableHeader(0);
 
                 $('#btnComplete').show();
                 $('#btnSave').show();
@@ -83,10 +85,13 @@
                 self.EnableDetails();
             }
             else if (self._invoice.status == 2) { // Complete
+                self.EnableHeader(1);
+
                 $('#btnPay').show();
                 $('#btn_print').show();
             }
             else if (self._invoice.status == 3) { // Partally Paid
+                self.EnableHeader(1);
                 $('#dv_paidWrapper').show();
                 $('#dv_paymentWrapper').slideDown();
                 $('#btn_print').show();
@@ -145,14 +150,20 @@
         DisableHeader: function () {
             $("#Date").prop('disabled', true);
             $("#Status").prop('disabled', true);
-            $("#Customer").prop('disabled', true);
+            $("#CustomerId").prop('disabled', true);
             $("#Currency").prop('disabled', true);
+            $("#ReferenceNo").prop('disabled', true);
+            $("#Note").prop('disabled', true);
         },
-        EnableHeader: function () {
-            $("#Date").prop('disabled', false);
-            //$("#Status").prop('disabled', false);
-            $("#Customer").prop('disabled', false);
-            $("#Currency").prop('disabled', false);
+        EnableHeader: function (level) {
+            if (level == 0) {
+                $("#Date").prop('disabled', false);
+                //$("#Status").prop('disabled', false);
+                $("#CustomerId").prop('disabled', false);
+                $("#Currency").prop('disabled', false);
+            }
+            $("#ReferenceNo").prop('disabled', false);
+            $("#Note").prop('disabled', false);
         },
         DisableDetails: function () {
             $("#invoiceItems tbody .form-control").prop('disabled', true);
