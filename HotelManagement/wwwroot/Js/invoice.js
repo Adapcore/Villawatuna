@@ -35,20 +35,20 @@
             this.BindItemSelection();
             this.LoadServiceCharge();
 
-            // hardcoded rates (will later be replaced by API) 
-            this._rates = [
-                { 'from': 'LKR', 'to': 'USD', 'rate': 0.00300 },
-                { 'from': 'USD', 'to': 'LKR', 'rate': 300 },
+            // Currency rates will be fetched from API
+            //this._rates = [
+            //    { 'from': 'LKR', 'to': 'USD', 'rate': 0.00300 },
+            //    { 'from': 'USD', 'to': 'LKR', 'rate': 300 },
 
-                { 'from': 'LKR', 'to': 'GBP', 'rate': 0.0026 },
-                { 'from': 'GBP', 'to': 'LKR', 'rate': 380 },
+            //    { 'from': 'LKR', 'to': 'GBP', 'rate': 0.0026 },
+            //    { 'from': 'GBP', 'to': 'LKR', 'rate': 380 },
 
-                { 'from': 'LKR', 'to': 'EUR', 'rate': 0.0030 },
-                { 'from': 'EUR', 'to': 'LKR', 'rate': 330 },
+            //    { 'from': 'LKR', 'to': 'EUR', 'rate': 0.0030 },
+            //    { 'from': 'EUR', 'to': 'LKR', 'rate': 330 },
 
-                { 'from': 'USD', 'to': 'GBP', 'rate': 0.78 },
-                { 'from': 'GBP', 'to': 'USD', 'rate': 1.28 },
-            ]
+            //    { 'from': 'USD', 'to': 'GBP', 'rate': 0.78 },
+            //    { 'from': 'GBP', 'to': 'USD', 'rate': 1.28 },
+            //]
         },
 
         LoadInvoice: function () {
@@ -64,6 +64,14 @@
             $("#txtPayment").val(0);
             $("#txtCash").val(0);
             $("#txtBalanceDue").html('');
+
+            // Load currency rate if available
+            if (self._invoice.currencyRate) {
+                $("#txtCurrencyRate").val(self._invoice.currencyRate);
+            } else {
+                self.LoadCurrencyRate();
+            }
+
             $("#PaymentType").val(1);
             $("#txtPaymentReference").val('');
             $("#dv_paymentRef").hide();
@@ -139,7 +147,12 @@
                 self.Save();
             });
 
-            $("#Currency").on("change", function () {
+            $("#ddlCurrency").on("change", function () {
+                self.LoadCurrencyRate();
+                self.CalculateTotals();
+            });
+
+            $("#txtCurrencyRate").on("change", function () {
                 self.CalculateTotals();
             });
 
@@ -166,7 +179,8 @@
             $("#Date").prop('disabled', true);
             $("#Status").prop('disabled', true);
             $("#CustomerId").prop('disabled', true);
-            $("#Currency").prop('disabled', true);
+            $("#ddlCurrency").prop('disabled', true);
+            $("#txtCurrencyRate").prop('disabled', true);
             $("#ReferenceNo").prop('disabled', true);
             $("#Note").prop('disabled', true);
         },
@@ -175,7 +189,8 @@
                 $("#Date").prop('disabled', false);
                 //$("#Status").prop('disabled', false);
                 $("#CustomerId").prop('disabled', false);
-                $("#Currency").prop('disabled', false);
+                $("#ddlCurrency").prop('disabled', false);
+                $("#txtCurrencyRate").prop('disabled', false);
             }
             $("#ReferenceNo").prop('disabled', false);
             $("#Note").prop('disabled', false);
@@ -207,6 +222,27 @@
             $.getJSON("/api/menu/GetServiceCharge", function (data) {
                 self.serviceCharge = data;
             });
+        },
+
+        LoadCurrencyRate: function () {
+            var self = this;
+            var fromCurrency = $("#ddlCurrency").val();
+            var toCurrency = self._baseCurrency;
+
+            if (fromCurrency && fromCurrency !== toCurrency) {
+                $.getJSON("/api/currency/getCurrencyRate", { from: fromCurrency, to: toCurrency })
+                    .done(function (data) {
+                        $("#txtCurrencyRate").val(data.rate);
+                        self.CalculateTotals();
+                    })
+                    .fail(function () {
+                        $("#txtCurrencyRate").val("");
+                        console.warn("Failed to load currency rate");
+                    });
+            } else {
+                $("#txtCurrencyRate").val("1");
+                self.CalculateTotals();
+            }
         },
         LoadItems: function () {
             var self = this;
@@ -379,7 +415,8 @@
                 InvoiceNo: $("#InvoiceNo").val(),
                 Date: $("#Date").val(),
                 Type: $("#Type").val(),
-                Currency: $("#Currency").val(),
+                Currency: $("#ddlCurrency").val(),
+                CurrencyRate: parseFloat($("#txtCurrencyRate").val()) || 1,
                 Status: $("#Status").val(),
                 ReferenceNo: $("#ReferenceNo").val(),
                 CustomerId: $("#CustomerId").val(),
@@ -552,7 +589,7 @@
         CalculateCurrySubTotal: function () {
             var self = this;
 
-            const selectedCurrency = $("#Currency").val();
+            const selectedCurrency = $("#ddlCurrency").val();
 
             var subtotal = 0;
             $("#invoiceItems tbody tr").each(function () {
@@ -567,8 +604,9 @@
             var self = this;
 
             var curySubTotal = $("#curySubTotal").html();
-            const selectedCurrency = $("#Currency").val();
-            const subTotal = self.ConvertCurrency(curySubTotal, selectedCurrency, self._baseCurrency);
+            const selectedCurrency = $("#ddlCurrency").val();
+            const currencyRate = parseFloat($("#txtCurrencyRate").val()) || 1;
+            const subTotal = self.ConvertCurrency(curySubTotal, selectedCurrency, self._baseCurrency, currencyRate);
 
             var serviceCharge = 0;
             //Service charges applyes to Dining only
@@ -578,9 +616,9 @@
 
             var grossTotal = subTotal + serviceCharge;
 
-            $("#subTotal").html(subTotal.toFixed(2));
+            $("#subTotal").html(subTotal);
             $("#serviceCharge").html(serviceCharge.toFixed(2));
-            $("#grossAmount").html(grossTotal.toFixed(2));
+            $("#grossAmount").html(grossTotal);
         },
         CalculateBalanceDue: function () {
             var self = this;
@@ -605,29 +643,34 @@
             $("#txtPayment").val(payment.toFixed(2));
             $("#txtBalanceDue").html(balanceDue.toFixed(2));
         },
-        FindRate: function (from, to) {
+        //FindRate: function (from, to) {
+        //    var self = this;
+
+        //    if (from === to) return 1;
+        //    const direct = self._rates.find(r => r.from === from && r.to === to);
+        //    if (direct) return direct.rate;
+
+        //    // Try indirect conversion via base currency
+        //    const base = self._baseCurrency;
+        //    const viaBase1 = self._rates.find(r => r.from === from && r.to === base);
+        //    const viaBase2 = self._rates.find(r => r.from === base && r.to === to);
+        //    if (viaBase1 && viaBase2) {
+        //        return viaBase1.rate * viaBase2.rate;
+        //    }
+
+        //    console.warn(`⚠️ No rate found for ${from} → ${to}`);
+        //    return 1;
+        //},
+        ConvertCurrency: function (amount, from, to, customRate) {
             var self = this;
 
-            if (from === to) return 1;
-            const direct = self._rates.find(r => r.from === from && r.to === to);
-            if (direct) return direct.rate;
-
-            // Try indirect conversion via base currency
-            const base = self._baseCurrency;
-            const viaBase1 = self._rates.find(r => r.from === from && r.to === base);
-            const viaBase2 = self._rates.find(r => r.from === base && r.to === to);
-            if (viaBase1 && viaBase2) {
-                return viaBase1.rate * viaBase2.rate;
+            if (customRate && customRate !== 1) {
+                return amount * customRate;
             }
+            return amount;
 
-            console.warn(`⚠️ No rate found for ${from} → ${to}`);
-            return 1;
-        },
-        ConvertCurrency: function (amount, from, to) {
-            var self = this;
-
-            const rate = self.FindRate(from, to);
-            return amount * rate;
+            //const rate = self.FindRate(from, to);
+            //return amount * rate;
         },
         RemoveItemRow: function (row) {
             row.remove();

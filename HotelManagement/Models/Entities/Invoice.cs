@@ -56,6 +56,9 @@ namespace HotelManagement.Models.Entities
         // Tracks the payment method used for the most recent payment
         public InvoicePaymentType LastPaymentType { get; set; } = InvoicePaymentType.Cash;
 
+        [Column(TypeName = "decimal(18,6)")]
+        public decimal? CurrencyRate { get; set; }
+
         public ICollection<InvoiceDetail> InvoiceDetails { get; set; }
         public ICollection<Payment>? Payments { get; set; }
 
