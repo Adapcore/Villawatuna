@@ -81,6 +81,7 @@ namespace HotelManagement.Controllers.API
                 invoice.GrossAmount = model.GrossAmount;
                 invoice.LastPaid = model.Cash;
                 invoice.Change = model.Change;
+                invoice.LastPaymentType = (InvoicePaymentType)model.PaymentType;
 
                 if (model.Paid > 0)
                 {

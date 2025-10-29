@@ -22,6 +22,8 @@
                     <th>Payment ID</th>
                     <th>Date</th>
                     <th>Invoice No</th>
+                    <th>Type</th>
+                    <th>Refference</th>
                     <th>Amount</th>
                     <th style="width: 160px;">Actions</th>
                 </tr>
@@ -33,6 +35,8 @@
                         <td>@payment.ID</td>
                         <td>@payment.Date.ToString("dd MMM yyyy")</td>
                         <td>@payment.InvoiceNo</td>
+                        <td>@payment.Type</td>
+                        <td>@payment.Reference</td>
                         <td class="text-end">@payment.Amount.ToString("N2")</td>
                         <td>
                             @* <a asp-action="Details" asp-route-id="@payment.PaymentId" class="btn btn-sm btn-info">Details</a>

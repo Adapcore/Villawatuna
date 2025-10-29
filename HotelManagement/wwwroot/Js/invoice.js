@@ -392,7 +392,7 @@
                 Cash: cash,
                 Balance: balance,
                 Change: change,
-                PaymentMethod: parseInt($("#PaymentType").val()) || 1,
+                PaymentType: parseInt($("#PaymentType").val()) || 1,
                 PaymentReference: $("#txtPaymentReference").val(),
                 InvoiceDetails: []
             };

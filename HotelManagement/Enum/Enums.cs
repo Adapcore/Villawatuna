@@ -56,9 +56,6 @@ namespace HotelManagement.Enums
         Card = 2,
 
         [Display(Name = "Bank Transfer")]
-        BankTransfer = 3,
-
-        [Display(Name = "Cheque")]
-        Cheque = 4
+        BankTransfer = 3
     }
 }

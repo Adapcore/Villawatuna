@@ -125,7 +125,7 @@ namespace HotelManagement.Controllers
             ViewBag.CurrencyTypes = currencyTypes.Select(c => new SelectListItem
             {
                 Value = c.Code.ToString(),
-                Text = c.Name
+                Text = c.Code.ToString()
             }).ToList();
 
             ViewBag.InvoicePaymentTypes = Enum.GetValues(typeof(InvoicePaymentType))
@@ -175,7 +175,7 @@ namespace HotelManagement.Controllers
             ViewBag.CurrencyTypes = currencyTypes.Select(c => new SelectListItem
             {
                 Value = c.Code.ToString(),
-                Text = c.Name
+                Text = c.Code.ToString()
             }).ToList();
 
             ViewBag.InvoicePaymentTypes = Enum.GetValues(typeof(InvoicePaymentType))
