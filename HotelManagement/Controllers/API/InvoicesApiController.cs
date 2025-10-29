@@ -30,6 +30,16 @@ namespace HotelManagement.Controllers.API
             if (model.Paid < 0)
                 return BadRequest(ModelState);
 
+            // Validate payment reference for non-cash methods when paying
+            if (model.Paid > 0)
+            {
+                var selectedMethod = (PaymentMethod)(model.PaymentType == 0 ? (int)PaymentMethod.Cash : model.PaymentType);
+                if ((selectedMethod == PaymentMethod.Card || selectedMethod == PaymentMethod.BankTransfer) && string.IsNullOrWhiteSpace(model.PaymentReference))
+                {
+                    return BadRequest(new { message = "Payment Reference is required for the selected payment method." });
+                }
+            }
+
             // Get the existing invoice
             Invoice invoice = await _invoiceService.GetByIdAsync(model.InvoiceNo);
 
@@ -51,7 +61,11 @@ namespace HotelManagement.Controllers.API
                 await _invoiceService.CreateAsync(invoice);
 
                 if (model.Paid > 0)
-                    await _paymentService.AddPaymentForInvoiceAsync(invoice.InvoiceNo, model.Paid);
+                {
+                    var method = (InvoicePaymentType)(model.PaymentType == 0 ? (int)InvoicePaymentType.Cash : model.PaymentType);
+                    await _paymentService.AddPaymentForInvoiceAsync(invoice.InvoiceNo, model.Paid, method, model.PaymentReference);
+                    invoice.LastPaymentType = method;
+                }
             }
             else
             {
@@ -103,8 +117,10 @@ namespace HotelManagement.Controllers.API
 
                 // Add a payment record
                 if (model.Paid > 0)
-                    await _paymentService.AddPaymentForInvoiceAsync(invoice.InvoiceNo, model.Paid);
-
+                {
+                    InvoicePaymentType paymentType = (InvoicePaymentType)(model.PaymentType == 0 ? (int)InvoicePaymentType.Cash : model.PaymentType);
+                    await _paymentService.AddPaymentForInvoiceAsync(invoice.InvoiceNo, model.Paid, paymentType, model.PaymentReference);
+                }
             }
 
             return Ok(new { success = true, invoice = new CreateInvoiceViewModel(invoice) });
@@ -172,7 +188,9 @@ namespace HotelManagement.Controllers.API
             // Add a payment record
             if (model.Paid > 0)
             {
-                await _paymentService.AddPaymentForInvoiceAsync(invoice.InvoiceNo, model.Paid);
+                InvoicePaymentType paymentType = (InvoicePaymentType)(model.PaymentType == 0 ? (int)InvoicePaymentType.Cash : model.PaymentType);
+                await _paymentService.AddPaymentForInvoiceAsync(invoice.InvoiceNo, model.Paid, paymentType, model.PaymentReference);
+                invoice.LastPaymentType = paymentType;
             }
 
             return Ok(new

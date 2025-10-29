@@ -85,38 +85,38 @@
                     <div class="row g-2 mb-2">
                         <div class="col-6">
                             <label class="form-label fw-bold ">Date</label>
-                            <input asp-for="Date" class="form-control form-control-sm fs-5" type="date" />
+                            <input asp-for="Date" class="form-control form-control-sm fs-7" type="date" />
                         </div>
                         <div class="col-6">
                             <label class="form-label fw-bold small">Status</label>
-                            @Html.DropDownListFor(model => model.Status, (IEnumerable<SelectListItem>)ViewBag.StatusList, new { @class = "form-select form-select-sm fs-5" })
+                            @Html.DropDownListFor(model => model.Status, (IEnumerable<SelectListItem>)ViewBag.StatusList, new { @class = "form-select form-select-sm fs-7" })
                         </div>
 
                         <div class="col-6">
                             <label class="form-label fw-bold small">Customer</label>
-                            <select asp-for="CustomerId" class="form-select form-select-sm fs-5" asp-items="ViewBag.Customers">
+                            <select asp-for="CustomerId" class="form-select form-select-sm fs-7" asp-items="ViewBag.Customers">
                                 <option value="">-- Select Customer --</option>
                             </select>
                         </div>
                         <div class="col-6">
                             <label class="form-label fw-bold">Reference No</label>
-                            <input asp-for="ReferenceNo" class="form-control form-control-sm fs-5" />
+                            <input asp-for="ReferenceNo" class="form-control form-control-sm fs-7" />
                         </div>
                     </div>
 
                     <div class="mb-2">
                        
                         <label class="form-label fw-bold">Note</label>
-                        <input asp-for="Note" class="form-control form-control-sm fs-5" />
+                        <input asp-for="Note" class="form-control form-control-sm fs-7" />
                     </div>
 
                     <div class="mb-2">
                         <label class="form-label fw-bold">Currency</label>
-                        <select asp-for="Currency" class="form-select form-select-sm fs-5" asp-items="ViewBag.CurrencyTypes"></select>
+                        <select asp-for="Currency" class="form-select form-select-sm fs-7" asp-items="ViewBag.CurrencyTypes"></select>
                     </div>
 
                     <hr class="my-2" />
-                    <div class="d-flex justify-content-between fs-4 mb-1">
+                    <div class="d-flex justify-content-between fs-5 mb-1 text-primary">
                         <span>Cury Sub Total</span>
                         <span id="curySubTotal">@Model.CurySubTotal</span>
                     </div>
@@ -130,32 +130,39 @@
                     </div>
 
                     <hr class="my-2" />
-                    <div class="d-flex justify-content-between fs-3 fw-bold text-success mb-1">
+                    <div class="d-flex justify-content-between fs-4 fw-bold text-success mb-1">
                         <span>Gross Amount</span>
                         <span id="grossAmount">@Model.GrossAmount</span>
                     </div>
 
                     <div id="dv_paidWrapper">
                         <hr class="my-2" />
-                        <div class="d-flex justify-content-between fs-5 mb-1">
+                        <div class="d-flex justify-content-between fs-6 mb-1">
                             <span>Total Paid</span>
                             <span id="txtPaid">@Model.Paid</span>
                         </div>
-                        <div class="d-flex justify-content-between fs-5 mb-1 text-danger">
+                        <div class="d-flex justify-content-between fs-6 mb-1 text-danger">
                             <span>Balance</span>
                             <span id="txtBalance">@Model.Balance</span>
                         </div>
-                        <div class="d-flex justify-content-between fs-5 mb-1">
+                        <div class="d-flex justify-content-between fs-6 mb-1">
                             <span>Last Paid</span>
                             <span id="txtLastPaid">@Model.Cash</span>
                         </div>
                     </div>
 
                     <div id="dv_paymentWrapper" class="mt-2">
-                        <hr class="my-2" />
+                        <hr class="my-2" />                        
+                        
                         <div class="mb-2 d-flex justify-content-between my-4 text-primary">
-                            <label class="form-label fw-bold fs-4 pe-5">Cash</label>
-                            <input id="txtCash" type="number" class="form-control form-control-sm fs-4 fw-bold text-primary ms-5 text-end" />
+                            @* <label class="form-label fw-bold fs-4 pe-5">Cash</label> *@
+                            @Html.DropDownListFor(model => model.PaymentType, (IEnumerable<SelectListItem>)ViewBag.InvoicePaymentTypes, new { @class = "form-select form-select-sm fs-6" })
+                            <input id="txtCash" type="number" class="form-control form-control-sm fs-6 fw-bold text-primary ms-5 text-end" />
+                        </div>
+                       
+                        <div id="dv_paymentRef" class="mb-2 fs-7">
+                            <label class="form-label">Payment Reference</label>
+                            <input id="txtPaymentReference" type="text" class="form-control form-control-sm fs-7" />
                         </div>
 
                         <div id="dv_payment" class="mb-2 d-none">
@@ -163,7 +170,7 @@
                             <input id="txtPayment" type="number" class="form-control form-control-sm" readonly />
                         </div>
 
-                        <div id="dv_balanceDue" class="d-flex justify-content-between fw-bold fs-4 mb-1 text-danger">
+                        <div id="dv_balanceDue" class="d-flex justify-content-between fw-bold fs-5 mb-1 text-danger">
                             <span>Balance Due</span>
                             <span id="txtBalanceDue" class="fs4">0.00</span>
                         </div>

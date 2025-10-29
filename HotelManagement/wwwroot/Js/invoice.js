@@ -64,6 +64,10 @@
             $("#txtPayment").val(0);
             $("#txtCash").val(0);
             $("#txtBalanceDue").html('');
+            $("#PaymentType").val(1);
+            $("#txtPaymentReference").val('');
+            $("#dv_paymentRef").hide();
+
 
             $('#dv_paidWrapper').hide();
             $('#dv_lastPaid').addClass('d-none');
@@ -145,6 +149,17 @@
                     $("#txtCash").val(0);
 
                 self.CalculateBalanceDue();
+            });
+
+            $("#PaymentType").on("change", function () {
+                var val = parseInt($(this).val());
+                // Card (3) or Bank Transfer (2) require reference
+                if (val === 2 || val === 3) {
+                    $("#dv_paymentRef").show();
+                } else {
+                    $("#dv_paymentRef").hide();
+                    $("#txtPaymentReference").val("");
+                }
             });
         },
         DisableHeader: function () {
@@ -377,6 +392,8 @@
                 Cash: cash,
                 Balance: balance,
                 Change: change,
+                PaymentMethod: parseInt($("#PaymentType").val()) || 1,
+                PaymentReference: $("#txtPaymentReference").val(),
                 InvoiceDetails: []
             };
 
@@ -513,6 +530,16 @@
                         }
                     }
                 });
+            }
+
+            // Validate payment reference when method requires it
+            var method = parseInt($("#PaymentType").val());
+            if (method === 2 || method === 3) {
+                var pref = $("#txtPaymentReference").val();
+                if (!pref || pref.trim().length === 0) {
+                    alert("Payment Reference is required for selected method.");
+                    return false;
+                }
             }
 
             return isValid;

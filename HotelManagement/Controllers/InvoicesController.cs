@@ -93,7 +93,15 @@ namespace HotelManagement.Controllers
         [HttpGet("Create")]
         public async Task<IActionResult> Create(string type)
         {
-            if (string.IsNullOrEmpty(type)) return RedirectToAction("SelectType");
+            if (string.IsNullOrEmpty(type))
+                return RedirectToAction("SelectType");
+
+            var model = new CreateInvoiceViewModel
+            {
+                Date = DateTime.Now,
+                Type = int.Parse(type),
+                Status = (int)InvoiceStatus.InProgress
+            };
 
             var customers = await _customerService.GetAllAsync();
             ViewBag.Customers = customers.Select(c => new SelectListItem
@@ -120,12 +128,17 @@ namespace HotelManagement.Controllers
                 Text = c.Name
             }).ToList();
 
-            var model = new CreateInvoiceViewModel
-            {
-                Date = DateTime.Now,
-                Type = int.Parse(type),
-                Status = (int)InvoiceStatus.InProgress
-            };
+            ViewBag.InvoicePaymentTypes = Enum.GetValues(typeof(InvoicePaymentType))
+                           .Cast<InvoicePaymentType>().Select(s => new SelectListItem
+                           {
+                               Text = s.GetType()
+                               .GetMember(s.ToString())
+                               .First()
+                               .GetCustomAttribute<DisplayAttribute>()?
+                               .Name ?? s.ToString(),
+                               Value = ((int)s).ToString()
+                           }).ToList();
+
             ViewBag.InvoiceTypeName = Enum.GetName(typeof(InvoiceType), Enum.Parse<InvoiceType>(type));
             ViewBag.Mode = "Insert";
 
@@ -164,9 +177,21 @@ namespace HotelManagement.Controllers
                 Value = c.Code.ToString(),
                 Text = c.Name
             }).ToList();
+
+            ViewBag.InvoicePaymentTypes = Enum.GetValues(typeof(InvoicePaymentType))
+                          .Cast<InvoicePaymentType>().Select(s => new SelectListItem
+                          {
+                              Text = s.GetType()
+                              .GetMember(s.ToString())
+                              .First()
+                              .GetCustomAttribute<DisplayAttribute>()?
+                              .Name ?? s.ToString(),
+                              Value = ((int)s).ToString()
+                          }).ToList();
+
             ViewBag.Mode = "Edit";
 
-            CreateInvoiceViewModel model = new CreateInvoiceViewModel(invoice);                       
+            CreateInvoiceViewModel model = new CreateInvoiceViewModel(invoice);
 
             return View("Create", model);
         }

@@ -1,5 +1,6 @@
 ﻿using HotelManagement.Data;
 using HotelManagement.Models.Entities;
+using HotelManagement.Enums;
 using HotelManagement.Services.Interfaces;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.EntityFrameworkCore;
@@ -34,13 +35,15 @@ namespace HotelManagement.Services
             return payment;
         }
 
-        public async Task<Payment> AddPaymentForInvoiceAsync(int invoiceNo, decimal amount)
+        public async Task<Payment> AddPaymentForInvoiceAsync(int invoiceNo, decimal amount, InvoicePaymentType type, string? reference)
         {
             var payment = new Payment
             {
                 Date = DateTime.UtcNow,
                 InvoiceNo = invoiceNo,
                 Amount = amount,
+                Type = type,
+                Reference = reference
             };
 
             _context.Payments.Add(payment);

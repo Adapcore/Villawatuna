@@ -35,16 +35,28 @@ namespace HotelManagement.Enums
         Paid = 4
     }
 
+    public enum InvoicePaymentType
+    {
+        [Display(Name = "Cash")]
+        Cash = 1,
+
+        [Display(Name = "Card")]
+        Card = 2,
+
+        [Display(Name = "Bank Transfer")]
+        BankTransfer = 3
+    }
+
     public enum PaymentMethod
     {
         [Display(Name = "Cash")]
         Cash = 1,
 
-        [Display(Name = "Bank Transfer")]
-        BankTransfer = 2,
-
         [Display(Name = "Card")]
-        Card = 3,
+        Card = 2,
+
+        [Display(Name = "Bank Transfer")]
+        BankTransfer = 3,
 
         [Display(Name = "Cheque")]
         Cheque = 4

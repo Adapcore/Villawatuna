@@ -49,9 +49,12 @@ namespace HotelManagement.Models.Entities
 
         [Column(TypeName = "decimal(18,2)")]
         public decimal LastPaid { get; set; }
-        
+
         [Column(TypeName = "decimal(18,2)")]
         public decimal Change { get; set; }
+
+        // Tracks the payment method used for the most recent payment
+        public InvoicePaymentType LastPaymentType { get; set; } = InvoicePaymentType.Cash;
 
         public ICollection<InvoiceDetail> InvoiceDetails { get; set; }
         public ICollection<Payment>? Payments { get; set; }

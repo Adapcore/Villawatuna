@@ -33,6 +33,8 @@ namespace HotelManagement.Models.ViewModels
         public decimal Balance { get; set; }
         public decimal Cash { get; set; }
         public decimal Change { get; set; }
+        public int PaymentType { get; set; }
+        public string? PaymentReference { get; set; }
         public List<CreateInvoiceDetailViewModel> InvoiceDetails { get; set; } = new();
 
         public CreateInvoiceViewModel()
@@ -57,6 +59,7 @@ namespace HotelManagement.Models.ViewModels
             Balance = invoice.GrossAmount - invoice.TotalPaid;
             Cash = invoice.LastPaid;
             Change = invoice.Change;
+            PaymentType = (int)invoice.LastPaymentType;
 
             InvoiceDetails = invoice.InvoiceDetails.Select(d => new CreateInvoiceDetailViewModel
             {
@@ -89,6 +92,7 @@ namespace HotelManagement.Models.ViewModels
                 TotalPaid = model.Paid,
                 LastPaid = model.Cash,
                 Change = model.Change,
+                LastPaymentType =  Enum.Parse<InvoicePaymentType>(model.PaymentType.ToString()),
 
                 InvoiceDetails = model.InvoiceDetails.Select((d, index) => new InvoiceDetail
                 {

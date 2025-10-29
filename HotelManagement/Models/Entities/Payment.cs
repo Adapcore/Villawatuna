@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using HotelManagement.Enums;
 
 namespace HotelManagement.Models.Entities
 {
@@ -21,5 +22,11 @@ namespace HotelManagement.Models.Entities
         [Required]
         [Column(TypeName = "decimal(18,2)")]
         public decimal Amount { get; set; }
+
+        [Required]
+        public InvoicePaymentType Type { get; set; }
+
+        [MaxLength(200)]
+        public string? Reference { get; set; }
     }
 }
