@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using X.PagedList.Extensions;
+using System.Linq;
 
 namespace HotelManagement.Controllers
 {
@@ -45,6 +46,18 @@ namespace HotelManagement.Controllers
 
             if (string.IsNullOrWhiteSpace(model.LastName))
                 ModelState.AddModelError(nameof(model.LastName), "Last name is required.");
+
+            if (string.IsNullOrWhiteSpace(model.Email))
+                ModelState.AddModelError(nameof(model.Email), "Email is required.");
+
+            if (string.IsNullOrWhiteSpace(model.ContactNo))
+                ModelState.AddModelError(nameof(model.ContactNo), "Contact No is required.");
+
+            if (string.IsNullOrWhiteSpace(model.NIC))
+                ModelState.AddModelError(nameof(model.NIC), "NIC is required.");
+
+            if (string.IsNullOrWhiteSpace(model.PassportNo))
+                ModelState.AddModelError(nameof(model.PassportNo), "Passport No is required.");
 
             if (!ModelState.IsValid)
                 return View(model);
@@ -94,6 +107,51 @@ namespace HotelManagement.Controllers
 
             await _customerService.UpdateAsync(model);
             return RedirectToAction(nameof(Index));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreateQuick([FromForm] Customer model)
+        {
+            var errors = new List<string>();
+
+            if (string.IsNullOrWhiteSpace(model.FirstName))
+                errors.Add("First name is required.");
+
+            if (string.IsNullOrWhiteSpace(model.LastName))
+                errors.Add("Last name is required.");
+
+            if (string.IsNullOrWhiteSpace(model.Email))
+                errors.Add("Email is required.");
+
+            if (string.IsNullOrWhiteSpace(model.ContactNo))
+                errors.Add("Contact No is required.");
+
+            if (string.IsNullOrWhiteSpace(model.NIC))
+                errors.Add("NIC is required.");
+
+            if (string.IsNullOrWhiteSpace(model.PassportNo))
+                errors.Add("Passport No is required.");
+
+            if (!string.IsNullOrWhiteSpace(model.Email) && await _customerService.EmailExistsAsync(model.Email))
+                errors.Add("Email is already in use.");
+
+            if (!string.IsNullOrWhiteSpace(model.ContactNo) && await _customerService.ContactExistsAsync(model.ContactNo))
+                errors.Add("Contact is already in use.");
+
+            if (errors.Any())
+                return Json(new { success = false, errors });
+
+            var created = await _customerService.CreateAsync(model);
+            return Json(new
+            {
+                success = true,
+                customer = new
+                {
+                    id = created.ID,
+                    name = $"{created.FirstName} {created.LastName}".Trim()
+                }
+            });
         }
     }
 }
