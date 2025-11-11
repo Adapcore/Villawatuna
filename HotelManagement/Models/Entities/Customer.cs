@@ -37,5 +37,8 @@ namespace HotelManagement.Models.Entities
 
         [MaxLength(250)]
         public string? Address { get; set; }  // optional
+
+        [MaxLength(10)]
+        public string? Country { get; set; }
     }
 }

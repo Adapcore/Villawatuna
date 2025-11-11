@@ -238,6 +238,19 @@
                             <input type="text" class="form-control form-control-sm" name="Address" />
                         </div>
                         <div class="col-6">
+                            <label class="form-label fw-bold small">Country</label>
+                            <select class="form-select form-select-sm" name="Country">
+                                <option value="">-- Select Country --</option>
+                                @if (ViewBag.Countries != null)
+                                {
+                                    foreach (var c in (IEnumerable<KeyValuePair<string, string>>)ViewBag.Countries)
+                                    {
+                                        <option value="@c.Key">@c.Value</option>
+                                    }
+                                }
+                            </select>
+                        </div>S
+                        <div class="col-6">
                             <label class="form-label fw-bold small">NIC</label>
                             <input type="text" class="form-control form-control-sm" name="NIC" required />
                         </div>

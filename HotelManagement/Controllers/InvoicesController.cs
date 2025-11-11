@@ -141,6 +141,7 @@ namespace HotelManagement.Controllers
 
             ViewBag.InvoiceTypeName = Enum.GetName(typeof(InvoiceType), Enum.Parse<InvoiceType>(type));
             ViewBag.Mode = "Insert";
+            ViewBag.Countries = CountryList.All;
 
             return View(model);
         }

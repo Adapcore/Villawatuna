@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using X.PagedList.Extensions;
 using System.Linq;
+using HotelManagement.Helper;
 
 namespace HotelManagement.Controllers
 {
@@ -14,6 +15,8 @@ namespace HotelManagement.Controllers
     {
         private readonly ICustomerService _customerService;
         private readonly int _pageSize;
+
+        // Country list centralized in CountryList helper
 
         public CustomersController(ICustomerService customerService,
             IOptions<PaginationSettings> paginationSettings)
@@ -34,6 +37,7 @@ namespace HotelManagement.Controllers
 
         public IActionResult Create()
         {
+            ViewBag.Countries = CountryList.All;
             return View(new Customer());
         }
 
@@ -60,7 +64,10 @@ namespace HotelManagement.Controllers
                 ModelState.AddModelError(nameof(model.PassportNo), "Passport No is required.");
 
             if (!ModelState.IsValid)
+            {
+                ViewBag.Countries = CountryList.All;
                 return View(model);
+            }
 
             if (!string.IsNullOrWhiteSpace(model.Email) && await _customerService.EmailExistsAsync(model.Email))
             {
@@ -82,6 +89,7 @@ namespace HotelManagement.Controllers
         {
             var customer = await _customerService.GetByIdAsync(id);
             if (customer == null) return NotFound();
+            ViewBag.Countries = CountryList.All;
             return View(customer);
         }
 
@@ -97,11 +105,16 @@ namespace HotelManagement.Controllers
             if (string.IsNullOrWhiteSpace(model.LastName))
                 ModelState.AddModelError(nameof(model.LastName), "Last name is required.");
 
-            if (!ModelState.IsValid) return View(model);
+            if (!ModelState.IsValid)
+            {
+                ViewBag.Countries = CountryList.All;
+                return View(model);
+            }
 
             if (!string.IsNullOrWhiteSpace(model.Email) && await _customerService.EmailExistsAsync(model.Email, model.ID))
             {
                 ModelState.AddModelError(nameof(model.Email), "Email is already in use by another customer.");
+                ViewBag.Countries = CountryList.All;
                 return View(model);
             }
 

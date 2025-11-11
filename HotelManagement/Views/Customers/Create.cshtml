@@ -47,6 +47,22 @@
 
         <div class="row mb-3">
             <div class="col-md-6">
+                <label class="form-label">Country</label>
+                <select asp-for="Country" class="form-select">
+                    <option value="">-- Select Country --</option>
+                    @if (ViewBag.Countries != null)
+                    {
+                        foreach (var c in (IEnumerable<KeyValuePair<string, string>>)ViewBag.Countries)
+                        {
+                            <option value="@c.Key">@c.Value</option>
+                        }
+                    }
+                </select>
+            </div>
+        </div>
+
+        <div class="row mb-3">
+            <div class="col-md-6">
                 <label asp-for="NIC" class="form-label"></label>
                 <input asp-for="NIC" class="form-control" />
                 <span asp-validation-for="NIC" class="text-danger"></span>
