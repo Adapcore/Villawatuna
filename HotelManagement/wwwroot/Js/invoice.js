@@ -614,11 +614,11 @@
                 serviceCharge = subTotal * self.serviceCharge;
             }
 
-            var grossTotal = subTotal + serviceCharge;
+            var grossTotal = parseFloat(subTotal) + parseFloat(serviceCharge);
 
             $("#subTotal").html(subTotal);
             $("#serviceCharge").html(serviceCharge.toFixed(2));
-            $("#grossAmount").html(grossTotal);
+            $("#grossAmount").html(grossTotal.toFixed(2));
         },
         CalculateBalanceDue: function () {
             var self = this;
