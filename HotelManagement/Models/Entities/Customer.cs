@@ -25,11 +25,8 @@ namespace HotelManagement.Models.Entities
         public string LastName { get; set; }
 
         [Required, MaxLength(50)]
-        [Display(Name = "Passport No")]
+        [Display(Name = "Passport No / NIC")]
         public string PassportNo { get; set; }
-
-        [Required, MaxLength(12)]
-        public string NIC { get; set; }
 
         [Required, MaxLength(15)]
         [Display(Name = "Contact No")]
@@ -40,5 +37,7 @@ namespace HotelManagement.Models.Entities
 
         [MaxLength(10)]
         public string? Country { get; set; }
+
+        public bool Active { get; set; } = true;
     }
 }

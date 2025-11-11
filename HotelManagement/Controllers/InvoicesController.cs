@@ -60,7 +60,7 @@ namespace HotelManagement.Controllers
             var customers = await _customerService.GetAllAsync();
             //ViewBag.Customers = customers;
 
-            ViewBag.Customers = customers.Select(c => new SelectListItem
+            ViewBag.Customers = customers.Where(c => c.Active).Select(c => new SelectListItem
             {
                 Value = c.ID.ToString(),
                 Text = c.FirstName + " " + c.LastName
@@ -104,7 +104,7 @@ namespace HotelManagement.Controllers
             };
 
             var customers = await _customerService.GetAllAsync();
-            ViewBag.Customers = customers.Select(c => new SelectListItem
+            ViewBag.Customers = customers.Where(c=> c.Active).Select(c => new SelectListItem
             {
                 Value = c.ID.ToString(),
                 Text = c.FirstName + " " + c.LastName
@@ -155,7 +155,7 @@ namespace HotelManagement.Controllers
 
             var customers = await _customerService.GetAllAsync();
 
-            ViewBag.Customers = customers.Select(c => new SelectListItem
+            ViewBag.Customers = customers.Where(c => c.Active).Select(c => new SelectListItem
             {
                 Value = c.ID.ToString(),
                 Text = c.FirstName + " " + c.LastName

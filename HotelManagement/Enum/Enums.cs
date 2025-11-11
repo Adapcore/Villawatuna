@@ -17,7 +17,10 @@ namespace HotelManagement.Enums
         Other = 4,
 
         [Display(Name = "Tour")]
-        Tour = 5
+        Tour = 5,
+
+        [Display(Name = "Laundry")]
+        Laundry = 6
     }
 
     public enum InvoiceStatus

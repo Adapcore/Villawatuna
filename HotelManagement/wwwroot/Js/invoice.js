@@ -268,6 +268,13 @@
                     self.SelectDropDownValue()
                 });
             }
+            else if (self._type == 6)// Laundry (same as Other Types)
+            {
+                $.getJSON("/api/otherType/GetItems", function (data) {
+                    self.itemOptions = data.map(i => `<option value="${i.id}" data-price="${i.price}">${i.name}</option>`).join('');
+                    self.SelectDropDownValue()
+                });
+            }
             else if (self._type == 5)// Tour Types
             {
                 $.getJSON("/api/tourType/GetItems", function (data) {

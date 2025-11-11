@@ -124,7 +124,7 @@
                             <input id="txtCurrencyRate" type="number" class="form-control form-control-sm fs-7 text-end" step="1" placeholder="Auto-calculated" />
                         </div>
                     </div>
-                   
+
                     <hr class="my-1" />
                     <div class="d-flex justify-content-between fs-5 mb-1 text-primary">
                         <span>Cury Sub Total</span>
@@ -216,7 +216,16 @@
             <div class="modal-body">
                 <form id="frmQuickCustomer" method="post">
                     @Html.AntiForgeryToken()
+                    <input type="hidden" name="ID" id="qcCustomerId" />
                     <div class="row g-2">
+                        <div class="col-6">
+                            <label class="form-label fw-bold small">Email</label>
+                            <input type="email" class="form-control form-control-sm" name="Email" id="Email" required />
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label fw-bold small">Contact No</label>
+                            <input type="text" class="form-control form-control-sm" name="ContactNo" required />
+                        </div>
                         <div class="col-6">
                             <label class="form-label fw-bold small">First Name</label>
                             <input type="text" class="form-control form-control-sm" name="FirstName" required />
@@ -224,14 +233,6 @@
                         <div class="col-6">
                             <label class="form-label fw-bold small">Last Name</label>
                             <input type="text" class="form-control form-control-sm" name="LastName" required />
-                        </div>
-                        <div class="col-6">
-                            <label class="form-label fw-bold small">Email</label>
-                            <input type="email" class="form-control form-control-sm" name="Email" required />
-                        </div>
-                        <div class="col-6">
-                            <label class="form-label fw-bold small">Contact No</label>
-                            <input type="text" class="form-control form-control-sm" name="ContactNo" required />
                         </div>
                         <div class="col-12">
                             <label class="form-label fw-bold small">Address</label>
@@ -249,21 +250,30 @@
                                     }
                                 }
                             </select>
-                        </div>S
-                        <div class="col-6">
-                            <label class="form-label fw-bold small">NIC</label>
-                            <input type="text" class="form-control form-control-sm" name="NIC" required />
                         </div>
                         <div class="col-6">
-                            <label class="form-label fw-bold small">Passport No</label>
+                            <label class="form-label fw-bold small">Passport No / NIC</label>
                             <input type="text" class="form-control form-control-sm" name="PassportNo" required />
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label fw-bold small">Active</label>
+                            <div class="d-flex gap-3 align-items-center">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="Active" value="true" checked />
+                                    <label class="form-check-label">Active</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="Active" value="false" />
+                                    <label class="form-check-label">Inactive</label>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <div id="quickCustomerErrors" class="text-danger small mt-2 d-none"></div>
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal" id="frmQuickCustomerClose">Close</button>
                 <button type="submit" form="frmQuickCustomer" class="btn btn-primary btn-sm">
                     <i class="bi bi-save"></i> Save
                 </button>
@@ -303,16 +313,23 @@
                 success: function (res) {
                     if (res && res.success) {
                         const id = res.customer.id;
-                        const name = res.customer.name;
-                        const $ddl = $('#CustomerId');
-                        if ($ddl.find('option[value="' + id + '"]').length === 0) {
+                        const name = res.customer.firstName + ' ' + res.customer.lastName;
+                        const $ddl = $('#CustomerId');         
+
+                        if ($ddl.find('option[value="' + id + '"]').length === 0 && res.customer.active) {
+                            alert(2)
                             $ddl.append($('<option>', { value: id, text: name }));
                         }
+
                         $ddl.val(id).trigger('change');
                         const modalEl = document.getElementById('quickCustomerModal');
                         const modal = bootstrap.Modal.getInstance(modalEl);
                         modal.hide();
                         $form[0].reset();
+
+                        $('#Email').prop('disabled', false);
+                        $('#qcCustomerId').val('');
+                        ResetQuickCustomer();
                     } else if (res && res.errors) {
                         const $err = $('#quickCustomerErrors');
                         $err.removeClass('d-none');
@@ -325,5 +342,43 @@
                 }
             });
         });
+
+        // Load existing by email and populate
+        $('#Email').on('blur', function () {
+            const email = $(this).val();
+            if (!email) return;
+            $.getJSON('/Customers/GetByEmail', { email: email }, function (res) {
+                if (res && res.success && res.exists) {
+                    const c = res.customer;
+                    $('#qcCustomerId').val(c.id);
+                    $('input[name="FirstName"]').val(c.firstName);
+                    $('input[name="LastName"]').val(c.lastName);
+                    $('input[name="ContactNo"]').val(c.contactNo);
+                    $('input[name="Address"]').val(c.address);
+                    $('select[name="Country"]').val(c.country);
+                    $('input[name="PassportNo"]').val(c.passportNo);
+                    $('input[name="Active"][value="' + (c.active ? 'true' : 'false') + '"]').prop('checked', true);
+                    $('#Email').prop('readonly', true);
+                }
+            });
+        });
+
+        $('#frmQuickCustomerClose').on('click', function () {
+            ResetQuickCustomer();
+        });
     });
+
+    function ResetQuickCustomer() {
+        $('#qcCustomerId').val(0);
+        $('input[name="Email"]').val('');
+        $('input[name="FirstName"]').val('');
+        $('input[name="LastName"]').val('');
+        $('input[name="ContactNo"]').val('');
+        $('input[name="Address"]').val('');
+        $('select[name="Country"]').val(0);
+        $('input[name="PassportNo"]').val('');
+        $('input[name="Active"][value="true"]').prop('checked', true);
+        $('#Email').prop('readonly', false);
+    }
+
 </script>

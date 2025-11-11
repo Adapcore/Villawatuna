@@ -63,14 +63,20 @@
 
         <div class="row mb-3">
             <div class="col-md-6">
-                <label asp-for="NIC" class="form-label"></label>
-                <input asp-for="NIC" class="form-control" />
-                <span asp-validation-for="NIC" class="text-danger"></span>
-            </div>
-            <div class="col-md-6">
                 <label asp-for="PassportNo" class="form-label"></label>
                 <input asp-for="PassportNo" class="form-control" />
                 <span asp-validation-for="PassportNo" class="text-danger"></span>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Active</label>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" asp-for="Active" value="true" checked />
+                    <label class="form-check-label">Active</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" asp-for="Active" value="false" />
+                    <label class="form-check-label">Inactive</label>
+                </div>
             </div>
         </div>
 

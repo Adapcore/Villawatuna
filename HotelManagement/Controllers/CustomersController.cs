@@ -57,9 +57,6 @@ namespace HotelManagement.Controllers
             if (string.IsNullOrWhiteSpace(model.ContactNo))
                 ModelState.AddModelError(nameof(model.ContactNo), "Contact No is required.");
 
-            if (string.IsNullOrWhiteSpace(model.NIC))
-                ModelState.AddModelError(nameof(model.NIC), "NIC is required.");
-
             if (string.IsNullOrWhiteSpace(model.PassportNo))
                 ModelState.AddModelError(nameof(model.PassportNo), "Passport No is required.");
 
@@ -140,29 +137,105 @@ namespace HotelManagement.Controllers
             if (string.IsNullOrWhiteSpace(model.ContactNo))
                 errors.Add("Contact No is required.");
 
-            if (string.IsNullOrWhiteSpace(model.NIC))
-                errors.Add("NIC is required.");
-
             if (string.IsNullOrWhiteSpace(model.PassportNo))
                 errors.Add("Passport No is required.");
 
-            if (!string.IsNullOrWhiteSpace(model.Email) && await _customerService.EmailExistsAsync(model.Email))
-                errors.Add("Email is already in use.");
+            // Uniqueness checks: allow updating existing records
+            if (!string.IsNullOrWhiteSpace(model.Email) && await _customerService.EmailExistsAsync(model.Email, model.ID > 0 ? model.ID : null))
+                errors.Add("Email is already in use by another customer.");
 
-            if (!string.IsNullOrWhiteSpace(model.ContactNo) && await _customerService.ContactExistsAsync(model.ContactNo))
+            if (!string.IsNullOrWhiteSpace(model.ContactNo) && await _customerService.ContactExistsAsync(model.ContactNo, model.ID > 0 ? model.ID : null))
                 errors.Add("Contact is already in use.");
 
             if (errors.Any())
                 return Json(new { success = false, errors });
 
-            var created = await _customerService.CreateAsync(model);
+            // Update path if ID provided or email exists
+            if (model.ID > 0)
+            {
+                var existing = await _customerService.GetByIdAsync(model.ID);
+                if (existing == null)
+                    return Json(new { success = false, errors = new[] { "Customer not found." } });
+
+                existing.FirstName = model.FirstName;
+                existing.LastName = model.LastName;
+                // keep existing.Email unchanged if disabled on UI; but if passed, keep same
+                existing.ContactNo = model.ContactNo;
+                existing.Address = model.Address;
+                existing.Country = model.Country;
+                existing.PassportNo = model.PassportNo;
+                existing.Active = model.Active;
+
+                await _customerService.UpdateAsync(existing);
+
+                return Json(new
+                {
+                    success = true,
+                    customer = existing
+                });
+            }
+            else
+            {
+                // If email exists, treat as update flow
+                if (await _customerService.EmailExistsAsync(model.Email))
+                {
+                    var all = await _customerService.GetAllAsync();
+                    var existing = all.FirstOrDefault(c => c.Email == model.Email);
+                    if (existing != null)
+                    {
+                        existing.FirstName = model.FirstName;
+                        existing.LastName = model.LastName;
+                        existing.ContactNo = model.ContactNo;
+                        existing.Address = model.Address;
+                        existing.Country = model.Country;
+                        existing.PassportNo = model.PassportNo;
+                        existing.Active = model.Active;
+
+                        await _customerService.UpdateAsync(existing);
+
+                        return Json(new
+                        {
+                            success = true,
+                            customer = new { id = existing.ID, name = $"{existing.FirstName} {existing.LastName}".Trim() }
+                        });
+                    }
+                }
+
+                var created = await _customerService.CreateAsync(model);
+                return Json(new
+                {
+                    success = true,
+                    customer = created
+                });
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetByEmail(string email)
+        {
+            if (string.IsNullOrWhiteSpace(email))
+                return Json(new { success = false });
+
+            var customers = await _customerService.GetAllAsync();
+            var existing = customers.FirstOrDefault(c => c.Email == email);
+            if (existing == null) 
+                return Json(new { success = true, exists = false });
+
             return Json(new
             {
                 success = true,
+                exists = true,
                 customer = new
                 {
-                    id = created.ID,
-                    name = $"{created.FirstName} {created.LastName}".Trim()
+                    id = existing.ID,
+                    firstName = existing.FirstName,
+                    lastName = existing.LastName,
+                    email = existing.Email,
+                    contactNo = existing.ContactNo,
+                    address = existing.Address,
+                    country = existing.Country,
+                    passportNo = existing.PassportNo,
+                    active = existing.Active
                 }
             });
         }

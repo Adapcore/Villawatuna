@@ -61,7 +61,7 @@ namespace HotelManagement.Controllers
                 .SumAsync(i => (decimal?)i.TotalPaid) ?? 0m;
 
             decimal laundryRevenue = await invoices
-                .Where(i => i.Type == InvoiceType.Other)
+                .Where(i => i.Type == InvoiceType.Laundry)
                 .SumAsync(i => (decimal?)i.TotalPaid) ?? 0m;
 
             decimal totalExpenses = await expenses.SumAsync(e => (decimal?)e.Amount) ?? 0m;
