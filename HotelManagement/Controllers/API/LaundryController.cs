@@ -5,19 +5,19 @@ using Umbraco.Cms.Web.Common.Controllers;
 namespace HotelManagement.Controllers.API
 {
     [Route("api/[controller]")]
-    public class OtherTypeController : UmbracoApiController
+    public class LaundryController : UmbracoApiController
     {
-        private readonly IOtherTypeService _otherTypeService;
+        private readonly ILaundryService _laundryService;
 
-        public OtherTypeController(IOtherTypeService otherTypeService)
+        public LaundryController(ILaundryService laundryService)
         {
-            _otherTypeService = otherTypeService;
+            _laundryService = laundryService;
         }
 
         [HttpGet("getItems")]
         public async Task<IActionResult> GetItems()
         {
-            var items = await _otherTypeService.GetItemsAsync();
+            var items = await _laundryService.GetItemsAsync();
             if (!items.Any()) return NotFound("No other items found.");
             return Ok(items);
         }

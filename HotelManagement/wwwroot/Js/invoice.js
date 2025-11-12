@@ -268,9 +268,9 @@
                     self.SelectDropDownValue()
                 });
             }
-            else if (self._type == 6)// Laundry (same as Other Types)
+            else if (self._type == 6)// Laundry 
             {
-                $.getJSON("/api/otherType/GetItems", function (data) {
+                $.getJSON("/api/laundry/GetItems", function (data) {
                     self.itemOptions = data.map(i => `<option value="${i.id}" data-price="${i.price}">${i.name}</option>`).join('');
                     self.SelectDropDownValue()
                 });

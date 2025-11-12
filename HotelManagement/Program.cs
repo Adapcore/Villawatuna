@@ -32,6 +32,7 @@ builder.Services.AddScoped<ICurrencyService, CurrencyService>();
 builder.Services.AddScoped<IExpenseService, ExpenseService>();
 builder.Services.AddScoped<IExpenseTypeService, ExpenseTypeService>();
 builder.Services.AddScoped<IPaymentService, PaymentService>();
+builder.Services.AddScoped<ILaundryService, LaundryService>();
 
 
 builder.Services.Configure<PaginationSettings>(builder.Configuration.GetSection("Pagination"));

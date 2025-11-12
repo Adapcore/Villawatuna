@@ -42,7 +42,7 @@ namespace HotelManagement.Controllers
             DateTime toDate = (to?.Date ?? DateTime.Today).AddDays(1).AddTicks(-1);
 
             var invoices = _context.Invoices.AsNoTracking()
-                .Where(i => (i.Status == InvoiceStatus.InProgress || i.Status == InvoiceStatus.PartiallyPaid || i.Status == InvoiceStatus.Complete)
+                .Where(i => (i.Status == InvoiceStatus.PartiallyPaid || i.Status == InvoiceStatus.Complete|| i.Status == InvoiceStatus.Paid)
                 && i.Date >= fromDate && i.Date <= toDate);
 
             var expenses = _context.Expenses.AsNoTracking()

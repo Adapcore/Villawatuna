@@ -317,7 +317,6 @@
                         const $ddl = $('#CustomerId');         
 
                         if ($ddl.find('option[value="' + id + '"]').length === 0 && res.customer.active) {
-                            alert(2)
                             $ddl.append($('<option>', { value: id, text: name }));
                         }
 
