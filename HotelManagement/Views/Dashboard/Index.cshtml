@@ -99,6 +99,8 @@
         <div class="col-12 col-md-3">
             <button id="btnApply" class="btn btn-primary btn-sm mt-3 mt-md-0"><i class="bi bi-funnel"></i> Apply</button>
             <button id="btnToday" class="btn btn-outline-secondary btn-sm mt-3 mt-md-0 ms-2">Today</button>
+            <button id="btnMonth" class="btn btn-outline-secondary btn-sm mt-3 mt-md-0 ms-2">Month</button>
+            <button id="btnYear" class="btn btn-outline-secondary btn-sm mt-3 mt-md-0 ms-2">Year</button>
         </div>
     </div>
 
@@ -268,10 +270,47 @@
             $('#btnApply').on('click', function () {
                 loadMetrics();
             });
+
             $('#btnToday').on('click', function () {
                 const t = new Date().toISOString().slice(0, 10);
                 $('#fromDate').val(t);
                 $('#toDate').val(t);
+                loadMetrics();
+            });
+
+            $('#btnMonth').on('click', function () {
+                const now = new Date();
+
+                // Get first day of current month (local time)
+                const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
+
+                // Format to YYYY-MM-DD in local time
+                const formatDate = (d) =>
+                    d.getFullYear() + '-' +
+                    String(d.getMonth() + 1).padStart(2, '0') + '-' +
+                    String(d.getDate()).padStart(2, '0');
+
+                $('#fromDate').val(formatDate(firstDay));
+                $('#toDate').val(formatDate(now));
+
+                loadMetrics();
+            });
+
+            $('#btnYear').on('click', function () {
+                const now = new Date();
+
+                // Get January 1st of the current year
+                const firstDayOfYear = new Date(now.getFullYear(), 0, 1);
+
+                // Format date to YYYY-MM-DD (local)
+                const formatDate = (d) =>
+                    d.getFullYear() + '-' +
+                    String(d.getMonth() + 1).padStart(2, '0') + '-' +
+                    String(d.getDate()).padStart(2, '0');
+
+                $('#fromDate').val(formatDate(firstDayOfYear));
+                $('#toDate').val(formatDate(now));
+
                 loadMetrics();
             });
         });
