@@ -1,4 +1,5 @@
-﻿@model Invoice
+﻿@using HotelManagement.Enums
+@model Invoice
 
 @{
     ViewBag.Title = "Print Invoice";
@@ -22,6 +23,7 @@
         </div>
         <div class="col-6 text-end">
             <strong>Customer:</strong> @Model.Customer?.FirstName @Model.Customer?.LastName<br />
+            <strong>Customer Phone:</strong> @Model.Customer?.ContactNo<br />
             <strong>Reference No:</strong> @Model.ReferenceNo
         </div>
     </div>
@@ -33,24 +35,49 @@
     <table class="table table-bordered table-sm text-center">
         <thead class="table-light">
             <tr>
-                <th>Item</th>
-                <th>Description</th>
-                <th>Note</th>
-                <th>Qty</th>
-                <th>Unit Price</th>
-                <th>Amount</th>
+                @if (Model.Type == InvoiceType.Stay)
+                {
+                    <th>Room Type</th>
+                    <th>Check-In</th>
+                    <th>Check-Out</th>
+                    <th># Room / Note</th>
+                    <th># Nights</th>
+                    <th>Price / Night</th>
+                    <th>Amount</th>
+                }
+                else
+                {
+                    <th>Description</th>
+                    <th>Note</th>
+                    @if (Model.Type == InvoiceType.Laundry)
+                    {
+                        <th>Kg</th>
+                        <th>Price</th>
+                    }
+                    else
+                    {
+                        <th>Qty</th>
+                        <th>Unit Price</th>
+                    }
+                    <th>Amount</th>
+                }
+
             </tr>
         </thead>
         <tbody>
             @foreach (var detail in Model.InvoiceDetails)
             {
                 <tr>
-                    <td>@detail.ItemId</td>
                     <td>@detail.Item?.Name</td>
+                    @if (Model.Type == InvoiceType.Stay)
+                    {
+                        <td>@detail.CheckIn?.ToShortDateString()</td>
+                        <td>@detail.CheckOut?.ToShortDateString()</td>
+                    }
                     <td>@detail.Note</td>
                     <td>@detail.Quantity</td>
-                    <td>@detail.UnitPrice.ToString("F2")</td>
-                    <td>@detail.Amount.ToString("F2")</td>
+                    <td>@detail.UnitPrice.ToString("N2")</td>
+                    <td>@detail.Amount.ToString("N2")</td>
                 </tr>
             }
         </tbody>
@@ -59,18 +86,38 @@
     <div class="row mt-3">
         <div class="col-6 offset-6">
             <div class="d-flex justify-content-between">
-                <strong>Subtotal:</strong>
-                <span>@Model.SubTotal.ToString("F2")</span>
-            </div>
-            <div class="d-flex justify-content-between">
-                <strong>Service Charge:</strong>
-                <span>@Model.ServiceCharge.ToString("F2")</span>
+                <strong>Cury SubTotal:</strong>
+                <span>@Model.CurySubTotal.ToString("N2") @Model.Currency</span>
             </div>
             <hr />
+            @if (Model.Type == InvoiceType.Dining)
+            {
+                <div class="d-flex justify-content-between">
+                    <strong>Subtotal:</strong>
+                    <span>@Model.SubTotal.ToString("N2")</span>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <strong>Service Charge:</strong>
+                    <span>@Model.ServiceCharge.ToString("N2")</span>
+                </div>
+                <hr />
+            }
             <div class="d-flex justify-content-between fw-bold">
                 <strong>Gross Total:</strong>
-                <span>@Model.GrossAmount.ToString("F2")</span>
+                <span>@Model.GrossAmount.ToString("N2")</span>
             </div>
+            <hr />
+            @if (Model.Status != InvoiceStatus.InProgress)
+            {
+                <div class="d-flex justify-content-between">
+                    <strong>Total Paid:</strong>
+                    <span>@Model.TotalPaid.ToString("N2")</span>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <strong>Balance Amount:</strong>
+                    <span>@Model.Balance.ToString("N2")</span>
+                </div>
+            }
         </div>
     </div>
 
@@ -86,36 +133,36 @@
 </div>
 
 <style>
-/* POS-friendly printing */
-@@media print {
-    body * {
-        visibility: hidden;
-    }
+    /* POS-friendly printing */
+    @@media print {
+        body * {
+            visibility: hidden;
+        }
 
-    #invoiceContainer, #invoiceContainer * {
-        visibility: visible;
-    }
+        #invoiceContainer, #invoiceContainer * {
+            visibility: visible;
+        }
 
-    #invoiceContainer {
-        position: absolute;
-        left: 0;
-        top: 0;
-        width: 100%;
-        font-size: 12pt;
-    }
+        #invoiceContainer {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            font-size: 12pt;
+        }
 
-    .no-print {
-        display: none;
-    }
+        .no-print {
+            display: none;
+        }
 
-    table th, table td {
-        padding: 4px;
+        table th, table td {
+            padding: 4px;
+        }
     }
-}
 </style>
 
 <script>
-function printInvoice() {
-    window.print();
-}
+    function printInvoice() {
+        window.print();
+    }
 </script>
