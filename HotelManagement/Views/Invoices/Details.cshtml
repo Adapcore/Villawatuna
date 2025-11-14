@@ -16,19 +16,25 @@
             </a>
             @if (Model.Status != InvoiceStatus.Paid)
             {
-                <a href="@Url.Action("Edit", "Invoices")" class="btn btn-sm btn-success">
+                <a href="@Url.Action("Edit", "Invoices", new { id = Model.InvoiceNo })" class="btn btn-sm btn-success">
                     <i class="bi bi-pencil"></i> Edit
                 </a>
             }
             @if (Model.Status != InvoiceStatus.InProgress)
             {
-                <a href="@Url.Action("Print", "Invoices", new { id = Model.InvoiceNo })
-                                                            " target="_blank" class="btn btn-sm btn-warning">
-                    <i class="bi bi-printer"></i> Print
-                </a>
-                <a href="@Url.Action("PrintThermal", "Invoices", new { id = Model.InvoiceNo })" target="_blank" class="btn btn-sm btn-warning">
-                    <i class="bi bi-printer"></i> Thermal
-                </a>
+                if (Model.Type == InvoiceType.Dining || Model.Type == InvoiceType.TakeAway)
+                {
+                    <a href="@Url.Action("PrintThermal", "Invoices", new { id = Model.InvoiceNo })" target="_blank" class="btn btn-sm btn-warning">
+                        <i class="bi bi-printer"></i> Print
+                    </a>
+                }
+                else
+                {
+                    <a href="@Url.Action("Print", "Invoices", new { id = Model.InvoiceNo })
+                            " target="_blank" class="btn btn-sm btn-warning">
+                        <i class="bi bi-printer"></i> Print
+                    </a>
+                }
             }
         </div>
     </div>

@@ -53,7 +53,6 @@
 
         LoadInvoice: function () {
             var self = this;
-
             $("#InvoiceNo").val(self._invoice.invoiceNo);
             $("#Status").val(self._invoice.status);
             $('#txtPaid').html(self._invoice.paid.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}));
@@ -64,6 +63,13 @@
             $("#txtPayment").val(0);
             $("#txtCash").val(0);
             $("#txtBalanceDue").html('');
+
+            if (self._invoice.type == 1 || self._invoice.type == 2) {
+                $("#btn_print").attr("href", "/Internal/Invoices/PrintThermal/" + self._invoice.invoiceNo);
+            }
+            else {
+                $("#btn_print").attr("href", "/Internal/Invoices/Print/" + self._invoice.invoiceNo);
+            }
 
             // Load currency rate if available
             if (self._invoice.currencyRate) {

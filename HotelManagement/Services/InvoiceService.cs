@@ -15,14 +15,21 @@ namespace HotelManagement.Services
         private readonly IRoomService _roomsService;
         private readonly IOtherTypeService _otherTypeService;
         private readonly ITourTypeService _tourTypeService;
+        private readonly ILaundryService _laundryService;
 
-        public InvoiceService(HotelContext context, IMenuService menuService, IRoomService roomService, IOtherTypeService otherTypeService, ITourTypeService tourTypeService)
+        public InvoiceService(HotelContext context,
+            IMenuService menuService,
+            IRoomService roomService,
+            IOtherTypeService otherTypeService,
+            ITourTypeService tourTypeService,
+             ILaundryService laundryService)
         {
             _context = context;
             _menuService = menuService;
             _roomsService = roomService;
             _otherTypeService = otherTypeService;
             _tourTypeService = tourTypeService;
+            _laundryService = laundryService;
         }
 
         public async Task<List<Invoice>> GetAllInvoicesAsync()
@@ -100,6 +107,10 @@ namespace HotelManagement.Services
 
                 case InvoiceType.Tour:
                     menuItems = await _tourTypeService.GetItemsAsync();
+                    break;
+
+                case InvoiceType.Laundry:
+                    menuItems = await _laundryService.GetItemsAsync();
                     break;
             }
 
