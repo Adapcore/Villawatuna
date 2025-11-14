@@ -218,9 +218,49 @@ namespace HotelManagement.Controllers
             return View("PrintInvoice", invoice);
         }
 
+        //[HttpGet("PrintThermal/{id}")]
+        //public async Task<IActionResult> PrintThermal(int id)
+        //{
+
+        //    var invoice = await _invoiceService.GetByIdAsync(id);
+
+        //    if (invoice == null)
+        //        return NotFound();
+
+        //    // OPTIONAL: if you have MenuService or MenuController data cached
+        //    // you can map the MenuItem details here
+        //    // Example:
+        //    // foreach (var detail in invoice.InvoiceDetails)
+        //    // {
+        //    //     detail.MenuItem = await _menuService.GetItemByIdAsync(detail.ItemId);
+        //    // }
+
+        //    return View("PrintThermal", invoice);
+        //}
+
         [HttpGet("PrintThermal/{id}")]
         public async Task<IActionResult> PrintThermal(int id)
         {
+            //var vm = new PrintDTO(
+            //    ReceiptNo : "001",
+            //    Date : DateTime.Now,
+            //    StoreName: "My Shop",
+            //    AddressLine: "123 Main St",
+            //    Items: new()
+            //    {
+            //        new("Item A", 1, 10m, 10m),
+            //        new("Item B", 2, 2.50m, 5m)
+            //    },
+            //    Subtotal: 15m,
+            //    Tax: 0m,
+            //    Discount: 0m,
+            //    Total: 15m,
+            //    Paid : 10,
+            //    Footer: "Visit again!"
+            //);
+
+            //return View("PrintThermalTest", vm);
+
 
             var invoice = await _invoiceService.GetByIdAsync(id);
 
