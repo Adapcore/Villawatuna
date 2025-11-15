@@ -416,8 +416,6 @@
 
             var grossAmount = parseFloat($("#grossAmount").html()) || 0;
             var alreadyPaid = self._invoice.paid;
-            alert('grossAmount:' + grossAmount);
-            alert('alreadyPaid:' + alreadyPaid);
 
             var cash = parseFloat($("#txtCash").val()) || 0;
             var balance = grossAmount - alreadyPaid;
