@@ -644,8 +644,6 @@
             var cash = parseFloat($("#txtCash").val());
             $("#txtCash").val(cash.toFixed(2));
 
-            alert(balance);
-
             var payment = 0;
             var balanceDue = 0
 
