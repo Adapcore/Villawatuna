@@ -55,10 +55,10 @@
             var self = this;
             $("#InvoiceNo").val(self._invoice.invoiceNo);
             $("#Status").val(self._invoice.status);
-            $('#txtPaid').html(self._invoice.paid.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}));
-            $('#txtBalance').html(self._invoice.balance.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}));
-            $('#txtChange').html(self._invoice.change.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}));
-            $('#txtLastPaid').html(self._invoice.cash.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}));
+            $('#txtPaid').html(self._invoice.paid.toFixed(2));
+            $('#txtBalance').html(self._invoice.balance.toFixed(2));
+            $('#txtChange').html(self._invoice.change.toFixed(2));
+            $('#txtLastPaid').html(self._invoice.cash.toFixed(2));
 
             $("#txtPayment").val(0);
             $("#txtCash").val(0);
@@ -349,7 +349,7 @@
                                 <input type="number" name="InvoiceDetails[${rowIndex}].Quantity" class="form-control orderQty" value="1" min="1" />
                             </td>
                             <td>
-                                <input type="number" name="InvoiceDetails[${rowIndex}].UnitPrice" class="form-control itemPrice" value="${unitPrice.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}" step="0.01" />
+                                <input type="number" name="InvoiceDetails[${rowIndex}].UnitPrice" class="form-control itemPrice" value="${unitPrice.toFixed(2)}" step="0.01" />
                             </td>
                             <td>
                                 <input type="text" name="InvoiceDetails[${rowIndex}].Amount" class="form-control itemTotal" readonly value="0.00" />
@@ -394,7 +394,7 @@
                 else {
                     $row.find(".description").val('');
                 }
-                $row.find(".itemPrice").val(price.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}));
+                $row.find(".itemPrice").val(price.toFixed(2));
 
                 self.UpdateRowTotal($row);
             });
@@ -403,7 +403,7 @@
             var qty = parseFloat(row.find(".orderQty").val()) || 0;
             var price = parseFloat(row.find(".itemPrice").val()) || 0;
             var total = qty * price;
-            row.find(".itemTotal").val(total.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}));
+            row.find(".itemTotal").val(total.toFixed(2));
             this.CalculateTotals();
         },
         Save: function () {
@@ -416,6 +416,9 @@
 
             var grossAmount = parseFloat($("#grossAmount").html()) || 0;
             var alreadyPaid = self._invoice.paid;
+            alert('grossAmount:' + grossAmount);
+            alert('alreadyPaid:' + alreadyPaid);
+
             var cash = parseFloat($("#txtCash").val()) || 0;
             var balance = grossAmount - alreadyPaid;
             var change = cash - balance;
@@ -608,7 +611,7 @@
             $("#invoiceItems tbody tr").each(function () {
                 subtotal += parseFloat($(this).find(".itemTotal").val()) || 0;
             });
-            $("#curySubTotal").text(subtotal.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}));
+            $("#curySubTotal").text(subtotal.toFixed(2));
             $("#curySubTotal_code").text(selectedCurrency);
 
             self.CalculateGrossTotal();
@@ -630,11 +633,8 @@
             var grossTotal = parseFloat(subTotal) + parseFloat(serviceCharge);
 
             $("#subTotal").html(subTotal);
-            $("#serviceCharge").html(serviceCharge.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}));
-            $("#grossAmount").html(grossTotal.toLocaleString(undefined, {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2
-            }));
+            $("#serviceCharge").html(serviceCharge.toFixed(2));
+            $("#grossAmount").html(grossTotal.toFixed(2));
         },
         CalculateBalanceDue: function () {
             var self = this;
@@ -642,7 +642,9 @@
             var grossAmount = parseFloat($("#grossAmount").html());
             var balance = parseFloat($("#txtBalance").html());
             var cash = parseFloat($("#txtCash").val());
-            $("#txtCash").val(cash.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}));
+            $("#txtCash").val(cash.toFixed(2));
+
+            alert(balance);
 
             var payment = 0;
             var balanceDue = 0
@@ -656,8 +658,8 @@
                 balanceDue = balance - cash;
             }
 
-            $("#txtPayment").val(payment.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}));
-            $("#txtBalanceDue").html(balanceDue.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}));
+            $("#txtPayment").val(payment.toFixed(2));
+            $("#txtBalanceDue").html(balanceDue.toFixed(2));
         },
         //FindRate: function (from, to) {
         //    var self = this;
