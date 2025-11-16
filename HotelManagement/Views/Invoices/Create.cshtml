@@ -23,20 +23,32 @@
                         <table id="invoiceItems" class="table table-bordered table-striped align-middle text-center table-sm">
                             <thead class="table-dark">
                                 <tr>
-                                    <th>Item</th>
-                                    @if (Model.Type == (int)InvoiceType.Stay)
+
+                                    @if (Model.Type != (int)InvoiceType.Stay)
                                     {
+                                        <th>Item</th>
+                                        <th>Note</th>
+                                        <th>Qty</th>
+                                        <th>Price</th>
+                                        <th>Amount</th>
+                                        <th></th>
+                                    }
+                                    else
+                                    {
+                                        <th>Item</th>
                                         <th>Check-In</th>
                                         <th>Check-Out</th>
+                                        <th># Room / Note</th>
+                                        <th># Nights</th>
+                                        <th>Price/Night</th>
+                                        <th>Amount</th>
+                                        <th></th>
                                     }
-                                    <th>Note</th>
-                                    <th>Qty</th>
-                                    <th>Price</th>
-                                    <th>Amount</th>
-                                    <th></th>
                                 </tr>
                             </thead>
                             <tbody>
+
+
                                 @foreach (var detail in Model.InvoiceDetails)
                                 {
                                     <tr>
@@ -52,9 +64,9 @@
                                             <td><input type="date" class="form-control form-control-sm checkOut" value="@(detail.CheckOut?.ToString("yyyy-MM-dd"))" /></td>
                                         }
                                         <td><input type="text" class="form-control form-control-sm note" value="@detail.Note" /></td>
-                                        <td><input type="number" class="form-control form-control-sm orderQty" value="@detail.Quantity" /></td>
-                                        <td><input type="text" class="form-control form-control-sm itemPrice" value="@detail.UnitPrice.ToString("F2")" readonly /></td>
-                                        <td><input type="text" class="form-control form-control-sm itemTotal" value="@detail.Amount.ToString("F2")" readonly /></td>
+                                        <td><input type="number" class="form-control form-control-sm orderQty text-end" value="@detail.Quantity" /></td>
+                                        <td><input type="text" class="form-control form-control-sm itemPrice text-end" value="@detail.UnitPrice.ToString("F2")" readonly /></td>
+                                        <td><input type="text" class="form-control form-control-sm itemTotal text-end" value="@detail.Amount.ToString("F2")" readonly /></td>
                                         <td><button type="button" class="btn btn-danger btn-sm removeItemBtn">X</button></td>
                                     </tr>
                                 }
@@ -140,7 +152,7 @@
                         <div class="d-flex justify-content-between fs-5 mb-1">
                             <span>Service Charge</span>
                             <span id="serviceCharge">@Model.ServiceCharge.ToString("N2")</span>
-                        </div>                    
+                        </div>
                         <hr class="my-2" />
                     }
                     <div class="d-flex justify-content-between fs-4 fw-bold text-success mb-1">

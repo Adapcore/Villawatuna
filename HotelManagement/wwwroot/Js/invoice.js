@@ -353,13 +353,13 @@
                                 <input type="text" name="InvoiceDetails[${rowIndex}].Note" class="form-control note" placeholder="Note" />
                             </td>
                             <td>
-                                <input type="number" name="InvoiceDetails[${rowIndex}].Quantity" class="form-control orderQty" value="1" min="1" />
+                                <input type="number" name="InvoiceDetails[${rowIndex}].Quantity" class="form-control orderQty text-end" value="1" min="1" />
                             </td>
                             <td>
-                                <input type="number" name="InvoiceDetails[${rowIndex}].UnitPrice" class="form-control itemPrice" value="${unitPrice.toFixed(2)}" step="0.01" />
+                                <input type="number" name="InvoiceDetails[${rowIndex}].UnitPrice" class="form-control itemPrice text-end" value="${unitPrice.toFixed(2)}" step="0.01" />
                             </td>
                             <td>
-                                <input type="text" name="InvoiceDetails[${rowIndex}].Amount" class="form-control itemTotal" readonly value="0.00" />
+                                <input type="text" name="InvoiceDetails[${rowIndex}].Amount" class="form-control itemTotal text-end" readonly value="0.00" />
                             </td>
                             <td>
                                 <button type="button" class="btn btn-danger btn-sm removeItemBtn">X</button>
