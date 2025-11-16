@@ -18,6 +18,11 @@
         this.serviceCharge = 0;
         this._baseCurrency = 'LKR';
 
+        this._formatter = new Intl.NumberFormat('en-US', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
+
         this.Init();
         return this;
     };
@@ -55,10 +60,12 @@
             var self = this;
             $("#InvoiceNo").val(self._invoice.invoiceNo);
             $("#Status").val(self._invoice.status);
-            $('#txtPaid').html(self._invoice.paid.toFixed(2));
-            $('#txtBalance').html(self._invoice.balance.toFixed(2));
-            $('#txtChange').html(self._invoice.change.toFixed(2));
-            $('#txtLastPaid').html(self._invoice.cash.toFixed(2));
+            //$('#txtPaid').html(self._invoice.paid.toFixed(2));
+            $('#txtPaid').html(self._formatter.format(self._invoice.paid));
+
+            $('#txtBalance').html(self._formatter.format(self._invoice.balance));
+            $('#txtChange').html(self._formatter.format(self._invoice.change));
+            $('#txtLastPaid').html(self._formatter.format(self._invoice.cash));
 
             $("#txtPayment").val(0);
             $("#txtCash").val(0);
@@ -414,10 +421,10 @@
                 return;
             }
 
-            var grossAmount = parseFloat($("#grossAmount").html()) || 0;
+            var grossAmount = self.ParseNumber($("#grossAmount").html()) || 0;
             var alreadyPaid = self._invoice.paid;
 
-            var cash = parseFloat($("#txtCash").val()) || 0;
+            var cash = self.ParseNumber($("#txtCash").val()) || 0;
             var balance = grossAmount - alreadyPaid;
             var change = cash - balance;
 
@@ -430,20 +437,20 @@
                 Date: $("#Date").val(),
                 Type: $("#Type").val(),
                 Currency: $("#ddlCurrency").val(),
-                CurrencyRate: parseFloat($("#txtCurrencyRate").val()) || 1,
+                CurrencyRate: self.ParseNumber($("#txtCurrencyRate").val()) || 1,
                 Status: $("#Status").val(),
                 ReferenceNo: $("#ReferenceNo").val(),
                 CustomerId: $("#CustomerId").val(),
                 Note: $("#Note").val(),
-                CurySubTotal: parseFloat($("#curySubTotal").html()) || 0,
-                SubTotal: parseFloat($("#subTotal").html()) || 0,
-                ServiceCharge: parseFloat($("#serviceCharge").html()) || 0,
+                CurySubTotal: self.ParseNumber($("#curySubTotal").html()) || 0,
+                SubTotal: self.ParseNumber($("#subTotal").html()) || 0,
+                ServiceCharge: self.ParseNumber($("#serviceCharge").html()) || 0,
                 GrossAmount: grossAmount,
-                Paid: parseFloat($("#txtPayment").val()),
+                Paid: self.ParseNumber($("#txtPayment").val()),
                 Cash: cash,
                 Balance: balance,
                 Change: change,
-                PaymentType: parseInt($("#PaymentType").val()) || 1,
+                PaymentType: self.ParseNumber($("#PaymentType").val()) || 1,
                 PaymentReference: $("#txtPaymentReference").val(),
                 InvoiceDetails: []
             };
@@ -455,9 +462,9 @@
                     Note: $row.find(".note").val(),
                     CheckIn: $row.find(".checkIn").val(),
                     CheckOut: $row.find(".checkOut").val(),
-                    Quantity: parseInt($row.find(".orderQty").val()) || 0,
-                    UnitPrice: parseFloat($row.find(".itemPrice").val()) || 0,
-                    Amount: parseFloat($row.find(".itemTotal").val()) || 0
+                    Quantity: self.ParseNumber($row.find(".orderQty").val()) || 0,
+                    UnitPrice: self.ParseNumber($row.find(".itemPrice").val()) || 0,
+                    Amount: self.ParseNumber($row.find(".itemTotal").val()) || 0
                 });
             });
 
@@ -494,6 +501,8 @@
             });
         },
         ValidateInvoice: function () {
+            var self = this;
+
             let isValid = true;
             let errors = [];
 
@@ -511,7 +520,7 @@
                 $("#CustomerId").removeClass("is-invalid");
             }
 
-            var grossAmount = parseFloat($("#grossAmount").html());
+            var grossAmount = self.ParseNumber($("#grossAmount").html());
             if (grossAmount <= 0) {
                 alert("Gross amount must be greater than zero.");
                 isValid = false;
@@ -522,8 +531,8 @@
             //   isValid = false;
             //}
 
-            var paidAmount = parseFloat($("#txtPayment").val());
-            var balanceAmount = parseFloat($("#txtBalance").html());
+            var paidAmount = self.ParseNumber($("#txtPayment").val());
+            var balanceAmount = self.ParseNumber($("#txtBalance").html());
 
             if ($("#InvoiceNo").val() == 0) {
                 balanceAmount = grossAmount;
@@ -609,7 +618,7 @@
             $("#invoiceItems tbody tr").each(function () {
                 subtotal += parseFloat($(this).find(".itemTotal").val()) || 0;
             });
-            $("#curySubTotal").text(subtotal.toFixed(2));
+            $("#curySubTotal").text(self._formatter.format(subtotal));
             $("#curySubTotal_code").text(selectedCurrency);
 
             self.CalculateGrossTotal();
@@ -617,9 +626,9 @@
         CalculateGrossTotal: function () {
             var self = this;
 
-            var curySubTotal = $("#curySubTotal").html();
+            var curySubTotal = self.ParseNumber($("#curySubTotal").html());
             const selectedCurrency = $("#ddlCurrency").val();
-            const currencyRate = parseFloat($("#txtCurrencyRate").val()) || 1;
+            const currencyRate = self.ParseNumber($("#txtCurrencyRate").val() || 1);
             const subTotal = self.ConvertCurrency(curySubTotal, selectedCurrency, self._baseCurrency, currencyRate);
 
             var serviceCharge = 0;
@@ -630,16 +639,16 @@
 
             var grossTotal = parseFloat(subTotal) + parseFloat(serviceCharge);
 
-            $("#subTotal").html(subTotal);
-            $("#serviceCharge").html(serviceCharge.toFixed(2));
-            $("#grossAmount").html(grossTotal.toFixed(2));
+            $("#subTotal").html(self._formatter.format(subTotal));
+            $("#serviceCharge").html(self._formatter.format(serviceCharge));
+            $("#grossAmount").html(self._formatter.format(grossTotal));
         },
         CalculateBalanceDue: function () {
             var self = this;
 
-            var grossAmount = parseFloat($("#grossAmount").html());
-            var balance = parseFloat($("#txtBalance").html());
-            var cash = parseFloat($("#txtCash").val());
+            var grossAmount = self.ParseNumber($("#grossAmount").html());
+            var balance = self.ParseNumber($("#txtBalance").html());
+            var cash = self.ParseNumber($("#txtCash").val());
             $("#txtCash").val(cash.toFixed(2));
 
             var payment = 0;
@@ -654,9 +663,24 @@
                 balanceDue = balance - cash;
             }
 
-            $("#txtPayment").val(payment.toFixed(2));
-            $("#txtBalanceDue").html(balanceDue.toFixed(2));
+            $("#txtPayment").val(payment);// this is hidden text
+            $("#txtBalanceDue").html(self._formatter.format(balanceDue));
         },
+        ParseNumber: function (value) {
+            if (value === null || value === undefined) return 0;
+            // convert to string, remove anything except digits, minus sign and dot
+            var s = String(value).trim();
+            // remove common currency symbols and non-number chars except dot and minus
+            s = s.replace(/[^0-9.\-]/g, "");
+            // if more than one dot (rare), keep first dot only
+            var firstDot = s.indexOf('.');
+            if (firstDot !== -1) {
+                s = s.substring(0, firstDot + 1) + s.substring(firstDot + 1).replace(/\./g, '');
+            }
+            var n = parseFloat(s);
+            return isNaN(n) ? 0 : n;
+        },
+
         //FindRate: function (from, to) {
         //    var self = this;
 

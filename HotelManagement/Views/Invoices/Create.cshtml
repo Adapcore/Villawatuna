@@ -128,39 +128,39 @@
                     <hr class="my-1" />
                     <div class="d-flex justify-content-between fs-5 mb-1 text-primary">
                         <span>Cury Sub Total</span>
-                        <span id="curySubTotal">@Model.CurySubTotal</span>
+                        <span id="curySubTotal">@Model.CurySubTotal.ToString("N2")</span>
                     </div>
                     <hr class="my-2" />
                     @if (Model.Type == (int)InvoiceType.Dining)
                     {
                         <div class="d-flex justify-content-between fs-5 mb-1">
                             <span>Sub Total</span>
-                            <span id="subTotal">@Model.SubTotal</span>
+                            <span id="subTotal">@Model.SubTotal.ToString("N2")</span>
                         </div>
                         <div class="d-flex justify-content-between fs-5 mb-1">
                             <span>Service Charge</span>
-                            <span id="serviceCharge">@Model.ServiceCharge</span>
+                            <span id="serviceCharge">@Model.ServiceCharge.ToString("N2")</span>
                         </div>                    
                         <hr class="my-2" />
                     }
                     <div class="d-flex justify-content-between fs-4 fw-bold text-success mb-1">
                         <span>Gross Amount</span>
-                        <span id="grossAmount">@Model.GrossAmount</span>
+                        <span id="grossAmount">@Model.GrossAmount.ToString("N2")</span>
                     </div>
 
                     <div id="dv_paidWrapper">
                         <hr class="my-2" />
                         <div class="d-flex justify-content-between fs-6 mb-1">
                             <span>Total Paid</span>
-                            <span id="txtPaid">@Model.Paid</span>
+                            <span id="txtPaid">@Model.Paid.ToString("N2")</span>
                         </div>
                         <div class="d-flex justify-content-between fs-6 mb-1 text-danger">
                             <span>Balance</span>
-                            <span id="txtBalance">@Model.Balance</span>
+                            <span id="txtBalance">@Model.Balance.ToString("N2")</span>
                         </div>
                         <div class="d-flex justify-content-between fs-6 mb-1">
                             <span>Last Paid</span>
-                            <span id="txtLastPaid">@Model.Cash</span>
+                            <span id="txtLastPaid">@Model.Cash.ToString("N2")</span>
                         </div>
                     </div>
 
