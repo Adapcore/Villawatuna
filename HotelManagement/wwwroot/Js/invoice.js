@@ -524,11 +524,11 @@
                 success: function (res) {
 
                     if (res.success) {
-                        alert("Invoice created successfully! No: " + res.invoice.invoiceNo);
+                        showToastSuccess("Invoice created successfully! No: " + res.invoice.invoiceNo);
 
                         self._invoice = res.invoice;
                         self.LoadInvoice();
-
+                        
                         if (self._mode === "Insert") {
                             history.pushState(null, "", "/Internal/Invoices/Edit/" + res.invoice.invoiceNo);
                             //window.location.href = "/Internal/Invoices/Edit/" + res.invoice.invoiceNo;
@@ -537,7 +537,7 @@
                 },
                 error: function (err) {
                     console.error(err);
-                    alert("Error creating invoice. Check console for details.");
+                    showToastError("Error creating invoice. Check console for details.");
                 }
             });
         },
@@ -553,7 +553,7 @@
             //}
             if (!$("#CustomerId").val()) {
                 $("#CustomerId").addClass("is-invalid");
-                alert("Customer is required.");
+                showToastError("Customer is required.");
                 isValid = false;
                 return false;
             }
@@ -563,7 +563,7 @@
 
             var grossAmount = self.ParseNumber($("#grossAmount").html());
             if (grossAmount <= 0) {
-                alert("Gross amount must be greater than zero.");
+                showToastError("Gross amount must be greater than zero.");
                 isValid = false;
                 return false;
             }
@@ -581,9 +581,9 @@
 
             if (paidAmount > balanceAmount) {
                 if ($("#InvoiceNo").val() == 0) {
-                    alert("Paid amount must be less than or equals to Gross Amount");
+                    showToastError("Paid amount must be less than or equals to Gross Amount");
                 } else {
-                    alert("Paid amount must be less than or equals to Balance Amount");
+                    showToastError("Paid amount must be less than or equals to Balance Amount");
                 }
 
                 isValid = false;
@@ -599,7 +599,7 @@
 
                     if (!itemId) {
                         $(this).find(".orderItemSelect").addClass("is-invalid");
-                        alert('Invalid item slected');
+                        showToastError('Invalid item selected');
                         isValid = false;
                         return false;
                     }
@@ -609,7 +609,7 @@
 
                     if (!checkIn || !checkOut) {
                         $(this).find(".checkIn, .checkOut").addClass("is-invalid");
-                        alert('Invalid check-in & check-out dates');
+                        showToastError('Invalid check-in & check-out dates');
                         isValid = false;
                         return false;
                     }
@@ -625,7 +625,7 @@
                             isValid = false;
                             errors.push(`Row ${index + 1}: Check-In cannot be after Check-Out.`);
                             $(this).find(".checkIn, .checkOut").addClass("is-invalid");
-                            alert('Invalid check-in & check-out dates');
+                            showToastError('Invalid check-in & check-out dates');
                         } else {
                             $(this).find(".checkIn, .checkOut").removeClass("is-invalid");
                         }
@@ -638,7 +638,7 @@
             if (method === 2 || method === 3) {
                 var pref = $("#txtPaymentReference").val();
                 if (!pref || pref.trim().length === 0) {
-                    alert("Payment Reference is required for selected method.");
+                    showToastError("Payment Reference is required for selected method.");
                     return false;
                 }
             }
