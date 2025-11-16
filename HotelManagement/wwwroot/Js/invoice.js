@@ -147,6 +147,11 @@
                 self.UpdateRowTotal(row);
             });
 
+            $("#invoiceItems tbody").on("change", ".checkIn, .checkOut", function (e) {
+                var row = $(e.currentTarget).closest("tr");
+                self.CalculateNights(row);
+            });
+
             $("#btnComplete").on("click", function () {
                 $("#Status").val(2);
                 self.Save();
@@ -381,6 +386,15 @@
                 this.UpdateRowTotal($newRow);
             });
 
+            $newRow.find(".checkIn .checkOut").on("change", (e) => {
+                $(e.currentTarget).closest("tr").remove();
+                this.CalculateNights(row);
+            });
+
+            if (self._type == 3) {
+                $newRow.find(".orderQty").prop('readonly', true);
+            }
+
             // Recalculate totals
             this.CalculateTotals();
         },
@@ -412,6 +426,33 @@
             var total = qty * price;
             row.find(".itemTotal").val(total.toFixed(2));
             this.CalculateTotals();
+        },
+        CalculateNights: function (row) {
+            var self = this;
+            const checkIn = row.find('.checkIn').val();
+            const checkOut = row.find('.checkOut').val();
+
+            if (!checkIn || !checkOut) {
+                row.find('.orderQty').val(0);
+                return;
+            }
+
+            const d1 = new Date(checkIn);
+            const d2 = new Date(checkOut);
+
+            // Calculate difference in milliseconds
+            const diffMs = d2 - d1;
+
+            // Convert to nights
+            let nights = diffMs / (1000 * 60 * 60 * 24);
+
+            // Prevent negative or NaN
+            if (isNaN(nights) || nights < 0) nights = 0;
+
+            // Update Quantity field
+            row.find('.orderQty').val(nights);
+
+            self.UpdateRowTotal(row);
         },
         Save: function () {
             var self = this;
