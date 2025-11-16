@@ -97,6 +97,7 @@
             $('#btnComplete').hide();
             $('#btnPay').hide();
             $('#btn_print').hide();
+            $('#btnReOpen').hide();
 
             self.DisableHeader();
             self.DisableDetails();
@@ -112,6 +113,7 @@
             else if (self._invoice.status == 2) { // Complete
                 self.EnableHeader(1);
 
+                $('#btnReOpen').show();
                 $('#btnPay').show();
                 $('#btn_print').show();
             }
@@ -154,6 +156,11 @@
 
             $("#btnComplete").on("click", function () {
                 $("#Status").val(2);
+                self.Save();
+            });
+
+            $("#btnReOpen").on("click", function () {
+                $("#Status").val(1);
                 self.Save();
             });
 
