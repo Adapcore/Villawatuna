@@ -14,7 +14,7 @@ namespace HotelManagement.Models.ViewModels
 
         [Required]
         public int Type { get; set; }
-        public string Currency { get; set; }
+        public string? Currency { get; set; }
 
         public string? ReferenceNo { get; set; }
         public int Status { get; set; }
@@ -48,6 +48,8 @@ namespace HotelManagement.Models.ViewModels
             Date = invoice.Date;
             Type = (int)invoice.Type;
             Currency = invoice.Currency;
+            CurrencyRate = invoice.CurrencyRate;
+
             ReferenceNo = invoice.ReferenceNo;
             CustomerId = invoice.CustomerId;
             Note = invoice.Note;
@@ -61,7 +63,7 @@ namespace HotelManagement.Models.ViewModels
             Cash = invoice.LastPaid;
             Change = invoice.Change;
             PaymentType = (int)invoice.LastPaymentType;
-            CurrencyRate = invoice.CurrencyRate;
+            
 
             InvoiceDetails = invoice.InvoiceDetails.Select(d => new CreateInvoiceDetailViewModel
             {
@@ -82,7 +84,9 @@ namespace HotelManagement.Models.ViewModels
                 InvoiceNo = model.InvoiceNo,
                 Date = model.Date,
                 Type = Enum.Parse<InvoiceType>(model.Type.ToString()),
-                Currency = model.Currency,
+                Currency = model.Currency ?? "LKR",
+                CurrencyRate = model.CurrencyRate ?? 1,
+
                 ReferenceNo = model.ReferenceNo,
                 CustomerId = model.CustomerId,
                 Note = model.Note,
@@ -94,8 +98,8 @@ namespace HotelManagement.Models.ViewModels
                 TotalPaid = model.Paid,
                 LastPaid = model.Cash,
                 Change = model.Change,
-                LastPaymentType =  Enum.Parse<InvoicePaymentType>(model.PaymentType.ToString()),
-                CurrencyRate = model.CurrencyRate,
+                LastPaymentType = Enum.Parse<InvoicePaymentType>(model.PaymentType.ToString()),
+
 
                 InvoiceDetails = model.InvoiceDetails.Select((d, index) => new InvoiceDetail
                 {

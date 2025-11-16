@@ -96,8 +96,8 @@
             <label class="form-label fw-semibold">To</label>
             <input type="date" id="toDate" class="form-control form-control-sm" />
         </div>
-        <div class="col-12 col-md-3">
-            <button id="btnApply" class="btn btn-primary btn-sm mt-3 mt-md-0"><i class="bi bi-funnel"></i> Apply</button>
+        <div class="col-12 col-md-3 filter-section">
+            <button id="btnApply" class="btn btn-primary btn-sm mt-3 mt-md-0 ms-2"><i class="bi bi-funnel"></i> Apply</button>
             <button id="btnToday" class="btn btn-outline-secondary btn-sm mt-3 mt-md-0 ms-2">Today</button>
             <button id="btnMonth" class="btn btn-outline-secondary btn-sm mt-3 mt-md-0 ms-2">Month</button>
             <button id="btnYear" class="btn btn-outline-secondary btn-sm mt-3 mt-md-0 ms-2">Year</button>
@@ -243,9 +243,13 @@
             return 'LKR ' + num.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
         }
 
-        function loadMetrics() {
+        function loadMetrics(ele) {
             const from = $('#fromDate').val();
             const to = $('#toDate').val();
+
+            $('.btn', $(".filter-section")).removeClass("btn-primary").addClass("btn-outline-secondary");
+            ele.removeClass("btn-outline-secondary").addClass("btn-primary");
+
             $.getJSON('/Dashboard/GetMetrics', { from: from, to: to }, function (res) {
                 if (res && res.success && res.data) {
                     if (res.isAdmin && $('#tileTotalRevenue').length) {
@@ -265,17 +269,18 @@
             const today = new Date().toISOString().slice(0, 10);
             $('#fromDate').val(today);
             $('#toDate').val(today);
-            loadMetrics();
+            loadMetrics($('#btnApply', $(".filter-section")));
 
             $('#btnApply').on('click', function () {
-                loadMetrics();
+                loadMetrics($('#btnApply', $(".filter-section")));
             });
 
             $('#btnToday').on('click', function () {
                 const t = new Date().toISOString().slice(0, 10);
                 $('#fromDate').val(t);
                 $('#toDate').val(t);
-                loadMetrics();
+
+                loadMetrics($('#btnToday', $(".filter-section")));
             });
 
             $('#btnMonth').on('click', function () {
@@ -293,7 +298,7 @@
                 $('#fromDate').val(formatDate(firstDay));
                 $('#toDate').val(formatDate(now));
 
-                loadMetrics();
+                loadMetrics($('#btnMonth', $(".filter-section")));
             });
 
             $('#btnYear').on('click', function () {
@@ -311,7 +316,7 @@
                 $('#fromDate').val(formatDate(firstDayOfYear));
                 $('#toDate').val(formatDate(now));
 
-                loadMetrics();
+                loadMetrics($('#btnYear', $(".filter-section")));
             });
         });
     </script>

@@ -17,6 +17,9 @@
         this.itemIndex = 0;
         this.serviceCharge = 0;
         this._baseCurrency = 'LKR';
+        this.curySubTotal = 0;
+        this.subTotal = 0;
+        this.grossTotal = 0;
 
         this._formatter = new Intl.NumberFormat('en-US', {
             minimumFractionDigits: 2,
@@ -58,6 +61,12 @@
 
         LoadInvoice: function () {
             var self = this;
+
+            self.curySubTotal = self._invoice.curySubTotal;
+            self.subTotal = self._invoice.subTotal;
+            self.serviceCharge = self._invoice.serviceCharge;
+            self.grossTotal = self._invoice.grossAmount;
+
             $("#InvoiceNo").val(self._invoice.invoiceNo);
             $("#Status").val(self._invoice.status);
             //$('#txtPaid').html(self._invoice.paid.toFixed(2));
@@ -71,11 +80,11 @@
             $("#txtCash").val(0);
             $("#txtBalanceDue").html('');
 
-            if (self._invoice.type == 1 || self._invoice.type == 2) {
-                $("#btn_print").attr("href", "/Internal/Invoices/PrintThermal/" + self._invoice.invoiceNo);
+            if (self._invoice.type == 3 || self._invoice.type == 2) {
+                $("#btn_print").attr("href", "/Internal/Invoices/Print/" + self._invoice.invoiceNo);                
             }
             else {
-                $("#btn_print").attr("href", "/Internal/Invoices/Print/" + self._invoice.invoiceNo);
+                $("#btn_print").attr("href", "/Internal/Invoices/PrintThermal/" + self._invoice.invoiceNo);
             }
 
             // Load currency rate if available
@@ -129,6 +138,7 @@
                 $('#btn_print').show();
             }
         },
+
         BindEvents: function () {
             var self = this;
 
@@ -147,6 +157,17 @@
             $("#invoiceItems tbody").on("change", ".orderQty", function (e) {
                 var row = $(e.currentTarget).closest("tr");
                 self.UpdateRowTotal(row);
+            });
+
+            // Price change
+            $("#invoiceItems tbody").on("change", ".itemPrice", function (e) {
+                var row = $(e.currentTarget).closest("tr");
+                self.UpdateRowTotal(row);
+            });
+
+            $("#invoiceItems tbody").on("change", ".itemTotal", function (e) {
+                var row = $(e.currentTarget).closest("tr");
+                self.CalculateTotals();
             });
 
             $("#invoiceItems tbody").on("change", ".checkIn, .checkOut", function (e) {
@@ -200,6 +221,7 @@
                 }
             });
         },
+
         DisableHeader: function () {
             $("#Date").prop('disabled', true);
             $("#Status").prop('disabled', true);
@@ -209,6 +231,7 @@
             $("#ReferenceNo").prop('disabled', true);
             $("#Note").prop('disabled', true);
         },
+
         EnableHeader: function (level) {
             if (level == 0) {
                 $("#Date").prop('disabled', false);
@@ -220,18 +243,21 @@
             $("#ReferenceNo").prop('disabled', false);
             $("#Note").prop('disabled', false);
         },
+
         DisableDetails: function () {
             $("#invoiceItems tbody .form-control").prop('disabled', true);
             $("#invoiceItems tbody .form-select").prop('disabled', true);
             $("#invoiceItems tbody .btn").prop('disabled', true);
             $('#addItemBtn').prop('disabled', true);
         },
+
         EnableDetails: function () {
             $("#invoiceItems tbody .form-control").prop('disabled', false);
             $("#invoiceItems tbody .form-select").prop('disabled', false);
             $("#invoiceItems tbody .btn").prop('disabled', false);
             $('#addItemBtn').prop('disabled', false);
         },
+
         EnablePayment: function () {
 
             $('#btnPay').fadeOut();
@@ -242,6 +268,7 @@
             $('#dv_paymentWrapper').slideDown();
             $('#btn_print').show();
         },
+
         LoadServiceCharge: function () {
             var self = this;
             $.getJSON("/api/menu/GetServiceCharge", function (data) {
@@ -269,6 +296,7 @@
                 self.CalculateTotals();
             }
         },
+
         LoadItems: function () {
             var self = this;
 
@@ -308,6 +336,7 @@
                 });
             }
         },
+
         SelectDropDownValue: function () {
             var self = this;
 
@@ -332,6 +361,7 @@
                 }
             });
         },
+
         AddItemRow: function (item) {
             var self = this;
 
@@ -371,7 +401,7 @@
                                 <input type="number" name="InvoiceDetails[${rowIndex}].UnitPrice" class="form-control itemPrice text-end" value="${unitPrice.toFixed(2)}" step="0.01" />
                             </td>
                             <td>
-                                <input type="text" name="InvoiceDetails[${rowIndex}].Amount" class="form-control itemTotal text-end" readonly value="0.00" />
+                                <input type="text" name="InvoiceDetails[${rowIndex}].Amount" class="form-control itemTotal text-end" value="0.00" />
                             </td>
                             <td>
                                 <button type="button" class="btn btn-danger btn-sm removeItemBtn">X</button>
@@ -405,6 +435,7 @@
             // Recalculate totals
             this.CalculateTotals();
         },
+
         BindItemSelection: function () {
             var self = this;
             $("#invoiceItems").on("change", ".orderItemSelect", function () {
@@ -427,6 +458,7 @@
                 self.UpdateRowTotal($row);
             });
         },
+
         UpdateRowTotal: function (row) {
             var qty = parseFloat(row.find(".orderQty").val()) || 0;
             var price = parseFloat(row.find(".itemPrice").val()) || 0;
@@ -434,6 +466,7 @@
             row.find(".itemTotal").val(total.toFixed(2));
             this.CalculateTotals();
         },
+
         CalculateNights: function (row) {
             var self = this;
             const checkIn = row.find('.checkIn').val();
@@ -461,6 +494,7 @@
 
             self.UpdateRowTotal(row);
         },
+
         Save: function () {
             var self = this;
 
@@ -479,7 +513,7 @@
             if (change < 0) {
                 change = 0;
             }
-
+            debugger;
             var invoice = {
                 InvoiceNo: $("#InvoiceNo").val(),
                 Date: $("#Date").val(),
@@ -490,8 +524,10 @@
                 ReferenceNo: $("#ReferenceNo").val(),
                 CustomerId: $("#CustomerId").val(),
                 Note: $("#Note").val(),
-                CurySubTotal: self.ParseNumber($("#curySubTotal").html()) || 0,
-                SubTotal: self.ParseNumber($("#subTotal").html()) || 0,
+                //CurySubTotal: self.ParseNumber($("#curySubTotal").html()) || 0,
+                //SubTotal: self.ParseNumber($("#subTotal").html()) || 0,
+                CurySubTotal: self.curySubTotal,
+                SubTotal: self.subTotal,
                 ServiceCharge: self.ParseNumber($("#serviceCharge").html()) || 0,
                 GrossAmount: grossAmount,
                 Paid: self.ParseNumber($("#txtPayment").val()),
@@ -535,7 +571,7 @@
 
                         self._invoice = res.invoice;
                         self.LoadInvoice();
-                        
+
                         if (self._mode === "Insert") {
                             history.pushState(null, "", "/Internal/Invoices/Edit/" + res.invoice.invoiceNo);
                             //window.location.href = "/Internal/Invoices/Edit/" + res.invoice.invoiceNo;
@@ -548,6 +584,7 @@
                 }
             });
         },
+
         ValidateInvoice: function () {
             var self = this;
 
@@ -652,45 +689,51 @@
 
             return isValid;
         },
+
         CalculateTotals: function () {
             var self = this;
 
             self.CalculateCurrySubTotal();
         },
+
         CalculateCurrySubTotal: function () {
             var self = this;
+            var curySubTotal = 0;
 
             const selectedCurrency = $("#ddlCurrency").val();
 
-            var subtotal = 0;
             $("#invoiceItems tbody tr").each(function () {
-                subtotal += parseFloat($(this).find(".itemTotal").val()) || 0;
+                curySubTotal += parseFloat($(this).find(".itemTotal").val()) || 0;
             });
-            $("#curySubTotal").text(self._formatter.format(subtotal));
+
+            self.curySubTotal = curySubTotal;
+            $("#curySubTotal").text(self._formatter.format(curySubTotal));
             $("#curySubTotal_code").text(selectedCurrency);
 
             self.CalculateGrossTotal();
         },
+
         CalculateGrossTotal: function () {
             var self = this;
 
-            var curySubTotal = self.ParseNumber($("#curySubTotal").html());
-            const selectedCurrency = $("#ddlCurrency").val();
+            //var curySubTotal = self.ParseNumber($("#curySubTotal").html());
+            const selectedCurrency = $("#ddlCurrency").val() || "LKR";
             const currencyRate = self.ParseNumber($("#txtCurrencyRate").val() || 1);
-            const subTotal = self.ConvertCurrency(curySubTotal, selectedCurrency, self._baseCurrency, currencyRate);
+            self.subTotal = self.ConvertCurrency(self.curySubTotal, selectedCurrency, self._baseCurrency, currencyRate);
 
             var serviceCharge = 0;
             //Service charges applyes to Dining only
             if ($("#Type").val() == 1) {
-                serviceCharge = subTotal * self.serviceCharge;
+                serviceCharge = self.subTotal * self.serviceCharge;
             }
 
-            var grossTotal = parseFloat(subTotal) + parseFloat(serviceCharge);
+            var grossTotal = parseFloat(self.subTotal) + parseFloat(serviceCharge);
 
-            $("#subTotal").html(self._formatter.format(subTotal));
+            $("#subTotal").html(self._formatter.format(self.subTotal));
             $("#serviceCharge").html(self._formatter.format(serviceCharge));
             $("#grossAmount").html(self._formatter.format(grossTotal));
         },
+
         CalculateBalanceDue: function () {
             var self = this;
 
@@ -714,6 +757,7 @@
             $("#txtPayment").val(payment);// this is hidden text
             $("#txtBalanceDue").html(self._formatter.format(balanceDue));
         },
+
         ParseNumber: function (value) {
             if (value === null || value === undefined) return 0;
             // convert to string, remove anything except digits, minus sign and dot
@@ -758,6 +802,7 @@
             //const rate = self.FindRate(from, to);
             //return amount * rate;
         },
+
         RemoveItemRow: function (row) {
             row.remove();
             this.CalculateTotals();

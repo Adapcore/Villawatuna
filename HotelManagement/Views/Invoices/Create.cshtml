@@ -23,7 +23,6 @@
                         <table id="invoiceItems" class="table table-bordered table-striped align-middle text-center table-sm">
                             <thead class="table-dark">
                                 <tr>
-
                                     @if (Model.Type != (int)InvoiceType.Stay)
                                     {
                                         <th>Item</th>
@@ -70,8 +69,8 @@
                                         {
                                             <td><input type="number" class="form-control form-control-sm orderQty text-end" value="@detail.Quantity" /></td>
                                         }
-                                        <td><input type="text" class="form-control form-control-sm itemPrice text-end" value="@detail.UnitPrice.ToString("F2")" readonly /></td>
-                                        <td><input type="text" class="form-control form-control-sm itemTotal text-end" value="@detail.Amount.ToString("F2")" readonly /></td>
+                                        <td><input type="number" class="form-control form-control-sm itemPrice text-end" value="@detail.UnitPrice.ToString("F2")" /></td>
+                                        <td><input type="number" class="form-control form-control-sm itemTotal text-end" value="@detail.Amount.ToString("F2")" /></td>
                                         <td><button type="button" class="btn btn-danger btn-sm removeItemBtn">X</button></td>
                                     </tr>
                                 }
@@ -130,25 +129,30 @@
                         <label class="form-label fw-bold">Note</label>
                         <input asp-for="Note" class="form-control form-control-sm fs-7" />
                     </div>
-
-                    <div id="dv_currency" class="d-flex justify-content-between">
-                        <div class="mb-4">
-                            <label class="form-label fw-bold ">Currency</label>
-                            <select asp-for="Currency" id="ddlCurrency" class="form-select form-select-sm fs-7 " asp-items="ViewBag.CurrencyTypes"></select>
+                    @if (Model.Type == (int)InvoiceType.Stay)
+                    {
+                        <div id="dv_currency" class="d-flex justify-content-between">
+                            <div class="mb-4">
+                                <label class="form-label fw-bold ">Currency</label>
+                                <select asp-for="Currency" id="ddlCurrency" class="form-select form-select-sm fs-7 " asp-items="ViewBag.CurrencyTypes"></select>
+                            </div>
+                            <div class="mb-2">
+                                <label class="form-label fw-bold ">Rate</label>
+                                <input id="txtCurrencyRate" type="number" class="form-control form-control-sm fs-7 text-end" step="1" placeholder="Auto-calculated" />
+                            </div>
                         </div>
-                        <div class="mb-2">
-                            <label class="form-label fw-bold ">Rate</label>
-                            <input id="txtCurrencyRate" type="number" class="form-control form-control-sm fs-7 text-end" step="1" placeholder="Auto-calculated" />
-                        </div>
-                    </div>
-
+                    }
                     <hr class="my-1" />
-                    <div class="d-flex justify-content-between fs-5 mb-1 text-primary">
-                        <span>Cury Sub Total</span>
-                        <span id="curySubTotal">@Model.CurySubTotal.ToString("N2")</span>
-                    </div>
-                    <hr class="my-2" />
-                    @if (Model.Type == (int)InvoiceType.Dining)
+
+                    @if (Model.Type == (int)InvoiceType.Stay)
+                    {
+                        <div class="d-flex justify-content-between fs-5 mb-1 text-primary">
+                            <span>Cury Sub Total</span>
+                            <span id="curySubTotal">@Model.CurySubTotal.ToString("N2")</span>
+                        </div>
+                        <hr class="my-2" />
+                    }
+                    else if (Model.Type == (int)InvoiceType.Dining)
                     {
                         <div class="d-flex justify-content-between fs-5 mb-1">
                             <span>Sub Total</span>
