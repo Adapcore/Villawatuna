@@ -4,6 +4,9 @@
 @{
     ViewData["Title"] = "Expenses";
     Layout = "~/Views/Shared/_Layout.cshtml";
+    DateTime? _startDate = ViewBag.StartDate;
+    DateTime? _endDate = ViewBag.EndDate;
+    int _expenseTypeId = ViewBag.ExpenseTypeId ?? 0;
 }
 
 <div class="container-fluid py-4">
@@ -12,6 +15,35 @@
         <a asp-action="Create" class="btn btn-success">
             <i class="bi bi-plus-circle"></i> Add Expense
         </a>
+    </div>
+
+    <!-- Filters -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" asp-action="Index" class="row g-3">
+                <div class="col-md-3">
+                    <label class="form-label fw-bold">Start Date</label>
+                    <input type="date" name="startDate" class="form-control" value="@(_startDate?.ToString("yyyy-MM-dd"))" />
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label fw-bold">End Date</label>
+                    <input type="date" name="endDate" class="form-control" value="@(_endDate?.ToString("yyyy-MM-dd"))" />
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label fw-bold">Expense Type</label>
+                    <select name="expenseTypeId" class="form-select" asp-items="ViewBag.ExpenseTypes">
+                    </select>
+                </div>
+                <div class="col-md-3 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary me-2">
+                        <i class="bi bi-funnel"></i> Filter
+                    </button>
+                    <a asp-action="Index" class="btn btn-outline-secondary">
+                        <i class="bi bi-x-circle"></i> Clear
+                    </a>
+                </div>
+            </form>
+        </div>
     </div>
 
     <table class="table table-striped table-hover table-bordered align-middle shadow-sm">
@@ -55,5 +87,5 @@
             }
         </tbody>
     </table>
-    @await Html.PartialAsync("_Pagination", Model)
+    @await Html.PartialAsync("_Pagination_expense", Model)
 </div>

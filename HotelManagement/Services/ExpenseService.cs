@@ -22,7 +22,31 @@ namespace HotelManagement.Services
 
         public async Task<IEnumerable<Expense>> GetAllAsync()
         {
-            IEnumerable<Expense> expenses = await _context.Expenses
+            return await GetAllAsync(null, null, null);
+        }
+
+        public async Task<IEnumerable<Expense>> GetAllAsync(DateTime? startDate, DateTime? endDate, int? expenseTypeId)
+        {
+            var query = _context.Expenses.AsQueryable();
+
+            // Apply date range filter
+            if (startDate.HasValue)
+            {
+                query = query.Where(e => e.Date >= startDate.Value.Date);
+            }
+
+            if (endDate.HasValue)
+            {
+                query = query.Where(e => e.Date <= endDate.Value.Date);
+            }
+
+            // Apply expense type filter
+            if (expenseTypeId.HasValue && expenseTypeId.Value > 0)
+            {
+                query = query.Where(e => e.ExpenseTypeID == expenseTypeId.Value);
+            }
+
+            IEnumerable<Expense> expenses = await query
                 .OrderByDescending(e => e.ID)
                 .ToListAsync();
 

@@ -32,11 +32,36 @@ namespace HotelManagement.Controllers
             _pageSize = paginationSettings.Value.DefaultPageSize;
         }
 
-        public async Task<IActionResult> Index(int page = 1)
+        public async Task<IActionResult> Index(int page = 1, DateTime? startDate = null, DateTime? endDate = null, int expenseTypeId = 0)
         {
             int pageNumber = page < 1 ? 1 : page;
+            expenseTypeId = expenseTypeId < 0 ? 0 : expenseTypeId;
 
-            IEnumerable<Expense> expenses = await _expenseService.GetAllAsync();
+            // Get expense types for dropdown
+            var expenseTypes = await _expenseTypeService.GetExpenseTypesAsync();
+            ViewBag.ExpenseTypes = expenseTypes.Select(c => new SelectListItem
+            {
+                Value = c.Id.ToString(),
+                Text = c.Name,
+                Selected = c.Id == expenseTypeId
+            }).ToList();
+
+            // Add "All" option
+            ViewBag.ExpenseTypes.Insert(0, new SelectListItem
+            {
+                Value = "0",
+                Text = "-- All Expense Types --",
+                Selected = expenseTypeId == 0
+            });
+
+            // Pass filter values to view
+            ViewBag.StartDate = startDate;
+            ViewBag.EndDate = endDate;
+            ViewBag.ExpenseTypeId = expenseTypeId;
+
+            // Get filtered expenses
+            int? expenseTypeFilter = expenseTypeId > 0 ? expenseTypeId : null;
+            IEnumerable<Expense> expenses = await _expenseService.GetAllAsync(startDate, endDate, expenseTypeFilter);
             var pagedList = expenses.ToPagedList(pageNumber, _pageSize);
 
             return View(pagedList);
