@@ -1,0 +1,32 @@
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.20.0/jquery.validate.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/3.2.13/jquery.validate.unobtrusive.min.js"></script>
+<script>
+    // Clear validation errors when user interacts with fields
+    $(document).ready(function() {
+        // Clear errors on input/change for all form fields
+        $(document).on('input change', 'input, select, textarea', function() {
+            var $field = $(this);
+            var $errorSpan = null;
+            
+            // Try multiple methods to find the error span
+            $errorSpan = $field.siblings('span.text-danger').first();
+            if ($errorSpan.length === 0) {
+                $errorSpan = $field.closest('div').find('span.text-danger').first();
+            }
+            if ($errorSpan.length === 0) {
+                var fieldName = $field.attr('name');
+                if (fieldName) {
+                    $errorSpan = $('span[data-valmsg-for="' + fieldName + '"]');
+                }
+            }
+            
+            // Clear the error if found
+            if ($errorSpan && $errorSpan.length > 0) {
+                $errorSpan.text('').removeClass('text-danger field-validation-error').addClass('field-validation-valid');
+                $field.removeClass('input-validation-error is-invalid');
+            }
+        });
+    });
+</script>
+
