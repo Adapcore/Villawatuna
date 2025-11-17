@@ -51,9 +51,14 @@
                                     <tr>
                                         <td>
                                             <input type="hidden" value="@detail.ItemId" class="itemId" />
-                                            <select class="form-select orderItemSelect form-select-sm" data-selected="@detail.ItemId">
-                                                <option value="">-- Select --</option>
-                                            </select>
+                                            <div class="input-group input-group-sm">
+                                                <select class="form-select orderItemSelect form-select-sm" data-selected="@detail.ItemId">
+                                                    <option value="">-- Select --</option>
+                                                </select>
+                                                <button type="button" class="btnAddItem btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#addItemModal" title="Add Item">
+                                                    <i class="bi bi-card-list"></i>
+                                                </button>
+                                            </div>
                                         </td>
                                         @if (Model.Type == 3)
                                         {
@@ -305,6 +310,25 @@
         </div>
     </div>
 </div>
+
+
+<!-- Quick Add Item Modal -->
+<div class="modal fade" id="addItemModal" tabindex="-1" aria-labelledby="itemModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered" style="max-width:95% !important;">
+        <div class="modal-content" style="height:90vh;">
+
+            <div class="modal-header">
+                <h5 class="modal-title" id="itemModalLabel">Add Items</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div id="itemContainer"></div>
+
+        </div>
+    </div>
+</div>
+</div>
+
 
 <!-- Scripts -->
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>

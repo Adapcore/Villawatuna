@@ -20,6 +20,7 @@
         this.curySubTotal = 0;
         this.subTotal = 0;
         this.grossTotal = 0;
+        this._currentRow = null;
 
         this._formatter = new Intl.NumberFormat('en-US', {
             minimumFractionDigits: 2,
@@ -81,7 +82,7 @@
             $("#txtBalanceDue").html('');
 
             if (self._invoice.type == 3 || self._invoice.type == 2) {
-                $("#btn_print").attr("href", "/Internal/Invoices/Print/" + self._invoice.invoiceNo);                
+                $("#btn_print").attr("href", "/Internal/Invoices/Print/" + self._invoice.invoiceNo);
             }
             else {
                 $("#btn_print").attr("href", "/Internal/Invoices/PrintThermal/" + self._invoice.invoiceNo);
@@ -220,6 +221,10 @@
                     $("#txtPaymentReference").val("");
                 }
             });
+
+            $(".btnAddItem").on("click", function () {
+                self._currentRow = $(this).closest("tr");   // store the row
+            });
         },
 
         DisableHeader: function () {
@@ -303,38 +308,200 @@
             if (self._type == 1 || self._type == 2)// Dining, Take away
             {
                 $.getJSON("/api/menu/getItems", function (data) {
-                    self.itemOptions = data.map(i => `<option value="${i.id}" data-price="${i.price}">${i.name}</option>`).join('');
+
+                    let allItems = [];
+
+                    // Flatten the nested structure
+                    data.forEach(function (cat) {
+                        cat.items.forEach(function (itm) {
+                            allItems.push({
+                                id: itm.id,
+                                name: itm.name,
+                                price: itm.price,
+                                category: cat.category
+                            });
+                        });
+                    });
+
+                    let html = "";
+
+                    // -------------------------------------
+                    // 1. ALL ITEMS (ignore category)
+                    // -------------------------------------
+                    html += `<optgroup label="All Items">`;
+                    html += allItems.map(i =>
+                        `<option value="${i.id}" data-price="${i.price}">${i.name}</option>`
+                    ).join('');
+                    html += `</optgroup>`;
+
+                    // -------------------------------------
+                    // 2. CATEGORY-WISE ITEMS
+                    // -------------------------------------
+                    let groups = {};
+
+                    allItems.forEach(function (i) {
+                        if (!groups[i.category]) groups[i.category] = [];
+                        groups[i.category].push(i);
+                    });
+
+                    $.each(groups, function (catName, items) {
+                        html += `<optgroup label="${catName}">`;
+                        html += items.map(i =>
+                            `<option value="${i.id}" data-price="${i.price}">${i.name}</option>`
+                        ).join('');
+                        html += `</optgroup>`;
+                    });
+
+                    self.itemOptions = html;
+
+                    //self.itemOptions = data.map(i => `<option value="${i.id}" data-price="${i.price}">${i.name}</option>`).join('');
                     self.SelectDropDownValue();
+                    self.BindItemsToPopUp(data);
                 });
             }
             else if (self._type == 3)// Stay
             {
                 $.getJSON("/api/room/GetRoomCategories", function (data) {
                     self.itemOptions = data.map(i => `<option value="${i.id}" data-price="0">${i.name}</option>`).join('');
-                    self.SelectDropDownValue()
+                    self.SelectDropDownValue();
+                    self.BindItemsToPopUp(data);
                 });
             }
             else if (self._type == 4)// Other Types
             {
                 $.getJSON("/api/otherType/GetItems", function (data) {
                     self.itemOptions = data.map(i => `<option value="${i.id}" data-price="${i.price}">${i.name}</option>`).join('');
-                    self.SelectDropDownValue()
+                    self.SelectDropDownValue();
+                    self.BindItemsToPopUp(data);
                 });
             }
             else if (self._type == 6)// Laundry 
             {
                 $.getJSON("/api/laundry/GetItems", function (data) {
                     self.itemOptions = data.map(i => `<option value="${i.id}" data-price="${i.price}">${i.name}</option>`).join('');
-                    self.SelectDropDownValue()
+                    self.SelectDropDownValue();
+                    self.BindItemsToPopUp(data);
                 });
             }
             else if (self._type == 5)// Tour Types
             {
                 $.getJSON("/api/tourType/GetItems", function (data) {
                     self.itemOptions = data.map(i => `<option value="${i.id}" data-price="${i.price}">${i.name}</option>`).join('');
-                    self.SelectDropDownValue()
+                    self.SelectDropDownValue();
+                    self.BindItemsToPopUp(data);
                 });
             }
+        },
+        BindItemsToPopUp: function (data) {
+            var self = this;
+
+            const $container = $("#itemContainer");
+            $container.empty();
+
+            // Case 1: Flat list of items (NO category)
+            const isFlatList = data.length > 0 && data[0].id !== undefined;
+
+            if (isFlatList) {
+                let html = `<div class="row g-3 p-3">`;
+                $.each(data, function (i, item) {
+                    html += `
+                <div class="col-6 col-md-3">                  
+                    <div class="card shadow-sm h-100 p-2 itemCard btn btn-outline-primary"
+                         data-id="${item.id}"
+                         data-name="${item.name}"
+                         data-price="${item.price}">
+                        <div class="card-body text-center">
+                            <h6 class="fw-bold">${item.name}</h6>
+                            <div class="text-danger fw-bold">Rs. ${item.price.toLocaleString()}</div>
+                        </div>
+                    </div>
+                </div>`;
+                });
+
+                html += `</div>`;
+                $container.html(html);
+                return;
+            }
+
+            // Case 2: With categories → Tabs
+            let tabButtons = `<ul class="nav nav-tabs">`;
+            let tabContent = `<div class="tab-content p-3">`;
+
+            $.each(data, function (index, cat) {
+                let active = index === 0 ? "active" : "";
+                let show = index === 0 ? "show active" : "";
+
+                tabButtons += `
+            <li class="nav-item">
+                <button class="nav-link ${active}" data-bs-toggle="tab"
+                        data-bs-target="#tab${index}" type="button">
+                    ${cat.category}
+                </button>
+            </li>`;
+
+                tabContent += `
+            <div class="tab-pane fade ${show}" id="tab${index}">
+                <div class="row g-3 mt-2">`;
+
+                $.each(cat.items, function (i, item) {
+                    tabContent += `
+                <div class="col-6 col-md-3">
+                    <div class="card shadow-sm h-100 p-2 itemCard btn btn-outline-primary"
+                         data-id="${item.id}"
+                         data-name="${item.name}"
+                         data-price="${item.price}">
+                        <div class="card-body text-center">
+                            <h6 class="fw-bold">${item.name}</h6>
+                            <div class="text-danger fw-bold">Rs. ${item.price.toLocaleString()}</div>
+                        </div>
+                    </div>
+                </div>`;
+                });
+
+                tabContent += `</div></div>`;
+            });
+
+            tabButtons += `</ul>`;
+            tabContent += `</div>`;
+
+            $container.html(tabButtons + tabContent);
+
+            self.BindItemCardEvents();
+        },
+
+        BindItemCardEvents: function () {
+            var self = this;
+
+            $(".itemCard").on("click", function () {
+
+                if (!self._currentRow) return;
+
+                const itemId = $(this).data("id");
+                const itemName = $(this).data("name");
+                const itemPrice = $(this).data("price");
+
+                // Find the dropdown inside that row
+                const $ddl = self._currentRow.find(".orderItemSelect");
+
+                // Add option if not exists
+                if ($ddl.find(`option[value='${itemId}']`).length === 0) {
+                    $ddl.append(`<option value="${itemId}">${itemName}</option>`);
+                }
+
+                // Select the item
+                $ddl.val(itemId).trigger("change");
+
+                // Set price automatically (optional)
+                self._currentRow.find(".itemPrice").val(itemPrice);
+
+                // Recalculate amount (optional)
+                const qty = parseFloat(self._currentRow.find(".orderQty").val() || 1);
+                const total = qty * itemPrice;
+                self._currentRow.find(".itemTotal").val(total.toFixed(2));
+
+                // Close modal
+                $("#addItemModal").modal("hide");
+            });
         },
 
         SelectDropDownValue: function () {
@@ -380,6 +547,9 @@
                                     <option value="">-- Select --</option>
                                     ${this.itemOptions || ""}
                                 </select>
+                                 <button type="button" class="btnAddItem btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#addItemModal" title="Add new customer">
+                                    <i class="bi bi-person-plus"></i>
+                                </button>
                             </td>`;
 
             if (self._type == 3) {
@@ -431,6 +601,11 @@
             if (self._type == 3) {
                 $newRow.find(".orderQty").prop('readonly', true);
             }
+
+            $(".btnAddItem").off("click");
+            $(".btnAddItem").on("click", function () {
+                self._currentRow = $(this).closest("tr");   // store the row
+            });
 
             // Recalculate totals
             this.CalculateTotals();

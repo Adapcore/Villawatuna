@@ -17,7 +17,7 @@ namespace HotelManagement.Controllers.API
         [HttpGet("getItems")]
         public async Task<IActionResult> GetItems()
         {
-            var items = await _menuService.GetItemsAsync();
+            var items = await _menuService.GetItemsWithCategoriesAsync();
             if (!items.Any()) return NotFound("No menu items found.");
             return Ok(items);
         }
