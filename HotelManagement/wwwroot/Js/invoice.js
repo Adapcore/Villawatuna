@@ -116,7 +116,6 @@
                 self.EnableHeader(0);
 
                 $('#btnComplete').show();
-                $('#btnSave').show();
 
                 self.EnableDetails();
             }
@@ -136,6 +135,7 @@
             else if (self._invoice.status == 4) { // Paid
                 $('#dv_paidWrapper').show();
                 $('#dv_lastPaid').removeClass('d-none');
+                $('#btnSave').hide();
                 $('#btn_print').show();
             }
         },
@@ -688,7 +688,7 @@
             if (change < 0) {
                 change = 0;
             }
-            debugger;
+
             var invoice = {
                 InvoiceNo: $("#InvoiceNo").val(),
                 Date: $("#Date").val(),

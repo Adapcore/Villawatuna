@@ -144,8 +144,8 @@
                             <td>@EnumHelper.GetDisplayName(invoice.Status)</td>
                             <td class="text-end">@invoice.GrossAmount.ToString("N2")</td>
                             <td>
-                                <a href="@Url.Action("Details", "Invoices", new { id = invoice.InvoiceNo })" class="btn btn-sm btn-info">View</a>
-                                <a href="@Url.Action("Edit", "Invoices", new { id = invoice.InvoiceNo })" class="btn btn-sm btn-warning">Edit</a>
+                                @* <a href="@Url.Action("Details", "Invoices", new { id = invoice.InvoiceNo })" class="btn btn-sm btn-info">View</a> *@
+                                <a href="@Url.Action("Edit", "Invoices", new { id = invoice.InvoiceNo })" class="btn btn-sm btn-warning">View / Edit</a>
                             </td>
                         </tr>
                     }
