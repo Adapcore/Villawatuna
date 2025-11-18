@@ -1003,11 +1003,7 @@
                 });
             });
 
-            var url = "/api/InvoicesApi/Save";
-
-            //if (self._mode === "Edit") {
-            //    var url = "/api/InvoicesApi/update"
-            //}
+            var url = "/api/InvoicesApi/Save";                        
 
             // Call the API
             $.ajax({
@@ -1018,7 +1014,7 @@
                 success: function (res) {
 
                     if (res.success) {
-                        showToastSuccess("Invoice created successfully! No: " + res.invoice.invoiceNo);
+                        showToastSuccess("Invoice Save Complete");
 
                         self._invoice = res.invoice;
                         self.LoadInvoice();

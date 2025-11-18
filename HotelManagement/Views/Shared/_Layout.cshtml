@@ -8,6 +8,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet" />
+    <link rel="stylesheet" href="~/css/toast.css" />
     <script src="~/js/toast.js"></script>
 
     <style>
@@ -256,17 +257,14 @@
     <!-- Main Content -->
     <main role="main" class="container-fluid px-4">             
 
-        <div id="toastPanel" aria-live="polite" aria-atomic="true" class="position-relative z-n1">
-            <!-- Position it -->
-            <div style="position: absolute; top: 7px; right: 30px; z-index:-1">
-
-                <!-- Then put toasts within -->
-                <div id="toast-success" class="toast toast-success" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="2000">
+        <!-- Toast Container -->
+        <div id="toastPanel" aria-live="polite" aria-atomic="true" class="z-n1">
+                <!-- Success Toast -->
+                <div id="toast-success" class="toast toast-success" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="5000" data-bs-autohide="true">
                     <div class="toast-header">
-                        <i class="bi bi-info-square-fill"></i>
-                        <strong class="mr-auto header-message">Information</strong>
-                        @*<small class="text-muted">just now</small>*@
-                        <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close" onclick="closeToastSuccess()">
+                        <i class="bi bi-check-circle-fill"></i>
+                        <strong class="header-message">Success</strong>
+                        <button type="button" class="close" data-bs-dismiss="toast" aria-label="Close" onclick="closeToastSuccess()">
                             <span aria-hidden="true">&times;</span>
                         </button>
                     </div>
@@ -274,24 +272,25 @@
                     </div>
                 </div>
 
-                <div id="toast-error" class="toast toast-error" role="alert" aria-live="assertive" aria-atomic="true">
+                <!-- Error Toast -->
+                <div id="toast-error" class="toast toast-error" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="5000" data-bs-autohide="true">
                     <div class="toast-header">
                         <i class="bi bi-x-circle-fill"></i>
-                        <strong class="mr-auto header-message">Error</strong>
-                        @*<small class="text-muted">2 seconds ago</small>*@
-                        <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close" onclick="closeToastError()">
+                        <strong class="header-message">Error</strong>
+                        <button type="button" class="close" data-bs-dismiss="toast" aria-label="Close" onclick="closeToastError()">
                             <span aria-hidden="true">&times;</span>
                         </button>
                     </div>
                     <div class="toast-body">
                     </div>
                 </div>
-                <div id="toast-warning" class="toast toast-warning" role="alert" aria-live="assertive" aria-atomic="true">
+
+                <!-- Warning Toast -->
+                <div id="toast-warning" class="toast toast-warning" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="5000" data-bs-autohide="true">
                     <div class="toast-header">
                         <i class="bi bi-exclamation-triangle-fill"></i>
-                        <strong class="mr-auto header-message">Warning</strong>
-                        @*<small class="text-muted">2 seconds ago</small>*@
-                        <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close" onclick="closeToastWarning()">
+                        <strong class="header-message">Warning</strong>
+                        <button type="button" class="close" data-bs-dismiss="toast" aria-label="Close" onclick="closeToastWarning()">
                             <span aria-hidden="true">&times;</span>
                         </button>
                     </div>

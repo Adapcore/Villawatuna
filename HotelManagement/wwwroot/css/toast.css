@@ -1,0 +1,233 @@
+/* Toast Container */
+#toastPanel {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+    min-width: 300px;
+    max-width: 400px;
+}
+
+/* Base Toast Styles */
+.toast {
+    min-width: 300px;
+    max-width: 400px;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    margin-bottom: 16px;
+    font-size: 1rem;
+    border: none;
+    overflow: hidden;
+    animation: slideInRight 0.3s ease-out;
+}
+
+@keyframes slideInRight {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+/* Toast Header */
+.toast-header {
+    padding: 16px 20px;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-weight: 600;
+    min-height: 56px;
+}
+
+.toast-header i {
+    font-size: 1.5rem;
+    flex-shrink: 0;
+}
+
+.toast-header .header-message {
+    flex: 1;
+    font-size: 1.1rem;
+    margin: 0;
+}
+
+.toast-header .close {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    line-height: 1;
+    padding: 0;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    opacity: 0.8;
+}
+
+.toast-header .close:hover {
+    opacity: 1;
+    background-color: rgba(0, 0, 0, 0.1);
+    transform: scale(1.1);
+}
+
+.toast-header .close:active {
+    transform: scale(0.95);
+}
+
+/* Toast Body */
+.toast-body {
+    padding: 16px 20px;
+    font-size: 1rem;
+    line-height: 1.5;
+    min-height: 48px;
+    display: flex;
+    align-items: center;
+}
+
+/* Success Toast */
+.toast-success {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    color: white;
+}
+
+.toast-success .toast-header {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+}
+
+.toast-success .toast-header i {
+    color: #ffffff;
+}
+
+.toast-success .toast-header .close {
+    color: white;
+}
+
+.toast-success .toast-body {
+    background: rgba(255, 255, 255, 0.05);
+    color: white;
+}
+
+/* Error Toast */
+.toast-error {
+    background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+    color: white;
+}
+
+.toast-error .toast-header {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+}
+
+.toast-error .toast-header i {
+    color: #ffffff;
+}
+
+.toast-error .toast-header .close {
+    color: white;
+}
+
+.toast-error .toast-body {
+    background: rgba(255, 255, 255, 0.05);
+    color: white;
+}
+
+/* Warning Toast */
+.toast-warning {
+    background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
+    color: #212529;
+}
+
+.toast-warning .toast-header {
+    background: rgba(255, 255, 255, 0.2);
+    color: #212529;
+}
+
+.toast-warning .toast-header i {
+    color: #212529;
+}
+
+.toast-warning .toast-header .close {
+    color: #212529;
+}
+
+.toast-warning .toast-body {
+    background: rgba(255, 255, 255, 0.1);
+    color: #212529;
+}
+
+/* Touch-friendly adjustments */
+@media (hover: none) and (pointer: coarse) {
+    .toast {
+        min-width: 320px;
+        max-width: 90%;
+        font-size: 1.1rem;
+    }
+
+    .toast-header {
+        min-height: 60px;
+        padding: 18px 22px;
+    }
+
+    .toast-header .close {
+        width: 40px;
+        height: 40px;
+        font-size: 1.8rem;
+    }
+
+    .toast-body {
+        padding: 18px 22px;
+        min-height: 52px;
+        font-size: 1.05rem;
+    }
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+    #toastPanel {
+        top: 10px;
+        right: 10px;
+        left: 10px;
+        min-width: auto;
+        max-width: 100%;
+    }
+
+    .toast {
+        min-width: 100%;
+        max-width: 100%;
+        margin-bottom: 12px;
+    }
+}
+
+/* Animation for hiding */
+.toast.hiding {
+    animation: slideOutRight 0.3s ease-in forwards;
+}
+
+@keyframes slideOutRight {
+    from {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+}
+
+/* Ensure toast is visible when shown */
+.z-5 {
+    z-index: 9999 !important;
+}
+
+.z-n1 {
+    z-index: -1 !important;
+}
+

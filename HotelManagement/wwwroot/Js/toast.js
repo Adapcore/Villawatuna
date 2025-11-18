@@ -1,45 +1,78 @@
 ﻿function showToastSuccess(message) {
-    $('#toast-success .toast-body').html(message);
-    $('#toast-success').toast('show');
+    const toastEl = document.getElementById('toast-success');
+    const toastBody = toastEl.querySelector('.toast-body');
+    toastBody.textContent = message;
+    
+    const toast = bootstrap.Toast.getOrCreateInstance(toastEl);
+    toast.show();
+    
     applyShowToastStyles();
 }
+
 function showToastError(message) {
-    $('#toast-error .toast-body').html(message);
-    $('#toast-error').toast('show');
+    const toastEl = document.getElementById('toast-error');
+    const toastBody = toastEl.querySelector('.toast-body');
+    toastBody.textContent = message;
+    
+    const toast = bootstrap.Toast.getOrCreateInstance(toastEl);
+    toast.show();
+    
     applyShowToastStyles();
 }
+
 function showToastWarning(message) {
-    $('#toast-warning .toast-body').html(message);
-    $('#toast-warning').toast('show');
+    const toastEl = document.getElementById('toast-warning');
+    const toastBody = toastEl.querySelector('.toast-body');
+    toastBody.textContent = message;
+    
+    const toast = bootstrap.Toast.getOrCreateInstance(toastEl);
+    toast.show();
+    
     applyShowToastStyles();
 }
 
 function closeToastSuccess() {
-    $('#toast-success .toast-body').html('');
-    $('#toast-success').toast('hide');
+    const toastEl = document.getElementById('toast-success');
+    const toast = bootstrap.Toast.getInstance(toastEl);
+    if (toast) {
+        toast.hide();
+    }
 }
+
 function closeToastError() {
-    $('#toast-error .toast-body').html('');
-    $('#toast-error').toast('hide');
+    const toastEl = document.getElementById('toast-error');
+    const toast = bootstrap.Toast.getInstance(toastEl);
+    if (toast) {
+        toast.hide();
+    }
 }
+
 function closeToastWarning() {
-    $('#toast-warning .toast-body').html('');
-    $('#toast-warning').toast('hide');
+    const toastEl = document.getElementById('toast-warning');
+    const toast = bootstrap.Toast.getInstance(toastEl);
+    if (toast) {
+        toast.hide();
+    }
 }
 
 var myTimeout = null;
 function applyShowToastStyles() {
-    $('#toastPanel').removeClass('z-n1');
-    $('#toastPanel').addClass('z-5');
+    const toastPanel = document.getElementById('toastPanel');
+    if (toastPanel) {
+        toastPanel.classList.remove('z-n1');
+        toastPanel.classList.add('z-5');
+    }
 
     if (myTimeout != null) {
-        
         clearTimeout(myTimeout);
     }
     myTimeout = setTimeout(applyHideToastStyles, 5000);
 }
 
 function applyHideToastStyles() {
-    $('#toastPanel').removeClass('z-5');
-    $('#toastPanel').addClass('z-n1');
+    const toastPanel = document.getElementById('toastPanel');
+    if (toastPanel) {
+        toastPanel.classList.remove('z-5');
+        toastPanel.classList.add('z-n1');
+    }
 }
