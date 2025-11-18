@@ -1,0 +1,202 @@
+/* Mobile-first responsive payments index table */
+
+/* Prevent horizontal scrolling on mobile */
+@media (max-width: 767px) {
+    body {
+        overflow-x: hidden;
+        max-width: 100vw;
+    }
+    
+    .container-fluid,
+    .container {
+        padding-left: 12px;
+        padding-right: 12px;
+        max-width: 100%;
+        overflow-x: hidden;
+    }
+    
+    * {
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+    
+    /* Prevent any element from causing overflow */
+    .row {
+        margin-left: 0;
+        margin-right: 0;
+    }
+    
+    [class*="col-"] {
+        padding-left: 8px;
+        padding-right: 8px;
+    }
+}
+
+/* Desktop: Show table */
+@media (min-width: 768px) {
+    .payments-table-mobile {
+        display: none;
+    }
+    
+    .payments-table-desktop {
+        display: block;
+    }
+}
+
+/* Mobile: Show cards */
+@media (max-width: 767px) {
+    .payments-table-desktop {
+        display: none;
+    }
+    
+    .payments-table-mobile {
+        display: block;
+    }
+    
+    /* Mobile card layout */
+    .payment-card {
+        background: white;
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        padding: 16px;
+        margin-bottom: 12px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        transition: all 0.2s ease;
+    }
+    
+    .payment-card:active {
+        transform: scale(0.98);
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    }
+    
+    .payment-card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+        padding-bottom: 12px;
+        border-bottom: 2px solid #f0f0f0;
+    }
+    
+    .payment-card-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #0d6efd;
+        margin: 0;
+    }
+    
+    .payment-card-amount {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: #198754;
+    }
+    
+    .payment-card-body {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        font-size: 0.9rem;
+    }
+    
+    .payment-card-row {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .payment-card-label {
+        font-size: 0.75rem;
+        color: #6c757d;
+        font-weight: 600;
+        text-transform: uppercase;
+        margin-bottom: 4px;
+        letter-spacing: 0.5px;
+    }
+    
+    .payment-card-value {
+        font-size: 0.95rem;
+        color: #212529;
+        font-weight: 500;
+        word-break: break-word;
+    }
+    
+    /* Full width rows for important info */
+    .payment-card-row.full-width {
+        grid-column: 1 / -1;
+    }
+    
+    /* Mobile table adjustments */
+    .table-responsive {
+        overflow-x: hidden;
+        max-width: 100%;
+    }
+    
+    /* Ensure all images and media don't overflow */
+    img, video, iframe {
+        max-width: 100%;
+        height: auto;
+    }
+    
+    /* Prevent text overflow */
+    h1, h2, h3, h4, h5, h6, p, span, div {
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+    }
+    
+    /* Header mobile optimization */
+    .container-fluid h2,
+    .container h2 {
+        font-size: 1.5rem;
+        word-break: break-word;
+    }
+    
+    /* Header flex container */
+    .d-flex.justify-content-between {
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+    
+    .d-flex.justify-content-between .btn {
+        flex: 1 1 auto;
+        min-width: 0;
+        max-width: 100%;
+    }
+    
+    .btn-success {
+        padding: 10px 12px;
+        font-size: 0.9rem;
+        white-space: nowrap;
+    }
+    
+    /* Pagination */
+    .pagination {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    
+    .pagination .page-link {
+        padding: 8px 12px;
+        font-size: 0.9rem;
+    }
+}
+
+/* Touch-friendly improvements */
+@media (hover: none) and (pointer: coarse) {
+    .payment-card {
+        min-height: 120px;
+    }
+}
+
+/* Desktop table improvements */
+@media (min-width: 768px) {
+    .table th,
+    .table td {
+        padding: 12px 8px;
+        font-size: 0.95rem;
+    }
+    
+    .table th {
+        font-weight: 600;
+        white-space: nowrap;
+    }
+}
+

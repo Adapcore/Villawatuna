@@ -1,4 +1,5 @@
 ﻿@model HotelManagement.Models.ViewModels.LoginViewModel
+@using System.Linq
 @{
     Layout = null;
 }
@@ -7,8 +8,9 @@
 <html lang="en">
 <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Member Login</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <title>Member Login - Vilawatuna Hotel</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="~/css/login.css" />
 </head>
@@ -21,13 +23,13 @@
 
             <div class="mb-3">
                 <label asp-for="Username" class="form-label"></label>
-                <input asp-for="Username" class="form-control" placeholder="Enter username or email" />
+                <input asp-for="Username" class="form-control" placeholder="Enter username or email" autocomplete="username" />
                 <span asp-validation-for="Username" class="text-danger"></span>
             </div>
 
             <div class="mb-3">
                 <label asp-for="Password" class="form-label"></label>
-                <input asp-for="Password" type="password" class="form-control" placeholder="Enter password" />
+                <input asp-for="Password" type="password" class="form-control" placeholder="Enter password" autocomplete="current-password" />
                 <span asp-validation-for="Password" class="text-danger"></span>
             </div>
 
@@ -38,13 +40,18 @@
 
             <button type="submit" class="btn btn-login">Sign In</button>
 
-            <div class="validation-summary-errors">
-               @*  @Html.ValidationSummary(false) *@
-            </div>
+            @if (!ViewData.ModelState.IsValid)
+            {
+                <div class="validation-summary-errors mt-3">
+                    @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                    {
+                        <div class="text-danger">@error.ErrorMessage</div>
+                    }
+                </div>
+            }
         </form>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    @* <partial name="_ValidationScriptsPartial" /> *@
 </body>
 </html>
