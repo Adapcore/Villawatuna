@@ -1261,7 +1261,7 @@
     });
 })(jQuery);
 
-\// Quick Customer Form Handler
+// Quick Customer Form Handler
 function InitializeQuickCustomerForm() {
     $('#frmQuickCustomer').on('submit', function (e) {
         e.preventDefault();
