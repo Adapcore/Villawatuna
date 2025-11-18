@@ -43,6 +43,11 @@
             this.LoadItems();
             this.BindItemSelection();
             this.LoadServiceCharge();
+            
+            // Initialize Select2 on existing dropdowns after a short delay to ensure DOM is ready
+            setTimeout(function() {
+                self.InitializeSelect2();
+            }, 100);
 
             // Currency rates will be fetched from API
             //this._rates = [
@@ -398,34 +403,95 @@
             const $container = $("#itemContainer");
             $container.empty();
 
+            // Search input HTML
+            let searchHtml = `
+                <div class="modal-body p-3" style="flex: 0 0 auto;">
+                    <div class="mb-3">
+                        <div class="input-group input-group-lg">
+                            <span class="input-group-text bg-primary text-white">
+                                <i class="bi bi-search"></i>
+                            </span>
+                            <input type="text" id="itemSearchInput" class="form-control form-control-lg" 
+                                   placeholder="Search items..." autocomplete="off" />
+                            <button type="button" id="clearSearchBtn" class="btn btn-outline-secondary d-none">
+                                <i class="bi bi-x-circle"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-body p-3" style="flex: 1 1 auto; overflow-y: auto;">
+                    <div id="itemsGrid" class="row g-3"></div>
+                    <div id="noItemsFound" class="text-center text-muted py-5 d-none">
+                        <i class="bi bi-inbox fs-1"></i>
+                        <p class="mt-3 fs-5">No items found</p>
+                    </div>
+                </div>
+            `;
+
+            $container.html(searchHtml);
+
+            // Store original data for filtering
+            self._allItemsData = data;
+
+            // Render items
+            self.RenderItems(data);
+
+            // Bind search functionality
+            $('#itemSearchInput').on('input', function() {
+                const searchTerm = $(this).val().toLowerCase().trim();
+                const $clearBtn = $('#clearSearchBtn');
+                
+                if (searchTerm.length > 0) {
+                    $clearBtn.removeClass('d-none');
+                } else {
+                    $clearBtn.addClass('d-none');
+                }
+
+                self.FilterItems(searchTerm);
+            });
+
+            $('#clearSearchBtn').on('click', function() {
+                $('#itemSearchInput').val('').trigger('input');
+            });
+
+            // Focus search on modal show
+            $('#addItemModal').on('shown.bs.modal', function() {
+                $('#itemSearchInput').focus();
+            });
+
+            self.BindItemCardEvents();
+        },
+
+        RenderItems: function(data) {
+            var self = this;
+            const $grid = $("#itemsGrid");
+            $grid.empty();
+
             // Case 1: Flat list of items (NO category)
             const isFlatList = data.length > 0 && data[0].id !== undefined;
 
             if (isFlatList) {
-                let html = `<div class="row g-3 p-3">`;
-                $.each(data, function (i, item) {
-                    html += `
-                <div class="col-6 col-md-3">                  
-                    <div class="card shadow-sm h-100 p-2 itemCard btn btn-outline-primary"
-                         data-id="${item.id}"
-                         data-name="${item.name}"
-                         data-price="${item.price}">
-                        <div class="card-body text-center">
-                            <h6 class="fw-bold">${item.name}</h6>
-                            <div class="text-danger fw-bold">Rs. ${item.price.toLocaleString()}</div>
+                if (data && data.length > 0) {
+                    $.each(data, function (i, item) {
+                        const itemHtml = self.CreateItemCard(item, i);
+                        $grid.append(itemHtml);
+                    });
+                } else {
+                    $grid.html(`
+                        <div class="col-12">
+                            <div class="text-center text-muted py-5">
+                                <i class="bi bi-inbox fs-1"></i>
+                                <p class="mt-3 fs-5">No items available</p>
+                            </div>
                         </div>
-                    </div>
-                </div>`;
-                });
-
-                html += `</div>`;
-                $container.html(html);
+                    `);
+                }
                 return;
             }
 
             // Case 2: With categories → Tabs
-            let tabButtons = `<ul class="nav nav-tabs">`;
-            let tabContent = `<div class="tab-content p-3">`;
+            let tabButtons = `<ul class="nav nav-tabs nav-tabs-lg mb-3" style="flex-wrap: wrap;">`;
+            let tabContent = `<div class="tab-content">`;
 
             $.each(data, function (index, cat) {
                 let active = index === 0 ? "active" : "";
@@ -433,30 +499,29 @@
 
                 tabButtons += `
             <li class="nav-item">
-                <button class="nav-link ${active}" data-bs-toggle="tab"
-                        data-bs-target="#tab${index}" type="button">
+                <button class="nav-link ${active} px-3 py-2" data-bs-toggle="tab"
+                        data-bs-target="#tab${index}" type="button" style="font-size: 1rem; min-height: 48px;">
                     ${cat.category}
                 </button>
             </li>`;
 
                 tabContent += `
             <div class="tab-pane fade ${show}" id="tab${index}">
-                <div class="row g-3 mt-2">`;
+                <div class="row g-3">`;
 
-                $.each(cat.items, function (i, item) {
+                if (cat.items && cat.items.length > 0) {
+                    $.each(cat.items, function (i, item) {
+                        tabContent += self.CreateItemCard(item, i);
+                    });
+                } else {
                     tabContent += `
-                <div class="col-6 col-md-3">
-                    <div class="card shadow-sm h-100 p-2 itemCard btn btn-outline-primary"
-                         data-id="${item.id}"
-                         data-name="${item.name}"
-                         data-price="${item.price}">
-                        <div class="card-body text-center">
-                            <h6 class="fw-bold">${item.name}</h6>
-                            <div class="text-danger fw-bold">Rs. ${item.price.toLocaleString()}</div>
+                    <div class="col-12">
+                        <div class="text-center text-muted py-5">
+                            <i class="bi bi-inbox fs-1"></i>
+                            <p class="mt-3 fs-5">No items available</p>
                         </div>
-                    </div>
-                </div>`;
-                });
+                    </div>`;
+                }
 
                 tabContent += `</div></div>`;
             });
@@ -464,15 +529,89 @@
             tabButtons += `</ul>`;
             tabContent += `</div>`;
 
-            $container.html(tabButtons + tabContent);
+            $grid.html(tabButtons + tabContent);
+        },
 
-            self.BindItemCardEvents();
+        CreateItemCard: function(item, index) {
+            // Different gradient colors for visual variety
+            const gradients = [
+                'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+                'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+                'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
+                'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
+                'linear-gradient(135deg, #30cfd0 0%, #330867 100%)',
+                'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)',
+                'linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)'
+            ];
+            const gradientIndex = (index || 0) % gradients.length;
+            const gradient = gradients[gradientIndex];
+
+            return `
+                <div class="col-6 col-md-4 col-lg-3 itemCardWrapper" 
+                     data-id="${item.id}"
+                     data-name="${item.name.toLowerCase()}"
+                     data-price="${item.price}">
+                    <div class="card shadow-sm h-100 border-0 itemCard" 
+                         style="cursor: pointer; transition: all 0.2s ease; background: ${gradient};"
+                         data-id="${item.id}"
+                         data-name="${item.name}"
+                         data-price="${item.price}">
+                        <div class="card-body text-center p-4 d-flex flex-column justify-content-center" 
+                             style="min-height: 120px;">
+                            <h6 class="fw-bold text-white mb-2" style="font-size: 1rem; line-height: 1.3;">
+                                ${item.name}
+                            </h6>
+                            <div class="text-white fw-bold mt-auto" style="font-size: 1.1rem;">
+                                <i class="bi bi-currency-rupee"></i> ${item.price.toLocaleString()}
+                            </div>
+                        </div>
+                    </div>
+                </div>`;
+        },
+
+        FilterItems: function(searchTerm) {
+            var self = this;
+            const $grid = $("#itemsGrid");
+            const $noItems = $("#noItemsFound");
+            let visibleCount = 0;
+
+            if (!searchTerm || searchTerm.length === 0) {
+                // Show all items
+                $('.itemCardWrapper').removeClass('d-none');
+                $noItems.addClass('d-none');
+                return;
+            }
+
+            // Filter items
+            $('.itemCardWrapper').each(function() {
+                const $wrapper = $(this);
+                const itemName = $wrapper.data('name') || '';
+                const itemId = $wrapper.data('id') || '';
+                
+                if (itemName.includes(searchTerm) || itemId.toString().includes(searchTerm)) {
+                    $wrapper.removeClass('d-none');
+                    visibleCount++;
+                } else {
+                    $wrapper.addClass('d-none');
+                }
+            });
+
+            // Show/hide "no items" message
+            if (visibleCount === 0) {
+                $noItems.removeClass('d-none');
+            } else {
+                $noItems.addClass('d-none');
+            }
         },
 
         BindItemCardEvents: function () {
             var self = this;
 
-            $(".itemCard").on("click", function () {
+            // Use event delegation for dynamically added cards
+            $(document).off("click", ".itemCard").on("click", ".itemCard", function (e) {
+                e.preventDefault();
+                e.stopPropagation();
 
                 if (!self._currentRow) return;
 
@@ -491,16 +630,26 @@
                 // Select the item
                 $ddl.val(itemId).trigger("change");
 
-                // Set price automatically (optional)
+                // Set price automatically
                 self._currentRow.find(".itemPrice").val(itemPrice);
 
-                // Recalculate amount (optional)
+                // Recalculate amount
                 const qty = parseFloat(self._currentRow.find(".orderQty").val() || 1);
                 const total = qty * itemPrice;
                 self._currentRow.find(".itemTotal").val(total.toFixed(2));
 
+                // Update totals
+                self.UpdateRowTotal(self._currentRow);
+
                 // Close modal
-                $("#addItemModal").modal("hide");
+                const modalEl = document.getElementById('addItemModal');
+                const modal = bootstrap.Modal.getInstance(modalEl);
+                if (modal) {
+                    modal.hide();
+                }
+
+                // Clear search
+                $('#itemSearchInput').val('').trigger('input');
             });
         },
 
@@ -513,19 +662,47 @@
                 var $select = $row.find(".orderItemSelect");
                 var selectedId = $row.find(".itemId").val(); // <-- pick from hidden field
 
+                // Destroy Select2 if already initialized
+                if ($select.hasClass("select2-hidden-accessible")) {
+                    $select.select2('destroy');
+                }
+
                 $select.html('<option value="">-- Select --</option>' + self.itemOptions);
 
                 if (selectedId) {
                     $select.val(selectedId); // set dropdown
-                    //var selected = $select.find("option:selected");
-
-                    //// update description & price
-                    ////var price = parseFloat(selected.data("price")) || 0;
-                    //var name = selected.text();
-
-                    //$row.find(".description").val(name);
-
                 }
+
+                // Initialize Select2 with search - use 'resolve' to calculate width automatically
+                $select.select2({
+                    theme: 'bootstrap-5',
+                    width: 'resolve',
+                    placeholder: 'Select item...',
+                    allowClear: true,
+                    dropdownParent: $select.closest('.modal, body')
+                });
+
+                // Force Select2 container to work within input-group
+                setTimeout(function() {
+                    var $select2Container = $select.next('.select2-container');
+                    if ($select2Container.length) {
+                        $select2Container.css({
+                            'width': 'auto',
+                            'flex': '1 1 auto',
+                            'min-width': '0',
+                            'max-width': 'calc(100% - 50px)'
+                        });
+                    }
+                }, 10);
+
+                // Adjust Select2 border radius to match input-group styling
+                $select.on('select2:open', function() {
+                    $(this).closest('.input-group').find('.select2-container--bootstrap-5 .select2-selection').css({
+                        'border-top-right-radius': '0',
+                        'border-bottom-right-radius': '0',
+                        'border-right': 'none'
+                    });
+                });
             });
         },
 
@@ -542,14 +719,16 @@
             var rowHtml = `
                         <tr>
                             <td>
-                                <input type="hidden" value="@detail.ItemId" class="itemId" />
+                                <input type="hidden" value="0" class="itemId" />
+                                <div class="input-group input-group-sm">
                                 <select class="form-select orderItemSelect">
                                     <option value="">-- Select --</option>
                                     ${this.itemOptions || ""}
                                 </select>
-                                 <button type="button" class="btnAddItem btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#addItemModal" title="Add new customer">
-                                    <i class="bi bi-person-plus"></i>
+                                 <button type="button" class="btnAddItem btn btn-primary" data-bs-toggle="modal" data-bs-target="#addItemModal" title="Browse Items">
+                                    <i class="bi bi-grid-3x3-gap"></i>
                                 </button>
+                                </div>
                             </td>`;
 
             if (self._type == 3) {
@@ -582,8 +761,42 @@
 
             var $newRow = $("#invoiceItems tbody tr").last();
 
+            // Initialize Select2 on the new dropdown
+            var $newSelect = $newRow.find(".orderItemSelect");
+            $newSelect.select2({
+                theme: 'bootstrap-5',
+                width: 'resolve',
+                placeholder: 'Select item...',
+                allowClear: true,
+                dropdownParent: $newSelect.closest('.modal, body')
+            });
+
+            // Force Select2 container to work within input-group
+            setTimeout(function() {
+                var $select2Container = $newSelect.next('.select2-container');
+                if ($select2Container.length) {
+                    $select2Container.css({
+                        'width': 'auto',
+                        'flex': '1 1 auto',
+                        'min-width': '0',
+                        'max-width': 'calc(100% - 50px)'
+                    });
+                }
+            }, 10);
+
+            // Adjust Select2 border radius to match input-group styling
+            $newSelect.on('select2:open', function() {
+                $(this).closest('.input-group').find('.select2-container--bootstrap-5 .select2-selection').css({
+                    'border-top-right-radius': '0',
+                    'border-bottom-right-radius': '0',
+                    'border-right': 'none'
+                });
+            });
+
             // Remove row
             $newRow.find(".removeItemBtn").on("click", (e) => {
+                // Destroy Select2 before removing
+                $newRow.find(".orderItemSelect").select2('destroy');
                 $(e.currentTarget).closest("tr").remove();
                 this.CalculateTotals();
             });
@@ -611,18 +824,81 @@
             this.CalculateTotals();
         },
 
+        InitializeSelect2: function() {
+            var self = this;
+            // Initialize Select2 on all existing orderItemSelect dropdowns
+            $(".orderItemSelect").each(function() {
+                var $select = $(this);
+                if (!$select.hasClass("select2-hidden-accessible")) {
+                    $select.select2({
+                        theme: 'bootstrap-5',
+                        width: 'resolve',
+                        placeholder: 'Select item...',
+                        allowClear: true,
+                        dropdownParent: $select.closest('.modal, body')
+                    });
+
+                    // Force Select2 container to work within input-group
+                    setTimeout(function() {
+                        var $select2Container = $select.next('.select2-container');
+                        if ($select2Container.length) {
+                            $select2Container.css({
+                                'width': 'auto',
+                                'flex': '1 1 auto',
+                                'min-width': '0',
+                                'max-width': 'calc(100% - 50px)'
+                            });
+                        }
+                    }, 10);
+
+                    // Adjust Select2 border radius to match input-group styling
+                    $select.on('select2:open', function() {
+                        $(this).closest('.input-group').find('.select2-container--bootstrap-5 .select2-selection').css({
+                            'border-top-right-radius': '0',
+                            'border-bottom-right-radius': '0',
+                            'border-right': 'none'
+                        });
+                    });
+                }
+            });
+        },
+
         BindItemSelection: function () {
             var self = this;
-            $("#invoiceItems").on("change", ".orderItemSelect", function () {
-
-                var $row = $(this).closest("tr");
-                var selected = $(this).find("option:selected");
+            // Use event delegation for Select2 change events
+            $("#invoiceItems").on("select2:select", ".orderItemSelect", function (e) {
+                var $select = $(this);
+                var $row = $select.closest("tr");
+                var selected = $select.find("option:selected");
                 var price = parseFloat(selected.data("price")) || 0;
                 var name = selected.text();
+                var selectedValue = selected.val();
 
-                $row.find(".itemId").val(selected.val());
+                $row.find(".itemId").val(selectedValue);
 
-                if (selected.val() > 0) {
+                if (selectedValue && selectedValue > 0) {
+                    $row.find(".description").val(name);
+                }
+                else {
+                    $row.find(".description").val('');
+                }
+                $row.find(".itemPrice").val(price.toFixed(2));
+
+                self.UpdateRowTotal($row);
+            });
+
+            // Also handle regular change event as fallback
+            $("#invoiceItems").on("change", ".orderItemSelect", function () {
+                var $select = $(this);
+                var $row = $select.closest("tr");
+                var selected = $select.find("option:selected");
+                var price = parseFloat(selected.data("price")) || 0;
+                var name = selected.text();
+                var selectedValue = selected.val();
+
+                $row.find(".itemId").val(selectedValue);
+
+                if (selectedValue && selectedValue > 0) {
                     $row.find(".description").val(name);
                 }
                 else {

@@ -55,8 +55,8 @@
                                                 <select class="form-select orderItemSelect form-select-sm" data-selected="@detail.ItemId">
                                                     <option value="">-- Select --</option>
                                                 </select>
-                                                <button type="button" class="btnAddItem btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#addItemModal" title="Add Item">
-                                                    <i class="bi bi-card-list"></i>
+                                                <button type="button" class="btnAddItem btn btn-primary" data-bs-toggle="modal" data-bs-target="#addItemModal" title="Browse Items">
+                                                    <i class="bi bi-grid-3x3-gap"></i>
                                                 </button>
                                             </div>
                                         </td>
@@ -315,23 +315,233 @@
 <!-- Quick Add Item Modal -->
 <div class="modal fade" id="addItemModal" tabindex="-1" aria-labelledby="itemModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-xl modal-dialog-centered" style="max-width:95% !important;">
-        <div class="modal-content" style="height:90vh;">
+        <div class="modal-content" style="height:90vh; display: flex; flex-direction: column;">
 
-            <div class="modal-header">
-                <h5 class="modal-title" id="itemModalLabel">Add Items</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            <div class="modal-header bg-primary text-white" style="flex: 0 0 auto;">
+                <h5 class="modal-title fw-bold" id="itemModalLabel">
+                    <i class="bi bi-box-seam me-2"></i>Add Items
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
 
-            <div id="itemContainer"></div>
+            <div id="itemContainer" style="display: flex; flex-direction: column; flex: 1 1 auto; overflow: hidden;"></div>
 
         </div>
     </div>
 </div>
-</div>
 
+<style>
+    /* Touch-friendly item cards */
+    .itemCard {
+        min-height: 120px;
+        border-radius: 12px !important;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        transform: scale(1);
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .itemCard:hover {
+        transform: scale(1.05) translateY(-4px);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        z-index: 10;
+    }
+
+    .itemCard:active {
+        transform: scale(0.98);
+    }
+
+    /* Touch-friendly tabs */
+    .nav-tabs .nav-link {
+        min-height: 48px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        border-radius: 8px 8px 0 0;
+        transition: all 0.2s ease;
+    }
+
+    .nav-tabs .nav-link:hover {
+        background-color: rgba(0, 0, 0, 0.05);
+    }
+
+    .nav-tabs .nav-link.active {
+        background-color: #667eea;
+        color: white;
+        border-color: #667eea;
+    }
+
+    /* Search input styling */
+    #itemSearchInput {
+        font-size: 1.1rem;
+        padding: 12px 16px;
+        border-radius: 8px;
+    }
+
+    #itemSearchInput:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+    }
+
+    /* Responsive grid */
+    @@media (max-width: 768px) {
+        .itemCardWrapper {
+            margin-bottom: 12px;
+        }
+        
+        .itemCard {
+            min-height: 100px;
+        }
+    }
+
+
+    /* Ensure cards are touch-friendly */
+    @@media (hover: none) and (pointer: coarse) {
+        .itemCard {
+            min-height: 140px;
+        }
+        
+        .itemCard:active {
+            opacity: 0.8;
+        }
+    }
+
+    /* Select2 touch-friendly styling */
+    .select2-container--bootstrap-5 .select2-selection {
+        min-height: 38px;
+        border-radius: 0.375rem;
+    }
+
+    .select2-container--bootstrap-5 .select2-selection--single .select2-selection__rendered {
+        line-height: 38px;
+        padding-left: 12px;
+    }
+
+    .select2-container--bootstrap-5 .select2-selection--single .select2-selection__arrow {
+        height: 36px;
+    }
+
+    .select2-dropdown {
+        border-radius: 0.375rem;
+    }
+
+    .select2-search--dropdown .select2-search__field {
+        padding: 8px 12px;
+        font-size: 1rem;
+        border-radius: 0.375rem;
+    }
+
+    /* Touch-friendly Select2 on mobile */
+    @@media (max-width: 768px) {
+        .select2-container--bootstrap-5 .select2-selection {
+            min-height: 44px;
+        }
+
+        .select2-container--bootstrap-5 .select2-selection--single .select2-selection__rendered {
+            line-height: 44px;
+            font-size: 1rem;
+        }
+
+        .select2-results__option {
+            padding: 12px 16px;
+            font-size: 1rem;
+        }
+    }
+
+    /* btnAddItem button styling */
+    .btnAddItem {
+        min-width: 42px;
+        padding: 0.375rem 0.75rem;
+        border-left: none;
+        border-top-left-radius: 0;
+        border-bottom-left-radius: 0;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
+    }
+
+    .btnAddItem:hover {
+        background-color: #0b5ed7;
+        border-color: #0a58ca;
+        transform: scale(1.05);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    .btnAddItem:active {
+        transform: scale(0.95);
+    }
+
+    .btnAddItem i {
+        font-size: 1.1rem;
+    }
+
+    /* Ensure input-group works well with Select2 */
+    .input-group {
+        display: flex !important;
+        flex-wrap: nowrap !important;
+        align-items: stretch;
+    }
+
+    .input-group .orderItemSelect {
+        width: 1px !important;
+        min-width: 0;
+    }
+
+    .input-group .select2-container--bootstrap-5 {
+        flex: 1 1 auto !important;
+        width: auto !important;
+        min-width: 0;
+        max-width: 100%;
+    }
+
+    .input-group .select2-container {
+        position: relative !important;
+        display: flex !important;
+        flex: 1 1 auto !important;
+        width: auto !important;
+        min-width: 0;
+        max-width: calc(100% - 50px);
+    }
+
+    .input-group .select2-container--bootstrap-5 .select2-selection {
+        border-top-right-radius: 0;
+        border-bottom-right-radius: 0;
+        border-right: none;
+        height: 100%;
+    }
+
+    .input-group .select2-container--bootstrap-5.select2-container--open .select2-selection {
+        border-top-right-radius: 0;
+    }
+
+    .input-group .btnAddItem {
+        flex-shrink: 0 !important;
+        white-space: nowrap;
+        width: auto;
+    }
+
+    /* Touch-friendly button on mobile */
+    @@media (max-width: 768px) {
+        .btnAddItem {
+            min-width: 48px;
+            padding: 0.5rem 0.875rem;
+            font-size: 1.1rem;
+        }
+
+        .btnAddItem i {
+            font-size: 1.2rem;
+        }
+    }
+</style>
 
 <!-- Scripts -->
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<!-- Select2 for searchable dropdowns -->
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script src="~/js/invoice.js"></script>
 <script>
     const invoice = @Html.Raw(JsonConvert.SerializeObject(Model, new JsonSerializerSettings
