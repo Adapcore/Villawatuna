@@ -59,6 +59,11 @@
                     }
                 </select>
             </div>
+            <div class="col-md-6">
+                <label asp-for="RoomNo" class="form-label"></label>
+                <input asp-for="RoomNo" class="form-control" maxlength="5" pattern="[0-9]+" title="Room No must contain only numeric digits" />
+                <span asp-validation-for="RoomNo" class="text-danger"></span>
+            </div>
         </div>
 
         <div class="row mb-3">

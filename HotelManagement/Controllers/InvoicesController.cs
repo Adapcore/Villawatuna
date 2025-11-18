@@ -63,7 +63,9 @@ namespace HotelManagement.Controllers
             ViewBag.Customers = customers.Where(c => c.Active).Select(c => new SelectListItem
             {
                 Value = c.ID.ToString(),
-                Text = c.FirstName + " " + c.LastName
+                Text = !string.IsNullOrWhiteSpace(c.RoomNo) 
+                    ? $"#{c.RoomNo} - {c.FirstName} {c.LastName}" 
+                    : $"{c.FirstName} {c.LastName}"
             }).ToList();
 
             var model = new InvoiceIndexViewModel
@@ -107,7 +109,9 @@ namespace HotelManagement.Controllers
             ViewBag.Customers = customers.Where(c=> c.Active).Select(c => new SelectListItem
             {
                 Value = c.ID.ToString(),
-                Text = c.FirstName + " " + c.LastName
+                Text = !string.IsNullOrWhiteSpace(c.RoomNo) 
+                    ? $"#{c.RoomNo} - {c.FirstName} {c.LastName}" 
+                    : $"{c.FirstName} {c.LastName}"
             }).ToList();
 
             ViewBag.StatusList = Enum.GetValues(typeof(InvoiceStatus))
@@ -158,7 +162,9 @@ namespace HotelManagement.Controllers
             ViewBag.Customers = customers.Where(c => c.Active).Select(c => new SelectListItem
             {
                 Value = c.ID.ToString(),
-                Text = c.FirstName + " " + c.LastName
+                Text = !string.IsNullOrWhiteSpace(c.RoomNo) 
+                    ? $"#{c.RoomNo} - {c.FirstName} {c.LastName}" 
+                    : $"{c.FirstName} {c.LastName}"
             }).ToList();
 
             ViewBag.StatusList = Enum.GetValues(typeof(InvoiceStatus))

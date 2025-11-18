@@ -1274,11 +1274,13 @@ function InitializeQuickCustomerForm() {
             success: function (res) {
                 if (res && res.success) {
                     const id = res.customer.id;
+                    const roomNo = res.customer.roomNo || '';
                     const name = res.customer.firstName + ' ' + res.customer.lastName;
+                    const displayText = roomNo ? '#' + roomNo + ' - ' + name : name;
                     const $ddl = $('#CustomerId');
 
                     if ($ddl.find('option[value="' + id + '"]').length === 0 && res.customer.active) {
-                        $ddl.append($('<option>', { value: id, text: name }));
+                        $ddl.append($('<option>', { value: id, text: displayText }));
                     }
 
                     $ddl.val(id).trigger('change');
@@ -1317,6 +1319,7 @@ function InitializeQuickCustomerForm() {
                 $('input[name="Address"]').val(c.address);
                 $('select[name="Country"]').val(c.country);
                 $('input[name="PassportNo"]').val(c.passportNo);
+                $('input[name="RoomNo"]').val(c.roomNo || '');
                 $('input[name="Active"][value="' + (c.active ? 'true' : 'false') + '"]').prop('checked', true);
                 $('#Email').prop('readonly', true);
             }
@@ -1337,6 +1340,7 @@ function ResetQuickCustomer() {
     $('input[name="Address"]').val('');
     $('select[name="Country"]').val(0);
     $('input[name="PassportNo"]').val('');
+    $('input[name="RoomNo"]').val('');
     $('input[name="Active"][value="true"]').prop('checked', true);
     $('#Email').prop('readonly', false);
     $('#quickCustomerErrors').addClass('d-none').empty();

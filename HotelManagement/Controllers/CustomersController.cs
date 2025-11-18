@@ -60,6 +60,12 @@ namespace HotelManagement.Controllers
             if (string.IsNullOrWhiteSpace(model.PassportNo))
                 ModelState.AddModelError(nameof(model.PassportNo), "Passport No is required.");
 
+            // Validate RoomNo if provided - must be numeric
+            if (!string.IsNullOrWhiteSpace(model.RoomNo) && !int.TryParse(model.RoomNo, out _))
+            {
+                ModelState.AddModelError(nameof(model.RoomNo), "Room No must contain only numeric digits.");
+            }
+
             if (!ModelState.IsValid)
             {
                 ViewBag.Countries = CountryList.All;
@@ -102,6 +108,12 @@ namespace HotelManagement.Controllers
             if (string.IsNullOrWhiteSpace(model.LastName))
                 ModelState.AddModelError(nameof(model.LastName), "Last name is required.");
 
+            // Validate RoomNo if provided - must be numeric
+            if (!string.IsNullOrWhiteSpace(model.RoomNo) && !int.TryParse(model.RoomNo, out _))
+            {
+                ModelState.AddModelError(nameof(model.RoomNo), "Room No must contain only numeric digits.");
+            }
+
             if (!ModelState.IsValid)
             {
                 ViewBag.Countries = CountryList.All;
@@ -140,6 +152,12 @@ namespace HotelManagement.Controllers
             if (string.IsNullOrWhiteSpace(model.PassportNo))
                 errors.Add("Passport No is required.");
 
+            // Validate RoomNo if provided - must be numeric
+            if (!string.IsNullOrWhiteSpace(model.RoomNo) && !int.TryParse(model.RoomNo, out _))
+            {
+                errors.Add("Room No must contain only numeric digits.");
+            }
+
             // Uniqueness checks: allow updating existing records
             if (!string.IsNullOrWhiteSpace(model.Email) && await _customerService.EmailExistsAsync(model.Email, model.ID > 0 ? model.ID : null))
                 errors.Add("Email is already in use by another customer.");
@@ -164,6 +182,7 @@ namespace HotelManagement.Controllers
                 existing.Address = model.Address;
                 existing.Country = model.Country;
                 existing.PassportNo = model.PassportNo;
+                existing.RoomNo = model.RoomNo;
                 existing.Active = model.Active;
 
                 await _customerService.UpdateAsync(existing);
@@ -189,6 +208,7 @@ namespace HotelManagement.Controllers
                         existing.Address = model.Address;
                         existing.Country = model.Country;
                         existing.PassportNo = model.PassportNo;
+                        existing.RoomNo = model.RoomNo;
                         existing.Active = model.Active;
 
                         await _customerService.UpdateAsync(existing);
@@ -225,18 +245,19 @@ namespace HotelManagement.Controllers
             {
                 success = true,
                 exists = true,
-                customer = new
-                {
-                    id = existing.ID,
-                    firstName = existing.FirstName,
-                    lastName = existing.LastName,
-                    email = existing.Email,
-                    contactNo = existing.ContactNo,
-                    address = existing.Address,
-                    country = existing.Country,
-                    passportNo = existing.PassportNo,
-                    active = existing.Active
-                }
+                    customer = new
+                    {
+                        id = existing.ID,
+                        firstName = existing.FirstName,
+                        lastName = existing.LastName,
+                        email = existing.Email,
+                        contactNo = existing.ContactNo,
+                        address = existing.Address,
+                        country = existing.Country,
+                        passportNo = existing.PassportNo,
+                        roomNo = existing.RoomNo,
+                        active = existing.Active
+                    }
             });
         }
     }

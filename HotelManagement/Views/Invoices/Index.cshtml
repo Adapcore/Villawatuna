@@ -138,7 +138,16 @@
                     {
                         <tr>
                             <td>@invoice.InvoiceNo</td>
-                            <td>@invoice.Customer?.FirstName @invoice.Customer?.LastName</td>
+                            <td>
+                                @if (!string.IsNullOrWhiteSpace(invoice.Customer?.RoomNo))
+                                {
+                                    <text>#@invoice.Customer.RoomNo - @invoice.Customer.FirstName @invoice.Customer.LastName</text>
+                                }
+                                else
+                                {
+                                    <text>@invoice.Customer?.FirstName @invoice.Customer?.LastName</text>
+                                }
+                            </td>
                             <td>@invoice.Type</td>
                             <td>@invoice.Date.ToShortDateString()</td>
                             <td>@EnumHelper.GetDisplayName(invoice.Status)</td>
