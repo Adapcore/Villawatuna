@@ -214,9 +214,6 @@
                     @if (Context.User?.Identity != null && Context.User.Identity.IsAuthenticated)
                     {
                         <li class="nav-item">
-                            <a asp-controller="Dashboard" asp-action="Index" class="nav-link">Dashboard</a>
-                        </li>
-                        <li class="nav-item">
                             <a asp-controller="Employees" asp-action="Index" class="nav-link">Employees</a>
                         </li>
                         <li class="nav-item">

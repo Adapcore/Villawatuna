@@ -9,14 +9,14 @@ using Umbraco.Cms.Core.Services;
 namespace HotelManagement.Controllers
 {
     [Authorize]
-    public class DashboardController : Controller
+    public class HomeController : Controller
     {
         private readonly HotelContext _context;
 
         private readonly IMemberManager _memberManager;
         private readonly IMemberService _memberService;
 
-        public DashboardController(HotelContext context, IMemberManager memberManager, IMemberService memberService)
+        public HomeController(HotelContext context, IMemberManager memberManager, IMemberService memberService)
         {
             _context = context;
             _memberManager = memberManager;
@@ -27,7 +27,7 @@ namespace HotelManagement.Controllers
         {
             if (!(User?.Identity?.IsAuthenticated ?? false))
             {
-                return RedirectToAction("Index", "Home");
+                return RedirectToAction("Login", "Account");
             }
 
             ViewBag.IsAdmin = IsAdminUser();
@@ -99,5 +99,4 @@ namespace HotelManagement.Controllers
         }
     }
 }
-
 

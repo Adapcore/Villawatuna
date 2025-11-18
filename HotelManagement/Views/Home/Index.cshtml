@@ -6,54 +6,6 @@
 <div class="container-fluid py-3">
 	<h2 class="mt-3 mb-4">Dashboard</h2>
 
-	<!-- Touch-friendly navigation cards -->
-	@* <div class="row g-3 mb-4">
-		<div class="col-6 col-md-3">
-			<a asp-controller="Employees" asp-action="Index" class="text-decoration-none">
-				<div class="card shadow-sm border-0 h-100 touch-card">
-					<div class="card-body text-center p-4">
-						<i class="bi bi-people fs-1 text-primary mb-3"></i>
-						<h5 class="fw-semibold mb-2">Employees</h5>
-						<p class="text-muted small mb-0">Manage Staff</p>
-					</div>
-				</div>
-			</a>
-		</div>
-		<div class="col-6 col-md-3">
-			<a asp-controller="Customers" asp-action="Index" class="text-decoration-none">
-				<div class="card shadow-sm border-0 h-100 touch-card">
-					<div class="card-body text-center p-4">
-						<i class="bi bi-person-lines-fill fs-1 text-success mb-3"></i>
-						<h5 class="fw-semibold mb-2">Customers</h5>
-						<p class="text-muted small mb-0">View Guests</p>
-					</div>
-				</div>
-			</a>
-		</div>
-		<div class="col-6 col-md-3">
-			<a asp-controller="Invoices" asp-action="Index" class="text-decoration-none">
-				<div class="card shadow-sm border-0 h-100 touch-card">
-					<div class="card-body text-center p-4">
-						<i class="bi bi-receipt fs-1 text-warning mb-3"></i>
-						<h5 class="fw-semibold mb-2">Invoices</h5>
-						<p class="text-muted small mb-0">Billing</p>
-					</div>
-				</div>
-			</a>
-		</div>
-		<div class="col-6 col-md-3">
-			<a asp-controller="Payments" asp-action="Index" class="text-decoration-none">
-				<div class="card shadow-sm border-0 h-100 touch-card">
-					<div class="card-body text-center p-4">
-						<i class="bi bi-cash-coin fs-1 text-danger mb-3"></i>
-						<h5 class="fw-semibold mb-2">Payments</h5>
-						<p class="text-muted small mb-0">Transactions</p>
-					</div>
-				</div>
-			</a>
-		</div>
-	</div>
- *@
 	<!-- Touch-friendly quick actions -->
 	<div class="row g-3 mb-4">
 		<div class="col-12">
@@ -157,81 +109,6 @@
             </div>
         </div>
     </div>
-
-   @*  <!-- Middle section: Tables -->
-    <div class="row g-4">
-        <div class="col-lg-6">
-            <div class="card shadow-sm border-0 rounded-3">
-                <div class="card-header bg-light fw-semibold">Recent Bookings</div>
-                <div class="card-body p-0">
-                    <table class="table table-hover align-middle mb-0">
-                        <thead class="table-light">
-                            <tr>
-                                <th>Guest</th>
-                                <th>Room</th>
-                                <th>Check-In</th>
-                                <th>Check-Out</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>John Perera</td>
-                                <td>Deluxe #203</td>
-                                <td>16 Oct</td>
-                                <td>18 Oct</td>
-                            </tr>
-                            <tr>
-                                <td>Kasun Silva</td>
-                                <td>Suite #101</td>
-                                <td>15 Oct</td>
-                                <td>20 Oct</td>
-                            </tr>
-                            <tr>
-                                <td>Mary Rodrigo</td>
-                                <td>Standard #305</td>
-                                <td>16 Oct</td>
-                                <td>17 Oct</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-lg-6">
-            <div class="card shadow-sm border-0 rounded-3">
-                <div class="card-header bg-light fw-semibold">Recent Expenses</div>
-                <div class="card-body p-0">
-                    <table class="table table-hover align-middle mb-0">
-                        <thead class="table-light">
-                            <tr>
-                                <th>Description</th>
-                                <th>Date</th>
-                                <th>Amount</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>Kitchen Supplies</td>
-                                <td>16 Oct</td>
-                                <td>LKR 5,200</td>
-                            </tr>
-                            <tr>
-                                <td>Room Maintenance</td>
-                                <td>15 Oct</td>
-                                <td>LKR 8,000</td>
-                            </tr>
-                            <tr>
-                                <td>Staff Salary</td>
-                                <td>14 Oct</td>
-                                <td>LKR 19,300</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </div> *@
 </div>
 
 
@@ -250,7 +127,7 @@
             $('.btn', $(".filter-section")).removeClass("btn-primary").addClass("btn-outline-secondary");
             ele.removeClass("btn-outline-secondary").addClass("btn-primary");
 
-            $.getJSON('/Dashboard/GetMetrics', { from: from, to: to }, function (res) {
+            $.getJSON('/Home/GetMetrics', { from: from, to: to }, function (res) {
                 if (res && res.success && res.data) {
                     if (res.isAdmin && $('#tileTotalRevenue').length) {
                         $('#tileTotalRevenue').text(formatCurrency(res.data.totalRevenue));
@@ -321,3 +198,4 @@
         });
     </script>
 }
+
