@@ -1,0 +1,252 @@
+/* Mobile-first responsive invoice index table */
+
+/* Desktop: Show table */
+@media (min-width: 768px) {
+    .invoice-table-mobile {
+        display: none;
+    }
+    
+    .invoice-table-desktop {
+        display: block;
+    }
+}
+
+/* Mobile: Show cards */
+@media (max-width: 767px) {
+    .invoice-table-desktop {
+        display: none;
+    }
+    
+    .invoice-table-mobile {
+        display: block;
+    }
+    
+    /* Mobile card layout */
+    .invoice-card {
+        background: white;
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        padding: 16px;
+        margin-bottom: 12px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        transition: all 0.2s ease;
+    }
+    
+    .invoice-card:active {
+        transform: scale(0.98);
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    }
+    
+    .invoice-card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+        padding-bottom: 12px;
+        border-bottom: 2px solid #f0f0f0;
+    }
+    
+    .invoice-card-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #0d6efd;
+        margin: 0;
+    }
+    
+    .invoice-card-status {
+        font-size: 0.85rem;
+        padding: 4px 10px;
+        border-radius: 12px;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+    
+    .invoice-card-body {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        font-size: 0.9rem;
+    }
+    
+    .invoice-card-row {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .invoice-card-label {
+        font-size: 0.75rem;
+        color: #6c757d;
+        font-weight: 600;
+        text-transform: uppercase;
+        margin-bottom: 4px;
+        letter-spacing: 0.5px;
+    }
+    
+    .invoice-card-value {
+        font-size: 0.95rem;
+        color: #212529;
+        font-weight: 500;
+        word-break: break-word;
+    }
+    
+    .invoice-card-value.total {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #198754;
+    }
+    
+    .invoice-card-footer {
+        margin-top: 12px;
+        padding-top: 12px;
+        border-top: 1px solid #f0f0f0;
+        display: flex;
+        justify-content: flex-end;
+    }
+    
+    .invoice-card-footer .btn {
+        min-width: 100px;
+        padding: 8px 16px;
+        font-size: 0.9rem;
+    }
+    
+    /* Full width rows for important info */
+    .invoice-card-row.full-width {
+        grid-column: 1 / -1;
+    }
+    
+    /* Status badge colors */
+    .status-in-progress {
+        background-color: #0dcaf0;
+        color: #000;
+    }
+    
+    .status-complete {
+        background-color: #0d6efd;
+        color: #fff;
+    }
+    
+    .status-partially-paid {
+        background-color: #ffc107;
+        color: #000;
+    }
+    
+    .status-paid {
+        background-color: #198754;
+        color: #fff;
+    }
+    
+    /* Mobile table adjustments */
+    .table-responsive {
+        overflow-x: visible;
+    }
+    
+    /* Tabs mobile optimization */
+    .nav-tabs {
+        flex-wrap: wrap;
+        border-bottom: 2px solid #dee2e6;
+    }
+    
+    .nav-tabs .nav-link {
+        font-size: 0.85rem;
+        padding: 8px 12px;
+        min-height: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .nav-tabs .badge {
+        font-size: 0.7rem;
+        margin-left: 4px;
+    }
+    
+    /* Header mobile optimization */
+    .container-fluid h1 {
+        font-size: 1.5rem;
+    }
+    
+    .btn-lg {
+        padding: 10px 16px;
+        font-size: 0.95rem;
+    }
+    
+    /* Quick create buttons mobile */
+    .row.g-3 .col-6 {
+        margin-bottom: 12px;
+    }
+}
+
+/* Touch-friendly improvements */
+@media (hover: none) and (pointer: coarse) {
+    .invoice-card {
+        min-height: 120px;
+    }
+    
+    .invoice-card-footer .btn {
+        min-height: 44px;
+        min-width: 120px;
+    }
+    
+    .nav-tabs .nav-link {
+        min-height: 48px;
+        font-size: 0.9rem;
+    }
+}
+
+/* Desktop table improvements */
+@media (min-width: 768px) {
+    .table th,
+    .table td {
+        padding: 12px 8px;
+        font-size: 0.95rem;
+    }
+    
+    .table th {
+        font-weight: 600;
+        white-space: nowrap;
+    }
+    
+    /* Responsive column widths */
+    .table th:nth-child(1),
+    .table td:nth-child(1) {
+        width: 10%;
+        min-width: 100px;
+    }
+    
+    .table th:nth-child(2),
+    .table td:nth-child(2) {
+        width: 25%;
+        min-width: 150px;
+    }
+    
+    .table th:nth-child(3),
+    .table td:nth-child(3) {
+        width: 10%;
+        min-width: 80px;
+    }
+    
+    .table th:nth-child(4),
+    .table td:nth-child(4) {
+        width: 12%;
+        min-width: 100px;
+    }
+    
+    .table th:nth-child(5),
+    .table td:nth-child(5) {
+        width: 15%;
+        min-width: 120px;
+    }
+    
+    .table th:nth-child(6),
+    .table td:nth-child(6) {
+        width: 13%;
+        min-width: 100px;
+    }
+    
+    .table th:nth-child(7),
+    .table td:nth-child(7) {
+        width: 15%;
+        min-width: 120px;
+    }
+}
+
