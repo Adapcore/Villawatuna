@@ -1260,3 +1260,102 @@
         }
     });
 })(jQuery);
+
+\// Quick Customer Form Handler
+function InitializeQuickCustomerForm() {
+    $('#frmQuickCustomer').on('submit', function (e) {
+        e.preventDefault();
+        const $form = $(this);
+        const formData = $form.serialize();
+        const token = $form.find('input[name="__RequestVerificationToken"]').val();
+        $('#quickCustomerErrors').addClass('d-none').empty();
+
+        $.ajax({
+            url: '/Customers/CreateQuick',
+            type: 'POST',
+            data: formData,
+            headers: { 'RequestVerificationToken': token },
+            success: function (res) {
+                if (res && res.success) {
+                    const id = res.customer.id;
+                    const name = res.customer.firstName + ' ' + res.customer.lastName;
+                    const $ddl = $('#CustomerId');
+
+                    if ($ddl.find('option[value="' + id + '"]').length === 0 && res.customer.active) {
+                        $ddl.append($('<option>', { value: id, text: name }));
+                    }
+
+                    $ddl.val(id).trigger('change');
+                    const modalEl = document.getElementById('quickCustomerModal');
+                    const modal = bootstrap.Modal.getInstance(modalEl);
+                    modal.hide();
+                    $form[0].reset();
+
+                    $('#Email').prop('disabled', false);
+                    $('#qcCustomerId').val('');
+                    ResetQuickCustomer();
+                } else if (res && res.errors) {
+                    const $err = $('#quickCustomerErrors');
+                    $err.removeClass('d-none');
+                    res.errors.forEach(function (m) { $err.append($('<div>').text(m)); });
+                }
+            },
+            error: function (xhr) {
+                const $err = $('#quickCustomerErrors');
+                $err.removeClass('d-none').text('Failed to create customer. Please try again.');
+            }
+        });
+    });
+
+    // Load existing by email and populate
+    $('#Email').on('blur', function () {
+        const email = $(this).val();
+        if (!email) return;
+        $.getJSON('/Customers/GetByEmail', { email: email }, function (res) {
+            if (res && res.success && res.exists) {
+                const c = res.customer;
+                $('#qcCustomerId').val(c.id);
+                $('input[name="FirstName"]').val(c.firstName);
+                $('input[name="LastName"]').val(c.lastName);
+                $('input[name="ContactNo"]').val(c.contactNo);
+                $('input[name="Address"]').val(c.address);
+                $('select[name="Country"]').val(c.country);
+                $('input[name="PassportNo"]').val(c.passportNo);
+                $('input[name="Active"][value="' + (c.active ? 'true' : 'false') + '"]').prop('checked', true);
+                $('#Email').prop('readonly', true);
+            }
+        });
+    });
+
+    $('#frmQuickCustomerClose').on('click', function () {
+        ResetQuickCustomer();
+    });
+}
+
+function ResetQuickCustomer() {
+    $('#qcCustomerId').val(0);
+    $('input[name="Email"]').val('');
+    $('input[name="FirstName"]').val('');
+    $('input[name="LastName"]').val('');
+    $('input[name="ContactNo"]').val('');
+    $('input[name="Address"]').val('');
+    $('select[name="Country"]').val(0);
+    $('input[name="PassportNo"]').val('');
+    $('input[name="Active"][value="true"]').prop('checked', true);
+    $('#Email').prop('readonly', false);
+    $('#quickCustomerErrors').addClass('d-none').empty();
+}
+
+// Initialize invoice page
+function InitializeInvoicePage(invoiceData, mode) {
+    $(document).ready(function () {
+        const obj = {
+            mode: mode,
+            invoice: invoiceData
+        };
+        $().invoice(obj);
+        
+        // Initialize quick customer form
+        InitializeQuickCustomerForm();
+    });
+}
