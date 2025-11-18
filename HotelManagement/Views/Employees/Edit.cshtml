@@ -32,10 +32,12 @@
             <div class="col-md-6">
                 <label asp-for="FirstName" class="form-label"></label>
                 <input asp-for="FirstName" class="form-control" />
+                <span asp-validation-for="FirstName" class="text-danger"></span>
             </div>
             <div class="col-md-6">
                 <label asp-for="LastName" class="form-label"></label>
                 <input asp-for="LastName" class="form-control" />
+                <span asp-validation-for="LastName" class="text-danger"></span>
             </div>
         </div>
 
@@ -43,30 +45,36 @@
             <div class="col-md-6">
                 <label asp-for="Email" class="form-label"></label>
                 <input asp-for="Email" class="form-control" />
+                <span asp-validation-for="Email" class="text-danger"></span>
             </div>
             <div class="col-md-6">
                 <label asp-for="ContactNo" class="form-label"></label>
                 <input asp-for="ContactNo" class="form-control" />
+                <span asp-validation-for="ContactNo" class="text-danger"></span>
             </div>
         </div>
 
         <div class="mb-3">
             <label asp-for="Address" class="form-label"></label>
             <input asp-for="Address" class="form-control" />
+            <span asp-validation-for="Address" class="text-danger"></span>
         </div>
 
         <div class="row mb-3">
             <div class="col-md-4">
                 <label asp-for="NIC" class="form-label"></label>
                 <input asp-for="NIC" class="form-control" />
+                <span asp-validation-for="NIC" class="text-danger"></span>
             </div>
             <div class="col-md-4">
                 <label asp-for="DOB" class="form-label"></label>
                 <input asp-for="DOB" type="date" class="form-control" />
+                <span asp-validation-for="DOB" class="text-danger"></span>
             </div>
             <div class="col-md-4">
                 <label asp-for="JoinedDate" class="form-label"></label>
                 <input asp-for="JoinedDate" type="date" class="form-control" />
+                <span asp-validation-for="JoinedDate" class="text-danger"></span>
             </div>
         </div>
 
@@ -74,3 +82,7 @@
         <a class="btn btn-secondary" href="@Url.Action("Index", "Employees")">Cancel</a>
     </form>
 </div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

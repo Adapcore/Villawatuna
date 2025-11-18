@@ -80,3 +80,7 @@
         <a class="btn btn-secondary" href="@Url.Action("Index", "Employees")">Cancel</a>
     </form>
 </div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
