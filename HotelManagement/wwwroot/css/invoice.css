@@ -1,10 +1,10 @@
 /* Touch-friendly item cards */
 .itemCard {
-    min-height: 120px;
-    border-radius: 12px !important;
+    min-height: 80px;
+    border-radius: 8px !important;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     transform: scale(1);
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .itemCard:hover {
@@ -48,6 +48,14 @@
 #itemSearchInput:focus {
     border-color: #667eea;
     box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+}
+
+/* 8 items per row on large screens */
+@media (min-width: 992px) {
+    .col-lg-8per-row {
+        flex: 0 0 12.5%;
+        max-width: 12.5%;
+    }
 }
 
 /* Responsive grid */

@@ -332,16 +332,7 @@
                     let html = "";
 
                     // -------------------------------------
-                    // 1. ALL ITEMS (ignore category)
-                    // -------------------------------------
-                    html += `<optgroup label="All Items">`;
-                    html += allItems.map(i =>
-                        `<option value="${i.id}" data-price="${i.price}">${i.name}</option>`
-                    ).join('');
-                    html += `</optgroup>`;
-
-                    // -------------------------------------
-                    // 2. CATEGORY-WISE ITEMS
+                    // CATEGORY-WISE ITEMS
                     // -------------------------------------
                     let groups = {};
 
@@ -534,6 +525,7 @@
         },
 
         CreateItemCard: function(item, index) {
+            var self = this;
             // Different gradient colors for visual variety
             const gradients = [
                 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
@@ -545,11 +537,14 @@
                 'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)',
                 'linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)'
             ];
-            const gradientIndex = (index || 0) % gradients.length;
+            // Use item ID to determine gradient for consistent coloring per item
+            // This breaks the row pattern by using unique item IDs instead of position index
+            const gradientIndex = (item.id || index || 0) % gradients.length;
             const gradient = gradients[gradientIndex];
+            const baseCurrency = self._baseCurrency || 'LKR';
 
             return `
-                <div class="col-6 col-md-4 col-lg-3 itemCardWrapper" 
+                <div class="col-3 col-lg-8per-row itemCardWrapper" 
                      data-id="${item.id}"
                      data-name="${item.name.toLowerCase()}"
                      data-price="${item.price}">
@@ -558,13 +553,13 @@
                          data-id="${item.id}"
                          data-name="${item.name}"
                          data-price="${item.price}">
-                        <div class="card-body text-center p-4 d-flex flex-column justify-content-center" 
-                             style="min-height: 120px;">
-                            <h6 class="fw-bold text-white mb-2" style="font-size: 1rem; line-height: 1.3;">
+                        <div class="card-body text-center p-2 d-flex flex-column justify-content-center" 
+                             style="min-height: 80px;">
+                            <h6 class="fw-bold text-white mb-1" style="font-size: 0.85rem; line-height: 1.2;">
                                 ${item.name}
                             </h6>
-                            <div class="text-white fw-bold mt-auto" style="font-size: 1.1rem;">
-                                <i class="bi bi-currency-rupee"></i> ${item.price.toLocaleString()}
+                            <div class="text-white fw-bold mt-auto" style="font-size: 0.9rem;">
+                                ${baseCurrency} ${item.price.toLocaleString()}
                             </div>
                         </div>
                     </div>

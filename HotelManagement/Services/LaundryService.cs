@@ -28,7 +28,7 @@ namespace HotelManagement.Services
 
             // Get items only under Other
             var items = otherTypeNode
-                .DescendantsOfType("item")
+                .DescendantsOfType("laundryItem")
                 .Select(x => new ItemDto
                 {
                     Id = x.Id,

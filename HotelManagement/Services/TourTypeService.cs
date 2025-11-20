@@ -21,14 +21,14 @@ namespace HotelManagement.Services
                 return Enumerable.Empty<ItemDto>();
 
             // Find the "TourTypes" node under the root
-            var tourTypeNode = root.DescendantsOrSelfOfType("tourTypes").FirstOrDefault();
+            var tourTypeNode = root.DescendantsOrSelfOfType("tour").FirstOrDefault();
 
             if (tourTypeNode == null)
                 return Enumerable.Empty<ItemDto>();
 
             // Get items only under Tour
             var items = tourTypeNode
-                .DescendantsOfType("item")
+                .DescendantsOfType("tourItem")
                 .Select(x => new ItemDto
                 {
                     Id = x.Id,
