@@ -674,7 +674,7 @@
                     theme: 'bootstrap-5',
                     width: 'resolve',
                     placeholder: 'Select item...',
-                    allowClear: true,
+                    allowClear: false,
                     dropdownParent: $select.closest('.modal, body')
                 });
 
@@ -763,7 +763,7 @@
                 theme: 'bootstrap-5',
                 width: 'resolve',
                 placeholder: 'Select item...',
-                allowClear: true,
+                allowClear: false,
                 dropdownParent: $newSelect.closest('.modal, body')
             });
 
@@ -830,7 +830,7 @@
                         theme: 'bootstrap-5',
                         width: 'resolve',
                         placeholder: 'Select item...',
-                        allowClear: true,
+                        allowClear: false,
                         dropdownParent: $select.closest('.modal, body')
                     });
 
