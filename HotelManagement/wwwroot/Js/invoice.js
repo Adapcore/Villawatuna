@@ -96,7 +96,8 @@
             // Load currency rate if available
             if (self._invoice.currencyRate) {
                 $("#txtCurrencyRate").val(self._invoice.currencyRate);
-            } else {
+            }
+            else {
                 self.LoadCurrencyRate();
             }
 

@@ -61,13 +61,23 @@ namespace HotelManagement.Services
 
             foreach (var category in categories)
             {
-                List<ItemDto> items = category.DescendantsOfType("item").Select(x => new ItemDto
+                // Get all subcategories within this category
+                var subcategories = category.DescendantsOfType("menuSubcategory");
+                
+                // Collect all items from all subcategories
+                List<ItemDto> items = new List<ItemDto>();
+                
+                foreach (var subcategory in subcategories)
                 {
-                    Id = x.Id,
-                    Name = x.Name,
-                    Price = x.Value<decimal>("price")
-                })
-                .ToList();
+                    var subcategoryItems = subcategory.DescendantsOfType("menuItem").Select(x => new ItemDto
+                    {
+                        Id = x.Id,
+                        Name = x.Name,
+                        Price = x.Value<decimal>("price")
+                    });
+                    
+                    items.AddRange(subcategoryItems);
+                }
 
                 itemCategories.Add(new MenuCategoryDto()
                 {
