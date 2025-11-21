@@ -73,7 +73,8 @@ namespace HotelManagement.Services
                     {
                         Id = x.Id,
                         Name = x.Name,
-                        Price = x.Value<decimal>("price")
+                        Price = x.Value<decimal>("price"),
+                        NoteRequired = x.Value<bool?>("noteRequired") ?? false
                     });
                     
                     items.AddRange(subcategoryItems);

@@ -182,6 +182,28 @@
                 self.CalculateNights(row);
             });
 
+            // Clear note validation error when user types
+            $("#invoiceItems tbody").on("input change", ".note", function (e) {
+                var $noteField = $(this);
+                var noteValue = $noteField.val();
+                
+                // If note has value, remove validation error
+                if (noteValue && noteValue.trim().length > 0) {
+                    $noteField.removeClass("is-invalid");
+                }
+            });
+
+            // Clear validation errors for Qty, Price, and Amount when user types
+            $("#invoiceItems tbody").on("input change", ".orderQty, .itemPrice, .itemTotal", function (e) {
+                var $field = $(this);
+                var fieldValue = parseFloat($field.val()) || 0;
+                
+                // Remove validation error if field has valid value
+                if (fieldValue > 0 || ($field.hasClass("itemTotal") && fieldValue >= 0)) {
+                    $field.removeClass("is-invalid");
+                }
+            });
+
             $("#btnComplete").on("click", function () {
                 $("#Status").val(2);
                 self.Save();
@@ -324,9 +346,16 @@
                                 id: itm.id,
                                 name: itm.name,
                                 price: itm.price,
-                                category: cat.category
+                                category: cat.category,
+                                noteRequired: itm.noteRequired || false
                             });
                         });
+                    });
+                    
+                    // Store items data for validation
+                    self._itemsData = {};
+                    allItems.forEach(function (item) {
+                        self._itemsData[item.id] = item;
                     });
 
                     let html = "";
@@ -344,7 +373,7 @@
                     $.each(groups, function (catName, items) {
                         html += `<optgroup label="${catName}">`;
                         html += items.map(i =>
-                            `<option value="${i.id}" data-price="${i.price}">${i.name}</option>`
+                            `<option value="${i.id}" data-price="${i.price}" data-note-required="${i.noteRequired || false}">${i.name}</option>`
                         ).join('');
                         html += `</optgroup>`;
                     });
@@ -543,6 +572,7 @@
             const gradient = gradients[gradientIndex];
             const baseCurrency = self._baseCurrency || 'LKR';
 
+            const noteRequired = item.noteRequired || false;
             return `
                 <div class="col-3 col-lg-8per-row itemCardWrapper" 
                      data-id="${item.id}"
@@ -552,7 +582,8 @@
                          style="cursor: pointer; transition: all 0.2s ease; background: ${gradient};"
                          data-id="${item.id}"
                          data-name="${item.name}"
-                         data-price="${item.price}">
+                         data-price="${item.price}"
+                         data-note-required="${noteRequired}">
                         <div class="card-body text-center p-2 d-flex flex-column justify-content-center" 
                              style="min-height: 80px;">
                             <h6 class="fw-bold text-white mb-1" style="font-size: 0.85rem; line-height: 1.2;">
@@ -614,13 +645,14 @@
                 const itemId = $(this).data("id");
                 const itemName = $(this).data("name");
                 const itemPrice = $(this).data("price");
+                const noteRequired = $(this).data("note-required") === true || $(this).data("note-required") === "true";
 
                 // Find the dropdown inside that row
                 const $ddl = self._currentRow.find(".orderItemSelect");
 
                 // Add option if not exists
                 if ($ddl.find(`option[value='${itemId}']`).length === 0) {
-                    $ddl.append(`<option value="${itemId}">${itemName}</option>`);
+                    $ddl.append(`<option value="${itemId}" data-price="${itemPrice}" data-note-required="${noteRequired}">${itemName}</option>`);
                 }
 
                 // Select the item
@@ -746,7 +778,7 @@
                                 <input type="number" name="InvoiceDetails[${rowIndex}].UnitPrice" class="form-control itemPrice text-end" value="${unitPrice.toFixed(2)}" step="0.01" />
                             </td>
                             <td>
-                                <input type="text" name="InvoiceDetails[${rowIndex}].Amount" class="form-control itemTotal text-end" value="0.00" />
+                                <input type="number" name="InvoiceDetails[${rowIndex}].Amount" class="form-control itemTotal text-end" value="0.00" step="0.01" />
                             </td>
                             <td>
                                 <button type="button" class="btn btn-danger btn-sm removeItemBtn">X</button>
@@ -869,14 +901,27 @@
                 var price = parseFloat(selected.data("price")) || 0;
                 var name = selected.text();
                 var selectedValue = selected.val();
+                var noteRequired = selected.data("note-required") === true || selected.data("note-required") === "true";
 
                 $row.find(".itemId").val(selectedValue);
 
                 if (selectedValue && selectedValue > 0) {
                     $row.find(".description").val(name);
+                    
+                    // Update note field requirement indicator
+                    var $noteField = $row.find(".note");
+                    if (noteRequired) {
+                        $noteField.attr("required", "required");
+                        $noteField.attr("placeholder", "Note (Required)");
+                    } else {
+                        $noteField.removeAttr("required");
+                        $noteField.attr("placeholder", "Note");
+                    }
                 }
                 else {
                     $row.find(".description").val('');
+                    $row.find(".note").removeAttr("required");
+                    $row.find(".note").attr("placeholder", "Note");
                 }
                 $row.find(".itemPrice").val(price.toFixed(2));
 
@@ -891,14 +936,27 @@
                 var price = parseFloat(selected.data("price")) || 0;
                 var name = selected.text();
                 var selectedValue = selected.val();
+                var noteRequired = selected.data("note-required") === true || selected.data("note-required") === "true";
 
                 $row.find(".itemId").val(selectedValue);
 
                 if (selectedValue && selectedValue > 0) {
                     $row.find(".description").val(name);
+                    
+                    // Update note field requirement indicator
+                    var $noteField = $row.find(".note");
+                    if (noteRequired) {
+                        $noteField.attr("required", "required");
+                        $noteField.attr("placeholder", "Note (Required)");
+                    } else {
+                        $noteField.removeAttr("required");
+                        $noteField.attr("placeholder", "Note");
+                    }
                 }
                 else {
                     $row.find(".description").val('');
+                    $row.find(".note").removeAttr("required");
+                    $row.find(".note").attr("placeholder", "Note");
                 }
                 $row.find(".itemPrice").val(price.toFixed(2));
 
@@ -1034,6 +1092,91 @@
             let isValid = true;
             let errors = [];
 
+            // Validate all invoice detail rows
+            $("#invoiceItems tbody tr").each(function (index) {
+                const $row = $(this);
+                const itemId = $row.find(".orderItemSelect").val();
+                const $selectedOption = $row.find(".orderItemSelect option:selected");
+                const noteRequired = $selectedOption.data("note-required") === true || $selectedOption.data("note-required") === "true";
+                const note = $row.find(".note").val();
+
+                // Only validate Qty, Price, and Amount if an item is selected
+                if (itemId && itemId > 0) {
+                    // Validate Qty field
+                    const qtyValue = $row.find(".orderQty").val();
+                    if (!qtyValue || qtyValue.trim() === '' || isNaN(qtyValue)) {
+                        $row.find(".orderQty").addClass("is-invalid");
+                        showToastError(`Row ${index + 1}: Quantity is required.`);
+                        isValid = false;
+                        return false;
+                    }
+                    const qty = parseFloat(qtyValue);
+                    if (qty <= 0) {
+                        $row.find(".orderQty").addClass("is-invalid");
+                        showToastError(`Row ${index + 1}: Quantity must be greater than zero.`);
+                        isValid = false;
+                        return false;
+                    } else {
+                        $row.find(".orderQty").removeClass("is-invalid");
+                    }
+
+                    // Validate Price field
+                    const priceValue = $row.find(".itemPrice").val();
+                    if (!priceValue || priceValue.trim() === '' || isNaN(priceValue)) {
+                        $row.find(".itemPrice").addClass("is-invalid");
+                        showToastError(`Row ${index + 1}: Price is required.`);
+                        isValid = false;
+                        return false;
+                    }
+                    const price = parseFloat(priceValue);
+                    if (price <= 0) {
+                        $row.find(".itemPrice").addClass("is-invalid");
+                        showToastError(`Row ${index + 1}: Price must be greater than zero.`);
+                        isValid = false;
+                        return false;
+                    } else {
+                        $row.find(".itemPrice").removeClass("is-invalid");
+                    }
+
+                    // Validate Amount field
+                    const amountValue = $row.find(".itemTotal").val();
+                    if (!amountValue || amountValue.trim() === '' || isNaN(amountValue)) {
+                        $row.find(".itemTotal").addClass("is-invalid");
+                        showToastError(`Row ${index + 1}: Amount is required.`);
+                        isValid = false;
+                        return false;
+                    }
+                    const amount = parseFloat(amountValue);
+                    if (amount <= 0) {
+                        $row.find(".itemTotal").addClass("is-invalid");
+                        showToastError(`Row ${index + 1}: Amount must be greater than zero.`);
+                        isValid = false;
+                        return false;
+                    } else {
+                        $row.find(".itemTotal").removeClass("is-invalid");
+                    }
+
+                    // Validate calculated amount matches Qty * Price
+                    const calculatedAmount = qty * price;
+                    const amountDifference = Math.abs(amount - calculatedAmount);
+                    if (amountDifference > 0.01) { // Allow small floating point differences
+                        $row.find(".itemTotal").addClass("is-invalid");
+                        showToastError(`Row ${index + 1}: Amount (${amount.toFixed(2)}) does not match Quantity × Price (${calculatedAmount.toFixed(2)}).`);
+                        isValid = false;
+                        return false;
+                    }
+
+                    // Validate note required field
+                    if (noteRequired && (!note || note.trim().length === 0)) {
+                        $row.find(".note").addClass("is-invalid");
+                        showToastError(`Row ${index + 1}: Note is required for selected item.`);
+                        isValid = false;
+                        return false;
+                    } else {
+                        $row.find(".note").removeClass("is-invalid");
+                    }
+                }
+
             //if (!$("#ReferenceNo").val()) {
             //    alert("Reference No is required.");
             //    return;
@@ -1077,31 +1220,31 @@
                 return false;
             }
 
-            if (self._type == 3) {
-                // Check each invoice detail row
-                $("#invoiceItems tbody tr").each(function (index) {
-                    const itemId = $(this).find(".orderItemSelect").val();
-                    const checkIn = $(this).find(".checkIn").val();
-                    const checkOut = $(this).find(".checkOut").val();
+           
+                
+                // Validate Stay type specific fields
+                if (self._type == 3) {
+                    const checkIn = $row.find(".checkIn").val();
+                    const checkOut = $row.find(".checkOut").val();
 
                     if (!itemId) {
-                        $(this).find(".orderItemSelect").addClass("is-invalid");
+                        $row.find(".orderItemSelect").addClass("is-invalid");
                         showToastError('Invalid item selected');
                         isValid = false;
                         return false;
                     }
                     else {
-                        $(this).find(".orderItemSelect").removeClass("is-invalid");
+                        $row.find(".orderItemSelect").removeClass("is-invalid");
                     }
 
                     if (!checkIn || !checkOut) {
-                        $(this).find(".checkIn, .checkOut").addClass("is-invalid");
+                        $row.find(".checkIn, .checkOut").addClass("is-invalid");
                         showToastError('Invalid check-in & check-out dates');
                         isValid = false;
                         return false;
                     }
                     else {
-                        $(this).find(".checkIn, .checkOut").removeClass("is-invalid");
+                        $row.find(".checkIn, .checkOut").removeClass("is-invalid");
                     }
 
                     if (checkIn && checkOut) {
@@ -1111,14 +1254,14 @@
                         if (inDate > outDate) {
                             isValid = false;
                             errors.push(`Row ${index + 1}: Check-In cannot be after Check-Out.`);
-                            $(this).find(".checkIn, .checkOut").addClass("is-invalid");
+                            $row.find(".checkIn, .checkOut").addClass("is-invalid");
                             showToastError('Invalid check-in & check-out dates');
                         } else {
-                            $(this).find(".checkIn, .checkOut").removeClass("is-invalid");
+                            $row.find(".checkIn, .checkOut").removeClass("is-invalid");
                         }
                     }
-                });
-            }
+                }
+            });
 
             // Validate payment reference when method requires it
             var method = parseInt($("#PaymentType").val());

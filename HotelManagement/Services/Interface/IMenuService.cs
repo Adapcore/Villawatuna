@@ -15,6 +15,7 @@ namespace HotelManagement.Services.Interface
         public int Id { get; set; }
         public string Name { get; set; } = string.Empty;
         public decimal Price { get; set; }
+        public bool NoteRequired { get; set; } = false;
     }
 
     public class MenuCategoryDto

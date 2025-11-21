@@ -75,7 +75,7 @@
                                             <td><input type="number" class="form-control form-control-sm orderQty text-end" value="@detail.Quantity" /></td>
                                         }
                                         <td><input type="number" class="form-control form-control-sm itemPrice text-end" value="@detail.UnitPrice.ToString("F2")" /></td>
-                                        <td><input type="number" class="form-control form-control-sm itemTotal text-end" value="@detail.Amount.ToString("F2")" /></td>
+                                        <td><input type="number" class="form-control form-control-sm itemTotal text-end" value="@detail.Amount.ToString("F2")" step="0.01" /></td>
                                         <td><button type="button" class="btn btn-danger btn-sm removeItemBtn">X</button></td>
                                     </tr>
                                 }
