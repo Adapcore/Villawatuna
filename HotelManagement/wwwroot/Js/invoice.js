@@ -70,7 +70,7 @@
 
             self.curySubTotal = self._invoice.curySubTotal;
             self.subTotal = self._invoice.subTotal;
-            self.serviceCharge = self._invoice.serviceCharge;
+            //self.serviceCharge = self._invoice.serviceCharge;
             self.grossTotal = self._invoice.grossAmount;
 
             $("#InvoiceNo").val(self._invoice.invoiceNo);
