@@ -50,7 +50,7 @@ namespace HotelManagement.Controllers
 
             decimal totalRevenue = await invoices.SumAsync(i => (decimal?)i.TotalPaid) ?? 0m;
 
-            decimal serviceCharges = await invoices.SumAsync(i => (decimal?)i.ServiceCharge) ?? 0m;
+            decimal serviceCharges = await invoices.Where(i => i.Status == InvoiceStatus.Paid).SumAsync(i => (decimal?)i.ServiceCharge) ?? 0m;
 
             decimal restaurantRevenue = await invoices
                 .Where(i => i.Type == InvoiceType.Dining || i.Type == InvoiceType.TakeAway)

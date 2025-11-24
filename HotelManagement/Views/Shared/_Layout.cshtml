@@ -1,4 +1,37 @@
-﻿<!DOCTYPE html>
+﻿@using Umbraco.Cms.Core.Security
+@using Umbraco.Cms.Core.Services
+@inject IMemberManager MemberManager
+@inject IMemberService MemberService
+
+@{
+    string displayName = Context.User?.Identity?.Name ?? "Guest";
+    bool isAdmin = false;
+    
+    if (Context.User?.Identity != null && Context.User.Identity.IsAuthenticated)
+    {
+        var username = Context.User.Identity.Name;
+        if (!string.IsNullOrWhiteSpace(username))
+        {
+            var memberIdentity = MemberManager.FindByNameAsync(username).GetAwaiter().GetResult();
+            if (memberIdentity != null)
+            {
+                var member = MemberService.GetByKey(memberIdentity.Key);
+                if (member != null)
+                {
+                    // Use the member's node name (Name property)
+                    displayName = member.Name ?? username;
+                    
+                    // Check if user is admin
+                    var rawType = member.GetValue<string>("userType") ?? "";
+                    var userType = rawType.Replace("[", "").Replace("]", "").Replace("\"", "").Trim();
+                    isAdmin = string.Equals(userType, "Admin", StringComparison.OrdinalIgnoreCase);
+                }
+            }
+        }
+    }
+}
+
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -41,6 +74,16 @@
                 background-color: #00509e;
                 transform: translateY(-1px);
             }
+
+        /* Highlight logged-in user name */
+        .user-display-name {
+            background-color: rgba(255, 255, 255, 0.2);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            font-weight: 600;
+            margin-right: 0.5rem;
+        }
 
         header .navbar-brand {
             font-size: 1.5rem;
@@ -216,9 +259,12 @@
                 <ul class="navbar-nav ms-auto align-items-lg-center">
                     @if (Context.User?.Identity != null && Context.User.Identity.IsAuthenticated)
                     {
-                        <li class="nav-item">
-                            <a asp-controller="Employees" asp-action="Index" class="nav-link">Employees</a>
-                        </li>
+                        @if (isAdmin)
+                        {
+                            <li class="nav-item">
+                                <a asp-controller="Employees" asp-action="Index" class="nav-link">Employees</a>
+                            </li>
+                        }
                         <li class="nav-item">
                             <a asp-controller="Customers" asp-action="Index" class="nav-link">Customers</a>
                         </li>
@@ -236,9 +282,9 @@
                     @if (Context.User?.Identity != null && Context.User.Identity.IsAuthenticated)
                     {
                         <li class="nav-item me-2">
-                            <span class="navbar-text text-white d-flex align-items-center">
+                            <span class="navbar-text text-white d-flex align-items-center user-display-name">
                                 <i class="bi bi-person-circle me-2"></i>
-                                @Context.User.Identity.Name
+                                @displayName
                             </span>
                         </li>
                         <li class="nav-item">
