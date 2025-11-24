@@ -31,7 +31,7 @@ namespace HotelManagement.Controllers
             }
 
             ViewBag.IsAdmin = IsAdminUser();
-            return View();
+            return View("Home");
         }
 
         [HttpGet]
