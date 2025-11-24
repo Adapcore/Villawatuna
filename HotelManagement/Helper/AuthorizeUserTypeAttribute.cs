@@ -53,7 +53,8 @@ namespace HotelManagement.Helper
 
             if (!string.Equals(userType, _userType, StringComparison.OrdinalIgnoreCase))
             {
-                context.Result = new ForbidResult();
+                context.Result = new RedirectToActionResult("AccessDenied", "Account", null);
+                return;
             }
 
             base.OnActionExecuting(context);

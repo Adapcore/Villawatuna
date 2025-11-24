@@ -133,6 +133,13 @@ namespace HotelManagement.Controllers
             return View("~/Views/Account/Login.cshtml", model);
         }
 
+        [HttpGet]
+        [Route("Account/AccessDenied")]
+        public IActionResult AccessDenied()
+        {
+            return View("~/Views/Account/AccessDenied.cshtml");
+        }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Route("Account/Logout")]
