@@ -6,7 +6,8 @@
     $.invoice = function (el, options) {
         var defaults = {
             mode: 'Insert',
-            createUrl: "/Invoices/Create"
+            createUrl: "/Invoices/Create",
+            isAdmin: false
         };
 
         this.options = $.extend(defaults, options);
@@ -21,6 +22,7 @@
         this.subTotal = 0;
         this.grossTotal = 0;
         this._currentRow = null;
+        this._isAdmin = this.options.isAdmin || false;
 
         this._formatter = new Intl.NumberFormat('en-US', {
             minimumFractionDigits: 2,
@@ -121,13 +123,34 @@
                 self.EnableHeader(0);
 
                 $('#btnComplete').show();
+                // Bind click event when button is shown
+                $('#btnComplete').off('click').on('click', function () {
+                    // Show jQuery confirmation dialog with red/warning theme
+                    showConfirmDialog("Do you want to complete the invoice?", function(confirmed) {
+                        if (confirmed) {
+                            $("#Status").val(2);
+                            self.Save();
+                        }
+                    }, {
+                        type: 'Warning',
+                        title: 'Complete Invoice'
+                    });
+                });
 
                 self.EnableDetails();
             }
             else if (self._invoice.status == 2) { // Complete
                 self.EnableHeader(1);
 
-                $('#btnReOpen').show();
+                // Show reopen button only for admin users
+                if (self._isAdmin) {
+                    $('#btnReOpen').show();
+                    // Bind click event when button is shown
+                    $('#btnReOpen').off('click').on('click', function () {
+                        $("#Status").val(1);
+                        self.Save();
+                    });
+                }              
                 $('#btnPay').show();
                 $('#btn_print').show();
             }
@@ -203,15 +226,7 @@
                 }
             });
 
-            $("#btnComplete").on("click", function () {
-                $("#Status").val(2);
-                self.Save();
-            });
-
-            $("#btnReOpen").on("click", function () {
-                $("#Status").val(1);
-                self.Save();
-            });
+            // btnComplete and btnReOpen click handlers are bound when buttons are shown (in LoadInvoice function)
 
             $("#btnPay").on("click", function () {
                 self.EnablePayment();
@@ -1484,12 +1499,14 @@ function ResetQuickCustomer() {
     $('#quickCustomerErrors').addClass('d-none').empty();
 }
 
+
 // Initialize invoice page
-function InitializeInvoicePage(invoiceData, mode) {
+function InitializeInvoicePage(invoiceData, mode, isAdmin) {
     $(document).ready(function () {
         const obj = {
             mode: mode,
-            invoice: invoiceData
+            invoice: invoiceData,
+            isAdmin: isAdmin || false
         };
         $().invoice(obj);
         

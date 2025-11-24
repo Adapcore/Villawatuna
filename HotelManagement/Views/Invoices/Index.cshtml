@@ -7,6 +7,7 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
     InvoiceStatus? _invoiceStatus = ViewBag.InvoiceStatus;
     int _customerId = ViewBag.CustomerId;
+    bool isAdmin = ViewBag.IsAdmin != null && (bool)ViewBag.IsAdmin;
 }
 
 <link rel="stylesheet" href="~/css/invoice-index.css" />
@@ -156,7 +157,15 @@
                                 <td>@EnumHelper.GetDisplayName(invoice.Status)</td>
                                 <td class="text-end">@invoice.GrossAmount.ToString("N2")</td>
                                 <td>
-                                    <a href="@Url.Action("Edit", "Invoices", new { id = invoice.InvoiceNo })" class="btn btn-sm btn-warning">View / Edit</a>
+                                    <div class="d-flex gap-1">
+                                        <a href="@Url.Action("Edit", "Invoices", new { id = invoice.InvoiceNo })" class="btn btn-sm btn-warning">View / Edit</a>
+                                        @if (isAdmin)
+                                        {
+                                            <button type="button" class="btn btn-sm btn-danger btn-delete-invoice" data-invoice-id="@invoice.InvoiceNo" data-invoice-no="@invoice.InvoiceNo">
+                                                <i class="bi bi-trash"></i> Delete
+                                            </button>
+                                        }
+                                    </div>
                                 </td>
                             </tr>
                         }
@@ -220,9 +229,17 @@
                         </div>
                     </div>
                     <div class="invoice-card-footer">
-                        <a href="@Url.Action("Edit", "Invoices", new { id = invoice.InvoiceNo })" class="btn btn-warning btn-sm">
-                            <i class="bi bi-pencil-square"></i> View / Edit
-                        </a>
+                        <div class="d-flex gap-2">
+                            <a href="@Url.Action("Edit", "Invoices", new { id = invoice.InvoiceNo })" class="btn btn-warning btn-sm">
+                                <i class="bi bi-pencil-square"></i> View / Edit
+                            </a>
+                            @if (isAdmin)
+                            {
+                                <button type="button" class="btn btn-danger btn-sm btn-delete-invoice" data-invoice-id="@invoice.InvoiceNo" data-invoice-no="@invoice.InvoiceNo">
+                                    <i class="bi bi-trash"></i> Delete
+                                </button>
+                            }
+                        </div>
                     </div>
                 </div>
             }
@@ -238,3 +255,81 @@
 
     @await Html.PartialAsync("_Pagination_invoice", Model.Invoices)
 </div>
+
+@Html.AntiForgeryToken()
+
+<script>
+    $(document).ready(function() {
+        // Delete invoice handler
+        $(document).on('click', '.btn-delete-invoice', function() {
+            var invoiceId = $(this).data('invoice-id');
+            var invoiceNo = $(this).data('invoice-no');
+            
+            // Show confirmation dialog using common component
+            showConfirmDialog(
+                'Are you sure you want to delete Invoice #' + invoiceNo + '?',
+                function(confirmed) {
+                    if (confirmed) {
+                        deleteInvoice(invoiceId);
+                    }
+                },
+                {
+                    type: 'Danger',
+                    title: 'Delete Invoice',
+                    yesButtonText: 'Yes, Delete',
+                    noButtonText: 'No',
+                    warningText: 'This action cannot be undone.',
+                    dialogId: 'deleteConfirmDialog'
+                }
+            );
+        });
+    });
+
+    // Delete invoice via AJAX
+    function deleteInvoice(invoiceId) {
+        var token = $('input[name="__RequestVerificationToken"]').val();
+        var deleteUrl = '/Internal/Invoices/Delete/' + invoiceId;
+        
+        $.ajax({
+            url: deleteUrl,
+            type: 'POST',
+            headers: {
+                'RequestVerificationToken': token
+            },
+            success: function(response) {
+                if (response.success) {
+                    // Show success message
+                    if (typeof showToastSuccess === 'function') {
+                        showToastSuccess(response.message || 'Invoice deleted successfully.');
+                    } else {
+                        alert(response.message || 'Invoice deleted successfully.');
+                    }
+                    
+                    // Reload the page after a short delay
+                    setTimeout(function() {
+                        window.location.reload();
+                    }, 1000);
+                } else {
+                    // Show error message
+                    if (typeof showToastError === 'function') {
+                        showToastError(response.message || 'Error deleting invoice.');
+                    } else {
+                        alert(response.message || 'Error deleting invoice.');
+                    }
+                }
+            },
+            error: function(xhr, status, error) {
+                var errorMessage = 'Error deleting invoice. Please try again.';
+                if (xhr.responseJSON && xhr.responseJSON.message) {
+                    errorMessage = xhr.responseJSON.message;
+                }
+                
+                if (typeof showToastError === 'function') {
+                    showToastError(errorMessage);
+                } else {
+                    alert(errorMessage);
+                }
+            }
+        });
+    }
+</script>

@@ -12,10 +12,13 @@ using System.ComponentModel.DataAnnotations;
 using System.Reflection;
 using uSync.Core;
 using X.PagedList.Extensions;
+using Umbraco.Cms.Core.Security;
+using Umbraco.Cms.Core.Services;
+using Microsoft.AspNetCore.Authorization;
 
 namespace HotelManagement.Controllers
 {
-    [AuthorizeUserType("Admin")]
+    [Authorize]
     [Route("Internal/Invoices")]
     public class InvoicesController : Controller
     {
@@ -24,19 +27,25 @@ namespace HotelManagement.Controllers
         private readonly IMenuService _menuService;
         private readonly ICurrencyService _currencyService;
         private readonly int _pageSize;
+        private readonly IMemberManager _memberManager;
+        private readonly IMemberService _memberService;
 
         public InvoicesController(
             IInvoiceService invoiceService,
             ICustomerService customerService,
             IMenuService menuService,
             ICurrencyService currencyService,
-            IOptions<PaginationSettings> paginationSettings)
+            IOptions<PaginationSettings> paginationSettings,
+            IMemberManager memberManager,
+            IMemberService memberService)
         {
             _invoiceService = invoiceService;
             _customerService = customerService;
             _menuService = menuService;
             _currencyService = currencyService;
             _pageSize = paginationSettings.Value.DefaultPageSize;
+            _memberManager = memberManager;
+            _memberService = memberService;
         }
 
         [HttpGet]
@@ -56,6 +65,7 @@ namespace HotelManagement.Controllers
 
             ViewBag.InvoiceStatus = invoiceStatus;
             ViewBag.CustomerId = customerId;
+            ViewBag.IsAdmin = IsAdminUser();
 
             var customers = await _customerService.GetAllAsync();
             //ViewBag.Customers = customers;
@@ -146,6 +156,7 @@ namespace HotelManagement.Controllers
             ViewBag.InvoiceTypeName = Enum.GetName(typeof(InvoiceType), Enum.Parse<InvoiceType>(type));
             ViewBag.Mode = "Insert";
             ViewBag.Countries = CountryList.All;
+            ViewBag.IsAdmin = IsAdminUser();
 
             return View(model);
         }
@@ -197,6 +208,7 @@ namespace HotelManagement.Controllers
                           }).ToList();
 
             ViewBag.Mode = "Edit";
+            ViewBag.IsAdmin = IsAdminUser();
 
             CreateInvoiceViewModel model = new CreateInvoiceViewModel(invoice);
 
@@ -288,6 +300,47 @@ namespace HotelManagement.Controllers
         {
             // Replace with your real service call
             return await Task.FromResult(new List<Customer>());
+        }
+
+        [HttpPost("Delete/{id}")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            if (!IsAdminUser())
+            {
+                return Json(new { success = false, message = "Only admin users can delete invoices." });
+            }
+
+            try
+            {
+                var invoice = await _invoiceService.GetByIdAsync(id);
+                if (invoice == null)
+                {
+                    return Json(new { success = false, message = "Invoice not found." });
+                }
+
+                await _invoiceService.DeleteInvoiceAsync(id);
+                return Json(new { success = true, message = "Invoice deleted successfully." });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = $"Error deleting invoice: {ex.Message}" });
+            }
+        }
+
+        private bool IsAdminUser()
+        {
+            var username = User?.Identity?.Name;
+            if (string.IsNullOrWhiteSpace(username)) return false;
+
+            var memberIdentity = _memberManager.FindByNameAsync(username).GetAwaiter().GetResult();
+            if (memberIdentity == null) return false;
+
+            var member = _memberService.GetByKey(memberIdentity.Key);
+            if (member == null) return false;
+
+            var rawType = member.GetValue<string>("userType") ?? "";
+            var userType = rawType.Replace("[", "").Replace("]", "").Replace("\"", "").Trim();
+            return string.Equals(userType, "Admin", StringComparison.OrdinalIgnoreCase);
         }
     }
 }

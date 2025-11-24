@@ -145,9 +145,24 @@ namespace HotelManagement.Services
 
         public async Task DeleteInvoiceAsync(int invoiceNo)
         {
-            var invoice = await _context.Invoices.FindAsync(invoiceNo);
+            var invoice = await _context.Invoices
+                .Include(i => i.InvoiceDetails)
+                .Include(i => i.Payments)
+                .FirstOrDefaultAsync(i => i.InvoiceNo == invoiceNo);
+            
             if (invoice != null)
             {
+                // Delete related entities explicitly (cascade should handle this, but being explicit)
+                if (invoice.InvoiceDetails != null && invoice.InvoiceDetails.Any())
+                {
+                    _context.InvoiceDetails.RemoveRange(invoice.InvoiceDetails);
+                }
+                
+                if (invoice.Payments != null && invoice.Payments.Any())
+                {
+                    _context.Payments.RemoveRange(invoice.Payments);
+                }
+                
                 _context.Invoices.Remove(invoice);
                 await _context.SaveChangesAsync();
             }
