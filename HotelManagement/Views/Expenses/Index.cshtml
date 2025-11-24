@@ -7,6 +7,7 @@
     DateTime? _startDate = ViewBag.StartDate;
     DateTime? _endDate = ViewBag.EndDate;
     int _expenseTypeId = ViewBag.ExpenseTypeId ?? 0;
+    bool isAdmin = ViewBag.IsAdmin != null && (bool)ViewBag.IsAdmin;
 }
 
 <link rel="stylesheet" href="~/css/expenses-index.css" />
@@ -84,8 +85,16 @@
                                 <td class="text-end fw-bold">@item.Amount.ToString("N2")</td>
                                 <td>@EnumHelper.GetDisplayName(item.PaymentMethod)</td>
                                 <td>
-                                    <a href="@Url.Action("Details", "Expenses", new { id = item.ID })" class="btn btn-sm btn-info">View</a>
-                                    <a href="@Url.Action("Edit", "Expenses", new { id = item.ID })" class="btn btn-sm btn-warning">Edit</a>
+                                    <div class="d-flex gap-1">
+                                        <a href="@Url.Action("Details", "Expenses", new { id = item.ID })" class="btn btn-sm btn-info">View</a>
+                                        <a href="@Url.Action("Edit", "Expenses", new { id = item.ID })" class="btn btn-sm btn-warning">Edit</a>
+                                        @if (isAdmin)
+                                        {
+                                            <button type="button" class="btn btn-sm btn-danger btn-delete-expense" data-expense-id="@item.ID" data-expense-no="@item.ID">
+                                                @* <i class="bi bi-trash"></i> *@ Delete
+                                            </button>
+                                        }
+                                    </div>
                                 </td>
                             </tr>
                         }
@@ -135,12 +144,20 @@
                         }
                     </div>
                     <div class="expense-card-footer">
-                        <a href="@Url.Action("Details", "Expenses", new { id = item.ID })" class="btn btn-info btn-sm">
-                            <i class="bi bi-eye"></i> View
-                        </a>
-                        <a href="@Url.Action("Edit", "Expenses", new { id = item.ID })" class="btn btn-warning btn-sm">
-                            <i class="bi bi-pencil-square"></i> Edit
-                        </a>
+                        <div class="d-flex gap-2">
+                            <a href="@Url.Action("Details", "Expenses", new { id = item.ID })" class="btn btn-info btn-sm">
+                                <i class="bi bi-eye"></i> View
+                            </a>
+                            <a href="@Url.Action("Edit", "Expenses", new { id = item.ID })" class="btn btn-warning btn-sm">
+                                <i class="bi bi-pencil-square"></i> Edit
+                            </a>
+                            @if (isAdmin)
+                            {
+                                <button type="button" class="btn btn-danger btn-sm btn-delete-expense" data-expense-id="@item.ID" data-expense-no="@item.ID">
+                                    @* <i class="bi bi-trash"></i>  *@Delete
+                                </button>
+                            }
+                        </div>
                     </div>
                 </div>
             }
@@ -148,3 +165,81 @@
     </div>
     @await Html.PartialAsync("_Pagination_expense", Model)
 </div>
+
+@Html.AntiForgeryToken()
+
+<script>
+    $(document).ready(function() {
+        // Delete expense handler
+        $(document).on('click', '.btn-delete-expense', function() {
+            var expenseId = $(this).data('expense-id');
+            var expenseNo = $(this).data('expense-no');
+            
+            // Show confirmation dialog using common component
+            showConfirmDialog(
+                'Are you sure you want to delete Expense #' + expenseNo + '?',
+                function(confirmed) {
+                    if (confirmed) {
+                        deleteExpense(expenseId);
+                    }
+                },
+                {
+                    type: 'Danger',
+                    title: 'Delete Expense',
+                    yesButtonText: 'Yes, Delete',
+                    noButtonText: 'No',
+                    warningText: 'This action cannot be undone.',
+                    dialogId: 'deleteExpenseConfirmDialog'
+                }
+            );
+        });
+    });
+
+    // Delete expense via AJAX
+    function deleteExpense(expenseId) {
+        var token = $('input[name="__RequestVerificationToken"]').val();
+        var deleteUrl = '/Expenses/Delete/' + expenseId;
+        
+        $.ajax({
+            url: deleteUrl,
+            type: 'POST',
+            headers: {
+                'RequestVerificationToken': token
+            },
+            success: function(response) {
+                if (response.success) {
+                    // Show success message
+                    if (typeof showToastSuccess === 'function') {
+                        showToastSuccess(response.message || 'Expense deleted successfully.');
+                    } else {
+                        alert(response.message || 'Expense deleted successfully.');
+                    }
+                    
+                    // Reload the page after a short delay
+                    setTimeout(function() {
+                        window.location.reload();
+                    }, 1000);
+                } else {
+                    // Show error message
+                    if (typeof showToastError === 'function') {
+                        showToastError(response.message || 'Error deleting expense.');
+                    } else {
+                        alert(response.message || 'Error deleting expense.');
+                    }
+                }
+            },
+            error: function(xhr, status, error) {
+                var errorMessage = 'Error deleting expense. Please try again.';
+                if (xhr.responseJSON && xhr.responseJSON.message) {
+                    errorMessage = xhr.responseJSON.message;
+                }
+                
+                if (typeof showToastError === 'function') {
+                    showToastError(errorMessage);
+                } else {
+                    alert(errorMessage);
+                }
+            }
+        });
+    }
+</script>

@@ -4,32 +4,41 @@ using HotelManagement.Models.DTO;
 using HotelManagement.Models.Entities;
 using HotelManagement.Services.Interface;
 using HotelManagement.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Options;
 using System.ComponentModel.DataAnnotations;
 using System.Reflection;
 using X.PagedList.Extensions;
+using Umbraco.Cms.Core.Security;
+using Umbraco.Cms.Core.Services;
 
 namespace HotelManagement.Controllers
 {
-    [AuthorizeUserType("Admin")]
+    [Authorize]
     public class ExpensesController : Controller
     {
         private readonly IExpenseService _expenseService;
         private readonly IWebHostEnvironment _env;
         private readonly IExpenseTypeService _expenseTypeService;
         private readonly int _pageSize;
+        private readonly IMemberManager _memberManager;
+        private readonly IMemberService _memberService;
 
         public ExpensesController(IExpenseService expenseService,
             IWebHostEnvironment env,
             IExpenseTypeService expenseTypeService, 
-            IOptions<PaginationSettings> paginationSettings)
+            IOptions<PaginationSettings> paginationSettings,
+            IMemberManager memberManager,
+            IMemberService memberService)
         {
             _expenseService = expenseService;
             _env = env;
             _expenseTypeService = expenseTypeService;
             _pageSize = paginationSettings.Value.DefaultPageSize;
+            _memberManager = memberManager;
+            _memberService = memberService;
         }
 
         public async Task<IActionResult> Index(int page = 1, DateTime? startDate = null, DateTime? endDate = null, int expenseTypeId = 0)
@@ -63,6 +72,8 @@ namespace HotelManagement.Controllers
             int? expenseTypeFilter = expenseTypeId > 0 ? expenseTypeId : null;
             IEnumerable<Expense> expenses = await _expenseService.GetAllAsync(startDate, endDate, expenseTypeFilter);
             var pagedList = expenses.ToPagedList(pageNumber, _pageSize);
+
+            ViewBag.IsAdmin = IsAdminUser();
 
             return View(pagedList);
         }
@@ -244,10 +255,45 @@ namespace HotelManagement.Controllers
             return View(expense);
         }
 
+        [HttpPost]
         public async Task<IActionResult> Delete(int id)
         {
-            await _expenseService.DeleteAsync(id);
-            return RedirectToAction(nameof(Index));
+            if (!IsAdminUser())
+            {
+                return Json(new { success = false, message = "Only admin users can delete expenses." });
+            }
+
+            try
+            {
+                var expense = await _expenseService.GetByIdAsync(id);
+                if (expense == null)
+                {
+                    return Json(new { success = false, message = "Expense not found." });
+                }
+
+                await _expenseService.DeleteAsync(id);
+                return Json(new { success = true, message = "Expense deleted successfully." });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = $"Error deleting expense: {ex.Message}" });
+            }
+        }
+
+        private bool IsAdminUser()
+        {
+            var username = User?.Identity?.Name;
+            if (string.IsNullOrWhiteSpace(username)) return false;
+
+            var memberIdentity = _memberManager.FindByNameAsync(username).GetAwaiter().GetResult();
+            if (memberIdentity == null) return false;
+
+            var member = _memberService.GetByKey(memberIdentity.Key);
+            if (member == null) return false;
+
+            var rawType = member.GetValue<string>("userType") ?? "";
+            var userType = rawType.Replace("[", "").Replace("]", "").Replace("\"", "").Trim();
+            return string.Equals(userType, "Admin", StringComparison.OrdinalIgnoreCase);
         }
     }
 }

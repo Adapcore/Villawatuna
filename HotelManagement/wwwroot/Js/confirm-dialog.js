@@ -74,7 +74,21 @@ function showConfirmDialog(message, callback, options) {
     $('#' + dialogId).remove();
     
     // Build header class attribute - ensure entire header section has colored background
-    var headerClassAttr = headerClass ? ' class="modal-header ' + headerClass + '"' : ' class="modal-header"';
+    var headerClassCombined = headerClass ? 'modal-header ' + headerClass : 'modal-header';
+    var headerClassAttr = ' class="' + headerClassCombined + '"';
+    
+    // Add inline styles for warning type to ensure yellow background is visible
+    var headerStyle = '';
+    if (type === 'Warning') {
+        headerStyle = ' style="background-color: #ffc107 !important; color: #212529 !important;"';
+    } else if (type === 'Danger') {
+        headerStyle = ' style="background-color: #dc3545 !important; color: #ffffff !important;"';
+    } else if (type === 'Information') {
+        headerStyle = ' style="background-color: #0dcaf0 !important; color: #ffffff !important;"';
+    } else if (type === 'Success') {
+        headerStyle = ' style="background-color: #198754 !important; color: #ffffff !important;"';
+    }
+    
     var closeButtonClass = headerClass.includes('text-white') || headerClass.includes('bg-danger') || headerClass.includes('bg-success') || headerClass.includes('bg-info')
         ? 'btn-close btn-close-white' 
         : 'btn-close';
@@ -87,8 +101,8 @@ function showConfirmDialog(message, callback, options) {
         <div id="${dialogId}" class="modal fade" tabindex="-1" role="dialog" style="display: block;">
             <div class="modal-dialog modal-dialog-centered" role="document">
                 <div class="modal-content">
-                    <div${headerClassAttr}>
-                        <h5 class="modal-title">${title}</h5>
+                    <div${headerClassAttr}${headerStyle}>
+                        <h5 class="modal-title${titleClass ? ' ' + titleClass : ''}">${title}</h5>
                         <button type="button" class="${closeButtonClass}" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
@@ -143,4 +157,3 @@ function showConfirmDialog(message, callback, options) {
         }
     });
 }
-

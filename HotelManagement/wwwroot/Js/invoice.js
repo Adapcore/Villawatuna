@@ -125,16 +125,17 @@
                 $('#btnComplete').show();
                 // Bind click event when button is shown
                 $('#btnComplete').off('click').on('click', function () {
-                    // Show jQuery confirmation dialog with red/warning theme
+                    // Show jQuery confirmation dialog
                     showConfirmDialog("Do you want to complete the invoice?", function(confirmed) {
                         if (confirmed) {
                             $("#Status").val(2);
                             self.Save();
                         }
-                    }, {
-                        type: 'Warning',
-                        title: 'Complete Invoice'
-                    });
+                    },
+                        {
+                            type: 'Warning'
+                        }
+                    );
                 });
 
                 self.EnableDetails();
