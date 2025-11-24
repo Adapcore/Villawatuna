@@ -41,13 +41,26 @@ namespace HotelManagement.Controllers
             DateTime fromDate = from?.Date ?? DateTime.Today;
             DateTime toDate = (to?.Date ?? DateTime.Today).AddDays(1).AddTicks(-1);
 
+            var payments = _context.Payments.AsNoTracking().Where(i => i.Date >= fromDate && i.Date <= toDate);
+
+            decimal totalRevenue = await payments.SumAsync(i => (decimal?)i.Amount) ?? 0m;
+            decimal serviceCharges = await _context.Invoices.AsNoTracking()
+                                          .Where(i => i.Status == InvoiceStatus.Paid && i.Type == InvoiceType.Dining && i.Date >= fromDate && i.Date <= toDate)
+                                          .SumAsync(i => (decimal?)i.ServiceCharge) ?? 0m;
+            decimal stayRevenue = await payments.Where(e => e.Invoice.Type == InvoiceType.Stay).SumAsync(e => (decimal?)e.Amount) ?? 0m;
+            decimal restaurantRevenue = await payments.Where(e => e.Invoice.Type == InvoiceType.Dining || e.Invoice.Type == InvoiceType.Dining)
+                                            .SumAsync(e => (decimal?)e.Amount) ?? 0m;
+            decimal tourRevenue = await payments.Where(e => e.Invoice.Type == InvoiceType.Tour).SumAsync(e => (decimal?)e.Amount) ?? 0m;
+            decimal laundryRevenue = await payments.Where(e => e.Invoice.Type == InvoiceType.Laundry).SumAsync(e => (decimal?)e.Amount) ?? 0m;
+
+            var expenses = _context.Expenses.AsNoTracking().Where(e => e.Date >= fromDate && e.Date <= toDate);
+            decimal totalExpenses = await expenses.SumAsync(e => (decimal?)e.Amount) ?? 0m;
+
             var invoices = _context.Invoices.AsNoTracking()
-                .Where(i => (i.Status == InvoiceStatus.PartiallyPaid || i.Status == InvoiceStatus.Complete|| i.Status == InvoiceStatus.Paid)
+                .Where(i => (i.Status == InvoiceStatus.PartiallyPaid || i.Status == InvoiceStatus.Complete || i.Status == InvoiceStatus.Paid)
                 && i.Date >= fromDate && i.Date <= toDate);
 
-            var expenses = _context.Expenses.AsNoTracking()
-                .Where(e => e.Date >= fromDate && e.Date <= toDate);
-
+            /*
             decimal totalRevenue = await invoices.SumAsync(i => (decimal?)i.TotalPaid) ?? 0m;
 
             decimal serviceCharges = await invoices.Where(i => i.Status == InvoiceStatus.Paid).SumAsync(i => (decimal?)i.ServiceCharge) ?? 0m;
@@ -67,8 +80,7 @@ namespace HotelManagement.Controllers
             decimal stayRevenue = await invoices
                 .Where(i => i.Type == InvoiceType.Stay)
                 .SumAsync(i => (decimal?)i.TotalPaid) ?? 0m;
-
-            decimal totalExpenses = await expenses.SumAsync(e => (decimal?)e.Amount) ?? 0m;
+            */
 
             return Json(new
             {
