@@ -23,18 +23,17 @@ namespace HotelManagement.Services
             // Find the "Menu" node under the root
             var menuNode = root.DescendantsOrSelfOfType("menu").FirstOrDefault();
 
-            if (menuNode == null)
-                return Enumerable.Empty<ItemDto>();
-
+            if (menuNode == null) return Enumerable.Empty<ItemDto>();
 
             // Get items only under Menu
             var items = menuNode
-                .DescendantsOfType("item")
+                .DescendantsOfType("menuItem")
                 .Select(x => new ItemDto
                 {
                     Id = x.Id,
                     Name = x.Name,
-                    Price = x.Value<decimal>("price")
+                    Price = x.Value<decimal>("price"),
+                    NoteRequired = x.Value<bool?>("noteRequired") ?? false
                 })
                 .ToList();
 
@@ -63,10 +62,10 @@ namespace HotelManagement.Services
             {
                 // Get all subcategories within this category
                 var subcategories = category.DescendantsOfType("menuSubcategory");
-                
+
                 // Collect all items from all subcategories
                 List<ItemDto> items = new List<ItemDto>();
-                
+
                 foreach (var subcategory in subcategories)
                 {
                     var subcategoryItems = subcategory.DescendantsOfType("menuItem").Select(x => new ItemDto
@@ -76,7 +75,7 @@ namespace HotelManagement.Services
                         Price = x.Value<decimal>("price"),
                         NoteRequired = x.Value<bool?>("noteRequired") ?? false
                     });
-                    
+
                     items.AddRange(subcategoryItems);
                 }
 

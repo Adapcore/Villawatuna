@@ -11,7 +11,7 @@
     switch (Model.Type)
     {
         case InvoiceType.Stay: invoiceType = "Stay"; break;
-        case InvoiceType.Dining: invoiceType = "Dining"; break;        
+        case InvoiceType.Dining: invoiceType = "Dining"; break;
         case InvoiceType.TakeAway: invoiceType = "Take Away"; break;
         case InvoiceType.Laundry: invoiceType = "Laundry"; break;
         case InvoiceType.Tour: invoiceType = "Tour"; break;
@@ -44,8 +44,8 @@
             /* font-family: 'Courier New', monospace;  */
             /* font-size: 12px;  */
             /* line-height: 1.2;
-                                                            background: white;
-                                                            color: black; */
+                                                                    background: white;
+                                                                    color: black; */
         }
 
         /* paper widths: 58mm and 80mm */
@@ -117,21 +117,21 @@
             }
 
         .item-name {
-            width: 50%;
+            width: 40%;
         }
 
         .item-qty {
-            width: 15%;
+            width: 10%;
             text-align: center;
         }
 
         .item-price {
-            width: 17.5%;
+            width: 25%;
             text-align: right;
         }
 
         .item-total {
-            width: 17.5%;
+            width: 25%;
             text-align: right;
         }
 
@@ -141,7 +141,7 @@
             margin-top: 3mm;
             padding-top: 4mm;
             /* font-size: 1.2em;
-                                                    font-weight: 700; */
+                                                            font-weight: 700; */
         }
 
         .total-line {
@@ -156,8 +156,8 @@
             font-weight: 700;
             font-size: 1.2em;
             /* border-top: 1px dashed #000;
-            padding-top: 1mm;
-            margin-top: 2mm; */
+                    padding-top: 1mm;
+                    margin-top: 2mm; */
         }
 
         .total-bottom-border {
@@ -192,9 +192,9 @@
         }
 
         /* @@page {
-                                                            size: auto;
-                                                            margin: 0;
-                                                        } */
+                                                                    size: auto;
+                                                                    margin: 0;
+                                                                } */
     </style>
 </head>
 <body>
@@ -205,7 +205,7 @@
                 <div class="invoice-title">VillaWatuna</div>
                 <div class="invoice-address">
                     <div>Yaddehimulla, Unawatuna, Galle</div>
-                    <div>T - 0776955500</div>
+                    <div>T - +94 70 695 5500</div>
                     <div>www.villawatuna.com</div>
                 </div>
             </div>
@@ -216,7 +216,15 @@
                 <div>Date: @Model.Date.ToString("yyyy-MM-dd HH:mm")</div>
                 @if (Model.Customer != null)
                 {
-                    <div>Customer: @Model.Customer.FirstName @Model.Customer.LastName</div>
+                    string cusromerName = "";
+                    if (!string.IsNullOrEmpty(Model.Customer.RoomNo))
+                    {
+                        cusromerName = $"#{Model.Customer.RoomNo} - ";
+                    }
+
+                    cusromerName = $"{cusromerName}{Model.Customer.FirstName} {Model.Customer.LastName}";
+
+                    <div>Customer: @cusromerName</div>
                 }
                 @if (!string.IsNullOrWhiteSpace(Model.ReferenceNo))
                 {
@@ -228,17 +236,19 @@
             <table class="items-table">
                 <thead>
                     <tr>
-                        <th class="item-name">Item</th>
-                        <th class="item-qty">Qty</th>
-                        <th class="item-price">Price</th>
-                        <th class="item-total">Total</th>
+                        <th style="text-align:left" class="item-name">Item</th>
+                        <th style="text-align:center" class="item-qty">Qty</th>
+                        <th style="text-align:center" class="item-price">Price</th>
+                        <th style="text-align:center" class="item-total">Total</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach (var d in Model.InvoiceDetails ?? Enumerable.Empty<HotelManagement.Models.Entities.InvoiceDetail>())
                     {
+                        string itemName = d.Item.NoteRequired == true ? d.Note : d.Item?.Name;
+
                         <tr>
-                            <td class="item-name">@d.Item?.Name</td>
+                            <td class="item-name">@itemName</td>
                             <td class="item-qty">@d.Quantity</td>
                             <td class="item-price">@d.UnitPrice.ToString("F2")</td>
                             <td class="item-total">@d.Amount.ToString("F2")</td>
@@ -256,7 +266,7 @@
                     {
                         <div class="total-line total-bottom-border">
                             <span>SubTotal (@Model.Currency) :</span>
-                            <span>@Model.CurySubTotal.ToString("F2")</span>
+                            <span>@Model.CurySubTotal.ToString("#,###.00")</span>
                         </div>
                     }
                 }
@@ -264,18 +274,18 @@
                 {
                     <div class="total-line">
                         <span>SubTotal:</span>
-                        <span>@Model.SubTotal.ToString("F2")</span>
+                        <span>@Model.SubTotal.ToString("#,###.00")</span>
                     </div>
 
                     <div class="total-line total-bottom-border">
                         <span>Service Charge:</span>
-                        <span>@Model.ServiceCharge.ToString("F2")</span>
+                        <span>@Model.ServiceCharge.ToString("#,###.00")</span>
                     </div>
                 }
 
                 <div class="total-line gross-total">
                     <span>GROSS TOTAL:</span>
-                    <span>@Model.GrossAmount.ToString("F2")</span>
+                    <span>@Model.GrossAmount.ToString("#,###.00")</span>
                 </div>
 
                 @if (Model.Status != InvoiceStatus.InProgress && Model.Status != InvoiceStatus.Complete)
