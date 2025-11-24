@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using System.Text.Json;
+using Umbraco.Cms.Core;
 using Umbraco.Cms.Core.Cache;
 using Umbraco.Cms.Core.Logging;
 using Umbraco.Cms.Core.Routing;
@@ -74,50 +75,47 @@ namespace HotelManagement.Controllers
 
             var result = await _signInManager.PasswordSignInAsync(model.Username, model.Password, model.RememberMe, false);
 
-            //return Redirect(model.ReturnUrl ?? "/Internal/Invoices");
-
             if (result.Succeeded)
             {
-                var member1 = Services.MemberService.GetByUsername(model.Username);
+                // PasswordSignInAsync already signs the user in with Umbraco's authentication
+                // We can't easily add custom claims to Umbraco's member authentication cookie
+                // Instead, we'll store the claims in session or query them when needed
+                // For now, the claims will be retrieved from the member service in _Layout.cshtml
 
-                // Get the User Type from custom dropdown property
-                var userTypeRaw = member1.GetValue<string>("userType") ?? string.Empty;
-                var roles = JsonSerializer.Deserialize<List<string>>(userTypeRaw);
-                string userType = roles?.FirstOrDefault() ?? string.Empty;
+                //var member1 = Services.MemberService.GetByUsername(model.Username);
 
-
-                //// Get the Umbraco member user
-                //var user = await _memberManager.FindByNameAsync(model.Username);
-                //var userPrincipal = await _signInManager.CreateUserPrincipalAsync(user);
-
-                //// Add role claim from userType property
-                //var identity = userPrincipal.Identity as System.Security.Claims.ClaimsIdentity;
-                //if (!string.IsNullOrWhiteSpace(userType) && identity != null)
-                //{
-                //    identity.AddClaim(new System.Security.Claims.Claim(System.Security.Claims.ClaimTypes.Role, userType));
-                //}
-
-                //// Sign in with the enriched identity
-                //await _signInManager.SignInAsync(user, model.RememberMe);
+                //// Get the User Type from custom dropdown propertyb
+                //var userTypeRaw = member1.GetValue<string>("userType") ?? string.Empty;
+                //var roles = JsonSerializer.Deserialize<List<string>>(userTypeRaw);
+                //string userType = roles?.FirstOrDefault() ?? string.Empty;
 
 
-                var claims = new List<Claim>
-                    {
-                        new Claim(ClaimTypes.Name, model.Username),
-                        new Claim(ClaimTypes.Role, userType) // <-- make role claim
-                    };
+                ////// Get the Umbraco member user
+                ////var user = await _memberManager.FindByNameAsync(model.Username);
+                ////var userPrincipal = await _signInManager.CreateUserPrincipalAsync(user);
 
-                var identity = new ClaimsIdentity(claims, "UmbracoMember");
-                await HttpContext.SignInAsync(new ClaimsPrincipal(identity));
+                ////// Add role claim from userType property
+                ////var identity = userPrincipal.Identity as System.Security.Claims.ClaimsIdentity;
+                ////if (!string.IsNullOrWhiteSpace(userType) && identity != null)
+                ////{
+                ////    identity.AddClaim(new System.Security.Claims.Claim(System.Security.Claims.ClaimTypes.Role, userType));
+                ////}
+
+                ////// Sign in with the enriched identity
+                ////await _signInManager.SignInAsync(user, model.RememberMe);
 
 
-                // Redirect based on role
-                if (string.Equals(userType, "Admin", StringComparison.OrdinalIgnoreCase))
-                    return Redirect("/Home");
-                else if (string.Equals(userType, "User", StringComparison.OrdinalIgnoreCase))
-                    return Redirect("/Home");
-                else
-                    return Redirect("/");
+                //var claims = new List<Claim>
+                //    {
+                //        new Claim(ClaimTypes.Name, model.Username),
+                //        new Claim(ClaimTypes.Role, userType) // <-- make role claim
+                //    };
+
+                //var identity = new ClaimsIdentity(claims, "UmbracoMember");
+                //await HttpContext.SignInAsync(new ClaimsPrincipal(identity));
+
+
+                return Redirect("/");
             }
 
 
