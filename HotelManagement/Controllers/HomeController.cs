@@ -64,6 +64,10 @@ namespace HotelManagement.Controllers
                 .Where(i => i.Type == InvoiceType.Laundry)
                 .SumAsync(i => (decimal?)i.TotalPaid) ?? 0m;
 
+            decimal stayRevenue = await invoices
+                .Where(i => i.Type == InvoiceType.Stay)
+                .SumAsync(i => (decimal?)i.TotalPaid) ?? 0m;
+
             decimal totalExpenses = await expenses.SumAsync(e => (decimal?)e.Amount) ?? 0m;
 
             return Json(new
@@ -76,7 +80,8 @@ namespace HotelManagement.Controllers
                     restaurantRevenue,
                     serviceCharges,
                     laundryRevenue,
-                    tourRevenue
+                    tourRevenue,
+                    stayRevenue
                 },
                 isAdmin
             });

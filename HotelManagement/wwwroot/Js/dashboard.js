@@ -21,6 +21,7 @@ function loadMetrics(ele) {
             $('#tileServiceCharges').text(formatCurrency(res.data.serviceCharges));
             $('#tileLaundryRevenue').text(formatCurrency(res.data.laundryRevenue));
             $('#tileTourRevenue').text(formatCurrency(res.data.tourRevenue));
+            $('#tileStayRevenue').text(formatCurrency(res.data.stayRevenue));
         }
     });
 }

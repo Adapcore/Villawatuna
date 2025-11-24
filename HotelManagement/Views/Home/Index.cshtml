@@ -100,6 +100,20 @@
                 <h4 id="tileTourRevenue" class="fw-bold">LKR 0.00</h4>
             </div>
         </div>
+        <div class="col-6 col-md-3">
+            <div class="card shadow-sm border-0 rounded-3 p-3 text-center bg-danger text-white">
+                <i class="bi bi-bus-front fs-2 mb-2"></i>
+                <h6>Tour Revenue</h6>
+                <h4 id="tileTourRevenue" class="fw-bold">LKR 0.00</h4>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card shadow-sm border-0 rounded-3 p-3 text-center" style="background-color: #6f42c1; color: white;">
+                <i class="bi bi-building fs-2 mb-2"></i>
+                <h6>Stay Revenue</h6>
+                <h4 id="tileStayRevenue" class="fw-bold">LKR 0.00</h4>
+            </div>
+        </div>
 
         <div class="col-6 col-md-3">
             <div class="card shadow-sm border-0 rounded-3 p-3 text-center bg-warning text-dark">
@@ -137,6 +151,7 @@
                     $('#tileServiceCharges').text(formatCurrency(res.data.serviceCharges));
                     $('#tileLaundryRevenue').text(formatCurrency(res.data.laundryRevenue));
                     $('#tileTourRevenue').text(formatCurrency(res.data.tourRevenue));
+                    $('#tileStayRevenue').text(formatCurrency(res.data.stayRevenue));
                 }
             });
         }
