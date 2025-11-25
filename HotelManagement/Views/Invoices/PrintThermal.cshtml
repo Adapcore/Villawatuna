@@ -1,5 +1,8 @@
 ﻿@model HotelManagement.Models.Entities.Invoice
 @using HotelManagement.Enums
+@using Umbraco.Cms.Core.Web
+@using Umbraco.Cms.Core.Models.PublishedContent
+@inject IUmbracoContextAccessor UmbracoContextAccessor
 
 @{
     Layout = null; // Remove layout for POS printing
@@ -16,6 +19,36 @@
         case InvoiceType.Laundry: invoiceType = "Laundry"; break;
         case InvoiceType.Tour: invoiceType = "Tour"; break;
         case InvoiceType.Other: invoiceType = "Other"; break;
+    }
+    
+    // Get site information from Umbraco
+    string siteName = "Hotel Management";
+    string logoUrl = "";
+    string address = "";
+    string phone = "";
+    string email = "";
+    string website = "";
+    bool showLogoOnly = false;
+    
+    var umbracoContext = UmbracoContextAccessor.GetRequiredUmbracoContext();
+    var root = umbracoContext.Content?.GetAtRoot().FirstOrDefault();
+    if (root != null)
+    {
+        var siteNode = root.DescendantsOrSelfOfType("site").FirstOrDefault();
+        if (siteNode != null)
+        {
+            siteName = siteNode.Value<string>("siteName") ?? siteName;
+            address = siteNode.Value<string>("address") ?? address;
+            phone = siteNode.Value<string>("phone") ?? phone;
+            email = siteNode.Value<string>("email") ?? email;
+            website = siteNode.Value<string>("website") ?? siteNode.Value<string>("webSite") ?? "";
+            showLogoOnly = siteNode.Value<bool>("showLogoOnly");
+            var logoMedia = siteNode.Value<IPublishedContent>("logo");
+            if (logoMedia != null)
+            {
+                logoUrl = logoMedia.Url() ?? "";
+            }
+        }
     }
 }
 
@@ -202,11 +235,33 @@
         <div class="receipt-content">
             <!-- Invoice Header -->
             <div class="invoice-header">
-                <div class="invoice-title">VillaWatuna</div>
+                @if (!string.IsNullOrEmpty(logoUrl))
+                {
+                    <div style="margin-bottom: 2mm;">
+                        <img src="@logoUrl" alt="@siteName" style="max-height: 40px; max-width: 100%;" />
+                    </div>
+                }
+                @if (!showLogoOnly)
+                {
+                    <div class="invoice-title">@siteName</div>
+                }
                 <div class="invoice-address">
-                    <div>Yaddehimulla, Unawatuna, Galle</div>
-                    <div>T - +94 70 695 5500</div>
-                    <div>www.villawatuna.com</div>
+                    @if (!string.IsNullOrEmpty(address))
+                    {
+                        <div>@address</div>
+                    }
+                    @if (!string.IsNullOrEmpty(phone))
+                    {
+                        <div>T - @phone</div>
+                    }
+                    @if (!string.IsNullOrEmpty(email))
+                    {
+                        <div>@email</div>
+                    }
+                    @if (!string.IsNullOrEmpty(website))
+                    {
+                        <div>@website</div>
+                    }
                 </div>
             </div>
 

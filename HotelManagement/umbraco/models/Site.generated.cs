@@ -170,11 +170,26 @@ namespace Umbraco.Cms.Web.Common.PublishedModels
 		public virtual string QuickLinks_Title => this.Value<string>(_publishedValueFallback, "quickLinks_Title");
 
 		///<summary>
+		/// Show Logo Only: Show only the logo in the invoice header of printing
+		///</summary>
+		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "13.10.0+c2890e1")]
+		[ImplementPropertyType("showLogoOnly")]
+		public virtual bool ShowLogoOnly => this.Value<bool>(_publishedValueFallback, "showLogoOnly");
+
+		///<summary>
 		/// Site Name
 		///</summary>
 		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "13.10.0+c2890e1")]
 		[global::System.Diagnostics.CodeAnalysis.MaybeNull]
 		[ImplementPropertyType("siteName")]
 		public virtual string SiteName => this.Value<string>(_publishedValueFallback, "siteName");
+
+		///<summary>
+		/// Web Site
+		///</summary>
+		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "13.10.0+c2890e1")]
+		[global::System.Diagnostics.CodeAnalysis.MaybeNull]
+		[ImplementPropertyType("webSite")]
+		public virtual string WebSite => this.Value<string>(_publishedValueFallback, "webSite");
 	}
 }

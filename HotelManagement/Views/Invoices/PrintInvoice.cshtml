@@ -1,16 +1,71 @@
 ﻿@using HotelManagement.Enums
+@using Umbraco.Cms.Core.Web
+@using Umbraco.Cms.Core.Models.PublishedContent
+@inject IUmbracoContextAccessor UmbracoContextAccessor
 @model Invoice
 
 @{
     ViewBag.Title = "Print Invoice";
     Layout = "~/Views/Shared/_Layout.cshtml";
+    
+    // Get site information from Umbraco
+    string siteName = "Hotel Management";
+    string logoUrl = "";
+    string address = "";
+    string phone = "";
+    string email = "";
+    string website = "";
+    bool showLogoOnly = false;
+    
+    var umbracoContext = UmbracoContextAccessor.GetRequiredUmbracoContext();
+    var root = umbracoContext.Content?.GetAtRoot().FirstOrDefault();
+    if (root != null)
+    {
+        var siteNode = root.DescendantsOrSelfOfType("site").FirstOrDefault();
+        if (siteNode != null)
+        {
+            siteName = siteNode.Value<string>("siteName") ?? siteName;
+            address = siteNode.Value<string>("address") ?? address;
+            phone = siteNode.Value<string>("phone") ?? phone;
+            email = siteNode.Value<string>("email") ?? email;
+            website = siteNode.Value<string>("website") ?? siteNode.Value<string>("webSite") ?? "";
+            showLogoOnly = siteNode.Value<bool>("showLogoOnly");
+            var logoMedia = siteNode.Value<IPublishedContent>("logo");
+            if (logoMedia != null)
+            {
+                logoUrl = logoMedia.Url() ?? "";
+            }
+        }
+    }
 }
 
 <div class="container mt-4" id="invoiceContainer">
     <div class="text-center mb-3">
-        <h3 class="fw-bold">My Hotel / Restaurant</h3>
-        <p>Address Line 1 | Address Line 2</p>
-        <p>Phone: 0123-456789</p>
+        @if (!string.IsNullOrEmpty(logoUrl))
+        {
+            <img src="@logoUrl" alt="@siteName" style="max-height: 60px; margin-bottom: 10px;" />
+            <br />
+        }
+        @if (!showLogoOnly)
+        {
+            <h3 class="fw-bold">@siteName</h3>
+        }
+        @if (!string.IsNullOrEmpty(address))
+        {
+            <p>@address</p>
+        }
+        @if (!string.IsNullOrEmpty(phone))
+        {
+            <p>Phone: @phone</p>
+        }
+        @if (!string.IsNullOrEmpty(email))
+        {
+            <p>Email: @email</p>
+        }
+        @if (!string.IsNullOrEmpty(website))
+        {
+            <p>@website</p>
+        }
     </div>
 
     <hr />
