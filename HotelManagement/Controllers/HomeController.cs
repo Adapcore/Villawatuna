@@ -44,16 +44,24 @@ namespace HotelManagement.Controllers
             var payments = _context.Payments.AsNoTracking().Where(i => i.Date >= fromDate && i.Date <= toDate);
 
             decimal totalRevenue = await payments.SumAsync(i => (decimal?)i.Amount) ?? 0m;
+
             decimal serviceCharges = await _context.Invoices.AsNoTracking()
                                           .Where(i => i.Status == InvoiceStatus.Paid && i.Type == InvoiceType.Dining && i.Date >= fromDate && i.Date <= toDate)
                                           .SumAsync(i => (decimal?)i.ServiceCharge) ?? 0m;
+
             decimal stayRevenue = await payments.Where(e => e.Invoice.Type == InvoiceType.Stay).SumAsync(e => (decimal?)e.Amount) ?? 0m;
+
             decimal restaurantRevenue = await payments.Where(e => e.Invoice.Type == InvoiceType.Dining || e.Invoice.Type == InvoiceType.Dining)
                                             .SumAsync(e => (decimal?)e.Amount) ?? 0m;
+
             decimal tourRevenue = await payments.Where(e => e.Invoice.Type == InvoiceType.Tour).SumAsync(e => (decimal?)e.Amount) ?? 0m;
+
             decimal laundryRevenue = await payments.Where(e => e.Invoice.Type == InvoiceType.Laundry).SumAsync(e => (decimal?)e.Amount) ?? 0m;
 
+            decimal otherRevenue = await payments.Where(e => e.Invoice.Type == InvoiceType.Other).SumAsync(e => (decimal?)e.Amount) ?? 0m;
+
             var expenses = _context.Expenses.AsNoTracking().Where(e => e.Date >= fromDate && e.Date <= toDate);
+
             decimal totalExpenses = await expenses.SumAsync(e => (decimal?)e.Amount) ?? 0m;
 
             var invoices = _context.Invoices.AsNoTracking()
@@ -80,12 +88,11 @@ namespace HotelManagement.Controllers
             decimal stayRevenue = await invoices
                 .Where(i => i.Type == InvoiceType.Stay)
                 .SumAsync(i => (decimal?)i.TotalPaid) ?? 0m;
-
+           
             decimal otherRevenue = await invoices
                 .Where(i => i.Type == InvoiceType.Other)
                 .SumAsync(i => (decimal?)i.TotalPaid) ?? 0m;
-
-            decimal totalExpenses = await expenses.SumAsync(e => (decimal?)e.Amount) ?? 0m;
+ */
 
             decimal totalIncome = isAdmin ? totalRevenue : 0m;
             decimal netRevenue = totalIncome - totalExpenses;
