@@ -13,6 +13,9 @@ function loadMetrics(ele) {
 
     $.getJSON('/Home/GetMetrics', { from: from, to: to }, function (res) {
         if (res && res.success && res.data) {
+            if (res.isAdmin && $('#tileTotalIncome').length) {
+                $('#tileTotalIncome').text(formatCurrency(res.data.totalIncome));
+            }
             if (res.isAdmin && $('#tileTotalRevenue').length) {
                 $('#tileTotalRevenue').text(formatCurrency(res.data.totalRevenue));
             }
@@ -22,6 +25,7 @@ function loadMetrics(ele) {
             $('#tileLaundryRevenue').text(formatCurrency(res.data.laundryRevenue));
             $('#tileTourRevenue').text(formatCurrency(res.data.tourRevenue));
             $('#tileStayRevenue').text(formatCurrency(res.data.stayRevenue));
+            $('#tileOtherRevenue').text(formatCurrency(res.data.otherRevenue));
         }
     });
 }
