@@ -1,12 +1,36 @@
 ﻿@using System.Security.Claims
 @using Umbraco.Cms.Core.Security
 @using Umbraco.Cms.Core.Services
+@using Umbraco.Cms.Core.Web
+@using Umbraco.Cms.Core.Models.PublishedContent
 @inject IMemberManager MemberManager
 @inject IMemberService MemberService
+@inject IUmbracoContextAccessor UmbracoContextAccessor
 
 @{
     string displayName = Context.User?.Identity?.Name ?? "Guest";
     bool isAdmin = false;
+    
+    // Get site information from Umbraco
+    string siteName = "Hotel Management";
+    string logoUrl = "";
+    string logoIcon = "🏨";
+    
+    var umbracoContext = UmbracoContextAccessor.GetRequiredUmbracoContext();
+    var root = umbracoContext.Content?.GetAtRoot().FirstOrDefault();
+    if (root != null)
+    {
+        var siteNode = root.DescendantsOrSelfOfType("site").FirstOrDefault();
+        if (siteNode != null)
+        {
+            siteName = siteNode.Value<string>("siteName") ?? siteName;
+            var logoMedia = siteNode.Value<IPublishedContent>("logo");
+            if (logoMedia != null)
+            {
+                logoUrl = logoMedia.Url() ?? "";
+            }
+        }
+    }
     
     if (Context.User?.Identity != null && Context.User.Identity.IsAuthenticated)
     {
@@ -38,7 +62,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - Hotel Management</title>
+    <title>@ViewData["Title"] - @siteName</title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
@@ -252,7 +276,17 @@
     <!-- Header -->
     <header class="navbar navbar-expand-lg navbar-dark">
         <div class="container-fluid">
-            <a class="navbar-brand fw-bold" href="/">🏨 Vilawatuna Hotel</a>
+            <a class="navbar-brand fw-bold" href="/">
+                @if (!string.IsNullOrEmpty(logoUrl))
+                {
+                    <img src="@logoUrl" alt="@siteName" style="height: 30px; margin-right: 8px;" />
+                }
+                else
+                {
+                    <span>@logoIcon</span>
+                }
+                @siteName
+            </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -355,7 +389,7 @@
 
     <!-- Footer -->
     <footer>
-        <div>&copy; @DateTime.Now.Year - Hotel Management System | Powerd By Adapcore | All rights reserved</div>
+        <div>&copy; @DateTime.Now.Year - @siteName | Powerd By Adapcore | All rights reserved</div>
     </footer>
 
     @RenderSection("Scripts", required: false)

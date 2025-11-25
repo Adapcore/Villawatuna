@@ -1,7 +1,32 @@
 ﻿@model HotelManagement.Models.ViewModels.LoginViewModel
 @using System.Linq
+@using Umbraco.Cms.Core.Web
+@using Umbraco.Cms.Core.Models.PublishedContent
+@inject IUmbracoContextAccessor UmbracoContextAccessor
+
 @{
     Layout = null;
+    
+    // Get site information from Umbraco
+    string siteName = "Hotel Management";
+    string logoUrl = "";
+    string logoIcon = "🏨";
+    
+    var umbracoContext = UmbracoContextAccessor.GetRequiredUmbracoContext();
+    var root = umbracoContext.Content?.GetAtRoot().FirstOrDefault();
+    if (root != null)
+    {
+        var siteNode = root.DescendantsOrSelfOfType("site").FirstOrDefault();
+        if (siteNode != null)
+        {
+            siteName = siteNode.Value<string>("siteName") ?? siteName;
+            var logoMedia = siteNode.Value<IPublishedContent>("logo");
+            if (logoMedia != null)
+            {
+                logoUrl = logoMedia.Url() ?? "";
+            }
+        }
+    }
 }
 
 <!DOCTYPE html>
@@ -10,13 +35,24 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes" />
     <meta name="mobile-web-app-capable" content="yes" />
-    <title>Member Login - Vilawatuna Hotel</title>
+    <title>Member Login - @siteName</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="~/css/login.css" />
 </head>
 <body>
     <div class="login-card">
-        <div class="login-title">Vilawatuna Hotel</div>
+        <div class="login-title">
+            @if (!string.IsNullOrEmpty(logoUrl))
+            {
+                <img src="@logoUrl" alt="@siteName" style="height: 40px; margin-bottom: 10px;" />
+                <br />
+            }
+            else
+            {
+                <span>@logoIcon</span>
+            }
+            @siteName
+        </div>
 
         <form method="post" asp-action="Login" asp-controller="Account">
             @Html.AntiForgeryToken()

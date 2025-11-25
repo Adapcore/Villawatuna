@@ -168,5 +168,13 @@ namespace Umbraco.Cms.Web.Common.PublishedModels
 		[global::System.Diagnostics.CodeAnalysis.MaybeNull]
 		[ImplementPropertyType("quickLinks_Title")]
 		public virtual string QuickLinks_Title => this.Value<string>(_publishedValueFallback, "quickLinks_Title");
+
+		///<summary>
+		/// Site Name
+		///</summary>
+		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "13.10.0+c2890e1")]
+		[global::System.Diagnostics.CodeAnalysis.MaybeNull]
+		[ImplementPropertyType("siteName")]
+		public virtual string SiteName => this.Value<string>(_publishedValueFallback, "siteName");
 	}
 }
