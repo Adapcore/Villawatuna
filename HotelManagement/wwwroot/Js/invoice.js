@@ -716,27 +716,81 @@
                     $select.val(selectedId); // set dropdown
                 }
 
-                // Initialize Select2 with search - use 'resolve' to calculate width automatically
+                // Set fixed width on select before initializing Select2
+                $select.css({
+                    'width': '250px',
+                    'min-width': '250px',
+                    'max-width': '250px'
+                });
+
+                // Initialize Select2 with fixed pixel width
                 $select.select2({
                     theme: 'bootstrap-5',
-                    width: 'resolve',
+                    width: '250px',
                     placeholder: 'Select item...',
                     allowClear: false,
                     dropdownParent: $select.closest('.modal, body')
                 });
 
-                // Force Select2 container to work within input-group
+                // Force Select2 container to maintain fixed width
                 setTimeout(function() {
                     var $select2Container = $select.next('.select2-container');
                     if ($select2Container.length) {
-                        $select2Container.css({
-                            'width': 'auto',
-                            'flex': '1 1 auto',
-                            'min-width': '0',
-                            'max-width': 'calc(100% - 50px)'
+                        var containerEl = $select2Container[0];
+                        // Set fixed width with !important using setProperty
+                        containerEl.style.setProperty('width', '250px', 'important');
+                        containerEl.style.setProperty('min-width', '250px', 'important');
+                        containerEl.style.setProperty('max-width', '250px', 'important');
+                        
+                        // Also fix the selection width
+                        $select2Container.find('.select2-selection').css({
+                            'width': '100%',
+                            'min-width': '100%',
+                            'max-width': '100%'
                         });
+                        
+                        $select2Container.find('.select2-selection__rendered').css({
+                            'width': '100%',
+                            'max-width': '100%',
+                            'overflow': 'hidden',
+                            'text-overflow': 'ellipsis',
+                            'white-space': 'nowrap'
+                        });
+                        
+                        // Use MutationObserver to watch for width changes
+                        var observer = new MutationObserver(function(mutations) {
+                            var currentWidth = $select2Container.width();
+                            if (Math.abs(currentWidth - 250) > 1) {
+                                containerEl.style.setProperty('width', '250px', 'important');
+                                containerEl.style.setProperty('min-width', '250px', 'important');
+                                containerEl.style.setProperty('max-width', '250px', 'important');
+                            }
+                        });
+                        
+                        observer.observe(containerEl, {
+                            attributes: true,
+                            attributeFilter: ['style', 'class'],
+                            childList: false,
+                            subtree: false
+                        });
+                        
+                        // Store observer on element for cleanup if needed
+                        $select2Container.data('widthObserver', observer);
                     }
                 }, 10);
+                
+                // Prevent width changes on all Select2 events - use a more aggressive approach
+                $select.on('select2:select select2:unselect select2:open select2:close select2:selecting', function() {
+                    var $select2Container = $(this).next('.select2-container');
+                    if ($select2Container.length) {
+                        setTimeout(function() {
+                            var containerEl = $select2Container[0];
+                            containerEl.style.setProperty('width', '250px', 'important');
+                            containerEl.style.setProperty('min-width', '250px', 'important');
+                            containerEl.style.setProperty('max-width', '250px', 'important');
+                        }, 0);
+                    }
+                });
 
                 // Adjust Select2 border radius to match input-group styling
                 $select.on('select2:open', function() {
@@ -804,14 +858,78 @@
 
             var $newRow = $("#invoiceItems tbody tr").last();
 
-            // Initialize Select2 on the new dropdown
+            // Initialize Select2 on the new dropdown with fixed width
             var $newSelect = $newRow.find(".orderItemSelect");
+            $newSelect.css({
+                'width': '250px',
+                'min-width': '250px',
+                'max-width': '250px'
+            });
             $newSelect.select2({
                 theme: 'bootstrap-5',
-                width: 'resolve',
+                width: '250px',
                 placeholder: 'Select item...',
                 allowClear: false,
                 dropdownParent: $newSelect.closest('.modal, body')
+            });
+            
+            // Force Select2 container to maintain fixed width
+            setTimeout(function() {
+                var $select2Container = $newSelect.next('.select2-container');
+                if ($select2Container.length) {
+                    var containerEl = $select2Container[0];
+                    // Set fixed width with !important using setProperty
+                    containerEl.style.setProperty('width', '250px', 'important');
+                    containerEl.style.setProperty('min-width', '250px', 'important');
+                    containerEl.style.setProperty('max-width', '250px', 'important');
+                    
+                    $select2Container.find('.select2-selection').css({
+                        'width': '100%',
+                        'min-width': '100%',
+                        'max-width': '100%'
+                    });
+                    
+                    $select2Container.find('.select2-selection__rendered').css({
+                        'width': '100%',
+                        'max-width': '100%',
+                        'overflow': 'hidden',
+                        'text-overflow': 'ellipsis',
+                        'white-space': 'nowrap'
+                    });
+                    
+                    // Use MutationObserver to watch for width changes
+                    var observer = new MutationObserver(function(mutations) {
+                        var currentWidth = $select2Container.width();
+                        if (Math.abs(currentWidth - 250) > 1) {
+                            containerEl.style.setProperty('width', '250px', 'important');
+                            containerEl.style.setProperty('min-width', '250px', 'important');
+                            containerEl.style.setProperty('max-width', '250px', 'important');
+                        }
+                    });
+                    
+                    observer.observe(containerEl, {
+                        attributes: true,
+                        attributeFilter: ['style', 'class'],
+                        childList: false,
+                        subtree: false
+                    });
+                    
+                    // Store observer on element for cleanup if needed
+                    $select2Container.data('widthObserver', observer);
+                }
+            }, 10);
+            
+            // Prevent width changes on all Select2 events - use a more aggressive approach
+            $newSelect.on('select2:select select2:unselect select2:open select2:close select2:selecting', function() {
+                var $select2Container = $(this).next('.select2-container');
+                if ($select2Container.length) {
+                    setTimeout(function() {
+                        var containerEl = $select2Container[0];
+                        containerEl.style.setProperty('width', '250px', 'important');
+                        containerEl.style.setProperty('min-width', '250px', 'important');
+                        containerEl.style.setProperty('max-width', '250px', 'important');
+                    }, 0);
+                }
             });
 
             // Force Select2 container to work within input-group
@@ -873,26 +991,79 @@
             $(".orderItemSelect").each(function() {
                 var $select = $(this);
                 if (!$select.hasClass("select2-hidden-accessible")) {
+                    // Set fixed width on select before initializing Select2
+                    $select.css({
+                        'width': '250px',
+                        'min-width': '250px',
+                        'max-width': '250px'
+                    });
+                    
                     $select.select2({
                         theme: 'bootstrap-5',
-                        width: 'resolve',
+                        width: '250px',
                         placeholder: 'Select item...',
                         allowClear: false,
                         dropdownParent: $select.closest('.modal, body')
                     });
 
-                    // Force Select2 container to work within input-group
+                    // Force Select2 container to maintain fixed width
                     setTimeout(function() {
                         var $select2Container = $select.next('.select2-container');
                         if ($select2Container.length) {
-                            $select2Container.css({
-                                'width': 'auto',
-                                'flex': '1 1 auto',
-                                'min-width': '0',
-                                'max-width': 'calc(100% - 50px)'
+                            var containerEl = $select2Container[0];
+                            // Set fixed width with !important using setProperty
+                            containerEl.style.setProperty('width', '250px', 'important');
+                            containerEl.style.setProperty('min-width', '250px', 'important');
+                            containerEl.style.setProperty('max-width', '250px', 'important');
+                            
+                            $select2Container.find('.select2-selection').css({
+                                'width': '100%',
+                                'min-width': '100%',
+                                'max-width': '100%'
                             });
+                            
+                            $select2Container.find('.select2-selection__rendered').css({
+                                'width': '100%',
+                                'max-width': '100%',
+                                'overflow': 'hidden',
+                                'text-overflow': 'ellipsis',
+                                'white-space': 'nowrap'
+                            });
+                            
+                            // Use MutationObserver to watch for width changes
+                            var observer = new MutationObserver(function(mutations) {
+                                var currentWidth = $select2Container.width();
+                                if (Math.abs(currentWidth - 250) > 1) {
+                                    containerEl.style.setProperty('width', '250px', 'important');
+                                    containerEl.style.setProperty('min-width', '250px', 'important');
+                                    containerEl.style.setProperty('max-width', '250px', 'important');
+                                }
+                            });
+                            
+                            observer.observe(containerEl, {
+                                attributes: true,
+                                attributeFilter: ['style', 'class'],
+                                childList: false,
+                                subtree: false
+                            });
+                            
+                            // Store observer on element for cleanup if needed
+                            $select2Container.data('widthObserver', observer);
                         }
                     }, 10);
+                    
+                    // Prevent width changes on all Select2 events - use a more aggressive approach
+                    $select.on('select2:select select2:unselect select2:open select2:close select2:selecting', function() {
+                        var $select2Container = $(this).next('.select2-container');
+                        if ($select2Container.length) {
+                            setTimeout(function() {
+                                var containerEl = $select2Container[0];
+                                containerEl.style.setProperty('width', '250px', 'important');
+                                containerEl.style.setProperty('min-width', '250px', 'important');
+                                containerEl.style.setProperty('max-width', '250px', 'important');
+                            }, 0);
+                        }
+                    });
 
                     // Adjust Select2 border radius to match input-group styling
                     $select.on('select2:open', function() {
