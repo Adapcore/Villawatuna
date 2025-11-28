@@ -237,8 +237,8 @@
             <div class="invoice-header">
                 @if (!string.IsNullOrEmpty(logoUrl))
                 {
-                    <div style="margin-bottom: 2mm;">
-                        <img src="@logoUrl" alt="@siteName" style="max-height: 40px; max-width: 100%;" />
+                    <div>
+                        <img src="@logoUrl" alt="@siteName" style="max-height: 60px; max-width: 100%;" />
                     </div>
                 }
                 @if (!showLogoOnly)
@@ -252,7 +252,7 @@
                     }
                     @if (!string.IsNullOrEmpty(phone))
                     {
-                        <div>T - @phone</div>
+                        <div>T : @phone</div>
                     }
                     @if (!string.IsNullOrEmpty(email))
                     {
