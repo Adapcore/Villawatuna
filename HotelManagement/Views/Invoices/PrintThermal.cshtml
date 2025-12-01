@@ -20,7 +20,7 @@
         case InvoiceType.Tour: invoiceType = "Tour"; break;
         case InvoiceType.Other: invoiceType = "Other"; break;
     }
-    
+
     // Get site information from Umbraco
     string siteName = "Hotel Management";
     string logoUrl = "";
@@ -29,7 +29,7 @@
     string email = "";
     string website = "";
     bool showLogoOnly = false;
-    
+
     var umbracoContext = UmbracoContextAccessor.GetRequiredUmbracoContext();
     var root = umbracoContext.Content?.GetAtRoot().FirstOrDefault();
     if (root != null)
@@ -77,8 +77,8 @@
             /* font-family: 'Courier New', monospace;  */
             /* font-size: 12px;  */
             /* line-height: 1.2;
-                                                                    background: white;
-                                                                    color: black; */
+                                                                                                            background: white;
+                                                                                                            color: black; */
         }
 
         /* paper widths: 58mm and 80mm */
@@ -153,8 +153,17 @@
             width: 40%;
         }
 
+        .stay-item-name {
+            width: 50%;
+        }
+
         .item-qty {
             width: 10%;
+            text-align: center;
+        }
+
+        .stay-item-qty {
+            width: 5%;
             text-align: center;
         }
 
@@ -163,10 +172,15 @@
             text-align: right;
         }
 
+        .stay-item-price {
+            width: 20%;
+            text-align: right;
+        }
+
         .item-total {
             width: 25%;
             text-align: right;
-        }
+        }        
 
         /* Totals */
         .totals {
@@ -174,7 +188,7 @@
             margin-top: 3mm;
             padding-top: 4mm;
             /* font-size: 1.2em;
-                                                            font-weight: 700; */
+                                                                                                    font-weight: 700; */
         }
 
         .total-line {
@@ -189,8 +203,8 @@
             font-weight: 700;
             font-size: 1.2em;
             /* border-top: 1px dashed #000;
-                    padding-top: 1mm;
-                    margin-top: 2mm; */
+                                                            padding-top: 1mm;
+                                                            margin-top: 2mm; */
         }
 
         .total-bottom-border {
@@ -225,9 +239,9 @@
         }
 
         /* @@page {
-                                                                    size: auto;
-                                                                    margin: 0;
-                                                                } */
+                                                                                                            size: auto;
+                                                                                                            margin: 0;
+                                                                                                        } */
     </style>
 </head>
 <body>
@@ -289,27 +303,35 @@
 
             <!-- Items Table -->
             <table class="items-table">
-                <thead>
-                    <tr>
-                        <th style="text-align:left" class="item-name">Item</th>
-                        <th style="text-align:center" class="item-qty">Qty</th>
-                        <th style="text-align:center" class="item-price">Price</th>
-                        <th style="text-align:center" class="item-total">Total</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var d in Model.InvoiceDetails ?? Enumerable.Empty<HotelManagement.Models.Entities.InvoiceDetail>())
-                    {
-                        string itemName = d.Item.NoteRequired == true ? d.Note : d.Item?.Name;
-
+                @if (Model.Type == InvoiceType.Stay)
+                {
+                    <partial name="~/Views/Partials/invoices/StayDetails.cshtml" for="@Model" />
+                }
+                else
+                {
+                    <thead>
                         <tr>
-                            <td class="item-name">@itemName</td>
-                            <td class="item-qty">@d.Quantity</td>
-                            <td class="item-price">@d.UnitPrice.ToString("F2")</td>
-                            <td class="item-total">@d.Amount.ToString("F2")</td>
+                            <th style="text-align:left" class="item-name">Item</th>
+                            <th style="text-align:center" class="item-qty">Qty</th>
+                            <th style="text-align:center" class="item-price">Price</th>
+                            <th style="text-align:center" class="item-total">Total</th>
                         </tr>
-                    }
-                </tbody>
+                    </thead>
+                    <tbody>
+                        @foreach (var d in Model.InvoiceDetails ?? Enumerable.Empty<HotelManagement.Models.Entities.InvoiceDetail>())
+                        {
+                            string itemName = d.Item.NoteRequired == true ? d.Note : d.Item?.Name;
+
+                            <tr>
+                                <td class="item-name">@itemName</td>
+                                <td class="item-qty">@d.Quantity</td>
+                                <td class="item-price">@d.UnitPrice.ToString("F2")</td>
+                                <td class="item-total">@d.Amount.ToString("F2")</td>
+                            </tr>
+                        }
+                    </tbody>
+                }
+
             </table>
 
             <!-- Totals -->
@@ -319,9 +341,13 @@
                 {
                     @if (Model.Currency != "LKR")
                     {
-                        <div class="total-line total-bottom-border">
+                        <div class="total-line">
                             <span>SubTotal (@Model.Currency) :</span>
-                            <span>@Model.CurySubTotal.ToString("#,###.00")</span>
+                            <span>@Model.CurySubTotal.ToString("#,###.00")</span>                            
+                        </div>
+                        <div class="total-line total-bottom-border">
+                            <span>Exchange Rate :</span>
+                            <span>@Model.CurrencyRate?.ToString("F2")</span>
                         </div>
                     }
                 }
@@ -339,7 +365,7 @@
                 }
 
                 <div class="total-line gross-total">
-                    <span>GROSS TOTAL:</span>
+                    <span>GROSS TOTAL (LKR):</span>
                     <span>@Model.GrossAmount.ToString("#,###.00")</span>
                 </div>
 

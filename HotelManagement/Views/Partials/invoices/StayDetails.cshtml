@@ -1,0 +1,21 @@
+﻿@model HotelManagement.Models.Entities.Invoice
+<thead>
+    <tr>
+        <th style="text-align:left" class="stay-item-name">Room</th>
+        <th style="text-align:center" class="stay-item-qty">Nights</th>
+        <th style="text-align:center" class="stay-item-price">Price</th>
+        <th style="text-align:center" class="item-total">Total</th>
+    </tr>
+</thead>
+<tbody>
+    @foreach (var d in Model.InvoiceDetails ?? Enumerable.Empty<HotelManagement.Models.Entities.InvoiceDetail>())
+    {
+        string itemInfo = $"#{d.Note}: {d.CheckIn?.ToString("dd/MM")} - {d.CheckOut?.ToString("dd/MM")}";
+        <tr>
+            <td class="stay-item-name">@d.Item?.Name <br />@itemInfo</td>
+            <td class="stay-item-qty">@d.Quantity</td>
+            <td class="stay-item-price">@d.UnitPrice.ToString("F2")</td>
+            <td class="item-total">@d.Amount.ToString("F2")</td>
+        </tr>
+    }
+</tbody>
