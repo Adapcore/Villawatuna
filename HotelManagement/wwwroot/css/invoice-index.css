@@ -52,7 +52,129 @@
         display: block;
     }
     
-    /* Mobile card layout */
+    /* Date Group Header */
+    .invoice-date-group {
+        margin-bottom: 20px;
+    }
+    
+    .invoice-date-header {
+        padding: 8px 12px;
+        background-color: #f8f9fa;
+        border-left: 4px solid #0d6efd;
+        margin-bottom: 8px;
+    }
+    
+    .invoice-date-title {
+        font-size: 0.9rem;
+        font-weight: 700;
+        color: #495057;
+        margin: 0;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    /* Compact Invoice Row */
+    .invoice-row-link {
+        text-decoration: none;
+        color: inherit;
+        display: block;
+    }
+    
+    .invoice-row-link:active {
+        opacity: 0.8;
+    }
+    
+    .invoice-row-compact {
+        background: white;
+        border: 1px solid #dee2e6;
+        border-radius: 6px;
+        padding: 10px 12px;
+        margin-bottom: 6px;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        transition: all 0.2s ease;
+    }
+    
+    .invoice-row-compact:active {
+        transform: scale(0.98);
+        box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
+    }
+    
+    .invoice-row-header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 6px;
+    }
+    
+    .invoice-type-icon {
+        flex-shrink: 0;
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #f0f0f0;
+        border-radius: 6px;
+        font-size: 1.1rem;
+    }
+    
+    .invoice-type-icon i {
+        color: #0d6efd;
+    }
+    
+    .invoice-customer-name {
+        flex: 1;
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: #212529;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    
+    .invoice-amount {
+        flex-shrink: 0;
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: #198754;
+        text-align: right;
+    }
+    
+    .invoice-row-footer {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding-left: 42px; /* Align with customer name (icon width + gap) */
+        flex-wrap: wrap;
+    }
+    
+    .invoice-number {
+        font-size: 0.75rem;
+        color: #6c757d;
+        font-weight: 500;
+        flex-shrink: 0;
+    }
+    
+    .invoice-status-badge {
+        font-size: 0.75rem;
+        padding: 3px 8px;
+        border-radius: 10px;
+        font-weight: 600;
+        white-space: nowrap;
+        flex-shrink: 0;
+    }
+    
+    .invoice-creator {
+        font-size: 0.75rem;
+        color: #6c757d;
+        font-weight: 500;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        margin-left: auto; /* Push to the right */
+    }
+    
+    /* Legacy card styles (kept for backward compatibility if needed) */
     .invoice-card {
         background: white;
         border: 1px solid #dee2e6;
@@ -290,15 +412,107 @@
         overflow-wrap: break-word;
     }
     
-    /* Pagination */
+    /* Pagination - Mobile Optimized */
+    .d-flex.justify-content-center {
+        width: 100%;
+        padding: 12px 0;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    
     .pagination {
         flex-wrap: wrap;
         justify-content: center;
+        margin: 0;
+        padding: 0;
+        gap: 4px;
+        width: 100%;
+        max-width: 100%;
+    }
+    
+    .pagination .page-item {
+        margin: 0;
+        flex-shrink: 0;
     }
     
     .pagination .page-link {
-        padding: 8px 12px;
-        font-size: 0.9rem;
+        padding: 10px 14px;
+        font-size: 0.85rem;
+        min-width: 44px;
+        min-height: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 6px;
+        border: 1px solid #dee2e6;
+        color: #0d6efd;
+        background-color: #fff;
+        text-decoration: none;
+        transition: all 0.2s ease;
+        white-space: nowrap;
+    }
+    
+    .pagination .page-link:hover {
+        background-color: #e9ecef;
+        border-color: #adb5bd;
+        color: #0a58ca;
+        transform: scale(1.05);
+    }
+    
+    .pagination .page-item.active .page-link {
+        background-color: #0d6efd;
+        border-color: #0d6efd;
+        color: #fff;
+        font-weight: 600;
+        z-index: 1;
+    }
+    
+    .pagination .page-item.disabled .page-link {
+        color: #6c757d;
+        background-color: #f8f9fa;
+        border-color: #dee2e6;
+        cursor: not-allowed;
+        opacity: 0.6;
+    }
+    
+    .pagination .page-item.disabled .page-link:hover {
+        transform: none;
+        background-color: #f8f9fa;
+    }
+    
+    /* Pagination container wrapper */
+    .d-flex.justify-content-center.mt-4 {
+        margin-top: 20px !important;
+        margin-bottom: 20px;
+    }
+    
+    /* Ensure pagination doesn't overflow */
+    .pagination li {
+        list-style: none;
+    }
+    
+    /* Smaller pagination for very small screens */
+    @media (max-width: 400px) {
+        .pagination .page-link {
+            padding: 8px 10px;
+            font-size: 0.8rem;
+            min-width: 40px;
+            min-height: 40px;
+        }
+        
+        .pagination {
+            gap: 2px;
+        }
+    }
+    
+    /* Hide some pagination elements on very small screens if needed */
+    @media (max-width: 360px) {
+        .pagination .page-link {
+            padding: 8px 8px;
+            font-size: 0.75rem;
+            min-width: 36px;
+            min-height: 36px;
+        }
     }
 }
 

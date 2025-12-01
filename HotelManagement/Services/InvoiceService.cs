@@ -1,10 +1,12 @@
 ﻿using HotelManagement.Data;
 using HotelManagement.Enums;
 using HotelManagement.Models.Entities;
+using HotelManagement.Models.DTO;
 using HotelManagement.Services.Interface;
 using Microsoft.EntityFrameworkCore;
 using X.PagedList;
 using X.PagedList.Extensions;
+using Umbraco.Cms.Core.Services;
 
 namespace HotelManagement.Services
 {
@@ -16,13 +18,15 @@ namespace HotelManagement.Services
         private readonly IOtherTypeService _otherTypeService;
         private readonly ITourTypeService _tourTypeService;
         private readonly ILaundryService _laundryService;
+        private readonly IMemberService _memberService;
 
         public InvoiceService(HotelContext context,
             IMenuService menuService,
             IRoomService roomService,
             IOtherTypeService otherTypeService,
             ITourTypeService tourTypeService,
-             ILaundryService laundryService)
+            ILaundryService laundryService,
+            IMemberService memberService)
         {
             _context = context;
             _menuService = menuService;
@@ -30,6 +34,7 @@ namespace HotelManagement.Services
             _otherTypeService = otherTypeService;
             _tourTypeService = tourTypeService;
             _laundryService = laundryService;
+            _memberService = memberService;
         }
 
         public async Task<List<Invoice>> GetAllInvoicesAsync()
@@ -59,7 +64,49 @@ namespace HotelManagement.Services
             query = query
                 .OrderByDescending(i => i.InvoiceNo);
 
-            return query.ToPagedList(pageNumber, pageSize); ;
+            var pagedList = query.ToPagedList(pageNumber, pageSize);
+            
+            // Load creator data from Umbraco members (CreatedBy stores Umbraco Member IDs)
+            var createdByIds = pagedList.Where(i => i.CreatedBy > 0).Select(i => i.CreatedBy).Distinct().ToList();
+            
+            if (createdByIds.Any())
+            {
+                // Load Umbraco members by ID
+                var memberDict = new Dictionary<int, MemberDTO>();
+                
+                foreach (var memberId in createdByIds)
+                {
+                    try
+                    {
+                        var member = _memberService.GetById(memberId);
+                        if (member != null)
+                        {
+                            memberDict[memberId] = new MemberDTO
+                            {
+                                Id = member.Id,
+                                Name = member.Name ?? member.Username ?? "",
+                                Username = member.Username ?? "",
+                                Email = member.Email ?? ""
+                            };
+                        }
+                    }
+                    catch
+                    {
+                        // Member not found, skip
+                    }
+                }
+                
+                // Assign member data to invoices
+                foreach (var invoice in pagedList)
+                {
+                    if (invoice.CreatedBy > 0 && memberDict.TryGetValue(invoice.CreatedBy, out var member))
+                    {
+                        invoice.CreatedByMember = member;
+                    }
+                }
+            }
+            
+            return pagedList;
         }
 
 

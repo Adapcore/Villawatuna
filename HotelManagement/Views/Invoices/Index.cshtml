@@ -185,62 +185,71 @@
     <div class="invoice-table-mobile">
         @if (Model != null && Model.Invoices.Any())
         {
-            foreach (var invoice in Model.Invoices)
+            // Group invoices by date (descending order)
+            var groupedInvoices = Model.Invoices
+            .OrderByDescending(i => i.Date)
+            .ThenByDescending(i => i.InvoiceNo)
+            .GroupBy(i => i.Date.Date)
+            .ToList();
+
+            @foreach (var dateGroup in groupedInvoices)
             {
-                var statusClass = invoice.Status switch
-                {
-                    InvoiceStatus.InProgress => "status-in-progress",
-                    InvoiceStatus.Complete => "status-complete",
-                    InvoiceStatus.PartiallyPaid => "status-partially-paid",
-                    InvoiceStatus.Paid => "status-paid",
-                    _ => "bg-secondary"
-                };
-                
-                <div class="invoice-card">
-                    <div class="invoice-card-header">
-                        <h6 class="invoice-card-title">Invoice #@invoice.InvoiceNo</h6>
-                        <span class="invoice-card-status @statusClass">@EnumHelper.GetDisplayName(invoice.Status)</span>
+                <div class="invoice-date-group">
+                    <div class="invoice-date-header">
+                        <h6 class="invoice-date-title">@dateGroup.Key.ToString("MMM dd, yyyy")</h6>
                     </div>
-                    <div class="invoice-card-body">
-                        <div class="invoice-card-row full-width">
-                            <div class="invoice-card-label">Customer</div>
-                            <div class="invoice-card-value">
-                                @if (!string.IsNullOrWhiteSpace(invoice.Customer?.RoomNo))
-                                {
-                                    <text>#@invoice.Customer.RoomNo - @invoice.Customer.FirstName @invoice.Customer.LastName</text>
-                                }
-                                else
-                                {
-                                    <text>@invoice.Customer?.FirstName @invoice.Customer?.LastName</text>
-                                }
+
+                    @foreach (var invoice in dateGroup)
+                    {
+                        var statusClass = invoice.Status switch
+                        {
+                            InvoiceStatus.InProgress => "status-in-progress",
+                            InvoiceStatus.Complete => "status-complete",
+                            InvoiceStatus.PartiallyPaid => "status-partially-paid",
+                            InvoiceStatus.Paid => "status-paid",
+                            _ => "bg-secondary"
+                        };
+
+                        // Get invoice type icon
+                        var typeIcon = invoice.Type switch
+                        {
+                            InvoiceType.Dining => "bi-cup-hot-fill",
+                            InvoiceType.TakeAway => "bi-bag-check-fill",
+                            InvoiceType.Stay => "bi-building-check",
+                            InvoiceType.Tour => "bi-bus-front-fill",
+                            InvoiceType.Laundry => "bi-basket2-fill",
+                            InvoiceType.Other => "bi-gear-fill",
+                            _ => "bi-receipt"
+                        };
+
+                        var customerName = !string.IsNullOrWhiteSpace(invoice.Customer?.RoomNo)
+                        ? $"#{invoice.Customer.RoomNo} - {invoice.Customer.FirstName} {invoice.Customer.LastName}"
+                        : $"{invoice.Customer?.FirstName} {invoice.Customer?.LastName}";
+
+                        <a href="@Url.Action("Edit", "Invoices", new { id = invoice.InvoiceNo })" class="invoice-row-link">
+                            <div class="invoice-row-compact">
+                                <div class="invoice-row-header">
+                                    <div class="invoice-type-icon">
+                                        <i class="bi @typeIcon"></i>
+                                    </div>
+                                    <div class="invoice-customer-name">
+                                        @customerName
+                                    </div>
+                                    <div class="invoice-amount">
+                                        @invoice.GrossAmount.ToString("N2")
+                                    </div>
+                                </div>
+                                <div class="invoice-row-footer">
+                                    <span class="invoice-number">#@invoice.InvoiceNo</span>
+                                    <span class="invoice-status-badge @statusClass">@EnumHelper.GetDisplayName(invoice.Status)</span>
+                                    @if (invoice.CreatedByMember != null && !string.IsNullOrEmpty(invoice.CreatedByMember.Name))
+                                    {
+                                        <span class="invoice-creator">@invoice.CreatedByMember.Name</span>
+                                    }
+                                </div>
                             </div>
-                        </div>
-                        <div class="invoice-card-row">
-                            <div class="invoice-card-label">Type</div>
-                            <div class="invoice-card-value">@invoice.Type</div>
-                        </div>
-                        <div class="invoice-card-row">
-                            <div class="invoice-card-label">Date</div>
-                            <div class="invoice-card-value">@invoice.Date.ToShortDateString()</div>
-                        </div>
-                        <div class="invoice-card-row full-width">
-                            <div class="invoice-card-label">Total Amount</div>
-                            <div class="invoice-card-value total">@invoice.GrossAmount.ToString("N2")</div>
-                        </div>
-                    </div>
-                    <div class="invoice-card-footer">
-                        <div class="d-flex gap-2">
-                            <a href="@Url.Action("Edit", "Invoices", new { id = invoice.InvoiceNo })" class="btn btn-warning btn-sm">
-                                <i class="bi bi-pencil-square"></i> View / Edit
-                            </a>
-                            @if (isAdmin)
-                            {
-                                <button type="button" class="btn btn-danger btn-sm btn-delete-invoice" data-invoice-id="@invoice.InvoiceNo" data-invoice-no="@invoice.InvoiceNo">
-                                    <i class="bi bi-trash"></i> Delete
-                                </button>
-                            }
-                        </div>
-                    </div>
+                        </a>
+                    }
                 </div>
             }
         }

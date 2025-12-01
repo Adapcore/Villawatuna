@@ -94,6 +94,13 @@ namespace HotelManagement.Data
 					  .WithMany()
 					  .HasForeignKey(o => o.CustomerId)
 					  .OnDelete(DeleteBehavior.Restrict);
+				
+				//entity.HasOne<Employee>(o => o.CreatedByEmployee)
+				//	  .WithMany()
+				//	  .HasForeignKey(o => o.CreatedBy)
+				//	  .OnDelete(DeleteBehavior.Restrict)
+				//	  .IsRequired(false);
+					  
 				entity.Property(o => o.SubTotal).HasColumnType("decimal(18,2)");
 				entity.Property(o => o.ServiceCharge).HasColumnType("decimal(18,2)");
 				entity.Property(o => o.GrossAmount).HasColumnType("decimal(18,2)");
@@ -144,11 +151,15 @@ namespace HotelManagement.Data
 				entity.Property(d => d.Amount).HasColumnType("decimal(18,2)");
 			});
 
-            // Payment  Order (optional)
-            modelBuilder.Entity<Payment>()
-                .HasOne(p => p.Invoice)
-                .WithMany(o => o.Payments)
-                .HasForeignKey(p => p.InvoiceNo);
+            // Payment
+            modelBuilder.Entity<Payment>(entity =>
+            {
+                entity.HasOne(p => p.Invoice)
+                      .WithMany(o => o.Payments)
+                      .HasForeignKey(p => p.InvoiceNo);
+            });
+            
+            // Expense - no additional configuration needed as CreatedByMember is [NotMapped]
         }
 	}
 }
