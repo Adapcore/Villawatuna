@@ -114,8 +114,9 @@ namespace HotelManagement.Controllers
             if ((expense.Amount <= 0))
                 ModelState.AddModelError(nameof(expense.Amount), "Amount is required.");
 
-            // Skip validation for the non-persistent property
+            // Skip validation for the non-persistent properties
             ModelState.Remove("ExpenseType");
+            ModelState.Remove("CreatedByMember");
 
             if (!ModelState.IsValid)
             {
@@ -192,6 +193,10 @@ namespace HotelManagement.Controllers
         [HttpPost]
         public async Task<IActionResult> Edit(Expense expense, IFormFile? attachment)
         {
+            // Skip validation for the non-persistent properties
+            ModelState.Remove("ExpenseType");
+            ModelState.Remove("CreatedByMember");
+            
             if ((expense.ExpenseTypeID ==0))
                 ModelState.AddModelError(nameof(expense.ExpenseTypeID), "Expense Type is required.");
 
@@ -200,9 +205,6 @@ namespace HotelManagement.Controllers
             
             if ((expense.Amount<= 0 ))
                 ModelState.AddModelError(nameof(expense.Amount), "Amount is required.");
-
-            // Skip validation for the non-persistent property
-            ModelState.Remove("ExpenseType");
 
             if (ModelState.IsValid)
             {

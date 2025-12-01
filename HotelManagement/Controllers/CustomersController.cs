@@ -66,6 +66,9 @@ namespace HotelManagement.Controllers
             //    ModelState.AddModelError(nameof(model.RoomNo), "Room No must contain only numeric digits.");
             //}
 
+            // Skip validation for the non-persistent property
+            ModelState.Remove("CreatedByMember");
+
             if (!ModelState.IsValid)
             {
                 ViewBag.Countries = CountryList.All;
@@ -113,6 +116,9 @@ namespace HotelManagement.Controllers
             //{
             //    ModelState.AddModelError(nameof(model.RoomNo), "Room No must contain only numeric digits.");
             //}
+
+            // Skip validation for the non-persistent property
+            ModelState.Remove("CreatedByMember");
 
             if (!ModelState.IsValid)
             {

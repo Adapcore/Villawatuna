@@ -49,6 +49,9 @@ namespace HotelManagement.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Payment payment)
         {
+            // Skip validation for the non-persistent property
+            ModelState.Remove("CreatedByMember");
+
             if (!ModelState.IsValid)
                 return View(payment);
 
