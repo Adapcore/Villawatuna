@@ -61,10 +61,10 @@ namespace HotelManagement.Controllers
                 ModelState.AddModelError(nameof(model.PassportNo), "Passport No is required.");
 
             // Validate RoomNo if provided - must be numeric
-            if (!string.IsNullOrWhiteSpace(model.RoomNo) && !int.TryParse(model.RoomNo, out _))
-            {
-                ModelState.AddModelError(nameof(model.RoomNo), "Room No must contain only numeric digits.");
-            }
+            //if (!string.IsNullOrWhiteSpace(model.RoomNo) && !int.TryParse(model.RoomNo, out _))
+            //{
+            //    ModelState.AddModelError(nameof(model.RoomNo), "Room No must contain only numeric digits.");
+            //}
 
             if (!ModelState.IsValid)
             {
@@ -109,10 +109,10 @@ namespace HotelManagement.Controllers
                 ModelState.AddModelError(nameof(model.LastName), "Last name is required.");
 
             // Validate RoomNo if provided - must be numeric
-            if (!string.IsNullOrWhiteSpace(model.RoomNo) && !int.TryParse(model.RoomNo, out _))
-            {
-                ModelState.AddModelError(nameof(model.RoomNo), "Room No must contain only numeric digits.");
-            }
+            //if (!string.IsNullOrWhiteSpace(model.RoomNo) && !int.TryParse(model.RoomNo, out _))
+            //{
+            //    ModelState.AddModelError(nameof(model.RoomNo), "Room No must contain only numeric digits.");
+            //}
 
             if (!ModelState.IsValid)
             {
@@ -153,10 +153,10 @@ namespace HotelManagement.Controllers
                 errors.Add("Passport No is required.");
 
             // Validate RoomNo if provided - must be numeric
-            if (!string.IsNullOrWhiteSpace(model.RoomNo) && !int.TryParse(model.RoomNo, out _))
-            {
-                errors.Add("Room No must contain only numeric digits.");
-            }
+            //if (!string.IsNullOrWhiteSpace(model.RoomNo) && !int.TryParse(model.RoomNo, out _))
+            //{
+            //    errors.Add("Room No must contain only numeric digits.");
+            //}
 
             // Uniqueness checks: allow updating existing records
             if (!string.IsNullOrWhiteSpace(model.Email) && await _customerService.EmailExistsAsync(model.Email, model.ID > 0 ? model.ID : null))
