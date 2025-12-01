@@ -115,50 +115,67 @@
         }
         else
         {
-            foreach (var item in Model)
+            // Group expenses by date (descending order)
+            var groupedExpenses = Model
+                .OrderByDescending(e => e.Date)
+                .ThenByDescending(e => e.ID)
+                .GroupBy(e => e.Date.Date)
+                .ToList();
+
+            @foreach (var dateGroup in groupedExpenses)
             {
-                <div class="expense-card">
-                    <div class="expense-card-header">
-                        <h6 class="expense-card-title">Expense #@item.ID</h6>
-                        <div class="expense-card-amount">@item.Amount.ToString("N2")</div>
+                <div class="expense-date-group">
+                    <div class="expense-date-header">
+                        <h6 class="expense-date-title">@dateGroup.Key.ToString("MMM dd, yyyy")</h6>
                     </div>
-                    <div class="expense-card-body">
-                        <div class="expense-card-row">
-                            <div class="expense-card-label">Date</div>
-                            <div class="expense-card-value">@item.Date.ToString("yyyy-MM-dd")</div>
-                        </div>
-                        <div class="expense-card-row">
-                            <div class="expense-card-label">Payment Method</div>
-                            <div class="expense-card-value">@EnumHelper.GetDisplayName(item.PaymentMethod)</div>
-                        </div>
-                        <div class="expense-card-row full-width">
-                            <div class="expense-card-label">Expense Type</div>
-                            <div class="expense-card-value">@item.ExpenseType?.Name</div>
-                        </div>
-                        @if (!string.IsNullOrWhiteSpace(item.PayeeName))
-                        {
-                            <div class="expense-card-row full-width">
-                                <div class="expense-card-label">Payee</div>
-                                <div class="expense-card-value">@item.PayeeName</div>
+
+                    @foreach (var item in dateGroup)
+                    {
+                        var expenseTypeName = !string.IsNullOrWhiteSpace(item.PayeeName) 
+                            ? item.PayeeName 
+                            : item.ExpenseType?.Name ?? "Expense";
+
+                        <div class="expense-row-wrapper">
+                            <div class="expense-row-compact expense-status-default">
+                                <div class="expense-row-header">
+                                    <div class="expense-type-icon">
+                                        <i class="bi bi-cash-stack"></i>
+                                    </div>
+
+                                    <div class="expense-payee-name">
+                                        <span class="expense-number-label">EXP No</span>
+                                        <span class="expense-number-value">#@item.ID</span> - 
+                                        @expenseTypeName
+                                    </div>
+                                    <div class="expense-amount">
+                                        @item.Amount.ToString("N2")
+                                    </div>
+                                </div>
+                                <div class="expense-row-footer">
+                                    <span class="expense-number">
+                                        @if (isAdmin)
+                                        {
+                                            <button type="button" class="btn-delete-expense-icon btn-delete-expense" 
+                                                    data-expense-id="@item.ID" 
+                                                    data-expense-no="@item.ID"
+                                                    title="Delete Expense">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        }
+                                    </span>
+                                    <span class="expense-type-badge">@(item.ExpenseType?.Name ?? "-")</span>
+                                    <span class="expense-payment-method">@EnumHelper.GetDisplayName(item.PaymentMethod)</span>
+                                    <a href="@Url.Action("Edit", "Expenses", new { id = item.ID })" class="btn-view-expense">
+                                        <i class="bi bi-eye"></i> View
+                                    </a>
+                                    @if (item.CreatedByMember != null && !string.IsNullOrEmpty(item.CreatedByMember.Name))
+                                    {
+                                        <span class="expense-creator">@item.CreatedByMember.Name</span>
+                                    }
+                                </div>
                             </div>
-                        }
-                    </div>
-                    <div class="expense-card-footer">
-                        <div class="d-flex gap-2">
-                            <a href="@Url.Action("Details", "Expenses", new { id = item.ID })" class="btn btn-info btn-sm">
-                                <i class="bi bi-eye"></i> View
-                            </a>
-                            <a href="@Url.Action("Edit", "Expenses", new { id = item.ID })" class="btn btn-warning btn-sm">
-                                <i class="bi bi-pencil-square"></i> Edit
-                            </a>
-                            @if (isAdmin)
-                            {
-                                <button type="button" class="btn btn-danger btn-sm btn-delete-expense" data-expense-id="@item.ID" data-expense-no="@item.ID">
-                                    @* <i class="bi bi-trash"></i>  *@Delete
-                                </button>
-                            }
                         </div>
-                    </div>
+                    }
                 </div>
             }
         }

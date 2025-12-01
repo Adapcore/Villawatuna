@@ -52,90 +52,225 @@
         display: block;
     }
     
-    /* Mobile card layout */
-    .expense-card {
-        background: white;
-        border: 1px solid #dee2e6;
-        border-radius: 8px;
-        padding: 16px;
-        margin-bottom: 12px;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        transition: all 0.2s ease;
+    /* Date Group Header */
+    .expense-date-group {
+        margin-bottom: 20px;
     }
     
-    .expense-card:active {
-        transform: scale(0.98);
-        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    .expense-date-header {
+        padding: 8px 12px;
+        background-color: #f8f9fa;
+        border-left: 4px solid #dc3545;
+        margin-bottom: 8px;
     }
     
-    .expense-card-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 12px;
-        padding-bottom: 12px;
-        border-bottom: 2px solid #f0f0f0;
-    }
-    
-    .expense-card-title {
-        font-size: 1.1rem;
-        font-weight: 700;
-        color: #0d6efd;
-        margin: 0;
-    }
-    
-    .expense-card-amount {
-        font-size: 1.3rem;
-        font-weight: 700;
-        color: #dc3545;
-    }
-    
-    .expense-card-body {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 12px;
+    .expense-date-title {
         font-size: 0.9rem;
-    }
-    
-    .expense-card-row {
-        display: flex;
-        flex-direction: column;
-    }
-    
-    .expense-card-label {
-        font-size: 0.75rem;
-        color: #6c757d;
-        font-weight: 600;
+        font-weight: 700;
+        color: #495057;
+        margin: 0;
         text-transform: uppercase;
-        margin-bottom: 4px;
         letter-spacing: 0.5px;
     }
     
-    .expense-card-value {
-        font-size: 0.95rem;
-        color: #212529;
-        font-weight: 500;
-        word-break: break-word;
+    /* Expense Row Wrapper */
+    .expense-row-wrapper {
+        margin-bottom: 6px;
     }
     
-    .expense-card-footer {
-        margin-top: 12px;
-        padding-top: 12px;
-        border-top: 1px solid #f0f0f0;
+    .expense-row-compact {
+        background: white;
+        border: 1px solid #dee2e6;
+        border-radius: 6px;
+        padding: 10px 12px;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        transition: all 0.2s ease;
+        cursor: default;
+        pointer-events: none;
+    }
+    
+    /* Status-based background colors - Expenses use warning/red theme */
+    .expense-row-compact.expense-status-default {
+        background-color: rgba(220, 53, 69, 0.1); /* Light red */
+        border-left: 4px solid #dc3545;
+    }
+    
+    .expense-row-header {
         display: flex;
-        justify-content: flex-end;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 6px;
+    }
+    
+    .expense-type-icon {
+        flex-shrink: 0;
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #f0f0f0;
+        border-radius: 6px;
+        font-size: 1.1rem;
+    }
+    
+    .expense-type-icon i {
+        color: #dc3545;
+    }
+    
+    .expense-payee-name {
+        flex: 1;
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: #212529;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        pointer-events: none;
+    }
+    
+    .expense-amount {
+        flex-shrink: 0;
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: #dc3545;
+        text-align: right;
+        pointer-events: none;
+    }
+    
+    .expense-row-footer {
+        display: flex;
+        align-items: center;
         gap: 8px;
+        padding-left: 42px; /* Align with payee name (icon width + gap) */
+        flex-wrap: wrap;
     }
     
-    .expense-card-footer .btn {
-        min-width: 80px;
-        padding: 8px 12px;
+    .expense-number {
+        font-size: 0.75rem;
+        color: #6c757d;
+        font-weight: 500;
+        flex-shrink: 0;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        pointer-events: none;
+    }
+    
+    .expense-number-label {
+        font-weight: 600;
+        color: #495057;
+    }
+    
+    .expense-number-value {
+        font-weight: 500;
+    }
+    
+    /* Delete Icon Inside Expense Number */
+    .btn-delete-expense-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0;
+        margin: 0;
+        border: none;
+        background: none;
+        cursor: pointer;
+        width: 18px;
+        height: 18px;
+        min-width: 18px;
+        min-height: 18px;
+        opacity: 0.6;
+        transition: all 0.2s ease;
+        position: relative;
+        z-index: 10;
+        pointer-events: auto;
+    }
+    
+    .btn-delete-expense-icon:hover {
+        opacity: 1;
+        transform: scale(1.1);
+    }
+    
+    .btn-delete-expense-icon:active {
+        transform: scale(0.95);
+    }
+    
+    .btn-delete-expense-icon i {
+        color: #dc3545;
         font-size: 0.85rem;
+        margin: 0;
+        pointer-events: none;
     }
     
-    /* Full width rows for important info */
-    .expense-card-row.full-width {
-        grid-column: 1 / -1;
+    .btn-delete-expense-icon:hover i {
+        color: #bb2d3b;
+    }
+    
+    /* View Expense Button */
+    .btn-view-expense {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 4px 10px;
+        font-size: 0.75rem;
+        font-weight: 500;
+        color: #0d6efd;
+        background-color: rgba(13, 110, 253, 0.1);
+        border: 1px solid rgba(13, 110, 253, 0.3);
+        border-radius: 4px;
+        text-decoration: none;
+        transition: all 0.2s ease;
+        margin-left: auto;
+        flex-shrink: 0;
+        cursor: pointer;
+        pointer-events: auto;
+    }
+    
+    .btn-view-expense:hover {
+        background-color: rgba(13, 110, 253, 0.2);
+        border-color: rgba(13, 110, 253, 0.5);
+        color: #0a58ca;
+        text-decoration: none;
+    }
+    
+    .btn-view-expense:active {
+        transform: scale(0.95);
+    }
+    
+    .btn-view-expense i {
+        font-size: 0.8rem;
+    }
+    
+    .expense-type-badge {
+        font-size: 0.75rem;
+        padding: 3px 8px;
+        border-radius: 10px;
+        font-weight: 600;
+        white-space: nowrap;
+        flex-shrink: 0;
+        background-color: rgba(220, 53, 69, 0.15);
+        color: #dc3545;
+        pointer-events: none;
+    }
+    
+    .expense-payment-method {
+        font-size: 0.75rem;
+        color: #6c757d;
+        font-weight: 500;
+        white-space: nowrap;
+        flex-shrink: 0;
+        pointer-events: none;
+    }
+    
+    .expense-creator {
+        font-size: 0.75rem;
+        color: #6c757d;
+        font-weight: 500;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        pointer-events: none;
     }
     
     /* Mobile table adjustments */
@@ -212,40 +347,77 @@
         width: 100%;
     }
     
-    /* Invoice card text wrapping */
-    .expense-card-title {
-        font-size: 1rem;
-        word-break: break-word;
-        flex: 1;
-        margin-right: 8px;
+    /* Pagination - Mobile Optimized */
+    .d-flex.justify-content-center {
+        width: 100%;
+        padding: 12px 0;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
     }
     
-    .expense-card-value {
-        word-break: break-word;
-        overflow-wrap: break-word;
-    }
-    
-    /* Pagination */
     .pagination {
         flex-wrap: wrap;
         justify-content: center;
+        margin: 0;
+        padding: 0;
+        gap: 4px;
+        width: 100%;
+        max-width: 100%;
+    }
+    
+    .pagination .page-item {
+        margin: 0;
+        flex-shrink: 0;
     }
     
     .pagination .page-link {
-        padding: 8px 12px;
-        font-size: 0.9rem;
-    }
-}
-
-/* Touch-friendly improvements */
-@media (hover: none) and (pointer: coarse) {
-    .expense-card {
-        min-height: 120px;
+        padding: 10px 14px;
+        font-size: 0.85rem;
+        min-width: 44px;
+        min-height: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 6px;
+        border: 1px solid #dee2e6;
+        color: #0d6efd;
+        background-color: #fff;
+        text-decoration: none;
+        transition: all 0.2s ease;
+        white-space: nowrap;
     }
     
-    .expense-card-footer .btn {
-        min-height: 44px;
-        min-width: 100px;
+    .pagination .page-link:hover {
+        background-color: #e9ecef;
+        border-color: #adb5bd;
+        color: #0a58ca;
+        transform: scale(1.05);
+    }
+    
+    .pagination .page-item.active .page-link {
+        background-color: #0d6efd;
+        border-color: #0d6efd;
+        color: #fff;
+        font-weight: 600;
+        z-index: 1;
+    }
+    
+    .pagination .page-item.disabled .page-link {
+        color: #6c757d;
+        background-color: #f8f9fa;
+        border-color: #dee2e6;
+        cursor: not-allowed;
+        opacity: 0.6;
+    }
+    
+    .pagination .page-item.disabled .page-link:hover {
+        transform: none;
+        background-color: #f8f9fa;
+    }
+    
+    .d-flex.justify-content-center.mt-4 {
+        margin-top: 20px !important;
+        margin-bottom: 20px;
     }
 }
 
@@ -262,4 +434,3 @@
         white-space: nowrap;
     }
 }
-
