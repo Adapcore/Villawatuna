@@ -226,8 +226,8 @@
                         ? $"#{invoice.Customer.RoomNo} - {invoice.Customer.FirstName} {invoice.Customer.LastName}"
                         : $"{invoice.Customer?.FirstName} {invoice.Customer?.LastName}";
 
-                        <a href="@Url.Action("Edit", "Invoices", new { id = invoice.InvoiceNo })" class="invoice-row-link">
-                            <div class="invoice-row-compact">
+                        <div class="invoice-row-wrapper">
+                            <div class="invoice-row-compact @statusClass">
                                 <div class="invoice-row-header">
                                     <div class="invoice-type-icon">
                                         <i class="bi @typeIcon"></i>
@@ -240,15 +240,29 @@
                                     </div>
                                 </div>
                                 <div class="invoice-row-footer">
-                                    <span class="invoice-number">#@invoice.InvoiceNo</span>
-                                    <span class="invoice-status-badge @statusClass">@EnumHelper.GetDisplayName(invoice.Status)</span>
+                                    <span class="invoice-number">
+                                        <span class="invoice-number-label">INV No</span>
+                                        <span class="invoice-number-value">#@invoice.InvoiceNo</span>
+                                        @if (isAdmin)
+                                        {
+                                            <button type="button" class="btn-delete-invoice-icon btn-delete-invoice" 
+                                                    data-invoice-id="@invoice.InvoiceNo" 
+                                                    data-invoice-no="@invoice.InvoiceNo"
+                                                    title="Delete Invoice">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        }
+                                    </span>
+                                    <a href="@Url.Action("Edit", "Invoices", new { id = invoice.InvoiceNo })" class="btn-view-invoice">
+                                        <i class="bi bi-eye"></i> View
+                                    </a>
                                     @if (invoice.CreatedByMember != null && !string.IsNullOrEmpty(invoice.CreatedByMember.Name))
                                     {
                                         <span class="invoice-creator">@invoice.CreatedByMember.Name</span>
                                     }
                                 </div>
                             </div>
-                        </a>
+                        </div>
                     }
                 </div>
             }

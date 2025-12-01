@@ -73,15 +73,9 @@
         letter-spacing: 0.5px;
     }
     
-    /* Compact Invoice Row */
-    .invoice-row-link {
-        text-decoration: none;
-        color: inherit;
-        display: block;
-    }
-    
-    .invoice-row-link:active {
-        opacity: 0.8;
+    /* Invoice Row Wrapper */
+    .invoice-row-wrapper {
+        margin-bottom: 6px;
     }
     
     .invoice-row-compact {
@@ -89,14 +83,36 @@
         border: 1px solid #dee2e6;
         border-radius: 6px;
         padding: 10px 12px;
-        margin-bottom: 6px;
         box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
         transition: all 0.2s ease;
+        cursor: default;
+        pointer-events: none;
     }
     
-    .invoice-row-compact:active {
-        transform: scale(0.98);
-        box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
+    /* Status-based background colors */
+    .invoice-row-compact.status-in-progress {
+        background-color: rgba(13, 202, 240, 0.15); /* Light cyan */
+        border-left: 4px solid #0dcaf0;
+    }
+    
+    .invoice-row-compact.status-complete {
+        background-color: rgba(13, 110, 253, 0.15); /* Light blue */
+        border-left: 4px solid #0d6efd;
+    }
+    
+    .invoice-row-compact.status-partially-paid {
+        background-color: rgba(255, 193, 7, 0.15); /* Light yellow */
+        border-left: 4px solid #ffc107;
+    }
+    
+    .invoice-row-compact.status-paid {
+        background-color: rgba(25, 135, 84, 0.15); /* Light green */
+        border-left: 4px solid #198754;
+    }
+    
+    .invoice-row-compact.bg-secondary {
+        background-color: rgba(108, 117, 125, 0.15); /* Light gray */
+        border-left: 4px solid #6c757d;
     }
     
     .invoice-row-header {
@@ -153,6 +169,103 @@
         color: #6c757d;
         font-weight: 500;
         flex-shrink: 0;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+    
+    .invoice-number-label {
+        font-weight: 600;
+        color: #495057;
+    }
+    
+    .invoice-number-value {
+        font-weight: 500;
+    }
+    
+    /* Delete Icon Inside Invoice Number */
+    .btn-delete-invoice-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0;
+        margin: 0;
+        border: none;
+        background: none;
+        cursor: pointer;
+        width: 18px;
+        height: 18px;
+        min-width: 18px;
+        min-height: 18px;
+        opacity: 0.6;
+        transition: all 0.2s ease;
+        position: relative;
+        z-index: 10;
+        pointer-events: auto;
+    }
+    
+    .btn-delete-invoice-icon:hover {
+        opacity: 1;
+        transform: scale(1.1);
+    }
+    
+    .btn-delete-invoice-icon:active {
+        transform: scale(0.95);
+    }
+    
+    .btn-delete-invoice-icon i {
+        color: #dc3545;
+        font-size: 0.85rem;
+        margin: 0;
+        pointer-events: none;
+    }
+    
+    .btn-delete-invoice-icon:hover i {
+        color: #bb2d3b;
+    }
+    
+    /* View Invoice Button */
+    .btn-view-invoice {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 4px 10px;
+        font-size: 0.75rem;
+        font-weight: 500;
+        color: #0d6efd;
+        background-color: rgba(13, 110, 253, 0.1);
+        border: 1px solid rgba(13, 110, 253, 0.3);
+        border-radius: 4px;
+        text-decoration: none;
+        transition: all 0.2s ease;
+        margin-left: auto;
+        flex-shrink: 0;
+        cursor: pointer;
+        pointer-events: auto;
+    }
+    
+    .btn-view-invoice:hover {
+        background-color: rgba(13, 110, 253, 0.2);
+        border-color: rgba(13, 110, 253, 0.5);
+        color: #0a58ca;
+        text-decoration: none;
+    }
+    
+    .btn-view-invoice:active {
+        transform: scale(0.95);
+    }
+    
+    .btn-view-invoice i {
+        font-size: 0.8rem;
+    }
+    
+    /* Make invoice number and other text elements non-clickable */
+    .invoice-number,
+    .invoice-creator,
+    .invoice-customer-name,
+    .invoice-amount,
+    .invoice-type-icon {
+        pointer-events: none;
     }
     
     .invoice-status-badge {
