@@ -56,5 +56,12 @@ namespace Umbraco.Cms.Web.Common.PublishedModels
 		[global::System.Diagnostics.CodeAnalysis.MaybeNull]
 		[ImplementPropertyType("currencyCode")]
 		public virtual string CurrencyCode => this.Value<string>(_publishedValueFallback, "currencyCode");
+
+		///<summary>
+		/// Exchange Rate
+		///</summary>
+		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "13.10.0+c2890e1")]
+		[ImplementPropertyType("exchangeRate")]
+		public virtual int ExchangeRate => this.Value<int>(_publishedValueFallback, "exchangeRate");
 	}
 }
