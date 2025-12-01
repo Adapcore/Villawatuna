@@ -856,11 +856,17 @@
                             </td>`;
 
             if (self._type == 3) {
+                // Get today's date in YYYY-MM-DD format
+                var today = new Date();
+                var todayStr = today.getFullYear() + '-' + 
+                               String(today.getMonth() + 1).padStart(2, '0') + '-' + 
+                               String(today.getDate()).padStart(2, '0');
+                
                 rowHtml = rowHtml + `<td>
-                                <input type="date" name="InvoiceDetails[${rowIndex}].Note" class="form-control checkIn" placeholder="checkIn" />
+                                <input type="date" name="InvoiceDetails[${rowIndex}].CheckIn" class="form-control form-control-sm checkIn" value="${todayStr}" />
                             </td>
                             <td>
-                                <input type="date" name="InvoiceDetails[${rowIndex}].Quantity" class="form-control checkOut" value="1"  />
+                                <input type="date" name="InvoiceDetails[${rowIndex}].CheckOut" class="form-control form-control-sm checkOut" />
                             </td>`;
             }
 
@@ -994,10 +1000,8 @@
                 this.UpdateRowTotal($newRow);
             });
 
-            $newRow.find(".checkIn .checkOut").on("change", (e) => {
-                $(e.currentTarget).closest("tr").remove();
-                this.CalculateNights(row);
-            });
+            // Check-in and check-out date changes are handled by the delegated event handler in BindEvents
+            // No need to bind here as it's already handled globally
 
             if (self._type == 3) {
                 $newRow.find(".orderQty").prop('readonly', true);
