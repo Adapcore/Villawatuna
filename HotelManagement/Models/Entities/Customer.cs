@@ -40,7 +40,6 @@ namespace HotelManagement.Models.Entities
 
         [MaxLength(5)]
         [Display(Name = "Room No")]
-        [RegularExpression(@"^[0-9]+$", ErrorMessage = "Room No must contain only numeric digits.")]
         public string? RoomNo { get; set; }
 
         public bool Active { get; set; } = true;
