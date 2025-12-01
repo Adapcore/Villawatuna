@@ -4,8 +4,13 @@
  */
 
 $(document).ready(function() {
-    // Delete invoice handler
-    $(document).on('click', '.btn-delete-invoice', function() {
+    // Delete invoice handler - use event delegation and prevent navigation
+    $(document).on('click', '.btn-delete-invoice', function(e) {
+        // Prevent navigation when clicking delete button inside a link
+        e.preventDefault();
+        e.stopPropagation();
+        e.stopImmediatePropagation();
+        
         var invoiceId = $(this).data('invoice-id');
         var invoiceNo = $(this).data('invoice-no');
         
@@ -26,6 +31,8 @@ $(document).ready(function() {
                 dialogId: 'deleteConfirmDialog'
             }
         );
+        
+        return false; // Additional prevention
     });
 });
 

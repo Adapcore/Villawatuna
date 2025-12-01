@@ -5,6 +5,7 @@ using HotelManagement.Enums;
 using Microsoft.EntityFrameworkCore;
 using Umbraco.Cms.Core.Security;
 using Umbraco.Cms.Core.Services;
+using HotelManagement.Services.Interface;
 
 namespace HotelManagement.Controllers
 {
@@ -15,12 +16,14 @@ namespace HotelManagement.Controllers
 
         private readonly IMemberManager _memberManager;
         private readonly IMemberService _memberService;
+        private readonly IExpenseTypeService _expenseTypeService;
 
-        public HomeController(HotelContext context, IMemberManager memberManager, IMemberService memberService)
+        public HomeController(HotelContext context, IMemberManager memberManager, IMemberService memberService, IExpenseTypeService expenseTypeService)
         {
             _context = context;
             _memberManager = memberManager;
             _memberService = memberService;
+            _expenseTypeService = expenseTypeService;
         }
 
         public IActionResult Index()
@@ -114,6 +117,186 @@ namespace HotelManagement.Controllers
                 },
                 isAdmin
             });
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetTileData(string tileType, DateTime? from, DateTime? to)
+        {
+            DateTime fromDate = from?.Date ?? DateTime.Today;
+            DateTime toDate = (to?.Date ?? DateTime.Today).AddDays(1).AddTicks(-1);
+            bool isAdmin = IsAdminUser();
+
+            var data = new List<object>();
+
+            switch (tileType.ToLower())
+            {
+                case "invoices":
+                    // All invoices (Total Income)
+                    var invoices = await _context.Invoices
+                        .AsNoTracking()
+                        .Include(i => i.Customer)
+                        .Where(i => i.Date >= fromDate && i.Date <= toDate)
+                        .OrderByDescending(i => i.Date)
+                        .ThenByDescending(i => i.InvoiceNo)
+                        .Select(i => new
+                        {
+                            id = i.InvoiceNo,
+                            date = i.Date,
+                            type = i.Type.ToString(),
+                            customerName = i.Customer != null ? (i.Customer.RoomNo != null ? $"#{i.Customer.RoomNo} - {i.Customer.FirstName} {i.Customer.LastName}" : $"{i.Customer.FirstName} {i.Customer.LastName}") : "",
+                            amount = i.GrossAmount,
+                            status = i.Status.ToString()
+                        })
+                        .ToListAsync();
+                    data = invoices.Cast<object>().ToList();
+                    break;
+
+                case "expenses":
+                    var expensesList = await _context.Expenses
+                        .AsNoTracking()
+                        .Where(e => e.Date >= fromDate && e.Date <= toDate)
+                        .OrderByDescending(e => e.Date)
+                        .ThenByDescending(e => e.ID)
+                        .ToListAsync();
+                    
+                    var expenseTypes = await _expenseTypeService.GetExpenseTypesAsync();
+                    
+                    var expenses = expensesList.Select(e => new
+                    {
+                        id = e.ID,
+                        date = e.Date,
+                        expenseType = e.ExpenseTypeID,
+                        expenseTypeName = expenseTypes.FirstOrDefault(et => et.Id == e.ExpenseTypeID)?.Name ?? "",
+                        payeeName = e.PayeeName ?? "",
+                        amount = e.Amount,
+                        paymentMethod = e.PaymentMethod.ToString()
+                    }).ToList();
+                    
+                    data = expenses.Cast<object>().ToList();
+                    break;
+
+                case "restaurant":
+                    var restaurantInvoices = await _context.Invoices
+                        .AsNoTracking()
+                        .Include(i => i.Customer)
+                        .Where(i => (i.Type == InvoiceType.Dining || i.Type == InvoiceType.TakeAway) && i.Date >= fromDate && i.Date <= toDate)
+                        .OrderByDescending(i => i.Date)
+                        .ThenByDescending(i => i.InvoiceNo)
+                        .Select(i => new
+                        {
+                            id = i.InvoiceNo,
+                            date = i.Date,
+                            type = i.Type.ToString(),
+                            customerName = i.Customer != null ? (i.Customer.RoomNo != null ? $"#{i.Customer.RoomNo} - {i.Customer.FirstName} {i.Customer.LastName}" : $"{i.Customer.FirstName} {i.Customer.LastName}") : "",
+                            amount = i.SubTotal,
+                            status = i.Status.ToString()
+                        })
+                        .ToListAsync();
+                    data = restaurantInvoices.Cast<object>().ToList();
+                    break;
+
+                case "stay":
+                    var stayInvoices = await _context.Invoices
+                        .AsNoTracking()
+                        .Include(i => i.Customer)
+                        .Where(i => i.Type == InvoiceType.Stay && i.Date >= fromDate && i.Date <= toDate)
+                        .OrderByDescending(i => i.Date)
+                        .ThenByDescending(i => i.InvoiceNo)
+                        .Select(i => new
+                        {
+                            id = i.InvoiceNo,
+                            date = i.Date,
+                            type = i.Type.ToString(),
+                            customerName = i.Customer != null ? (i.Customer.RoomNo != null ? $"#{i.Customer.RoomNo} - {i.Customer.FirstName} {i.Customer.LastName}" : $"{i.Customer.FirstName} {i.Customer.LastName}") : "",
+                            amount = i.GrossAmount,
+                            status = i.Status.ToString()
+                        })
+                        .ToListAsync();
+                    data = stayInvoices.Cast<object>().ToList();
+                    break;
+
+                case "laundry":
+                    var laundryInvoices = await _context.Invoices
+                        .AsNoTracking()
+                        .Include(i => i.Customer)
+                        .Where(i => i.Type == InvoiceType.Laundry && i.Date >= fromDate && i.Date <= toDate)
+                        .OrderByDescending(i => i.Date)
+                        .ThenByDescending(i => i.InvoiceNo)
+                        .Select(i => new
+                        {
+                            id = i.InvoiceNo,
+                            date = i.Date,
+                            type = i.Type.ToString(),
+                            customerName = i.Customer != null ? (i.Customer.RoomNo != null ? $"#{i.Customer.RoomNo} - {i.Customer.FirstName} {i.Customer.LastName}" : $"{i.Customer.FirstName} {i.Customer.LastName}") : "",
+                            amount = i.GrossAmount,
+                            status = i.Status.ToString()
+                        })
+                        .ToListAsync();
+                    data = laundryInvoices.Cast<object>().ToList();
+                    break;
+
+                case "tour":
+                    var tourInvoices = await _context.Invoices
+                        .AsNoTracking()
+                        .Include(i => i.Customer)
+                        .Where(i => i.Type == InvoiceType.Tour && i.Date >= fromDate && i.Date <= toDate)
+                        .OrderByDescending(i => i.Date)
+                        .ThenByDescending(i => i.InvoiceNo)
+                        .Select(i => new
+                        {
+                            id = i.InvoiceNo,
+                            date = i.Date,
+                            type = i.Type.ToString(),
+                            customerName = i.Customer != null ? (i.Customer.RoomNo != null ? $"#{i.Customer.RoomNo} - {i.Customer.FirstName} {i.Customer.LastName}" : $"{i.Customer.FirstName} {i.Customer.LastName}") : "",
+                            amount = i.GrossAmount,
+                            status = i.Status.ToString()
+                        })
+                        .ToListAsync();
+                    data = tourInvoices.Cast<object>().ToList();
+                    break;
+
+                case "other":
+                    var otherInvoices = await _context.Invoices
+                        .AsNoTracking()
+                        .Include(i => i.Customer)
+                        .Where(i => i.Type == InvoiceType.Other && i.Date >= fromDate && i.Date <= toDate)
+                        .OrderByDescending(i => i.Date)
+                        .ThenByDescending(i => i.InvoiceNo)
+                        .Select(i => new
+                        {
+                            id = i.InvoiceNo,
+                            date = i.Date,
+                            type = i.Type.ToString(),
+                            customerName = i.Customer != null ? (i.Customer.RoomNo != null ? $"#{i.Customer.RoomNo} - {i.Customer.FirstName} {i.Customer.LastName}" : $"{i.Customer.FirstName} {i.Customer.LastName}") : "",
+                            amount = i.GrossAmount,
+                            status = i.Status.ToString()
+                        })
+                        .ToListAsync();
+                    data = otherInvoices.Cast<object>().ToList();
+                    break;
+
+                case "servicecharges":
+                    var serviceChargeInvoices = await _context.Invoices
+                        .AsNoTracking()
+                        .Include(i => i.Customer)
+                        .Where(i => i.Status == InvoiceStatus.Paid && i.Type == InvoiceType.Dining && i.Date >= fromDate && i.Date <= toDate && i.ServiceCharge > 0)
+                        .OrderByDescending(i => i.Date)
+                        .ThenByDescending(i => i.InvoiceNo)
+                        .Select(i => new
+                        {
+                            id = i.InvoiceNo,
+                            date = i.Date,
+                            type = i.Type.ToString(),
+                            customerName = i.Customer != null ? (i.Customer.RoomNo != null ? $"#{i.Customer.RoomNo} - {i.Customer.FirstName} {i.Customer.LastName}" : $"{i.Customer.FirstName} {i.Customer.LastName}") : "",
+                            amount = i.ServiceCharge,
+                            status = i.Status.ToString()
+                        })
+                        .ToListAsync();
+                    data = serviceChargeInvoices.Cast<object>().ToList();
+                    break;
+            }
+
+            return Json(new { success = true, data = data, isAdmin = isAdmin });
         }
 
         private bool IsAdminUser()

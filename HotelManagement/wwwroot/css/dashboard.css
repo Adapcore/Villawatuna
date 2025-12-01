@@ -166,3 +166,642 @@
     }
 }
 
+/* Dashboard Tile Clickable */
+.dashboard-tile {
+    cursor: pointer !important;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    position: relative;
+    z-index: 1;
+    pointer-events: auto !important;
+}
+
+.dashboard-tile * {
+    pointer-events: none;
+}
+
+.dashboard-tile:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15) !important;
+}
+
+.dashboard-tile:active {
+    transform: translateY(0);
+}
+
+/* Modal Styling for Dashboard Popup */
+#dashboardTileModal .modal-dialog {
+    max-width: 500px;
+    margin: 1.75rem auto;
+}
+
+@media (max-width: 767px) {
+    #dashboardTileModal .modal-dialog {
+        max-width: 100%;
+        margin: 0;
+        height: 100vh;
+    }
+    
+    #dashboardTileModal .modal-content {
+        height: 100vh;
+        border-radius: 0;
+    }
+}
+
+#dashboardTileModal .modal-content {
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    max-height: 85vh;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+    border: none;
+}
+
+#dashboardTileModal .modal-header {
+    border-bottom: 1px solid #e9ecef;
+    padding: 14px 18px;
+    flex-shrink: 0;
+    background-color: #fff;
+    border-radius: 12px 12px 0 0;
+}
+
+#dashboardTileModal .modal-header .modal-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #212529;
+}
+
+#dashboardTileModal .modal-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0;
+    background-color: #f5f7fa;
+    max-height: calc(85vh - 70px);
+}
+
+#dashboardTileModal .modal-body .container-fluid {
+    padding: 12px;
+}
+
+/* Custom scrollbar for modal */
+#dashboardTileModal .modal-body::-webkit-scrollbar {
+    width: 6px;
+}
+
+#dashboardTileModal .modal-body::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+#dashboardTileModal .modal-body::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 3px;
+}
+
+#dashboardTileModal .modal-body::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
+
+/* Force mobile styles to apply in modal regardless of screen size */
+#dashboardTileModal .modal-body .invoice-table-mobile,
+#dashboardTileModal .modal-body .expenses-table-mobile,
+#dashboardTileModal .modal-body .payments-table-mobile {
+    display: block !important;
+}
+
+/* Force all mobile invoice styles in modal */
+#dashboardTileModal .modal-body .invoice-date-group {
+    margin-bottom: 16px;
+}
+
+#dashboardTileModal .modal-body .invoice-date-header {
+    padding: 6px 10px;
+    background-color: #fff;
+    border-left: 3px solid #0d6efd;
+    margin-bottom: 6px;
+    border-radius: 4px;
+}
+
+#dashboardTileModal .modal-body .invoice-date-title {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #495057;
+    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+#dashboardTileModal .modal-body .invoice-row-wrapper {
+    margin-bottom: 5px;
+}
+
+#dashboardTileModal .modal-body .invoice-row-compact {
+    background: white;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    padding: 8px 10px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    transition: all 0.2s ease;
+    cursor: default;
+    pointer-events: none;
+}
+
+#dashboardTileModal .modal-body .invoice-row-compact.status-in-progress {
+    background-color: rgba(13, 202, 240, 0.12);
+    border-left: 3px solid #0dcaf0;
+}
+
+#dashboardTileModal .modal-body .invoice-row-compact.status-complete {
+    background-color: rgba(13, 110, 253, 0.12);
+    border-left: 3px solid #0d6efd;
+}
+
+#dashboardTileModal .modal-body .invoice-row-compact.status-partially-paid {
+    background-color: rgba(255, 193, 7, 0.12);
+    border-left: 3px solid #ffc107;
+}
+
+#dashboardTileModal .modal-body .invoice-row-compact.status-paid {
+    background-color: rgba(25, 135, 84, 0.12);
+    border-left: 3px solid #198754;
+}
+
+#dashboardTileModal .modal-body .invoice-row-compact.bg-secondary {
+    background-color: rgba(108, 117, 125, 0.12);
+    border-left: 3px solid #6c757d;
+}
+
+#dashboardTileModal .modal-body .invoice-row-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 5px;
+}
+
+#dashboardTileModal .modal-body .invoice-type-icon {
+    flex-shrink: 0;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f0f0f0;
+    border-radius: 6px;
+    font-size: 1rem;
+}
+
+#dashboardTileModal .modal-body .invoice-type-icon i {
+    color: #0d6efd;
+}
+
+#dashboardTileModal .modal-body .invoice-customer-name {
+    flex: 1;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #212529;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+#dashboardTileModal .modal-body .invoice-amount {
+    flex-shrink: 0;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #198754;
+    text-align: right;
+}
+
+#dashboardTileModal .modal-body .invoice-row-footer {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding-left: 36px;
+    flex-wrap: wrap;
+    font-size: 0.8rem;
+}
+
+#dashboardTileModal .modal-body .invoice-number {
+    font-size: 0.75rem;
+    color: #6c757d;
+    font-weight: 500;
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+#dashboardTileModal .modal-body .invoice-number-label {
+    font-weight: 600;
+    color: #495057;
+}
+
+#dashboardTileModal .modal-body .invoice-number-value {
+    font-weight: 500;
+}
+
+#dashboardTileModal .modal-body .btn-delete-invoice-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    margin: 0;
+    border: none;
+    background: none;
+    cursor: pointer;
+    width: 18px;
+    height: 18px;
+    min-width: 18px;
+    min-height: 18px;
+    opacity: 0.6;
+    transition: all 0.2s ease;
+    position: relative;
+    z-index: 10;
+    pointer-events: auto;
+}
+
+#dashboardTileModal .modal-body .btn-delete-invoice-icon:hover {
+    opacity: 1;
+    transform: scale(1.1);
+}
+
+#dashboardTileModal .modal-body .btn-delete-invoice-icon i {
+    color: #dc3545;
+    font-size: 0.85rem;
+    margin: 0;
+    pointer-events: none;
+}
+
+#dashboardTileModal .modal-body .btn-view-invoice {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: #0d6efd;
+    background-color: rgba(13, 110, 253, 0.1);
+    border: 1px solid rgba(13, 110, 253, 0.3);
+    border-radius: 4px;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    margin-left: auto;
+    flex-shrink: 0;
+    cursor: pointer;
+    pointer-events: auto;
+}
+
+#dashboardTileModal .modal-body .btn-view-invoice:hover {
+    background-color: rgba(13, 110, 253, 0.2);
+    border-color: rgba(13, 110, 253, 0.5);
+    color: #0a58ca;
+}
+
+#dashboardTileModal .modal-body .invoice-creator-name {
+    font-size: 0.75rem;
+    color: #6c757d;
+    margin-left: auto;
+    text-align: right;
+    flex-shrink: 0;
+}
+
+/* Force all mobile expense styles in modal */
+#dashboardTileModal .modal-body .expense-date-group {
+    margin-bottom: 16px;
+}
+
+#dashboardTileModal .modal-body .expense-date-header {
+    padding: 6px 10px;
+    background-color: #fff;
+    border-left: 3px solid #dc3545;
+    margin-bottom: 6px;
+    border-radius: 4px;
+}
+
+#dashboardTileModal .modal-body .expense-date-title {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #495057;
+    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+#dashboardTileModal .modal-body .expense-row-wrapper {
+    margin-bottom: 5px;
+}
+
+#dashboardTileModal .modal-body .expense-row-compact {
+    background: white;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    padding: 8px 10px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    transition: all 0.2s ease;
+    cursor: default;
+    pointer-events: none;
+    border-left: 3px solid #dc3545;
+}
+
+#dashboardTileModal .modal-body .expense-row-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 5px;
+}
+
+#dashboardTileModal .modal-body .expense-type-icon {
+    flex-shrink: 0;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #fee;
+    border-radius: 6px;
+    font-size: 1rem;
+}
+
+#dashboardTileModal .modal-body .expense-type-icon i {
+    color: #dc3545;
+}
+
+#dashboardTileModal .modal-body .expense-payee-name {
+    flex: 1;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #212529;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+#dashboardTileModal .modal-body .expense-amount {
+    flex-shrink: 0;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #dc3545;
+    text-align: right;
+}
+
+#dashboardTileModal .modal-body .expense-row-footer {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding-left: 36px;
+    flex-wrap: wrap;
+    font-size: 0.8rem;
+}
+
+#dashboardTileModal .modal-body .expense-number {
+    font-size: 0.75rem;
+    color: #6c757d;
+    font-weight: 500;
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+#dashboardTileModal .modal-body .expense-number-label {
+    font-weight: 600;
+    color: #495057;
+}
+
+#dashboardTileModal .modal-body .expense-number-value {
+    font-weight: 500;
+}
+
+#dashboardTileModal .modal-body .expense-type-badge {
+    font-size: 0.75rem;
+    padding: 2px 8px;
+    background-color: rgba(220, 53, 69, 0.1);
+    color: #dc3545;
+    border-radius: 4px;
+    font-weight: 500;
+}
+
+#dashboardTileModal .modal-body .expense-payment-method {
+    font-size: 0.75rem;
+    color: #6c757d;
+    font-weight: 500;
+}
+
+#dashboardTileModal .modal-body .btn-delete-expense-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    margin: 0;
+    border: none;
+    background: none;
+    cursor: pointer;
+    width: 18px;
+    height: 18px;
+    min-width: 18px;
+    min-height: 18px;
+    opacity: 0.6;
+    transition: all 0.2s ease;
+    position: relative;
+    z-index: 10;
+    pointer-events: auto;
+}
+
+#dashboardTileModal .modal-body .btn-delete-expense-icon:hover {
+    opacity: 1;
+    transform: scale(1.1);
+}
+
+#dashboardTileModal .modal-body .btn-delete-expense-icon i {
+    color: #dc3545;
+    font-size: 0.85rem;
+    margin: 0;
+    pointer-events: none;
+}
+
+#dashboardTileModal .modal-body .btn-view-expense {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: #0d6efd;
+    background-color: rgba(13, 110, 253, 0.1);
+    border: 1px solid rgba(13, 110, 253, 0.3);
+    border-radius: 4px;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    margin-left: auto;
+    flex-shrink: 0;
+    cursor: pointer;
+    pointer-events: auto;
+}
+
+#dashboardTileModal .modal-body .btn-view-expense:hover {
+    background-color: rgba(13, 110, 253, 0.2);
+    border-color: rgba(13, 110, 253, 0.5);
+    color: #0a58ca;
+}
+
+#dashboardTileModal .modal-body .expense-creator-name {
+    font-size: 0.75rem;
+    color: #6c757d;
+    margin-left: auto;
+    text-align: right;
+    flex-shrink: 0;
+}
+
+/* Force all mobile payment styles in modal */
+#dashboardTileModal .modal-body .payment-date-group {
+    margin-bottom: 16px;
+}
+
+#dashboardTileModal .modal-body .payment-date-header {
+    padding: 6px 10px;
+    background-color: #fff;
+    border-left: 3px solid #198754;
+    margin-bottom: 6px;
+    border-radius: 4px;
+}
+
+#dashboardTileModal .modal-body .payment-date-title {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #495057;
+    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+#dashboardTileModal .modal-body .payment-row-wrapper {
+    margin-bottom: 5px;
+}
+
+#dashboardTileModal .modal-body .payment-row-compact {
+    background: white;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    padding: 8px 10px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    transition: all 0.2s ease;
+    cursor: default;
+    pointer-events: none;
+    border-left: 3px solid #198754;
+}
+
+#dashboardTileModal .modal-body .payment-row-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 5px;
+}
+
+#dashboardTileModal .modal-body .payment-type-icon {
+    flex-shrink: 0;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #efe;
+    border-radius: 6px;
+    font-size: 1rem;
+}
+
+#dashboardTileModal .modal-body .payment-type-icon i {
+    color: #198754;
+}
+
+#dashboardTileModal .modal-body .payment-invoice-name {
+    flex: 1;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #212529;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+#dashboardTileModal .modal-body .payment-amount {
+    flex-shrink: 0;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #198754;
+    text-align: right;
+}
+
+#dashboardTileModal .modal-body .payment-row-footer {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding-left: 36px;
+    flex-wrap: wrap;
+    font-size: 0.8rem;
+}
+
+#dashboardTileModal .modal-body .payment-number {
+    font-size: 0.75rem;
+    color: #6c757d;
+    font-weight: 500;
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+#dashboardTileModal .modal-body .payment-number-label {
+    font-weight: 600;
+    color: #495057;
+}
+
+#dashboardTileModal .modal-body .payment-number-value {
+    font-weight: 500;
+}
+
+#dashboardTileModal .modal-body .payment-type-badge {
+    font-size: 0.75rem;
+    padding: 2px 8px;
+    background-color: rgba(25, 135, 84, 0.1);
+    color: #198754;
+    border-radius: 4px;
+    font-weight: 500;
+}
+
+#dashboardTileModal .modal-body .btn-view-payment {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: #0d6efd;
+    background-color: rgba(13, 110, 253, 0.1);
+    border: 1px solid rgba(13, 110, 253, 0.3);
+    border-radius: 4px;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    margin-left: auto;
+    flex-shrink: 0;
+    cursor: pointer;
+    pointer-events: auto;
+}
+
+#dashboardTileModal .modal-body .btn-view-payment:hover {
+    background-color: rgba(13, 110, 253, 0.2);
+    border-color: rgba(13, 110, 253, 0.5);
+    color: #0a58ca;
+}
+
+#dashboardTileModal .modal-body .payment-creator-name {
+    font-size: 0.75rem;
+    color: #6c757d;
+    margin-left: auto;
+    text-align: right;
+    flex-shrink: 0;
+}
+
+#dashboardTileModal .modal-body .invoice-table-desktop,
+#dashboardTileModal .modal-body .expenses-table-desktop,
+#dashboardTileModal .modal-body .payments-table-desktop {
+    display: none !important;
+}
+

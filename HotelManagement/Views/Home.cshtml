@@ -31,6 +31,9 @@
 }
 
 <link rel="stylesheet" href="~/css/dashboard.css" />
+<link rel="stylesheet" href="~/css/invoice-index.css" />
+<link rel="stylesheet" href="~/css/expenses-index.css" />
+<link rel="stylesheet" href="~/css/payments-index.css" />
 
 @if (!(Context.User?.Identity?.IsAuthenticated ?? false))
 {
@@ -102,7 +105,7 @@ else
             @if (true || ViewBag.IsAdmin == true)
             {
                 <div class="col-6 col-md-3">
-                    <div class="card shadow-sm border-0 rounded-3 p-3 text-center bg-success text-white">
+                    <div class="card shadow-sm border-0 rounded-3 p-3 text-center bg-success text-white dashboard-tile" data-tile-type="invoices" data-tile-title="Total Income">
                         <i class="bi bi-cash-coin fs-2 mb-2"></i>
                         <h6>Total Income</h6>
                         <h4 id="tileTotalIncome" class="fw-bold">LKR 0.00</h4>
@@ -119,7 +122,7 @@ else
             }
 
             <div class="col-6 col-md-3">
-                <div class="card shadow-sm border-0 rounded-3 p-3 text-center bg-warning text-dark">
+                <div class="card shadow-sm border-0 rounded-3 p-3 text-center bg-warning text-dark dashboard-tile" data-tile-type="expenses" data-tile-title="Expenses">
                     <i class="bi bi-wallet2 fs-2 mb-2"></i>
                     <h6>Expenses</h6>
                     <h4 id="tileExpenses" class="fw-bold">LKR 0.00</h4>
@@ -127,7 +130,7 @@ else
             </div>
 
             <div class="col-6 col-md-3">
-                <div class="card shadow-sm border-0 rounded-3 p-3 text-center bg-primary text-white">
+                <div class="card shadow-sm border-0 rounded-3 p-3 text-center bg-primary text-white dashboard-tile" data-tile-type="restaurant" data-tile-title="Restaurant Revenue">
                     <i class="bi bi-egg-fried fs-2 mb-2"></i>
                     <h6>Restaurant</h6>
                     <h4 id="tileRestaurantRevenue" class="fw-bold">LKR 0.00</h4>
@@ -135,7 +138,7 @@ else
             </div>
 
             <div class="col-6 col-md-3">
-                <div class="card shadow-sm border-0 rounded-3 p-3 text-center bg-info text-dark">
+                <div class="card shadow-sm border-0 rounded-3 p-3 text-center bg-info text-dark dashboard-tile" data-tile-type="servicecharges" data-tile-title="Service Charges">
                     <i class="bi bi-receipt fs-2 mb-2"></i>
                     <h6>Service Charges</h6>
                     <h4 id="tileServiceCharges" class="fw-bold">LKR 0.00</h4>
@@ -143,7 +146,7 @@ else
             </div>
 
             <div class="col-6 col-md-3">
-                <div class="card shadow-sm border-0 rounded-3 p-3 text-center" style="background-color: #6f42c1; color: white;">
+                <div class="card shadow-sm border-0 rounded-3 p-3 text-center dashboard-tile" style="background-color: #6f42c1; color: white;" data-tile-type="stay" data-tile-title="Stay Revenue">
                     <i class="bi bi-building fs-2 mb-2"></i>
                     <h6>Stay</h6>
                     <h4 id="tileStayRevenue" class="fw-bold">LKR 0.00</h4>
@@ -151,7 +154,7 @@ else
             </div>
 
             <div class="col-6 col-md-3">
-                <div class="card shadow-sm border-0 rounded-3 p-3 text-center bg-secondary text-white">
+                <div class="card shadow-sm border-0 rounded-3 p-3 text-center bg-secondary text-white dashboard-tile" data-tile-type="laundry" data-tile-title="Laundry Revenue">
                     <i class="bi bi-basket2 fs-2 mb-2"></i>
                     <h6>Laundry</h6>
                     <h4 id="tileLaundryRevenue" class="fw-bold">LKR 0.00</h4>
@@ -159,7 +162,7 @@ else
             </div>
 
             <div class="col-6 col-md-3">
-                <div class="card shadow-sm border-0 rounded-3 p-3 text-center bg-danger text-white">
+                <div class="card shadow-sm border-0 rounded-3 p-3 text-center bg-danger text-white dashboard-tile" data-tile-type="tour" data-tile-title="Tour Revenue">
                     <i class="bi bi-bus-front fs-2 mb-2"></i>
                     <h6>Tour</h6>
                     <h4 id="tileTourRevenue" class="fw-bold">LKR 0.00</h4>
@@ -167,7 +170,7 @@ else
             </div>
 
             <div class="col-6 col-md-3">
-                <div class="card shadow-sm border-0 rounded-3 p-3 text-center" style="background-color: #20c997; color: white;">
+                <div class="card shadow-sm border-0 rounded-3 p-3 text-center dashboard-tile" style="background-color: #20c997; color: white;" data-tile-type="other" data-tile-title="Other Revenue">
                     <i class="bi bi-three-dots fs-2 mb-2"></i>
                     <h6>Other</h6>
                     <h4 id="tileOtherRevenue" class="fw-bold">LKR 0.00</h4>
@@ -176,12 +179,42 @@ else
         </div>
     </div>
 
+    <!-- Dashboard Tile Popup Modal -->
+    <div class="modal fade" id="dashboardTileModal" tabindex="-1" aria-labelledby="dashboardTileModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="dashboardTileModalLabel">Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="dashboardTileModalBody">
+                    <div class="text-center py-5">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="mt-3">Loading data...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     @section Scripts {
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="~/js/dashboard.js"></script>
     <script>
-        InitializeDashboard();
+        $(document).ready(function() {
+            InitializeDashboard();
+            
+            // Debug: Check if tiles are found
+            console.log('Dashboard tiles found:', $('.dashboard-tile').length);
+            console.log('Bootstrap available:', typeof bootstrap !== 'undefined');
+            console.log('Modal element exists:', $('#dashboardTileModal').length > 0);
+            
+            // Test click handler
+            $('.dashboard-tile').each(function() {
+                console.log('Tile:', $(this).data('tile-type'), $(this).data('tile-title'));
+            });
+        });
     </script>
     }
 }
