@@ -1,4 +1,5 @@
 ﻿@using HotelManagement.Enums
+@using HotelManagement.Models.DTO
 @using Newtonsoft.Json
 @using Newtonsoft.Json.Serialization
 @model HotelManagement.Models.ViewModels.CreateInvoiceViewModel
@@ -359,6 +360,10 @@
                    ContractResolver = new CamelCasePropertyNamesContractResolver()
                }));
     const isAdmin = @(ViewBag.IsAdmin != null ? ViewBag.IsAdmin.ToString().ToLower() : "false");
+    const currencyData = @Html.Raw(JsonConvert.SerializeObject((ViewBag.CurrencyData as IEnumerable<CurrencyDTO>) ?? new List<CurrencyDTO>(), new JsonSerializerSettings
+               {
+                   ContractResolver = new CamelCasePropertyNamesContractResolver()
+               }));
 
-    InitializeInvoicePage(invoice, '@ViewBag.Mode', isAdmin);
+    InitializeInvoicePage(invoice, '@ViewBag.Mode', isAdmin, currencyData);
 </script>

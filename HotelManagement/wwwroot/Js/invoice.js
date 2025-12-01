@@ -23,6 +23,7 @@
         this.grossTotal = 0;
         this._currentRow = null;
         this._isAdmin = this.options.isAdmin || false;
+        this._currencyData = this.options.currencyData || [];
 
         this._formatter = new Intl.NumberFormat('en-US', {
             minimumFractionDigits: 2,
@@ -334,18 +335,37 @@
         LoadCurrencyRate: function () {
             var self = this;
             var fromCurrency = $("#ddlCurrency").val();
-            var toCurrency = self._baseCurrency;
+            var toCurrency = self._baseCurrency || "LKR";
 
             if (fromCurrency && fromCurrency !== toCurrency) {
-                $.getJSON("/api/currency/getCurrencyRate", { from: fromCurrency, to: toCurrency })
-                    .done(function (data) {
-                        $("#txtCurrencyRate").val(data.rate);
-                        self.CalculateTotals();
-                    })
-                    .fail(function () {
-                        $("#txtCurrencyRate").val("");
-                        console.warn("Failed to load currency rate");
+                // First, try to get rate from Umbraco currency data
+                var umbracoRate = null;
+                if (self._currencyData && self._currencyData.length > 0) {
+                    var selectedCurrency = self._currencyData.find(function(c) {
+                        return c.code === fromCurrency;
                     });
+                    if (selectedCurrency && selectedCurrency.exchangeRate) {
+                        umbracoRate = selectedCurrency.exchangeRate;
+                    }
+                }
+
+                if (umbracoRate !== null && umbracoRate > 0) {
+                    // Use Umbraco rate
+                    $("#txtCurrencyRate").val(umbracoRate);
+                    self.CalculateTotals();
+                }
+                else {
+                    // Fallback to API (keep existing API logic for later connection)
+                    $.getJSON("/api/currency/getCurrencyRate", { from: fromCurrency, to: toCurrency })
+                        .done(function (data) {
+                            $("#txtCurrencyRate").val(data.rate);
+                            self.CalculateTotals();
+                        })
+                        .fail(function () {
+                            $("#txtCurrencyRate").val("");
+                            console.warn("Failed to load currency rate");
+                        });
+                }
             } else {
                 $("#txtCurrencyRate").val("1");
                 self.CalculateTotals();
@@ -1680,12 +1700,13 @@ function ResetQuickCustomer() {
 
 
 // Initialize invoice page
-function InitializeInvoicePage(invoiceData, mode, isAdmin) {
+function InitializeInvoicePage(invoiceData, mode, isAdmin, currencyData) {
     $(document).ready(function () {
         const obj = {
             mode: mode,
             invoice: invoiceData,
-            isAdmin: isAdmin || false
+            isAdmin: isAdmin || false,
+            currencyData: currencyData || []
         };
         $().invoice(obj);
         

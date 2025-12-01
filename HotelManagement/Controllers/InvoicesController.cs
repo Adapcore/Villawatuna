@@ -143,6 +143,9 @@ namespace HotelManagement.Controllers
                 Text = c.Code.ToString()
             }).ToList();
 
+            // Pass currency data with exchange rates for JavaScript
+            ViewBag.CurrencyData = currencyTypes;
+
             ViewBag.InvoicePaymentTypes = Enum.GetValues(typeof(InvoicePaymentType))
                            .Cast<InvoicePaymentType>().Select(s => new SelectListItem
                            {
@@ -196,6 +199,9 @@ namespace HotelManagement.Controllers
                 Value = c.Code.ToString(),
                 Text = c.Code.ToString()
             }).ToList();
+
+            // Pass currency data with exchange rates for JavaScript
+            ViewBag.CurrencyData = currencyTypes;
 
             ViewBag.InvoicePaymentTypes = Enum.GetValues(typeof(InvoicePaymentType))
                           .Cast<InvoicePaymentType>().Select(s => new SelectListItem
