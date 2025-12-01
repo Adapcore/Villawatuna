@@ -86,7 +86,7 @@
 
             $("#txtPayment").val(0);
             $("#txtCash").val(0);
-            $("#txtBalanceDue").html('');
+            $("#txtBalanceDue").html(self._formatter.format(self._invoice.balance));
 
             if (self._invoice.type == 3 || self._invoice.type == 2) {
                 $("#btn_print").attr("href", "/Internal/Invoices/Print/" + self._invoice.invoiceNo);
@@ -252,6 +252,12 @@
                 if ($("#txtCash").val() === '')
                     $("#txtCash").val(0);
 
+                self.CalculateBalanceDue();
+            });
+
+            $("#btnPayBalance").on("click", function () {
+                var balance = self.ParseNumber($("#txtBalance").html());
+                $("#txtCash").val(balance.toFixed(2));
                 self.CalculateBalanceDue();
             });
 
