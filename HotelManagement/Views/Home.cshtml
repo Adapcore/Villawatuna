@@ -91,6 +91,7 @@ else
             <div class="col-12 col-md-6 filter-section">
                 <button id="btnApply" class="btn btn-primary btn-sm"><i class="bi bi-funnel"></i> Apply</button>
                 <button id="btnToday" class="btn btn-outline-secondary btn-sm">Today</button>
+                <button id="btnYesterday" class="btn btn-outline-secondary btn-sm">Yesterday</button>
                 <button id="btnMonth" class="btn btn-outline-secondary btn-sm">Month</button>
                 <button id="btnYear" class="btn btn-outline-secondary btn-sm">Year</button>
             </div>
@@ -98,7 +99,7 @@ else
 
         <!-- Summary cards (dynamic) -->
         <div class="row g-3 mb-4">
-            @if (ViewBag.IsAdmin == true)
+            @if (true || ViewBag.IsAdmin == true)
             {
                 <div class="col-6 col-md-3">
                     <div class="card shadow-sm border-0 rounded-3 p-3 text-center bg-success text-white">

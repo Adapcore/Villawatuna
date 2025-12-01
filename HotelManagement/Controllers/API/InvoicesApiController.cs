@@ -74,7 +74,9 @@ namespace HotelManagement.Controllers.API
                 invoice.ReferenceNo = model.ReferenceNo;
                 invoice.CustomerId = model.CustomerId;
                 invoice.Note = model.Note;
-                invoice.Status = (InvoiceStatus)model.Status;
+                invoice.Status = (InvoiceStatus)model.Status;                
+                invoice.Currency = model.Currency ?? invoice.Currency;
+                invoice.CurrencyRate = model.CurrencyRate ?? invoice.CurrencyRate;
                 invoice.CurySubTotal = model.CurySubTotal;
                 invoice.SubTotal = model.SubTotal;
                 invoice.ServiceCharge = model.ServiceCharge;

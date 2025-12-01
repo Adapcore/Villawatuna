@@ -234,7 +234,7 @@ namespace HotelManagement.Controllers
             if (invoice == null)
                 return NotFound();
 
-            return View("PrintInvoice", invoice);
+            return View("PrintThermal", invoice);
         }
 
         //[HttpGet("PrintThermal/{id}")]

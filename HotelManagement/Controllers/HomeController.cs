@@ -43,7 +43,7 @@ namespace HotelManagement.Controllers
 
             var payments = _context.Payments.AsNoTracking().Where(i => i.Date >= fromDate && i.Date <= toDate);
 
-            decimal totalRevenue = await payments.SumAsync(i => (decimal?)i.Amount) ?? 0m;
+            decimal totalIncome = await payments.SumAsync(i => (decimal?)i.Amount) ?? 0m;
 
             decimal serviceCharges = await _context.Invoices.AsNoTracking()
                                           .Where(i => i.Status == InvoiceStatus.Paid && i.Type == InvoiceType.Dining && i.Date >= fromDate && i.Date <= toDate)
@@ -94,7 +94,7 @@ namespace HotelManagement.Controllers
                 .SumAsync(i => (decimal?)i.TotalPaid) ?? 0m;
  */
 
-            decimal totalIncome = isAdmin ? totalRevenue : 0m;
+            //decimal totalIncome = isAdmin ? totalRevenue : 0m;
             decimal netRevenue = totalIncome - totalExpenses;
 
             return Json(new

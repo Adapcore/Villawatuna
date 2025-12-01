@@ -13,12 +13,14 @@ function loadMetrics(ele) {
 
     $.getJSON('/Home/GetMetrics', { from: from, to: to }, function (res) {
         if (res && res.success && res.data) {
-            if (res.isAdmin && $('#tileTotalIncome').length) {
-                $('#tileTotalIncome').text(formatCurrency(res.data.totalIncome));
-            }
-            if (res.isAdmin && $('#tileTotalRevenue').length) {
-                $('#tileTotalRevenue').text(formatCurrency(res.data.totalRevenue));
-            }
+            //if (res.isAdmin && $('#tileTotalIncome').length) {
+            //    $('#tileTotalIncome').text(formatCurrency(res.data.totalIncome));
+            //}
+            //if (res.isAdmin && $('#tileTotalRevenue').length) {
+            //    $('#tileTotalRevenue').text(formatCurrency(res.data.totalRevenue));
+            //}
+            $('#tileTotalIncome').text(formatCurrency(res.data.totalIncome));
+            $('#tileTotalRevenue').text(formatCurrency(res.data.totalRevenue));
             $('#tileExpenses').text(formatCurrency(res.data.totalExpenses));
             $('#tileRestaurantRevenue').text(formatCurrency(res.data.restaurantRevenue));
             $('#tileServiceCharges').text(formatCurrency(res.data.serviceCharges));
@@ -48,6 +50,16 @@ function InitializeDashboard() {
             $('#toDate').val(t);
 
             loadMetrics($('#btnToday', $(".filter-section")));
+        });
+
+        $('#btnYesterday').on('click', function () {
+            var date = new Date();
+            date.setDate(date.getDate() - 1);
+            const t = date.toISOString().slice(0, 10);
+            $('#fromDate').val(t);
+            $('#toDate').val(t);
+
+            loadMetrics($('#btnYesterday', $(".filter-section")));
         });
 
         $('#btnMonth').on('click', function () {

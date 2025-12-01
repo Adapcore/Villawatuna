@@ -82,6 +82,7 @@
             $('#txtBalance').html(self._formatter.format(self._invoice.balance));
             $('#txtChange').html(self._formatter.format(self._invoice.change));
             $('#txtLastPaid').html(self._formatter.format(self._invoice.cash));
+            $('#txtChange').html(self._formatter.format(self._invoice.change));
 
             $("#txtPayment").val(0);
             $("#txtCash").val(0);
@@ -108,7 +109,7 @@
 
 
             $('#dv_paidWrapper').hide();
-            $('#dv_lastPaid').addClass('d-none');
+            $('#dv_changeWrapper').addClass('d-none');
             $('#dv_paymentWrapper').hide();
 
             $('#btnComplete').hide();
@@ -162,8 +163,8 @@
                 $('#btn_print').show();
             }
             else if (self._invoice.status == 4) { // Paid
-                $('#dv_paidWrapper').show();
-                $('#dv_lastPaid').removeClass('d-none');
+                $('#dv_paidWrapper').show();                
+                $('#dv_changeWrapper').removeClass('d-none');
                 $('#btnSave').hide();
                 $('#btn_print').show();
             }

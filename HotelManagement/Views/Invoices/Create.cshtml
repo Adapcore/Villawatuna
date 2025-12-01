@@ -34,11 +34,11 @@
                                     }
                                     else
                                     {
-                                        <th>Item</th>
+                                        <th>Room</th>
                                         <th>Check-In</th>
                                         <th>Check-Out</th>
-                                        <th># Room / Note</th>
-                                        <th># Nights</th>
+                                        <th>#Room</th>
+                                        <th>#Nights</th>
                                         <th>Price/Night</th>
                                         <th>Amount</th>
                                         <th></th>
@@ -187,6 +187,10 @@
                         <div class="d-flex justify-content-between fs-6 mb-1">
                             <span>Last Paid</span>
                             <span id="txtLastPaid">@Model.Cash.ToString("N2")</span>
+                        </div>
+                        <div id="dv_changeWrapper" class="d-flex justify-content-between fs-6 mb-1">
+                            <span>Change</span>
+                            <span id="txtChange">@Model.Change.ToString("N2")</span>
                         </div>
                     </div>
 

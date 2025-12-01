@@ -114,6 +114,10 @@
         header .navbar-brand {
             font-size: 1.5rem;
             font-weight: bold;
+            --tw-invert: invert(100%);
+            --tw-brightness: brightness(0%);
+            filter: var(--tw-blur, ) var(--tw-brightness, ) var(--tw-contrast, ) var(--tw-grayscale, ) var(--tw-hue-rotate, ) var(--tw-invert, ) var(--tw-saturate, ) var(--tw-sepia, ) var(--tw-drop-shadow, );
+            
         }
 
         footer {
@@ -279,13 +283,13 @@
             <a class="navbar-brand fw-bold" href="/">
                 @if (!string.IsNullOrEmpty(logoUrl))
                 {
-                    <img src="@logoUrl" alt="@siteName" style="height: 30px; margin-right: 8px;" />
+                    <img src="@logoUrl" alt="@siteName" style="height: 80px; margin-right: 8px;" />
                 }
                 else
                 {
                     <span>@logoIcon</span>
                 }
-                @siteName
+                @* @siteName *@
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
