@@ -67,7 +67,7 @@
     </div>
 
     <div class="d-flex justify-content-end mt-4 gap-3">
-        <button type="submit" class="btn btn-success btn-lg px-5">
+        <button type="submit" id="btnSaveExpense" class="btn btn-success btn-lg px-5">
             💾 Save
         </button>
         <a asp-action="Index" class="btn btn-secondary btn-lg px-5">Cancel</a>
@@ -95,4 +95,29 @@
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        $(document).ready(function() {
+            $('form').on('submit', function(e) {
+                var $form = $(this);
+                var $submitBtn = $('#btnSaveExpense');
+                
+                // Disable the submit button to prevent multiple submissions
+                $submitBtn.prop('disabled', true);
+                
+                // If form validation fails, re-enable the button
+                if (!$form[0].checkValidity()) {
+                    $submitBtn.prop('disabled', false);
+                    return true; // Let browser show validation errors
+                }
+                
+                // Change button text to show processing
+                var originalText = $submitBtn.html();
+                $submitBtn.html('<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Saving...');
+                
+                // If form submission fails (e.g., network error), re-enable button
+                // This will be handled by the form's natural submission flow
+                // If there's an error, the page will reload or show an error, so button state will reset
+            });
+        });
+    </script>
 }
