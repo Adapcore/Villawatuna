@@ -41,10 +41,20 @@ namespace HotelManagement.Controllers
             _memberService = memberService;
         }
 
-        public async Task<IActionResult> Index(int page = 1, DateTime? startDate = null, DateTime? endDate = null, int expenseTypeId = 0)
+        public async Task<IActionResult> Index(int page = 1, string startDate = null, string endDate = null, int expenseTypeId = 0)
         {
             int pageNumber = page < 1 ? 1 : page;
             expenseTypeId = expenseTypeId < 0 ? 0 : expenseTypeId;
+
+            // Parse date strings to DateTime? (null if empty)
+            DateTime? startDateParsed = null;
+            DateTime? endDateParsed = null;
+            
+            if (!string.IsNullOrWhiteSpace(startDate) && DateTime.TryParse(startDate, out DateTime startDateValue))
+                startDateParsed = startDateValue;
+                
+            if (!string.IsNullOrWhiteSpace(endDate) && DateTime.TryParse(endDate, out DateTime endDateValue))
+                endDateParsed = endDateValue;
 
             // Get expense types for dropdown
             var expenseTypes = await _expenseTypeService.GetExpenseTypesAsync();
@@ -70,7 +80,7 @@ namespace HotelManagement.Controllers
 
             // Get filtered expenses
             int? expenseTypeFilter = expenseTypeId > 0 ? expenseTypeId : null;
-            IEnumerable<Expense> expenses = await _expenseService.GetAllAsync(startDate, endDate, expenseTypeFilter);
+            IEnumerable<Expense> expenses = await _expenseService.GetAllAsync(startDateParsed, endDateParsed, expenseTypeFilter);
             var pagedList = expenses.ToPagedList(pageNumber, _pageSize);
 
             ViewBag.IsAdmin = IsAdminUser();

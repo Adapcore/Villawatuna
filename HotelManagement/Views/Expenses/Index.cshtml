@@ -4,8 +4,8 @@
 @{
     ViewData["Title"] = "Expenses";
     Layout = "~/Views/Shared/_Layout.cshtml";
-    DateTime? _startDate = ViewBag.StartDate;
-    DateTime? _endDate = ViewBag.EndDate;
+    string _startDate = ViewBag.StartDate?.ToString();
+    string _endDate = ViewBag.EndDate?.ToString();
     int _expenseTypeId = ViewBag.ExpenseTypeId ?? 0;
     bool isAdmin = ViewBag.IsAdmin != null && (bool)ViewBag.IsAdmin;
 }
@@ -15,35 +15,49 @@
 <div class="container-fluid py-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2 class="fw-bold text-primary mb-0">💰 Expenses</h2>
-        <a asp-action="Create" class="btn btn-success">
-            <i class="bi bi-plus-circle"></i> Add Expense
+        <a asp-action="Create" class="btn btn-success btn-add-expense">
+            <i class="bi bi-plus-circle"></i> <span>Add Expense</span>
         </a>
     </div>
 
     <!-- Filters -->
     <div class="card mb-4">
         <div class="card-body">
-            <form method="get" asp-action="Index" class="row g-3">
-                <div class="col-md-3">
-                    <label class="form-label fw-bold">Start Date</label>
-                    <input type="date" name="startDate" class="form-control" value="@(_startDate?.ToString("yyyy-MM-dd"))" />
-                </div>
-                <div class="col-md-3">
-                    <label class="form-label fw-bold">End Date</label>
-                    <input type="date" name="endDate" class="form-control" value="@(_endDate?.ToString("yyyy-MM-dd"))" />
-                </div>
-                <div class="col-md-3">
+            <form method="get" asp-action="Index" id="expenseFilterForm" class="row g-3">
+                <input type="hidden" name="page" value="1" />
+                
+                <div class="col-md-2 col-sm-6">
                     <label class="form-label fw-bold">Expense Type</label>
-                    <select name="expenseTypeId" class="form-select" asp-items="ViewBag.ExpenseTypes">
+                    <select name="expenseTypeId" class="form-select form-select-sm" asp-items="ViewBag.ExpenseTypes" value="@_expenseTypeId">
                     </select>
                 </div>
-                <div class="col-md-3 d-flex align-items-end">
-                    <button type="submit" class="btn btn-primary me-2">
-                        <i class="bi bi-funnel"></i> Filter
-                    </button>
-                    <a asp-action="Index" class="btn btn-outline-secondary">
-                        <i class="bi bi-x-circle"></i> Clear
-                    </a>
+                
+                <div class="col-md-2 col-sm-6">
+                    <label class="form-label fw-bold">From Date</label>
+                    <input type="date" name="startDate" id="startDate" class="form-control form-control-sm" value="@_startDate" disabled />
+                </div>
+                
+                <div class="col-md-2 col-sm-6">
+                    <label class="form-label fw-bold">To Date</label>
+                    <input type="date" name="endDate" id="endDate" class="form-control form-control-sm" value="@_endDate" disabled />
+                </div>
+                
+                <div class="col-auto">
+                    <label class="form-label fw-bold d-block">&nbsp;</label>
+                    <div class="form-check mt-2">
+                        <input class="form-check-input" type="checkbox" id="chkEnableDateRange" checked="@(!string.IsNullOrEmpty(ViewBag.StartDate?.ToString()) || !string.IsNullOrEmpty(ViewBag.EndDate?.ToString()))">                                
+                    </div>
+                </div>
+                
+                <div class="col-md-3 col-12">
+                    <label class="form-label fw-bold d-block">&nbsp;</label>
+                    <div class="d-flex gap-1 flex-wrap flex-md-nowrap align-items-end" style="flex-wrap: nowrap !important;">
+                        <button type="button" id="btnToday" class="btn btn-outline-secondary btn-sm flex-shrink-0">Today</button>
+                        <button type="button" id="btnYesterday" class="btn btn-outline-secondary btn-sm flex-shrink-0">Yesterday</button>
+                        <button type="button" id="btnMonth" class="btn btn-outline-secondary btn-sm flex-shrink-0">Month</button>
+                        <button type="button" id="btnYear" class="btn btn-outline-secondary btn-sm flex-shrink-0">Year</button>
+                        <button type="submit" id="btnApply" class="btn btn-primary btn-sm flex-shrink-0"><i class="bi bi-funnel"></i> Apply</button>
+                    </div>
                 </div>
             </form>
         </div>
@@ -186,6 +200,108 @@
 @Html.AntiForgeryToken()
 
 <script>
+    // Date range filter functionality
+    $(document).ready(function() {
+        // Initialize date inputs based on checkbox state
+        function updateDateInputsState() {
+            const isEnabled = $('#chkEnableDateRange').is(':checked');
+            $('#startDate').prop('disabled', !isEnabled);
+            $('#endDate').prop('disabled', !isEnabled);
+            
+            // If disabled, clear the values
+            if (!isEnabled) {
+                $('#startDate').val('');
+                $('#endDate').val('');
+            } else {
+                // If enabled and no dates set, set to today
+                if (!$('#startDate').val() || !$('#endDate').val()) {
+                    const today = new Date().toISOString().slice(0, 10);
+                    $('#startDate').val(today);
+                    $('#endDate').val(today);
+                }
+            }
+        }
+
+        // Initialize on page load
+        updateDateInputsState();
+
+        // Checkbox change handler
+        $('#chkEnableDateRange').on('change', function() {
+            updateDateInputsState();
+        });
+
+        // Apply button - applies filters
+        $('#btnApply').on('click', function(e) {
+            e.preventDefault();
+            // If date range is disabled, ensure dates are cleared before submit
+            if (!$('#chkEnableDateRange').is(':checked')) {
+                $('#startDate').val('');
+                $('#endDate').val('');
+            }
+            $('#expenseFilterForm').submit();
+        });
+
+        // Enable date inputs and set checkbox when a date button is clicked
+        function enableDateInputs() {
+            $('#chkEnableDateRange').prop('checked', true);
+            updateDateInputsState();
+        }
+
+        $('#btnToday').on('click', function(e) {
+            e.preventDefault();
+            enableDateInputs();
+            const t = new Date().toISOString().slice(0, 10);
+            $('#startDate').val(t);
+            $('#endDate').val(t);
+            $('#expenseFilterForm').submit();
+        });
+
+        $('#btnYesterday').on('click', function(e) {
+            e.preventDefault();
+            enableDateInputs();
+            var date = new Date();
+            date.setDate(date.getDate() - 1);
+            const t = date.toISOString().slice(0, 10);
+            $('#startDate').val(t);
+            $('#endDate').val(t);
+            $('#expenseFilterForm').submit();
+        });
+
+        $('#btnMonth').on('click', function(e) {
+            e.preventDefault();
+            enableDateInputs();
+            const now = new Date();
+            const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
+            const formatDate = (d) =>
+                d.getFullYear() + '-' +
+                String(d.getMonth() + 1).padStart(2, '0') + '-' +
+                String(d.getDate()).padStart(2, '0');
+            $('#startDate').val(formatDate(firstDay));
+            $('#endDate').val(formatDate(now));
+            $('#expenseFilterForm').submit();
+        });
+
+        $('#btnYear').on('click', function(e) {
+            e.preventDefault();
+            enableDateInputs();
+            const now = new Date();
+            const firstDay = new Date(now.getFullYear(), 0, 1);
+            const formatDate = (d) =>
+                d.getFullYear() + '-' +
+                String(d.getMonth() + 1).padStart(2, '0') + '-' +
+                String(d.getDate()).padStart(2, '0');
+            $('#startDate').val(formatDate(firstDay));
+            $('#endDate').val(formatDate(now));
+            $('#expenseFilterForm').submit();
+        });
+
+        // Enable date inputs when manually changed
+        $('#startDate, #endDate').on('change', function() {
+            $('#chkEnableDateRange').prop('checked', true);
+            updateDateInputsState();
+        });
+    });
+
     $(document).ready(function() {
         // Delete expense handler
         $(document).on('click', '.btn-delete-expense', function() {

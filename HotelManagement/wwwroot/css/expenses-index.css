@@ -1,5 +1,80 @@
 /* Mobile-first responsive expenses index table */
 
+/* Add Expense Button Styles */
+.btn-add-expense {
+    font-size: 0.875rem;
+    white-space: nowrap;
+}
+
+@media (max-width: 767px) {
+    .btn-add-expense {
+        font-size: 0.7rem !important;
+        padding: 0.25rem 0.4rem !important;
+        min-width: auto !important;
+        width: auto !important;
+        max-width: fit-content !important;
+        flex-shrink: 1;
+        gap: 0.25rem !important;
+    }
+    
+    .btn-add-expense i {
+        font-size: 0.8rem !important;
+        margin: 0 !important;
+    }
+    
+    /* Hide text content */
+    .btn-add-expense span {
+        display: none !important;
+    }
+    
+    .btn-add-expense i {
+        font-size: 0.8rem !important;
+    }
+    
+    .btn-add-expense::after {
+        content: "New";
+        font-size: 0.7rem !important;
+        display: inline-block;
+        margin-left: 0.25rem;
+    }
+    
+    /* Ensure parent container doesn't force width */
+    .d-flex.justify-content-between .btn-add-expense {
+        flex: 0 0 auto !important;
+    }
+}
+
+/* Date Filter Buttons - Mobile View */
+@media (max-width: 767px) {
+    .d-flex.flex-wrap.flex-md-nowrap {
+        display: grid !important;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.5rem !important;
+    }
+    
+    .d-flex.flex-wrap.flex-md-nowrap button {
+        width: 100%;
+        margin: 0;
+    }
+    
+    .d-flex.flex-wrap.flex-md-nowrap #btnApply {
+        grid-column: 1 / -1; /* Span full width */
+    }
+    
+    /* Make checkbox larger on mobile */
+    #chkEnableDateRange {
+        width: 1.5rem !important;
+        height: 1.5rem !important;
+        min-width: 1.5rem !important;
+        min-height: 1.5rem !important;
+    }
+    
+    .form-check-label {
+        font-size: 0.9rem;
+        padding-left: 0.5rem;
+    }
+}
+
 /* Prevent horizontal scrolling on mobile */
 @media (max-width: 767px) {
     body {
