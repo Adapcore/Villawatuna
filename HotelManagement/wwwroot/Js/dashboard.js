@@ -192,9 +192,15 @@ function renderInvoicesMobile(data, isAdmin, tileType) {
     let html = '<div class="invoice-table-mobile">';
     
     sortedDates.forEach(dateKey => {
+        // Calculate daily total for this date
+        const dateTotal = grouped[dateKey].reduce((sum, invoice) => {
+            return sum + parseFloat(invoice.amount || 0);
+        }, 0);
+        
         html += `<div class="invoice-date-group">
             <div class="invoice-date-header">
                 <h6 class="invoice-date-title">${dateKey}</h6>
+                <small class="invoice-date-total">Total: ${formatCurrency(dateTotal)}</small>
             </div>`;
 
         grouped[dateKey].forEach(invoice => {
@@ -256,9 +262,15 @@ function renderExpensesMobile(data, isAdmin) {
     let html = '<div class="expenses-table-mobile">';
     
     sortedDates.forEach(dateKey => {
+        // Calculate daily total for this date
+        const dateTotal = grouped[dateKey].reduce((sum, expense) => {
+            return sum + parseFloat(expense.amount || 0);
+        }, 0);
+        
         html += `<div class="expense-date-group">
             <div class="expense-date-header">
                 <h6 class="expense-date-title">${dateKey}</h6>
+                <small class="expense-date-total">Total: ${formatCurrency(dateTotal)}</small>
             </div>`;
 
         grouped[dateKey].forEach(expense => {
