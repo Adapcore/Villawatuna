@@ -49,7 +49,10 @@ namespace HotelManagement.Services
             int pageNumber,
             int pageSize,
             int customerId = 0,
-            InvoiceStatus? invoiceStatus = null)
+            InvoiceStatus? invoiceStatus = null,
+            InvoiceType? invoiceType = null,
+            DateTime? fromDate = null,
+            DateTime? toDate = null)
         {
             var query = _context.Invoices
                 .Include(i => i.Customer)
@@ -60,6 +63,15 @@ namespace HotelManagement.Services
 
             if (invoiceStatus.HasValue)
                 query = query.Where(x => x.Status == invoiceStatus.Value);
+
+            if (invoiceType.HasValue)
+                query = query.Where(x => x.Type == invoiceType.Value);
+
+            if (fromDate.HasValue)
+                query = query.Where(x => x.Date >= fromDate.Value.Date);
+
+            if (toDate.HasValue)
+                query = query.Where(x => x.Date <= toDate.Value.Date.AddDays(1).AddTicks(-1));
 
             query = query
                 .OrderByDescending(i => i.InvoiceNo);
@@ -110,7 +122,7 @@ namespace HotelManagement.Services
         }
 
 
-        public async Task<int> GetPagedInvoicesCountAsync(int customerId = 0, InvoiceStatus? invoiceStatus = null)
+        public async Task<int> GetPagedInvoicesCountAsync(int customerId = 0, InvoiceStatus? invoiceStatus = null, InvoiceType? invoiceType = null, DateTime? fromDate = null, DateTime? toDate = null)
         {
             var query = _context.Invoices
                 .Include(i => i.Customer).AsQueryable();
@@ -120,6 +132,15 @@ namespace HotelManagement.Services
 
             if (invoiceStatus != null)
                 query = query.Where(x => x.Status == invoiceStatus);
+
+            if (invoiceType.HasValue)
+                query = query.Where(x => x.Type == invoiceType.Value);
+
+            if (fromDate.HasValue)
+                query = query.Where(x => x.Date >= fromDate.Value.Date);
+
+            if (toDate.HasValue)
+                query = query.Where(x => x.Date <= toDate.Value.Date.AddDays(1).AddTicks(-1));
 
             return await query.CountAsync();
         }

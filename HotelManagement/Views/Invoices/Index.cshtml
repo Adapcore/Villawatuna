@@ -7,6 +7,9 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
     InvoiceStatus? _invoiceStatus = ViewBag.InvoiceStatus;
     int _customerId = ViewBag.CustomerId;
+    InvoiceType? _invoiceType = ViewBag.InvoiceType;
+    string _fromDate = ViewBag.FromDate;
+    string _toDate = ViewBag.ToDate;
     bool isAdmin = ViewBag.IsAdmin != null && (bool)ViewBag.IsAdmin;
 }
 
@@ -14,74 +17,114 @@
 
 <div class="container-fluid py-3">
     <!-- Touch-Optimized Header -->
-    <div class="row mb-4">
+    <div class="row mb-3">
         <div class="col-12">
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <h1 class="fw-bold text-primary mb-0 fs-2">📋 Invoices</h1>
-                <a asp-action="Create" class="btn btn-success btn-lg d-flex align-items-center gap-2 px-4 py-3">
-                    <i class="bi bi-plus-circle fs-4"></i>
-                    <span class="fs-5">New Invoice</span>
+                <a asp-action="Create" class="btn btn-success btn-sm d-flex align-items-center gap-2 px-3 py-2 btn-new-invoice">
+                    <i class="bi bi-plus-circle"></i>
+                    <span>New Invoice</span>
                 </a>
             </div>
 
-            <!-- Customer Filter -->
-            <div class="card mb-3">
-                <div class="card-body p-3">
-                    <form method="get" asp-action="Index" class="row g-3">
-                        <div class="col-md-6">
-                            <label class="form-label fw-bold fs-5">Filter by Customer</label>
-
-                            <select asp-for="CustomerId" class="form-select form-select-lg" asp-items="ViewBag.Customers" onchange="this.form.submit()">
-                                <option value="0">-- All Customers --</option>
-                            </select>
-                            <input type="hidden" name="invoiceStatus" value="@ViewBag.InvoiceStatus" />
-                        </div>
-                    </form>
-                </div>
-            </div>
-
-            <!-- Quick Invoice Type Buttons - Touch Optimized -->
-            <div class="row g-3 mb-4">
+            <!-- Quick Invoice Type Buttons - Moved to Top -->
+            <div class="row g-2 mb-3">
                 <div class="col-12">
-                    <h5 class="fw-bold mb-3">Quick Create Invoice</h5>
-                    <div class="row g-3">
-                        <div class="col-6 col-md-2">
-                            <a asp-action="Create" asp-route-type="1" class="btn btn-outline-danger btn-lg w-75 h-75 d-flex flex-column align-items-center justify-content-center py-4" title="Add Dining Invoice">
-                                <i class="bi bi-cup-hot-fill fs-1 mb-2"></i>
-                                <span class="fw-bold">Dining</span>
+                    <h6 class="fw-bold mb-2">Quick Create Invoice</h6>
+                    <div class="row g-2">
+                        <div class="col-4 col-sm-3 col-md-2 col-lg-1">
+                            <a asp-action="Create" asp-route-type="1" class="btn btn-outline-danger btn-sm w-100 d-flex flex-column align-items-center justify-content-center py-2" title="Add Dining Invoice">
+                                <i class="bi bi-cup-hot-fill fs-4 mb-1"></i>
+                                <span class="fw-bold small">Dining</span>
                             </a>
                         </div>
-                        <div class="col-6 col-md-2">
-                            <a asp-action="Create" asp-route-type="2" class="btn btn-outline-warning btn-lg w-75 h-75 d-flex flex-column align-items-center justify-content-center py-4" title="Add Take Away Invoice">
-                                <i class="bi bi-bag-check-fill fs-1 mb-2"></i>
-                                <span class="fw-bold">Take Away</span>
+                        <div class="col-4 col-sm-3 col-md-2 col-lg-1">
+                            <a asp-action="Create" asp-route-type="2" class="btn btn-outline-warning btn-sm w-100 d-flex flex-column align-items-center justify-content-center py-2" title="Add Take Away Invoice">
+                                <i class="bi bi-bag-check-fill fs-4 mb-1"></i>
+                                <span class="fw-bold small">Take Away</span>
                             </a>
                         </div>
-                        <div class="col-6 col-md-2">
-                            <a asp-action="Create" asp-route-type="3" class="btn btn-outline-primary btn-lg w-75 h-75 d-flex flex-column align-items-center justify-content-center py-4" title="Add Stay Invoice">
-                                <i class="bi bi-building-check fs-1 mb-2"></i>
-                                <span class="fw-bold">Stay</span>
+                        <div class="col-4 col-sm-3 col-md-2 col-lg-1">
+                            <a asp-action="Create" asp-route-type="3" class="btn btn-outline-primary btn-sm w-100 d-flex flex-column align-items-center justify-content-center py-2" title="Add Stay Invoice">
+                                <i class="bi bi-building-check fs-4 mb-1"></i>
+                                <span class="fw-bold small">Stay</span>
                             </a>
                         </div>
-                        <div class="col-6 col-md-2">
-                            <a asp-action="Create" asp-route-type="5" class="btn btn-outline-success btn-lg w-75 h-75 d-flex flex-column align-items-center justify-content-center py-4" title="Add Tour Invoice">
-                                <i class="bi bi-bus-front-fill fs-1 mb-2"></i>
-                                <span class="fw-bold">Tour</span>
+                        <div class="col-4 col-sm-3 col-md-2 col-lg-1">
+                            <a asp-action="Create" asp-route-type="5" class="btn btn-outline-success btn-sm w-100 d-flex flex-column align-items-center justify-content-center py-2" title="Add Tour Invoice">
+                                <i class="bi bi-bus-front-fill fs-4 mb-1"></i>
+                                <span class="fw-bold small">Tour</span>
                             </a>
                         </div>
-                        <div class="col-6 col-md-2">
-                            <a asp-action="Create" asp-route-type="6" class="btn btn-outline-info btn-lg w-75 h-75 d-flex flex-column align-items-center justify-content-center py-4" title="Add Laundry Invoice">
-                                <i class="bi bi-basket2-fill fs-2 mb-2"></i>
-                                <span class="fw-bold">Laundry</span>
+                        <div class="col-4 col-sm-3 col-md-2 col-lg-1">
+                            <a asp-action="Create" asp-route-type="6" class="btn btn-outline-info btn-sm w-100 d-flex flex-column align-items-center justify-content-center py-2" title="Add Laundry Invoice">
+                                <i class="bi bi-basket2-fill fs-4 mb-1"></i>
+                                <span class="fw-bold small">Laundry</span>
                             </a>
                         </div>
-                        <div class="col-6 col-md-2">
-                            <a asp-action="Create" asp-route-type="4" class="btn btn-outline-secondary btn-lg w-75 h-75 d-flex flex-column align-items-center justify-content-center py-4" title="Add Other Invoice">
-                                <i class="bi bi-gear-fill fs-1 mb-2"></i>
-                                <span class="fw-bold">Other</span>
+                        <div class="col-4 col-sm-3 col-md-2 col-lg-1">
+                            <a asp-action="Create" asp-route-type="4" class="btn btn-outline-secondary btn-sm w-100 d-flex flex-column align-items-center justify-content-center py-2" title="Add Other Invoice">
+                                <i class="bi bi-gear-fill fs-4 mb-1"></i>
+                                <span class="fw-bold small">Other</span>
                             </a>
                         </div>
                     </div>
+                </div>
+            </div>
+
+            <!-- Filters -->
+            <div class="card mb-3">
+                <div class="card-body p-3">
+                    <form method="get" asp-action="Index" id="invoiceFilterForm" class="row g-3">
+                        <input type="hidden" name="invoiceStatus" value="@ViewBag.InvoiceStatus" />
+                        <input type="hidden" name="page" value="1" />
+                        
+                        <div class="col-md-2 col-sm-6">
+                            <label class="form-label fw-bold">Customer</label>
+                            <select name="customerId" class="form-select form-select-sm" asp-items="ViewBag.Customers" asp-for="CustomerId">
+                                <option value="0">-- All Customers --</option>
+                            </select>
+                        </div>
+                        
+                        <div class="col-md-2 col-sm-6">
+                            <label class="form-label fw-bold">Invoice Type</label>
+                            <select name="invoiceType" class="form-select form-select-sm">
+                                <option value="">-- All Types --</option>
+                                @foreach (var item in ViewBag.InvoiceTypes as List<SelectListItem>)
+                                {
+                                    <option value="@item.Value" selected="@(item.Value == (_invoiceType.HasValue ? ((int)_invoiceType.Value).ToString() : ""))">@item.Text</option>
+                                }
+                            </select>
+                        </div>
+                        
+                        <div class="col-md-2 col-sm-6">
+                            <label class="form-label fw-bold">From Date</label>
+                            <input type="date" name="fromDate" id="fromDate" class="form-control form-control-sm" value="@ViewBag.FromDate" disabled />
+                        </div>
+                        
+                        <div class="col-md-2 col-sm-6">
+                            <label class="form-label fw-bold">To Date</label>
+                            <input type="date" name="toDate" id="toDate" class="form-control form-control-sm" value="@ViewBag.ToDate" disabled />
+                        </div>
+                        
+                        <div class="col-auto">
+                            <label class="form-label fw-bold d-block">&nbsp;</label>
+                            <div class="form-check mt-2">
+                                <input class="form-check-input" type="checkbox" id="chkEnableDateRange" checked="@(!string.IsNullOrEmpty(ViewBag.FromDate) || !string.IsNullOrEmpty(ViewBag.ToDate))">                                
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-3 col-12">
+                            <label class="form-label fw-bold d-block">&nbsp;</label>
+                            <div class="d-flex gap-1 flex-wrap flex-md-nowrap align-items-end">
+                                <button type="button" id="btnToday" class="btn btn-outline-secondary btn-sm">Today</button>
+                                <button type="button" id="btnYesterday" class="btn btn-outline-secondary btn-sm">Yesterday</button>
+                                <button type="button" id="btnMonth" class="btn btn-outline-secondary btn-sm">Month</button>
+                                <button type="button" id="btnYear" class="btn btn-outline-secondary btn-sm">Year</button>
+                                <button type="submit" id="btnApply" class="btn btn-primary btn-sm"><i class="bi bi-funnel"></i> Apply</button>
+                            </div>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
@@ -89,31 +132,31 @@
     <!-- 🔹 Tabs -->
     <ul class="nav nav-tabs mb-3">
         <li class="nav-item">
-            <a class="nav-link @(_invoiceStatus == null ? "active" : "")" href="@Url.Action("Index", new { invoiceStatus = 0, customerId = _customerId })">
+            <a class="nav-link @(_invoiceStatus == null ? "active" : "")" href="@Url.Action("Index", new { invoiceStatus = (int?)null, customerId = _customerId, invoiceType = _invoiceType, fromDate = _fromDate, toDate = _toDate })">
                 All Invoices
                 <span class="badge bg-secondary ms-2">@ViewBag.CountAll</span>
             </a>
         </li>
         <li class="nav-item">
-            <a class="nav-link @(_invoiceStatus == InvoiceStatus.InProgress ? "active" : "")" href="@Url.Action("Index", new { invoiceStatus = 1, customerId = _customerId })">
+            <a class="nav-link @(_invoiceStatus == InvoiceStatus.InProgress ? "active" : "")" href="@Url.Action("Index", new { invoiceStatus = 1, customerId = _customerId, invoiceType = _invoiceType, fromDate = _fromDate, toDate = _toDate })">
                 Open (In Progress)
                 <span class="badge bg-info text-dark ms-2">@ViewBag.CountOpen</span>
             </a>
         </li>
         <li class="nav-item">
-            <a class="nav-link @(_invoiceStatus == InvoiceStatus.Complete ? "active" : "")" href="@Url.Action("Index", new { invoiceStatus = 2 , customerId = _customerId})">
+            <a class="nav-link @(_invoiceStatus == InvoiceStatus.Complete ? "active" : "")" href="@Url.Action("Index", new { invoiceStatus = 2, customerId = _customerId, invoiceType = _invoiceType, fromDate = _fromDate, toDate = _toDate })">
                 Complete
                 <span class="badge bg-primary ms-2">@ViewBag.CountComplete</span>
             </a>
         </li>
         <li class="nav-item">
-            <a class="nav-link @(_invoiceStatus == InvoiceStatus.PartiallyPaid ? "active" : "")" href="@Url.Action("Index", new { invoiceStatus = 3, customerId = _customerId })">
+            <a class="nav-link @(_invoiceStatus == InvoiceStatus.PartiallyPaid ? "active" : "")" href="@Url.Action("Index", new { invoiceStatus = 3, customerId = _customerId, invoiceType = _invoiceType, fromDate = _fromDate, toDate = _toDate })">
                 Partially Paid
                 <span class="badge bg-warning text-dark ms-2">@ViewBag.CountPartial</span>
             </a>
         </li>
         <li class="nav-item">
-            <a class="nav-link @(_invoiceStatus == InvoiceStatus.Paid ? "active" : "")" href="@Url.Action("Index", new { invoiceStatus = 4, customerId = _customerId })">
+            <a class="nav-link @(_invoiceStatus == InvoiceStatus.Paid ? "active" : "")" href="@Url.Action("Index", new { invoiceStatus = 4, customerId = _customerId, invoiceType = _invoiceType, fromDate = _fromDate, toDate = _toDate })">
                 Paid
                 <span class="badge bg-success ms-2">@ViewBag.CountPaid</span>
             </a>
@@ -327,3 +370,106 @@
 @Html.AntiForgeryToken()
 
 <script src="~/js/invoice-index.js"></script>
+<script>
+    // Date range filter functionality
+    $(document).ready(function() {
+        // Initialize date inputs based on checkbox state
+        function updateDateInputsState() {
+            const isEnabled = $('#chkEnableDateRange').is(':checked');
+            $('#fromDate').prop('disabled', !isEnabled);
+            $('#toDate').prop('disabled', !isEnabled);
+            
+            // If disabled, clear the values
+            if (!isEnabled) {
+                $('#fromDate').val('');
+                $('#toDate').val('');
+            } else {
+                // If enabled and no dates set, set to today
+                if (!$('#fromDate').val() || !$('#toDate').val()) {
+                    const today = new Date().toISOString().slice(0, 10);
+                    $('#fromDate').val(today);
+                    $('#toDate').val(today);
+                }
+            }
+        }
+
+        // Initialize on page load
+        updateDateInputsState();
+
+        // Checkbox change handler
+        $('#chkEnableDateRange').on('change', function() {
+            updateDateInputsState();
+        });
+
+        // Apply button - applies filters
+        $('#btnApply').on('click', function(e) {
+            e.preventDefault();
+            // If date range is disabled, ensure dates are cleared before submit
+            if (!$('#chkEnableDateRange').is(':checked')) {
+                $('#fromDate').val('');
+                $('#toDate').val('');
+            }
+            $('#invoiceFilterForm').submit();
+        });
+
+        // Enable date inputs and set checkbox when a date button is clicked
+        function enableDateInputs() {
+            $('#chkEnableDateRange').prop('checked', true);
+            updateDateInputsState();
+        }
+
+        $('#btnToday').on('click', function(e) {
+            e.preventDefault();
+            enableDateInputs();
+            const t = new Date().toISOString().slice(0, 10);
+            $('#fromDate').val(t);
+            $('#toDate').val(t);
+            $('#invoiceFilterForm').submit();
+        });
+
+        $('#btnYesterday').on('click', function(e) {
+            e.preventDefault();
+            enableDateInputs();
+            var date = new Date();
+            date.setDate(date.getDate() - 1);
+            const t = date.toISOString().slice(0, 10);
+            $('#fromDate').val(t);
+            $('#toDate').val(t);
+            $('#invoiceFilterForm').submit();
+        });
+
+        $('#btnMonth').on('click', function(e) {
+            e.preventDefault();
+            enableDateInputs();
+            const now = new Date();
+            const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
+            const formatDate = (d) =>
+                d.getFullYear() + '-' +
+                String(d.getMonth() + 1).padStart(2, '0') + '-' +
+                String(d.getDate()).padStart(2, '0');
+            $('#fromDate').val(formatDate(firstDay));
+            $('#toDate').val(formatDate(now));
+            $('#invoiceFilterForm').submit();
+        });
+
+        $('#btnYear').on('click', function(e) {
+            e.preventDefault();
+            enableDateInputs();
+            const now = new Date();
+            const firstDay = new Date(now.getFullYear(), 0, 1);
+            const formatDate = (d) =>
+                d.getFullYear() + '-' +
+                String(d.getMonth() + 1).padStart(2, '0') + '-' +
+                String(d.getDate()).padStart(2, '0');
+            $('#fromDate').val(formatDate(firstDay));
+            $('#toDate').val(formatDate(now));
+            $('#invoiceFilterForm').submit();
+        });
+
+        // Enable date inputs when manually changed
+        $('#fromDate, #toDate').on('change', function() {
+            $('#chkEnableDateRange').prop('checked', true);
+            updateDateInputsState();
+        });
+    });
+</script>

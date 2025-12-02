@@ -8,8 +8,8 @@ namespace HotelManagement.Services.Interface
     public interface IInvoiceService
     {
         Task<List<Invoice>> GetAllInvoicesAsync();
-        Task<IPagedList<Invoice>> GetPagedInvoicesAsync(int pageNumber, int pageSize, int customerId = 0, InvoiceStatus? invoiceStatus = null);
-        Task<int> GetPagedInvoicesCountAsync(int customerId = 0, InvoiceStatus? invoiceStatus = null);
+        Task<IPagedList<Invoice>> GetPagedInvoicesAsync(int pageNumber, int pageSize, int customerId = 0, InvoiceStatus? invoiceStatus = null, InvoiceType? invoiceType = null, DateTime? fromDate = null, DateTime? toDate = null);
+        Task<int> GetPagedInvoicesCountAsync(int customerId = 0, InvoiceStatus? invoiceStatus = null, InvoiceType? invoiceType = null, DateTime? fromDate = null, DateTime? toDate = null);
         Task<Invoice?> GetByIdAsync(int invoiceNo);
         Task<Invoice> CreateAsync(Invoice invoice);
         Task UpdateInvoiceAsync(Invoice invoice);

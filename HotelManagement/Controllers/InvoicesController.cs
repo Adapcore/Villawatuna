@@ -55,22 +55,35 @@ namespace HotelManagement.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Index(InvoiceStatus? invoiceStatus = null, int customerId = 0, int page = 1)
+        public async Task<IActionResult> Index(InvoiceStatus? invoiceStatus = null, int customerId = 0, InvoiceType? invoiceType = null, string fromDate = null, string toDate = null, int page = 1)
         {
             int pageNumber = page < 1 ? 1 : page;
             customerId = customerId < 0 ? 0 : customerId;
 
-            var pagedList = await _invoiceService.GetPagedInvoicesAsync(pageNumber, _pageSize, customerId: customerId, invoiceStatus: invoiceStatus);
+            // Parse date strings to DateTime? (null if empty)
+            DateTime? fromDateParsed = null;
+            DateTime? toDateParsed = null;
+            
+            if (!string.IsNullOrWhiteSpace(fromDate) && DateTime.TryParse(fromDate, out DateTime fromDateValue))
+                fromDateParsed = fromDateValue;
+                
+            if (!string.IsNullOrWhiteSpace(toDate) && DateTime.TryParse(toDate, out DateTime toDateValue))
+                toDateParsed = toDateValue;
 
-            // badge counts by status
-            ViewBag.CountAll = await _invoiceService.GetPagedInvoicesCountAsync(customerId: customerId);
-            ViewBag.CountOpen = await _invoiceService.GetPagedInvoicesCountAsync(customerId: customerId, invoiceStatus: InvoiceStatus.InProgress);
-            ViewBag.CountComplete = await _invoiceService.GetPagedInvoicesCountAsync(customerId: customerId, invoiceStatus: InvoiceStatus.Complete);
-            ViewBag.CountPartial = await _invoiceService.GetPagedInvoicesCountAsync(customerId: customerId, invoiceStatus: InvoiceStatus.PartiallyPaid);
-            ViewBag.CountPaid = await _invoiceService.GetPagedInvoicesCountAsync(customerId: customerId, invoiceStatus: InvoiceStatus.Paid);
+            var pagedList = await _invoiceService.GetPagedInvoicesAsync(pageNumber, _pageSize, customerId: customerId, invoiceStatus: invoiceStatus, invoiceType: invoiceType, fromDate: fromDateParsed, toDate: toDateParsed);
+
+            // badge counts by status (with filters applied)
+            ViewBag.CountAll = await _invoiceService.GetPagedInvoicesCountAsync(customerId: customerId, invoiceStatus: null, invoiceType: invoiceType, fromDate: fromDateParsed, toDate: toDateParsed);
+            ViewBag.CountOpen = await _invoiceService.GetPagedInvoicesCountAsync(customerId: customerId, invoiceStatus: InvoiceStatus.InProgress, invoiceType: invoiceType, fromDate: fromDateParsed, toDate: toDateParsed);
+            ViewBag.CountComplete = await _invoiceService.GetPagedInvoicesCountAsync(customerId: customerId, invoiceStatus: InvoiceStatus.Complete, invoiceType: invoiceType, fromDate: fromDateParsed, toDate: toDateParsed);
+            ViewBag.CountPartial = await _invoiceService.GetPagedInvoicesCountAsync(customerId: customerId, invoiceStatus: InvoiceStatus.PartiallyPaid, invoiceType: invoiceType, fromDate: fromDateParsed, toDate: toDateParsed);
+            ViewBag.CountPaid = await _invoiceService.GetPagedInvoicesCountAsync(customerId: customerId, invoiceStatus: InvoiceStatus.Paid, invoiceType: invoiceType, fromDate: fromDateParsed, toDate: toDateParsed);
 
             ViewBag.InvoiceStatus = invoiceStatus;
             ViewBag.CustomerId = customerId;
+            ViewBag.InvoiceType = invoiceType;
+            ViewBag.FromDate = fromDate;
+            ViewBag.ToDate = toDate;
             ViewBag.IsAdmin = IsAdminUser();
 
             var customers = await _customerService.GetAllAsync();
@@ -83,6 +96,17 @@ namespace HotelManagement.Controllers
                     ? $"#{c.RoomNo} - {c.FirstName} {c.LastName}" 
                     : $"{c.FirstName} {c.LastName}"
             }).ToList();
+
+            ViewBag.InvoiceTypes = Enum.GetValues(typeof(InvoiceType))
+                .Cast<InvoiceType>().Select(s => new SelectListItem
+                {
+                    Text = s.GetType()
+                    .GetMember(s.ToString())
+                    .First()
+                    .GetCustomAttribute<DisplayAttribute>()?
+                    .Name ?? s.ToString(),
+                    Value = ((int)s).ToString()
+                }).ToList();
 
             var model = new InvoiceIndexViewModel
             {
