@@ -41,7 +41,31 @@ namespace HotelManagement.Controllers
             _memberService = memberService;
         }
 
-        public async Task<IActionResult> Index(int page = 1, string startDate = null, string endDate = null, int expenseTypeId = 0)
+        public async Task<IActionResult> Index()
+        {
+            // Get expense types for dropdown
+            var expenseTypes = await _expenseTypeService.GetExpenseTypesAsync();
+            ViewBag.ExpenseTypes = expenseTypes.Select(c => new SelectListItem
+            {
+                Value = c.Id.ToString(),
+                Text = c.Name
+            }).ToList();
+
+            // Add "All" option
+            ViewBag.ExpenseTypes.Insert(0, new SelectListItem
+            {
+                Value = "0",
+                Text = "-- All Expense Types --"
+            });
+
+            ViewBag.IsAdmin = IsAdminUser();
+
+            return View();
+        }
+
+        [HttpGet]
+        [Route("Expenses/GetExpenses")]
+        public async Task<IActionResult> GetExpenses(int page = 1, string startDate = null, string endDate = null, int expenseTypeId = 0)
         {
             int pageNumber = page < 1 ? 1 : page;
             expenseTypeId = expenseTypeId < 0 ? 0 : expenseTypeId;
@@ -56,36 +80,88 @@ namespace HotelManagement.Controllers
             if (!string.IsNullOrWhiteSpace(endDate) && DateTime.TryParse(endDate, out DateTime endDateValue))
                 endDateParsed = endDateValue;
 
-            // Get expense types for dropdown
-            var expenseTypes = await _expenseTypeService.GetExpenseTypesAsync();
-            ViewBag.ExpenseTypes = expenseTypes.Select(c => new SelectListItem
-            {
-                Value = c.Id.ToString(),
-                Text = c.Name,
-                Selected = c.Id == expenseTypeId
-            }).ToList();
-
-            // Add "All" option
-            ViewBag.ExpenseTypes.Insert(0, new SelectListItem
-            {
-                Value = "0",
-                Text = "-- All Expense Types --",
-                Selected = expenseTypeId == 0
-            });
-
-            // Pass filter values to view
-            ViewBag.StartDate = startDate;
-            ViewBag.EndDate = endDate;
-            ViewBag.ExpenseTypeId = expenseTypeId;
-
             // Get filtered expenses
             int? expenseTypeFilter = expenseTypeId > 0 ? expenseTypeId : null;
             IEnumerable<Expense> expenses = await _expenseService.GetAllAsync(startDateParsed, endDateParsed, expenseTypeFilter);
             var pagedList = expenses.ToPagedList(pageNumber, _pageSize);
 
-            ViewBag.IsAdmin = IsAdminUser();
+            // Load CreatedByMember data from Umbraco
+            var createdByIds = pagedList.Where(e => e.CreatedBy > 0).Select(e => e.CreatedBy).Distinct().ToList();
+            
+            if (createdByIds.Any())
+            {
+                var memberDict = new Dictionary<int, Models.DTO.MemberDTO>();
+                
+                foreach (var memberId in createdByIds)
+                {
+                    try
+                    {
+                        var member = _memberService.GetById(memberId);
+                        if (member != null)
+                        {
+                            memberDict[memberId] = new Models.DTO.MemberDTO
+                            {
+                                Id = member.Id,
+                                Name = member.Name ?? member.Username ?? "",
+                                Username = member.Username ?? "",
+                                Email = member.Email ?? ""
+                            };
+                        }
+                    }
+                    catch
+                    {
+                        // Member not found, skip
+                    }
+                }
+                
+                // Populate CreatedByMember for each expense
+                foreach (var expense in pagedList)
+                {
+                    if (expense.CreatedBy > 0 && memberDict.TryGetValue(expense.CreatedBy, out var member))
+                    {
+                        expense.CreatedByMember = member;
+                    }
+                }
+            }
 
-            return View(pagedList);
+            var expenseList = pagedList.Select(e => new
+            {
+                id = e.ID,
+                date = e.Date.ToString("yyyy-MM-dd"),
+                expenseTypeId = e.ExpenseTypeID,
+                expenseTypeName = e.ExpenseType?.Name ?? "",
+                payeeName = e.PayeeName ?? "",
+                amount = e.Amount,
+                paymentMethod = e.PaymentMethod.ToString(),
+                paymentMethodDisplay = EnumHelper.GetDisplayName(e.PaymentMethod),
+                createdByMember = e.CreatedByMember != null ? new
+                {
+                    name = e.CreatedByMember.Name,
+                    username = e.CreatedByMember.Username
+                } : null
+            }).ToList();
+
+            return Json(new
+            {
+                success = true,
+                expenses = expenseList,
+                pagination = new
+                {
+                    pageNumber = pagedList.PageNumber,
+                    pageCount = pagedList.PageCount,
+                    totalItemCount = pagedList.TotalItemCount,
+                    hasPreviousPage = pagedList.HasPreviousPage,
+                    hasNextPage = pagedList.HasNextPage,
+                    isFirstPage = pagedList.IsFirstPage,
+                    isLastPage = pagedList.IsLastPage
+                },
+                filters = new
+                {
+                    expenseTypeId = expenseTypeId,
+                    startDate = startDate,
+                    endDate = endDate
+                }
+            });
         }
 
         public async Task<IActionResult> Create()

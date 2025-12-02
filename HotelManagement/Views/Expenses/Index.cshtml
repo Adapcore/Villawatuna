@@ -1,12 +1,8 @@
 ﻿@using HotelManagement.Helper
-@model X.PagedList.IPagedList<HotelManagement.Models.Entities.Expense>
 
 @{
     ViewData["Title"] = "Expenses";
     Layout = "~/Views/Shared/_Layout.cshtml";
-    string _startDate = ViewBag.StartDate?.ToString();
-    string _endDate = ViewBag.EndDate?.ToString();
-    int _expenseTypeId = ViewBag.ExpenseTypeId ?? 0;
     bool isAdmin = ViewBag.IsAdmin != null && (bool)ViewBag.IsAdmin;
 }
 
@@ -23,29 +19,27 @@
     <!-- Filters -->
     <div class="card mb-4">
         <div class="card-body">
-            <form method="get" asp-action="Index" id="expenseFilterForm" class="row g-3">
-                <input type="hidden" name="page" value="1" />
-                
+            <form id="expenseFilterForm" class="row g-3">
                 <div class="col-md-2 col-sm-6">
                     <label class="form-label fw-bold">Expense Type</label>
-                    <select name="expenseTypeId" class="form-select form-select-sm" asp-items="ViewBag.ExpenseTypes" value="@_expenseTypeId">
+                    <select name="expenseTypeId" id="expenseTypeId" class="form-select form-select-sm" asp-items="ViewBag.ExpenseTypes">
                     </select>
                 </div>
                 
                 <div class="col-md-2 col-sm-6">
                     <label class="form-label fw-bold">From Date</label>
-                    <input type="date" name="startDate" id="startDate" class="form-control form-control-sm" value="@_startDate" disabled />
+                    <input type="date" name="startDate" id="startDate" class="form-control form-control-sm" disabled />
                 </div>
                 
                 <div class="col-md-2 col-sm-6">
                     <label class="form-label fw-bold">To Date</label>
-                    <input type="date" name="endDate" id="endDate" class="form-control form-control-sm" value="@_endDate" disabled />
+                    <input type="date" name="endDate" id="endDate" class="form-control form-control-sm" disabled />
                 </div>
                 
                 <div class="col-auto">
                     <label class="form-label fw-bold d-block">&nbsp;</label>
                     <div class="form-check mt-2">
-                        <input class="form-check-input" type="checkbox" id="chkEnableDateRange" checked="@(!string.IsNullOrEmpty(ViewBag.StartDate?.ToString()) || !string.IsNullOrEmpty(ViewBag.EndDate?.ToString()))">                                
+                        <input class="form-check-input" type="checkbox" id="chkEnableDateRange">                                
                     </div>
                 </div>
                 
@@ -56,15 +50,23 @@
                         <button type="button" id="btnYesterday" class="btn btn-outline-secondary btn-sm flex-shrink-0">Yesterday</button>
                         <button type="button" id="btnMonth" class="btn btn-outline-secondary btn-sm flex-shrink-0">Month</button>
                         <button type="button" id="btnYear" class="btn btn-outline-secondary btn-sm flex-shrink-0">Year</button>
-                        <button type="submit" id="btnApply" class="btn btn-primary btn-sm flex-shrink-0"><i class="bi bi-funnel"></i> Apply</button>
+                        <button type="button" id="btnApply" class="btn btn-primary btn-sm flex-shrink-0"><i class="bi bi-funnel"></i> Apply</button>
                     </div>
                 </div>
             </form>
         </div>
     </div>
 
+    <!-- Loading Indicator -->
+    <div id="expenseLoadingIndicator" class="text-center py-5" style="display: none;">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+        <p class="mt-3">Loading expenses...</p>
+    </div>
+
     <!-- 🔹 Desktop Table -->
-    <div class="expenses-table-desktop">
+    <div class="expenses-table-desktop" id="expenseTableDesktop">
         <div class="table-responsive shadow-sm">
             <table class="table table-striped table-hover table-bordered align-middle">
                 <thead class="table-dark">
@@ -78,301 +80,25 @@
                         <th style="width: 10%" class="text-center">Actions</th>
                     </tr>
                 </thead>
-                <tbody>
-                    @if (!Model.Any())
-                    {
-                        <tr>
-                            <td colspan="7" class="text-center text-muted py-4">
-                                No expenses found.
-                            </td>
-                        </tr>
-                    }
-                    else
-                    {
-                        foreach (var item in Model)
-                        {
-                            <tr>
-                                <td>@item.ID</td>
-                                <td>@item.Date.ToString("yyyy-MM-dd")</td>
-                                <td>@item.ExpenseType?.Name</td>
-                                <td>@item.PayeeName</td>
-                                <td class="text-end fw-bold">@item.Amount.ToString("N2")</td>
-                                <td>@EnumHelper.GetDisplayName(item.PaymentMethod)</td>
-                                <td>
-                                    <div class="d-flex gap-1">
-                                        <a href="@Url.Action("Details", "Expenses", new { id = item.ID })" class="btn btn-sm btn-info">View</a>
-                                        <a href="@Url.Action("Edit", "Expenses", new { id = item.ID })" class="btn btn-sm btn-warning">Edit</a>
-                                        @if (isAdmin)
-                                        {
-                                            <button type="button" class="btn btn-sm btn-danger btn-delete-expense" data-expense-id="@item.ID" data-expense-no="@item.ID">
-                                                @* <i class="bi bi-trash"></i> *@ Delete
-                                            </button>
-                                        }
-                                    </div>
-                                </td>
-                            </tr>
-                        }
-                    }
+                <tbody id="expenseTableBody">
+                    <!-- Content loaded via AJAX -->
                 </tbody>
             </table>
         </div>
     </div>
 
     <!-- 🔹 Mobile Card Layout -->
-    <div class="expenses-table-mobile">
-        @if (!Model.Any())
-        {
-            <div class="text-center text-muted py-5">
-                <i class="bi bi-inbox fs-1"></i>
-                <p class="mt-3 fs-5">No expenses found.</p>
-            </div>
-        }
-        else
-        {
-            // Group expenses by date (descending order)
-            var groupedExpenses = Model
-                .OrderByDescending(e => e.Date)
-                .ThenByDescending(e => e.ID)
-                .GroupBy(e => e.Date.Date)
-                .ToList();
-
-            @foreach (var dateGroup in groupedExpenses)
-            {
-                <div class="expense-date-group">
-                    <div class="expense-date-header">
-                        <h6 class="expense-date-title">@dateGroup.Key.ToString("MMM dd, yyyy")</h6>
-                    </div>
-
-                    @foreach (var item in dateGroup)
-                    {
-                        var expenseTypeName = !string.IsNullOrWhiteSpace(item.PayeeName) 
-                            ? item.PayeeName 
-                            : item.ExpenseType?.Name ?? "Expense";
-
-                        <div class="expense-row-wrapper">
-                            <div class="expense-row-compact expense-status-default">
-                                <div class="expense-row-header">
-                                    <div class="expense-type-icon">
-                                        <i class="bi bi-cash-stack"></i>
-                                    </div>
-
-                                    <div class="expense-payee-name">
-                                        <span class="expense-number-label">EXP No</span>
-                                        <span class="expense-number-value">#@item.ID</span> - 
-                                        @expenseTypeName
-                                    </div>
-                                    <div class="expense-amount">
-                                        @item.Amount.ToString("N2")
-                                    </div>
-                                </div>
-                                <div class="expense-row-footer">
-                                    <span class="expense-number">
-                                        @if (isAdmin)
-                                        {
-                                            <button type="button" class="btn-delete-expense-icon btn-delete-expense" 
-                                                    data-expense-id="@item.ID" 
-                                                    data-expense-no="@item.ID"
-                                                    title="Delete Expense">
-                                                <i class="bi bi-trash"></i>
-                                            </button>
-                                        }
-                                    </span>
-                                    <span class="expense-type-badge">@(item.ExpenseType?.Name ?? "-")</span>
-                                    <span class="expense-payment-method">@EnumHelper.GetDisplayName(item.PaymentMethod)</span>
-                                    <a href="@Url.Action("Edit", "Expenses", new { id = item.ID })" class="btn-view-expense">
-                                        <i class="bi bi-eye"></i> View
-                                    </a>
-                                    @if (item.CreatedByMember != null && !string.IsNullOrEmpty(item.CreatedByMember.Name))
-                                    {
-                                        <span class="expense-creator">@item.CreatedByMember.Name</span>
-                                    }
-                                </div>
-                            </div>
-                        </div>
-                    }
-                </div>
-            }
-        }
+    <div class="expenses-table-mobile" id="expenseTableMobile">
+        <!-- Content loaded via AJAX -->
     </div>
-    @await Html.PartialAsync("_Pagination_expense", Model)
+
+    <!-- Pagination Container -->
+    <div id="expensePaginationContainer">
+        <!-- Pagination loaded via AJAX -->
+    </div>
 </div>
 
 @Html.AntiForgeryToken()
+<input type="hidden" id="isAdminFlag" data-is-admin="@isAdmin" />
 
-<script>
-    // Date range filter functionality
-    $(document).ready(function() {
-        // Initialize date inputs based on checkbox state
-        function updateDateInputsState() {
-            const isEnabled = $('#chkEnableDateRange').is(':checked');
-            $('#startDate').prop('disabled', !isEnabled);
-            $('#endDate').prop('disabled', !isEnabled);
-            
-            // If disabled, clear the values
-            if (!isEnabled) {
-                $('#startDate').val('');
-                $('#endDate').val('');
-            } else {
-                // If enabled and no dates set, set to today
-                if (!$('#startDate').val() || !$('#endDate').val()) {
-                    const today = new Date().toISOString().slice(0, 10);
-                    $('#startDate').val(today);
-                    $('#endDate').val(today);
-                }
-            }
-        }
-
-        // Initialize on page load
-        updateDateInputsState();
-
-        // Checkbox change handler
-        $('#chkEnableDateRange').on('change', function() {
-            updateDateInputsState();
-        });
-
-        // Apply button - applies filters
-        $('#btnApply').on('click', function(e) {
-            e.preventDefault();
-            // If date range is disabled, ensure dates are cleared before submit
-            if (!$('#chkEnableDateRange').is(':checked')) {
-                $('#startDate').val('');
-                $('#endDate').val('');
-            }
-            $('#expenseFilterForm').submit();
-        });
-
-        // Enable date inputs and set checkbox when a date button is clicked
-        function enableDateInputs() {
-            $('#chkEnableDateRange').prop('checked', true);
-            updateDateInputsState();
-        }
-
-        $('#btnToday').on('click', function(e) {
-            e.preventDefault();
-            enableDateInputs();
-            const t = new Date().toISOString().slice(0, 10);
-            $('#startDate').val(t);
-            $('#endDate').val(t);
-            $('#expenseFilterForm').submit();
-        });
-
-        $('#btnYesterday').on('click', function(e) {
-            e.preventDefault();
-            enableDateInputs();
-            var date = new Date();
-            date.setDate(date.getDate() - 1);
-            const t = date.toISOString().slice(0, 10);
-            $('#startDate').val(t);
-            $('#endDate').val(t);
-            $('#expenseFilterForm').submit();
-        });
-
-        $('#btnMonth').on('click', function(e) {
-            e.preventDefault();
-            enableDateInputs();
-            const now = new Date();
-            const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
-            const formatDate = (d) =>
-                d.getFullYear() + '-' +
-                String(d.getMonth() + 1).padStart(2, '0') + '-' +
-                String(d.getDate()).padStart(2, '0');
-            $('#startDate').val(formatDate(firstDay));
-            $('#endDate').val(formatDate(now));
-            $('#expenseFilterForm').submit();
-        });
-
-        $('#btnYear').on('click', function(e) {
-            e.preventDefault();
-            enableDateInputs();
-            const now = new Date();
-            const firstDay = new Date(now.getFullYear(), 0, 1);
-            const formatDate = (d) =>
-                d.getFullYear() + '-' +
-                String(d.getMonth() + 1).padStart(2, '0') + '-' +
-                String(d.getDate()).padStart(2, '0');
-            $('#startDate').val(formatDate(firstDay));
-            $('#endDate').val(formatDate(now));
-            $('#expenseFilterForm').submit();
-        });
-
-        // Enable date inputs when manually changed
-        $('#startDate, #endDate').on('change', function() {
-            $('#chkEnableDateRange').prop('checked', true);
-            updateDateInputsState();
-        });
-    });
-
-    $(document).ready(function() {
-        // Delete expense handler
-        $(document).on('click', '.btn-delete-expense', function() {
-            var expenseId = $(this).data('expense-id');
-            var expenseNo = $(this).data('expense-no');
-            
-            // Show confirmation dialog using common component
-            showConfirmDialog(
-                'Are you sure you want to delete Expense #' + expenseNo + '?',
-                function(confirmed) {
-                    if (confirmed) {
-                        deleteExpense(expenseId);
-                    }
-                },
-                {
-                    type: 'Danger',
-                    title: 'Delete Expense',
-                    yesButtonText: 'Yes, Delete',
-                    noButtonText: 'No',
-                    warningText: 'This action cannot be undone.',
-                    dialogId: 'deleteExpenseConfirmDialog'
-                }
-            );
-        });
-    });
-
-    // Delete expense via AJAX
-    function deleteExpense(expenseId) {
-        var token = $('input[name="__RequestVerificationToken"]').val();
-        var deleteUrl = '/Expenses/Delete/' + expenseId;
-        
-        $.ajax({
-            url: deleteUrl,
-            type: 'POST',
-            headers: {
-                'RequestVerificationToken': token
-            },
-            success: function(response) {
-                if (response.success) {
-                    // Show success message
-                    if (typeof showToastSuccess === 'function') {
-                        showToastSuccess(response.message || 'Expense deleted successfully.');
-                    } else {
-                        alert(response.message || 'Expense deleted successfully.');
-                    }
-                    
-                    // Reload the page after a short delay
-                    setTimeout(function() {
-                        window.location.reload();
-                    }, 1000);
-                } else {
-                    // Show error message
-                    if (typeof showToastError === 'function') {
-                        showToastError(response.message || 'Error deleting expense.');
-                    } else {
-                        alert(response.message || 'Error deleting expense.');
-                    }
-                }
-            },
-            error: function(xhr, status, error) {
-                var errorMessage = 'Error deleting expense. Please try again.';
-                if (xhr.responseJSON && xhr.responseJSON.message) {
-                    errorMessage = xhr.responseJSON.message;
-                }
-                
-                if (typeof showToastError === 'function') {
-                    showToastError(errorMessage);
-                } else {
-                    alert(errorMessage);
-                }
-            }
-        });
-    }
-</script>
+<script src="~/js/expense-index.js"></script>
