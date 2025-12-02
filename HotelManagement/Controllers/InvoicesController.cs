@@ -55,40 +55,11 @@ namespace HotelManagement.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Index(InvoiceStatus? invoiceStatus = null, int customerId = 0, InvoiceType? invoiceType = null, string fromDate = null, string toDate = null, int page = 1)
+        public async Task<IActionResult> Index()
         {
-            int pageNumber = page < 1 ? 1 : page;
-            customerId = customerId < 0 ? 0 : customerId;
-
-            // Parse date strings to DateTime? (null if empty)
-            DateTime? fromDateParsed = null;
-            DateTime? toDateParsed = null;
-            
-            if (!string.IsNullOrWhiteSpace(fromDate) && DateTime.TryParse(fromDate, out DateTime fromDateValue))
-                fromDateParsed = fromDateValue;
-                
-            if (!string.IsNullOrWhiteSpace(toDate) && DateTime.TryParse(toDate, out DateTime toDateValue))
-                toDateParsed = toDateValue;
-
-            var pagedList = await _invoiceService.GetPagedInvoicesAsync(pageNumber, _pageSize, customerId: customerId, invoiceStatus: invoiceStatus, invoiceType: invoiceType, fromDate: fromDateParsed, toDate: toDateParsed);
-
-            // badge counts by status (with filters applied)
-            ViewBag.CountAll = await _invoiceService.GetPagedInvoicesCountAsync(customerId: customerId, invoiceStatus: null, invoiceType: invoiceType, fromDate: fromDateParsed, toDate: toDateParsed);
-            ViewBag.CountOpen = await _invoiceService.GetPagedInvoicesCountAsync(customerId: customerId, invoiceStatus: InvoiceStatus.InProgress, invoiceType: invoiceType, fromDate: fromDateParsed, toDate: toDateParsed);
-            ViewBag.CountComplete = await _invoiceService.GetPagedInvoicesCountAsync(customerId: customerId, invoiceStatus: InvoiceStatus.Complete, invoiceType: invoiceType, fromDate: fromDateParsed, toDate: toDateParsed);
-            ViewBag.CountPartial = await _invoiceService.GetPagedInvoicesCountAsync(customerId: customerId, invoiceStatus: InvoiceStatus.PartiallyPaid, invoiceType: invoiceType, fromDate: fromDateParsed, toDate: toDateParsed);
-            ViewBag.CountPaid = await _invoiceService.GetPagedInvoicesCountAsync(customerId: customerId, invoiceStatus: InvoiceStatus.Paid, invoiceType: invoiceType, fromDate: fromDateParsed, toDate: toDateParsed);
-
-            ViewBag.InvoiceStatus = invoiceStatus;
-            ViewBag.CustomerId = customerId;
-            ViewBag.InvoiceType = invoiceType;
-            ViewBag.FromDate = fromDate;
-            ViewBag.ToDate = toDate;
             ViewBag.IsAdmin = IsAdminUser();
 
             var customers = await _customerService.GetAllAsync();
-            //ViewBag.Customers = customers;
-
             ViewBag.Customers = customers.Where(c => c.Active).Select(c => new SelectListItem
             {
                 Value = c.ID.ToString(),
@@ -108,13 +79,87 @@ namespace HotelManagement.Controllers
                     Value = ((int)s).ToString()
                 }).ToList();
 
-            var model = new InvoiceIndexViewModel
-            {
-                CustomerId = customerId,
-                Invoices = pagedList
-            };
+            return View();
+        }
 
-            return View(model);
+        [HttpGet("GetInvoices")]
+        public async Task<IActionResult> GetInvoices(InvoiceStatus? invoiceStatus = null, int customerId = 0, InvoiceType? invoiceType = null, string fromDate = null, string toDate = null, int page = 1)
+        {
+            int pageNumber = page < 1 ? 1 : page;
+            customerId = customerId < 0 ? 0 : customerId;
+
+            // Parse date strings to DateTime? (null if empty)
+            DateTime? fromDateParsed = null;
+            DateTime? toDateParsed = null;
+            
+            if (!string.IsNullOrWhiteSpace(fromDate) && DateTime.TryParse(fromDate, out DateTime fromDateValue))
+                fromDateParsed = fromDateValue;
+                
+            if (!string.IsNullOrWhiteSpace(toDate) && DateTime.TryParse(toDate, out DateTime toDateValue))
+                toDateParsed = toDateValue;
+
+            var pagedList = await _invoiceService.GetPagedInvoicesAsync(pageNumber, _pageSize, customerId: customerId, invoiceStatus: invoiceStatus, invoiceType: invoiceType, fromDate: fromDateParsed, toDate: toDateParsed);
+
+            // badge counts by status (with filters applied)
+            var countAll = await _invoiceService.GetPagedInvoicesCountAsync(customerId: customerId, invoiceStatus: null, invoiceType: invoiceType, fromDate: fromDateParsed, toDate: toDateParsed);
+            var countOpen = await _invoiceService.GetPagedInvoicesCountAsync(customerId: customerId, invoiceStatus: InvoiceStatus.InProgress, invoiceType: invoiceType, fromDate: fromDateParsed, toDate: toDateParsed);
+            var countComplete = await _invoiceService.GetPagedInvoicesCountAsync(customerId: customerId, invoiceStatus: InvoiceStatus.Complete, invoiceType: invoiceType, fromDate: fromDateParsed, toDate: toDateParsed);
+            var countPartial = await _invoiceService.GetPagedInvoicesCountAsync(customerId: customerId, invoiceStatus: InvoiceStatus.PartiallyPaid, invoiceType: invoiceType, fromDate: fromDateParsed, toDate: toDateParsed);
+            var countPaid = await _invoiceService.GetPagedInvoicesCountAsync(customerId: customerId, invoiceStatus: InvoiceStatus.Paid, invoiceType: invoiceType, fromDate: fromDateParsed, toDate: toDateParsed);
+
+            var invoices = pagedList.Select(i => new
+            {
+                invoiceNo = i.InvoiceNo,
+                customerName = !string.IsNullOrWhiteSpace(i.Customer?.RoomNo)
+                    ? $"#{i.Customer.RoomNo} - {i.Customer.FirstName} {i.Customer.LastName}"
+                    : $"{i.Customer?.FirstName} {i.Customer?.LastName}",
+                customerRoomNo = i.Customer?.RoomNo,
+                customerFirstName = i.Customer?.FirstName,
+                customerLastName = i.Customer?.LastName,
+                type = i.Type.ToString(),
+                typeDisplay = EnumHelper.GetDisplayName(i.Type),
+                date = i.Date.ToString("yyyy-MM-dd"),
+                status = i.Status.ToString(),
+                statusDisplay = EnumHelper.GetDisplayName(i.Status),
+                grossAmount = i.GrossAmount,
+                createdByMember = i.CreatedByMember != null ? new
+                {
+                    name = i.CreatedByMember.Name,
+                    username = i.CreatedByMember.Username
+                } : null
+            }).ToList();
+
+            return Json(new
+            {
+                success = true,
+                invoices = invoices,
+                pagination = new
+                {
+                    pageNumber = pagedList.PageNumber,
+                    pageCount = pagedList.PageCount,
+                    totalItemCount = pagedList.TotalItemCount,
+                    hasPreviousPage = pagedList.HasPreviousPage,
+                    hasNextPage = pagedList.HasNextPage,
+                    isFirstPage = pagedList.IsFirstPage,
+                    isLastPage = pagedList.IsLastPage
+                },
+                counts = new
+                {
+                    all = countAll,
+                    open = countOpen,
+                    complete = countComplete,
+                    partial = countPartial,
+                    paid = countPaid
+                },
+                filters = new
+                {
+                    invoiceStatus = invoiceStatus?.ToString(),
+                    customerId = customerId,
+                    invoiceType = invoiceType?.ToString(),
+                    fromDate = fromDate,
+                    toDate = toDate
+                }
+            });
         }
 
         [HttpGet("SelectType")]

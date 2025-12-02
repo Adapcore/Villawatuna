@@ -1,12 +1,66 @@
 /**
  * Invoice Index Page JavaScript
- * Handles delete functionality for invoice list page
+ * Handles AJAX-based filtering, pagination, and delete functionality
  */
 
+// Global state
+var invoiceState = {
+    currentPage: 1,
+    invoiceStatus: null,
+    customerId: 0,
+    invoiceType: null,
+    fromDate: null,
+    toDate: null,
+    isAdmin: false
+};
+
 $(document).ready(function() {
-    // Delete invoice handler - use event delegation and prevent navigation
+    // Initialize admin flag
+    invoiceState.isAdmin = $('#isAdminFlag').data('is-admin') || false;
+    
+    // Load initial data
+    loadInvoices();
+    
+    // Filter form submission
+    $('#invoiceFilterForm').on('submit', function(e) {
+        e.preventDefault();
+        invoiceState.currentPage = 1;
+        loadInvoices();
+    });
+    
+    // Apply button click
+    $('#btnApply').on('click', function() {
+        invoiceState.currentPage = 1;
+        loadInvoices();
+    });
+    
+    // Status tab clicks
+    $('.invoice-status-tab').on('click', function(e) {
+        e.preventDefault();
+        $('.invoice-status-tab').removeClass('active');
+        $(this).addClass('active');
+        
+        var status = $(this).data('status');
+        invoiceState.invoiceStatus = status || null;
+        invoiceState.currentPage = 1;
+        loadInvoices();
+    });
+    
+    // Pagination clicks (delegated)
+    $(document).on('click', '.pagination .page-link', function(e) {
+        e.preventDefault();
+        var href = $(this).attr('href');
+        if (href && href !== '#') {
+            var pageMatch = href.match(/page=(\d+)/);
+            if (pageMatch) {
+                invoiceState.currentPage = parseInt(pageMatch[1]);
+                loadInvoices();
+            }
+        }
+    });
+    
+    // Delete invoice handler
     $(document).on('click', '.btn-delete-invoice', function(e) {
-        // Prevent navigation when clicking delete button inside a link
         e.preventDefault();
         e.stopPropagation();
         e.stopImmediatePropagation();
@@ -14,7 +68,6 @@ $(document).ready(function() {
         var invoiceId = $(this).data('invoice-id');
         var invoiceNo = $(this).data('invoice-no');
         
-        // Show confirmation dialog using common component
         showConfirmDialog(
             'Are you sure you want to delete Invoice #' + invoiceNo + '?',
             function(confirmed) {
@@ -32,15 +85,14 @@ $(document).ready(function() {
             }
         );
         
-        return false; // Additional prevention
+        return false;
     });
 
-    // View payments handler (for both desktop and mobile)
+    // View payments handler
     $(document).on('click', '.btn-view-payments, .btn-view-payments-icon', function(e) {
         e.preventDefault();
         e.stopPropagation();
         
-        // Check if button is disabled
         if ($(this).hasClass('disabled') || $(this).prop('disabled')) {
             return;
         }
@@ -51,10 +103,8 @@ $(document).ready(function() {
             return;
         }
 
-        // Update modal title
         $('#modalInvoiceNo').text(invoiceNo);
         
-        // Show loading state
         $('#invoicePaymentsModalBody').html(
             '<div class="text-center py-5">' +
             '<div class="spinner-border text-primary" role="status">' +
@@ -64,7 +114,6 @@ $(document).ready(function() {
             '</div>'
         );
 
-        // Show modal
         var modalElement = document.getElementById('invoicePaymentsModal');
         if (modalElement && typeof bootstrap !== 'undefined') {
             var modal = new bootstrap.Modal(modalElement);
@@ -73,7 +122,6 @@ $(document).ready(function() {
             $('#invoicePaymentsModal').modal('show');
         }
 
-        // Fetch payments
         $.getJSON('/Internal/Invoices/GetPayments/' + invoiceNo, function(response) {
             if (response && response.success && response.data) {
                 renderPayments(response.data);
@@ -89,11 +137,355 @@ $(document).ready(function() {
             );
         });
     });
+    
+    // Date range filter functionality
+    updateDateInputsState();
+    
+    $('#chkEnableDateRange').on('change', function() {
+        updateDateInputsState();
+    });
+    
+    $('#fromDate, #toDate').on('change', function() {
+        invoiceState.fromDate = $('#fromDate').val() || null;
+        invoiceState.toDate = $('#toDate').val() || null;
+        // Remove active state from all date buttons when dates are manually changed
+        clearDateButtonActiveState();
+    });
+    
+    // Helper function to format date as YYYY-MM-DD using local time
+    var formatDateLocal = function(date) {
+        var year = date.getFullYear();
+        var month = String(date.getMonth() + 1).padStart(2, '0');
+        var day = String(date.getDate()).padStart(2, '0');
+        return year + '-' + month + '-' + day;
+    };
+    
+    // Date quick buttons
+    $('#btnToday').on('click', function() {
+        var today = new Date();
+        var todayStr = formatDateLocal(today);
+        $('#fromDate').val(todayStr);
+        $('#toDate').val(todayStr);
+        $('#chkEnableDateRange').prop('checked', true);
+        updateDateInputsState();
+        invoiceState.fromDate = todayStr;
+        invoiceState.toDate = todayStr;
+        setDateButtonActive('btnToday');
+    });
+    
+    $('#btnYesterday').on('click', function() {
+        var yesterday = new Date();
+        yesterday.setDate(yesterday.getDate() - 1);
+        var dateStr = formatDateLocal(yesterday);
+        $('#fromDate').val(dateStr);
+        $('#toDate').val(dateStr);
+        $('#chkEnableDateRange').prop('checked', true);
+        updateDateInputsState();
+        invoiceState.fromDate = dateStr;
+        invoiceState.toDate = dateStr;
+        setDateButtonActive('btnYesterday');
+    });
+    
+    $('#btnMonth').on('click', function() {
+        var now = new Date();
+        // Get first day of current month (1st)
+        var firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
+        // Get last day of current month (end of current month)
+        var lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+        
+        var firstDayStr = formatDateLocal(firstDay);
+        var lastDayStr = formatDateLocal(lastDay);
+        
+        $('#fromDate').val(firstDayStr);
+        $('#toDate').val(lastDayStr);
+        $('#chkEnableDateRange').prop('checked', true);
+        updateDateInputsState();
+        invoiceState.fromDate = firstDayStr;
+        invoiceState.toDate = lastDayStr;
+        setDateButtonActive('btnMonth');
+    });
+    
+    $('#btnYear').on('click', function() {
+        var now = new Date();
+        // Get first day of current year (January 1st)
+        var firstDay = new Date(now.getFullYear(), 0, 1);
+        // Get last day of current year (December 31st)
+        var lastDay = new Date(now.getFullYear(), 11, 31);
+        
+        var firstDayStr = formatDateLocal(firstDay);
+        var lastDayStr = formatDateLocal(lastDay);
+        
+        $('#fromDate').val(firstDayStr);
+        $('#toDate').val(lastDayStr);
+        $('#chkEnableDateRange').prop('checked', true);
+        updateDateInputsState();
+        invoiceState.fromDate = firstDayStr;
+        invoiceState.toDate = lastDayStr;
+        setDateButtonActive('btnYear');
+    });
+    
+    // Check and highlight active button on page load
+    checkAndHighlightActiveDateButton();
+    
+    // Filter change handlers
+    $('#customerId, #invoiceType').on('change', function() {
+        invoiceState.customerId = parseInt($('#customerId').val()) || 0;
+        invoiceState.invoiceType = $('#invoiceType').val() || null;
+    });
 });
 
 /**
+ * Load invoices via AJAX
+ */
+function loadInvoices() {
+    // Update state from form
+    invoiceState.customerId = parseInt($('#customerId').val()) || 0;
+    invoiceState.invoiceType = $('#invoiceType').val() || null;
+    
+    // Show loading indicator
+    $('#invoiceLoadingIndicator').show();
+    $('#invoiceTableDesktop').hide();
+    $('#invoiceTableMobile').hide();
+    $('#invoicePaginationContainer').hide();
+    
+    // Build request data
+    var requestData = {
+        page: invoiceState.currentPage,
+        customerId: invoiceState.customerId,
+        invoiceType: invoiceState.invoiceType,
+        fromDate: invoiceState.fromDate,
+        toDate: invoiceState.toDate
+    };
+    
+    if (invoiceState.invoiceStatus) {
+        requestData.invoiceStatus = invoiceState.invoiceStatus;
+    }
+    
+    $.ajax({
+        url: '/Internal/Invoices/GetInvoices',
+        type: 'GET',
+        data: requestData,
+        success: function(response) {
+            if (response.success) {
+                renderInvoices(response.invoices);
+                renderPagination(response.pagination);
+                updateBadgeCounts(response.counts);
+                // Check and highlight active date button after loading
+                checkAndHighlightActiveDateButton();
+            } else {
+                showError('Failed to load invoices.');
+            }
+        },
+        error: function(xhr, status, error) {
+            console.error('Error loading invoices:', error);
+            showError('Error loading invoices. Please try again.');
+        },
+        complete: function() {
+            $('#invoiceLoadingIndicator').hide();
+        }
+    });
+}
+
+/**
+ * Render invoices (desktop and mobile)
+ */
+function renderInvoices(invoices) {
+    if (!invoices || invoices.length === 0) {
+        renderEmptyState();
+        return;
+    }
+    
+    // Render desktop table
+    renderDesktopTable(invoices);
+    
+    // Render mobile cards
+    renderMobileCards(invoices);
+    
+    // Remove inline display styles to let CSS media queries handle visibility
+    $('#invoiceTableDesktop').css('display', '');
+    $('#invoiceTableMobile').css('display', '');
+}
+
+/**
+ * Render desktop table
+ */
+function renderDesktopTable(invoices) {
+    var html = '';
+    
+    invoices.forEach(function(invoice) {
+        var isPaymentsDisabled = invoice.status === 'InProgress' || invoice.status === 'Complete';
+        
+        html += '<tr>';
+        html += '<td>' + escapeHtml(invoice.invoiceNo) + '</td>';
+        html += '<td>' + escapeHtml(invoice.customerName) + '</td>';
+        html += '<td>' + escapeHtml(invoice.typeDisplay) + '</td>';
+        html += '<td>' + formatDate(invoice.date) + '</td>';
+        html += '<td>' + escapeHtml(invoice.statusDisplay) + '</td>';
+        html += '<td class="text-end">' + formatCurrency(invoice.grossAmount) + '</td>';
+        html += '<td>';
+        html += '<div class="d-flex gap-1">';
+        html += '<a href="/Internal/Invoices/Edit/' + invoice.invoiceNo + '" class="btn btn-sm btn-warning"><i class="bi bi-eye"></i> View</a>';
+        html += '<button type="button" class="btn btn-sm btn-info btn-view-payments ' + (isPaymentsDisabled ? 'disabled' : '') + '" ';
+        html += 'data-invoice-no="' + invoice.invoiceNo + '" ' + (isPaymentsDisabled ? 'disabled' : '') + ' ';
+        html += 'title="' + (isPaymentsDisabled ? 'Payments not available for this invoice status' : 'View Payments') + '">';
+        html += '<div class="d-flex flex-column align-items-center"><i class="bi bi-credit-card"></i><span class="btn-text">Payments</span></div>';
+        html += '</button>';
+        if (invoiceState.isAdmin) {
+            html += '<button type="button" class="btn btn-sm btn-danger btn-delete-invoice" ';
+            html += 'data-invoice-id="' + invoice.invoiceNo + '" data-invoice-no="' + invoice.invoiceNo + '">';
+            html += '<i class="bi bi-trash"></i> Delete</button>';
+        }
+        html += '</div>';
+        html += '</td>';
+        html += '</tr>';
+    });
+    
+    $('#invoiceTableBody').html(html);
+}
+
+/**
+ * Render mobile cards
+ */
+function renderMobileCards(invoices) {
+    // Group invoices by date
+    var grouped = {};
+    invoices.forEach(function(invoice) {
+        var dateKey = invoice.date;
+        if (!grouped[dateKey]) {
+            grouped[dateKey] = [];
+        }
+        grouped[dateKey].push(invoice);
+    });
+    
+    // Sort dates descending
+    var sortedDates = Object.keys(grouped).sort(function(a, b) {
+        return new Date(b) - new Date(a);
+    });
+    
+    var html = '';
+    
+    sortedDates.forEach(function(date) {
+        var dateInvoices = grouped[date];
+        var dateDisplay = formatDateDisplay(date);
+        
+        html += '<div class="invoice-date-group">';
+        html += '<div class="invoice-date-header">';
+        html += '<h6 class="invoice-date-title">' + dateDisplay + '</h6>';
+        html += '</div>';
+        
+        dateInvoices.forEach(function(invoice) {
+            var statusClass = getStatusClass(invoice.status);
+            var typeIcon = getTypeIcon(invoice.type);
+            var isPaymentsDisabled = invoice.status === 'InProgress' || invoice.status === 'Complete';
+            
+            html += '<div class="invoice-row-wrapper">';
+            html += '<div class="invoice-row-compact ' + statusClass + '">';
+            html += '<div class="invoice-row-header">';
+            html += '<div class="invoice-type-icon"><i class="bi ' + typeIcon + '"></i></div>';
+            html += '<div class="invoice-customer-name">' + escapeHtml(invoice.customerName) + '</div>';
+            html += '<div class="invoice-amount">' + formatCurrency(invoice.grossAmount) + '</div>';
+            html += '</div>';
+            html += '<div class="invoice-row-footer">';
+            html += '<span class="invoice-number">';
+            html += '<span class="invoice-number-label">INV No</span>';
+            html += '<span class="invoice-number-value">#' + invoice.invoiceNo + '</span>';
+            if (invoiceState.isAdmin) {
+                html += '<button type="button" class="btn-delete-invoice-icon btn-delete-invoice" ';
+                html += 'data-invoice-id="' + invoice.invoiceNo + '" data-invoice-no="' + invoice.invoiceNo + '" ';
+                html += 'title="Delete Invoice"><i class="bi bi-trash"></i></button>';
+            }
+            html += '</span>';
+            html += '<button type="button" class="btn-view-payments-icon btn-view-payments-mobile ' + (isPaymentsDisabled ? 'disabled' : '') + '" ';
+            html += 'data-invoice-no="' + invoice.invoiceNo + '" ' + (isPaymentsDisabled ? 'disabled' : '') + ' ';
+            html += 'title="' + (isPaymentsDisabled ? 'Payments not available for this invoice status' : 'View Payments') + '">';
+            html += '<i class="bi bi-credit-card"></i></button>';
+            html += '<a href="/Internal/Invoices/Edit/' + invoice.invoiceNo + '" class="btn-view-invoice">';
+            html += '<i class="bi bi-eye"></i> View</a>';
+            if (invoice.createdByMember && invoice.createdByMember.name) {
+                html += '<span class="invoice-creator">' + escapeHtml(invoice.createdByMember.name) + '</span>';
+            }
+            html += '</div>';
+            html += '</div>';
+            html += '</div>';
+        });
+        
+        html += '</div>';
+    });
+    
+    $('#invoiceTableMobile').html(html);
+}
+
+/**
+ * Render pagination
+ */
+function renderPagination(pagination) {
+    if (!pagination || pagination.pageCount <= 1) {
+        $('#invoicePaginationContainer').html('');
+        return;
+    }
+    
+    var html = '<div class="d-flex justify-content-center mt-4"><ul class="pagination">';
+    
+    // First page
+    if (pagination.hasPreviousPage) {
+        html += '<li class="page-item"><a class="page-link" href="?page=1">First</a></li>';
+        html += '<li class="page-item"><a class="page-link" href="?page=' + (pagination.pageNumber - 1) + '">Previous</a></li>';
+    }
+    
+    // Page numbers
+    var startPage = Math.max(1, pagination.pageNumber - 1);
+    var endPage = Math.min(pagination.pageCount, pagination.pageNumber + 1);
+    
+    for (var i = startPage; i <= endPage; i++) {
+        var activeClass = i === pagination.pageNumber ? 'active' : '';
+        html += '<li class="page-item ' + activeClass + '"><a class="page-link" href="?page=' + i + '">' + i + '</a></li>';
+    }
+    
+    // Last page
+    if (pagination.hasNextPage) {
+        html += '<li class="page-item"><a class="page-link" href="?page=' + (pagination.pageNumber + 1) + '">Next</a></li>';
+        html += '<li class="page-item"><a class="page-link" href="?page=' + pagination.pageCount + '">Last</a></li>';
+    }
+    
+    html += '</ul></div>';
+    html += '<div class="text-center mt-2"><small class="text-muted">';
+    html += 'Showing ' + ((pagination.pageNumber - 1) * 20 + 1) + ' to ';
+    html += Math.min(pagination.pageNumber * 20, pagination.totalItemCount) + ' of ';
+    html += pagination.totalItemCount + ' invoices';
+    html += '</small></div>';
+    
+    $('#invoicePaginationContainer').html(html).show();
+}
+
+/**
+ * Update badge counts
+ */
+function updateBadgeCounts(counts) {
+    $('#badge-all').text(counts.all || 0);
+    $('#badge-open').text(counts.open || 0);
+    $('#badge-complete').text(counts.complete || 0);
+    $('#badge-partial').text(counts.partial || 0);
+    $('#badge-paid').text(counts.paid || 0);
+}
+
+/**
+ * Render empty state
+ */
+function renderEmptyState() {
+    var emptyHtml = '<div class="text-center text-muted py-5">';
+    emptyHtml += '<i class="bi bi-inbox fs-1"></i>';
+    emptyHtml += '<p class="mt-3 fs-5">No invoices found.</p>';
+    emptyHtml += '</div>';
+    
+    $('#invoiceTableBody').html('<tr><td colspan="7" class="text-center text-muted">No invoices found.</td></tr>');
+    $('#invoiceTableMobile').html(emptyHtml);
+    // Remove inline display styles to let CSS media queries handle visibility
+    $('#invoiceTableDesktop').css('display', '');
+    $('#invoiceTableMobile').css('display', '');
+}
+
+/**
  * Delete invoice via AJAX
- * @param {number} invoiceId - The ID of the invoice to delete
  */
 function deleteInvoice(invoiceId) {
     var token = $('input[name="__RequestVerificationToken"]').val();
@@ -107,19 +499,13 @@ function deleteInvoice(invoiceId) {
         },
         success: function(response) {
             if (response.success) {
-                // Show success message
                 if (typeof showToastSuccess === 'function') {
                     showToastSuccess(response.message || 'Invoice deleted successfully.');
                 } else {
                     alert(response.message || 'Invoice deleted successfully.');
                 }
-                
-                // Reload the page after a short delay
-                setTimeout(function() {
-                    window.location.reload();
-                }, 1000);
+                loadInvoices(); // Reload invoices
             } else {
-                // Show error message
                 if (typeof showToastError === 'function') {
                     showToastError(response.message || 'Error deleting invoice.');
                 } else {
@@ -144,7 +530,6 @@ function deleteInvoice(invoiceId) {
 
 /**
  * Render payments in the modal
- * @param {Array} payments - Array of payment objects
  */
 function renderPayments(payments) {
     if (!payments || payments.length === 0) {
@@ -154,12 +539,10 @@ function renderPayments(payments) {
         return;
     }
 
-    // Calculate total
     var totalAmount = payments.reduce(function(sum, payment) {
         return sum + parseFloat(payment.amount || 0);
     }, 0);
 
-    // Group payments by date
     var groupedPayments = {};
     payments.forEach(function(payment) {
         var dateKey = payment.date;
@@ -169,7 +552,6 @@ function renderPayments(payments) {
         groupedPayments[dateKey].push(payment);
     });
 
-    // Sort dates descending
     var sortedDates = Object.keys(groupedPayments).sort(function(a, b) {
         return new Date(b) - new Date(a);
     });
@@ -224,25 +606,46 @@ function renderPayments(payments) {
 }
 
 /**
- * Format date for display
+ * Helper functions
  */
 function formatDate(dateString) {
+    var date = new Date(dateString);
+    return date.toLocaleDateString();
+}
+
+function formatDateDisplay(dateString) {
     var date = new Date(dateString);
     var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
     return months[date.getMonth()] + ' ' + date.getDate() + ', ' + date.getFullYear();
 }
 
-/**
- * Format currency for display
- */
 function formatCurrency(value) {
     var num = Number(value || 0);
     return 'LKR ' + num.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
-/**
- * Get payment type badge HTML
- */
+function getStatusClass(status) {
+    switch(status) {
+        case 'InProgress': return 'status-in-progress';
+        case 'Complete': return 'status-complete';
+        case 'PartiallyPaid': return 'status-partially-paid';
+        case 'Paid': return 'status-paid';
+        default: return 'bg-secondary';
+    }
+}
+
+function getTypeIcon(type) {
+    switch(type) {
+        case 'Dining': return 'bi-cup-hot-fill';
+        case 'TakeAway': return 'bi-bag-check-fill';
+        case 'Stay': return 'bi-building-check';
+        case 'Tour': return 'bi-bus-front-fill';
+        case 'Laundry': return 'bi-basket2-fill';
+        case 'Other': return 'bi-gear-fill';
+        default: return 'bi-receipt';
+    }
+}
+
 function getPaymentTypeBadge(type) {
     var badgeClass = 'bg-secondary';
     var icon = 'bi-credit-card';
@@ -270,9 +673,6 @@ function getPaymentTypeBadge(type) {
     return '<span class="badge ' + badgeClass + '"><i class="bi ' + icon + '"></i> ' + escapeHtml(type) + '</span>';
 }
 
-/**
- * Escape HTML to prevent XSS
- */
 function escapeHtml(text) {
     var map = {
         '&': '&amp;',
@@ -281,6 +681,108 @@ function escapeHtml(text) {
         '"': '&quot;',
         "'": '&#039;'
     };
-    return (text || '').replace(/[&<>"']/g, function(m) { return map[m]; });
+    return (text || '').toString().replace(/[&<>"']/g, function(m) { return map[m]; });
 }
 
+function updateDateInputsState() {
+    var enabled = $('#chkEnableDateRange').is(':checked');
+    $('#fromDate, #toDate').prop('disabled', !enabled);
+    if (!enabled) {
+        $('#fromDate, #toDate').val('');
+        invoiceState.fromDate = null;
+        invoiceState.toDate = null;
+        clearDateButtonActiveState();
+    } else {
+        // Check if dates match any button pattern
+        checkAndHighlightActiveDateButton();
+    }
+}
+
+/**
+ * Set active state on a date filter button
+ */
+function setDateButtonActive(buttonId) {
+    // Remove active from all buttons
+    clearDateButtonActiveState();
+    // Add active to selected button
+    $('#' + buttonId).addClass('active');
+}
+
+/**
+ * Clear active state from all date filter buttons
+ */
+function clearDateButtonActiveState() {
+    $('#btnToday, #btnYesterday, #btnMonth, #btnYear').removeClass('active');
+}
+
+/**
+ * Check current dates and highlight the appropriate button
+ */
+function checkAndHighlightActiveDateButton() {
+    var fromDate = $('#fromDate').val();
+    var toDate = $('#toDate').val();
+    
+    if (!fromDate || !toDate) {
+        clearDateButtonActiveState();
+        return;
+    }
+    
+    var from = new Date(fromDate);
+    var to = new Date(toDate);
+    
+    // Helper function to format date as YYYY-MM-DD using local time
+    var formatDateForCheck = function(date) {
+        var year = date.getFullYear();
+        var month = String(date.getMonth() + 1).padStart(2, '0');
+        var day = String(date.getDate()).padStart(2, '0');
+        return year + '-' + month + '-' + day;
+    };
+    
+    // Check Today
+    var today = new Date();
+    today.setHours(0, 0, 0, 0);
+    var todayStr = formatDateForCheck(today);
+    if (fromDate === todayStr && toDate === todayStr) {
+        setDateButtonActive('btnToday');
+        return;
+    }
+    
+    // Check Yesterday
+    var yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    yesterday.setHours(0, 0, 0, 0);
+    var yesterdayStr = formatDateForCheck(yesterday);
+    if (fromDate === yesterdayStr && toDate === yesterdayStr) {
+        setDateButtonActive('btnYesterday');
+        return;
+    }
+    
+    // Check Month
+    var now = new Date();
+    var monthFirstDay = formatDateForCheck(new Date(now.getFullYear(), now.getMonth(), 1));
+    var monthLastDay = formatDateForCheck(new Date(now.getFullYear(), now.getMonth() + 1, 0));
+    if (fromDate === monthFirstDay && toDate === monthLastDay) {
+        setDateButtonActive('btnMonth');
+        return;
+    }
+    
+    // Check Year
+    var yearFirstDay = formatDateForCheck(new Date(now.getFullYear(), 0, 1));
+    var yearLastDay = formatDateForCheck(new Date(now.getFullYear(), 11, 31));
+    if (fromDate === yearFirstDay && toDate === yearLastDay) {
+        setDateButtonActive('btnYear');
+        return;
+    }
+    
+    // No match - clear all active states
+    clearDateButtonActiveState();
+}
+
+function showError(message) {
+    var errorHtml = '<div class="alert alert-danger">' + escapeHtml(message) + '</div>';
+    $('#invoiceTableBody').html('<tr><td colspan="7">' + errorHtml + '</td></tr>');
+    $('#invoiceTableMobile').html('<div class="alert alert-danger">' + escapeHtml(message) + '</div>');
+    // Remove inline display styles to let CSS media queries handle visibility
+    $('#invoiceTableDesktop').css('display', '');
+    $('#invoiceTableMobile').css('display', '');
+}
