@@ -71,48 +71,58 @@
                 <div class="card-body p-3">
                     <form id="invoiceFilterForm" class="row g-3">
                         <div class="col-md-2 col-sm-6">
-                            <label class="form-label fw-bold">Customer</label>
-                            <select name="customerId" id="customerId" class="form-select form-select-sm" asp-items="ViewBag.Customers">
-                                <option value="0">-- All Customers --</option>
-                            </select>
-                        </div>
-                        
-                        <div class="col-md-2 col-sm-6">
-                            <label class="form-label fw-bold">Invoice Type</label>
-                            <select name="invoiceType" id="invoiceType" class="form-select form-select-sm">
-                                <option value="">-- All Types --</option>
-                                @foreach (var item in ViewBag.InvoiceTypes as List<SelectListItem>)
-                                {
-                                    <option value="@item.Value">@item.Text</option>
-                                }
-                            </select>
-                        </div>
-                        
-                        <div class="col-md-2 col-sm-6">
-                            <label class="form-label fw-bold">From Date</label>
-                            <input type="date" name="fromDate" id="fromDate" class="form-control form-control-sm" disabled />
-                        </div>
-                        
-                        <div class="col-md-2 col-sm-6">
-                            <label class="form-label fw-bold">To Date</label>
-                            <input type="date" name="toDate" id="toDate" class="form-control form-control-sm" disabled />
-                        </div>
-                        
-                        <div class="col-auto">
-                            <label class="form-label fw-bold d-block">&nbsp;</label>
-                            <div class="form-check mt-2">
-                                <input class="form-check-input" type="checkbox" id="chkEnableDateRange">                                
+                            <div class="invoice-filter-field">
+                                <label class="form-label fw-bold invoice-filter-label">Customer</label>
+                                <select name="customerId" id="customerId" class="form-select form-select-sm invoice-filter-input" asp-items="ViewBag.Customers">
+                                    <option value="0">-- All Customers --</option>
+                                </select>
                             </div>
                         </div>
                         
-                        <div class="col-md-3 col-12">
-                            <label class="form-label fw-bold d-block">&nbsp;</label>
-                            <div class="d-flex gap-1 flex-wrap flex-md-nowrap align-items-end">
-                                <button type="button" id="btnToday" class="btn btn-outline-secondary btn-sm">Today</button>
-                                <button type="button" id="btnYesterday" class="btn btn-outline-secondary btn-sm">Yesterday</button>
-                                <button type="button" id="btnMonth" class="btn btn-outline-secondary btn-sm">Month</button>
-                                <button type="button" id="btnYear" class="btn btn-outline-secondary btn-sm">Year</button>
-                                <button type="button" id="btnApply" class="btn btn-primary btn-sm"><i class="bi bi-funnel"></i> Apply</button>
+                        <div class="col-md-2 col-sm-6">
+                            <div class="invoice-filter-field">
+                                <label class="form-label fw-bold invoice-filter-label">Invoice Type</label>
+                                <select name="invoiceType" id="invoiceType" class="form-select form-select-sm invoice-filter-input">
+                                    <option value="">-- All Types --</option>
+                                    @foreach (var item in ViewBag.InvoiceTypes as List<SelectListItem>)
+                                    {
+                                        <option value="@item.Value">@item.Text</option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-2 col-sm-6">
+                            <div class="invoice-filter-field">
+                                <label class="form-label fw-bold invoice-filter-label">From Date</label>
+                                <input type="date" name="fromDate" id="fromDate" class="form-control form-control-sm invoice-filter-input" disabled />
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-2 col-sm-6">
+                            <div class="invoice-filter-field">
+                                <label class="form-label fw-bold invoice-filter-label">To Date</label>
+                                <input type="date" name="toDate" id="toDate" class="form-control form-control-sm invoice-filter-input" disabled />
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-4 col-12">
+                            <div class="invoice-filter-actions">
+                                <div class="invoice-filter-checkbox">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="chkEnableDateRange">
+                                        <label class="form-check-label" for="chkEnableDateRange">Enable Date Range</label>
+                                    </div>
+                                </div>
+                                <div class="invoice-filter-buttons">
+                                    <div class="d-flex gap-1 flex-wrap flex-md-nowrap">
+                                        <button type="button" id="btnToday" class="btn btn-outline-secondary btn-sm">Today</button>
+                                        <button type="button" id="btnYesterday" class="btn btn-outline-secondary btn-sm">Yesterday</button>
+                                        <button type="button" id="btnMonth" class="btn btn-outline-secondary btn-sm">Month</button>
+                                        <button type="button" id="btnYear" class="btn btn-outline-secondary btn-sm">Year</button>
+                                        <button type="button" id="btnApply" class="btn btn-primary btn-sm"><i class="bi bi-funnel"></i> Apply</button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </form>

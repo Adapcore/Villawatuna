@@ -10,6 +10,57 @@
         white-space: nowrap !important;
         height: auto !important;
     }
+    
+    /* Invoice Filter Fields - Desktop: Label above input */
+    .invoice-filter-field {
+        display: block;
+    }
+    
+    .invoice-filter-label {
+        margin-bottom: 0.5rem;
+        display: block;
+        min-width: auto;
+    }
+    
+    .invoice-filter-input {
+        width: 100%;
+    }
+    
+    /* Invoice Filter Actions - Desktop: Checkbox and buttons in same column */
+    .invoice-filter-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        align-items: flex-start;
+    }
+    
+    .invoice-filter-checkbox {
+        display: flex;
+        align-items: center;
+        margin-bottom: 0;
+    }
+    
+    .invoice-filter-checkbox .form-check {
+        margin: 0;
+    }
+    
+    .invoice-filter-checkbox .form-check-label {
+        font-size: 0.875rem;
+        padding-left: 0.5rem;
+    }
+    
+    #chkEnableDateRange {
+        width: 1rem;
+        height: 1rem;
+    }
+    
+    .invoice-filter-buttons {
+        width: 100%;
+    }
+    
+    .invoice-filter-buttons .d-flex {
+        flex-wrap: nowrap !important;
+    }
 }
 
 /* Date Filter Button Active State */
@@ -33,6 +84,22 @@
 
 /* Date Filter Buttons - Mobile View */
 @media (max-width: 767px) {
+    .invoice-filter-buttons .d-flex {
+        display: grid !important;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.5rem !important;
+    }
+    
+    .invoice-filter-buttons .d-flex button {
+        width: 100%;
+        margin: 0;
+    }
+    
+    .invoice-filter-buttons .d-flex #btnApply {
+        grid-column: 1 / -1; /* Span full width */
+    }
+    
+    /* Legacy support for old structure */
     .d-flex.flex-wrap.flex-md-nowrap {
         display: grid !important;
         grid-template-columns: repeat(2, 1fr);
@@ -48,17 +115,65 @@
         grid-column: 1 / -1; /* Span full width */
     }
     
-    /* Make checkbox larger on mobile */
-    #chkEnableDateRange {
-        width: 1.5rem !important;
-        height: 1.5rem !important;
-        min-width: 1.5rem !important;
-        min-height: 1.5rem !important;
+    /* Invoice Filter Actions - Mobile: Compact layout */
+    .invoice-filter-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
     }
     
-    .form-check-label {
+    .invoice-filter-checkbox {
+        display: flex;
+        align-items: center;
+    }
+    
+    .invoice-filter-checkbox .form-check {
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+    
+    #chkEnableDateRange {
+        width: 1.2rem !important;
+        height: 1.2rem !important;
+        min-width: 1.2rem !important;
+        min-height: 1.2rem !important;
+        margin: 0 !important;
+        flex-shrink: 0;
+    }
+    
+    .invoice-filter-checkbox .form-check-label {
+        font-size: 0.8rem !important;
+        padding-left: 0 !important;
+        margin: 0 !important;
+        white-space: nowrap;
+        cursor: pointer;
+    }
+    
+    .invoice-filter-buttons {
+        width: 100%;
+    }
+    
+    /* Invoice Filter Fields - Mobile: Label and input on same line */
+    .invoice-filter-field {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .invoice-filter-label {
+        font-size: 0.85rem;
+        margin-bottom: 0;
+        white-space: nowrap;
+        flex-shrink: 0;
+        min-width: 70px;
+    }
+    
+    .invoice-filter-input {
+        flex: 1;
         font-size: 0.9rem;
-        padding-left: 0.5rem;
+        padding: 0.375rem 0.5rem;
     }
 }
 
