@@ -46,6 +46,11 @@
         padding: 16px 12px;
     }
     
+    /* Reduce spacing for quick action buttons on mobile */
+    .card-body .row.g-3 {
+        gap: 8px !important;
+    }
+    
     .card-header h5 {
         font-size: 1rem;
     }
@@ -66,9 +71,52 @@
         line-height: 1.2;
     }
     
+    /* Quick Action Buttons - Mobile: Smaller height, icon and text inline, 3 lines */
+    .quick-action-btn {
+        padding: 8px 12px !important;
+        min-height: auto !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 8px !important;
+    }
+    
+    .quick-action-btn .fs-4 {
+        font-size: 1rem !important;
+        margin-bottom: 0 !important;
+        margin-right: 0 !important;
+        flex-shrink: 0 !important;
+    }
+    
+    .quick-action-btn div {
+        font-size: 0.85rem !important;
+        line-height: 1.2 !important;
+        white-space: nowrap !important;
+    }
+    
     /* Filter Section */
     .row.g-3.align-items-end {
         align-items: stretch !important;
+    }
+    
+    .dashboard-date-filter {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .dashboard-date-label {
+        font-size: 0.9rem;
+        margin-bottom: 0;
+        white-space: nowrap;
+        flex-shrink: 0;
+        min-width: 45px;
+    }
+    
+    .dashboard-date-input {
+        flex: 1;
+        font-size: 1rem;
+        padding: 10px 12px;
     }
     
     .form-label {
@@ -93,6 +141,17 @@
         padding: 10px 12px;
         font-size: 0.9rem;
         min-height: 44px;
+    }
+    
+    .dashboard-button-row {
+        display: flex;
+        gap: 8px;
+        width: 100%;
+    }
+    
+    .dashboard-button-row .btn {
+        flex: 1;
+        width: auto;
     }
     
     /* Summary Cards */
@@ -139,6 +198,58 @@
     
     .card.shadow-sm h4 {
         font-size: 1.5rem;
+    }
+    
+    /* Dashboard date filter - label above input on desktop */
+    .dashboard-date-filter {
+        display: block;
+    }
+    
+    .dashboard-date-label {
+        margin-bottom: 6px;
+        display: block;
+        min-width: auto;
+    }
+    
+    .dashboard-date-input {
+        width: 100%;
+    }
+    
+    /* Desktop button layout - buttons in rows */
+    .dashboard-button-row {
+        display: flex;
+        gap: 8px;
+    }
+    
+    .dashboard-button-row .btn {
+        flex: 1;
+    }
+    
+    .filter-section {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 8px;
+        align-items: center;
+    }
+    
+    .filter-section #btnApply {
+        flex: 0 0 auto;
+    }
+    
+    /* Quick Action Buttons - Desktop: Restore original size */
+    .quick-action-btn {
+        padding: 16px 12px !important;
+    }
+    
+    .quick-action-btn .fs-4 {
+        font-size: 1.5rem !important;
+        margin-bottom: 4px !important;
+    }
+    
+    .quick-action-btn div {
+        font-size: 0.85rem !important;
+        line-height: 1.2 !important;
     }
 }
 

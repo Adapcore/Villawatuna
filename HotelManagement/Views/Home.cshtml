@@ -58,20 +58,20 @@ else
                     </div>
                     <div class="card-body p-4">
                         <div class="row g-3">
-                            <div class="col-6 col-md-4">
-                                <a asp-controller="Invoices" asp-action="Create" class="btn btn-primary btn-lg w-100 py-3">
+                            <div class="col-12 col-md-4">
+                                <a asp-controller="Invoices" asp-action="Create" class="btn btn-primary btn-lg w-100 py-3 quick-action-btn">
                                     <i class="bi bi-plus-circle fs-4 me-2"></i>
                                     <div>New Invoice</div>
                                 </a>
                             </div>
-                            <div class="col-6 col-md-4">
-                                <a asp-controller="Customers" asp-action="Create" class="btn btn-outline-secondary btn-lg w-100 py-3">
+                            <div class="col-12 col-md-4">
+                                <a asp-controller="Customers" asp-action="Create" class="btn btn-outline-secondary btn-lg w-100 py-3 quick-action-btn">
                                     <i class="bi bi-person-plus fs-4 me-2"></i>
                                     <div>Add Customer</div>
                                 </a>
                             </div>
-                            <div class="col-6 col-md-4">
-                                <a asp-controller="Expenses" asp-action="Create" class="btn btn-outline-secondary btn-lg w-100 py-3">
+                            <div class="col-12 col-md-4">
+                                <a asp-controller="Expenses" asp-action="Create" class="btn btn-outline-secondary btn-lg w-100 py-3 quick-action-btn">
                                     <i class="bi bi-wallet2 fs-4 me-2"></i>
                                     <div>Add Expense</div>
                                 </a>
@@ -84,19 +84,27 @@ else
         <!-- Filters -->
         <div class="row g-3 mb-3 align-items-end">
             <div class="col-12 col-md-3">
-                <label class="form-label fw-semibold">From</label>
-                <input type="date" id="fromDate" class="form-control form-control-sm" />
+                <div class="dashboard-date-filter">
+                    <label class="form-label fw-semibold dashboard-date-label">From</label>
+                    <input type="date" id="fromDate" class="form-control form-control-sm dashboard-date-input" />
+                </div>
             </div>
             <div class="col-12 col-md-3">
-                <label class="form-label fw-semibold">To</label>
-                <input type="date" id="toDate" class="form-control form-control-sm" />
+                <div class="dashboard-date-filter">
+                    <label class="form-label fw-semibold dashboard-date-label">To</label>
+                    <input type="date" id="toDate" class="form-control form-control-sm dashboard-date-input" />
+                </div>
             </div>
             <div class="col-12 col-md-6 filter-section">
                 <button id="btnApply" class="btn btn-primary btn-sm"><i class="bi bi-funnel"></i> Apply</button>
-                <button id="btnToday" class="btn btn-outline-secondary btn-sm">Today</button>
-                <button id="btnYesterday" class="btn btn-outline-secondary btn-sm">Yesterday</button>
-                <button id="btnMonth" class="btn btn-outline-secondary btn-sm">Month</button>
-                <button id="btnYear" class="btn btn-outline-secondary btn-sm">Year</button>
+                <div class="dashboard-button-row">
+                    <button id="btnToday" class="btn btn-outline-secondary btn-sm">Today</button>
+                    <button id="btnYesterday" class="btn btn-outline-secondary btn-sm">Yesterday</button>
+                </div>
+                <div class="dashboard-button-row">
+                    <button id="btnMonth" class="btn btn-outline-secondary btn-sm">Month</button>
+                    <button id="btnYear" class="btn btn-outline-secondary btn-sm">Year</button>
+                </div>
             </div>
         </div>
 
