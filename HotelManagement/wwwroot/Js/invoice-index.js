@@ -11,43 +11,100 @@ var invoiceState = {
     invoiceType: null,
     fromDate: null,
     toDate: null,
-    isAdmin: false
+    isAdmin: false,
+    isInternalCallScope: false
 };
 
-$(document).ready(function() {
+$(document).ready(function () {
     // Initialize admin flag
-    invoiceState.isAdmin = $('#isAdminFlag').data('is-admin') || false;
-    
-    // Load initial data
-    loadInvoices();
-    
+    invoiceState.isAdmin = $('#isAdminFlag').data('is-admin') || false;    
+
     // Filter form submission
-    $('#invoiceFilterForm').on('submit', function(e) {
+    $('#invoiceFilterForm').on('submit', function (e) {
         e.preventDefault();
         invoiceState.currentPage = 1;
         loadInvoices();
     });
-    
-    // Apply button click
-    $('#btnApply').on('click', function() {
+
+    $('#customerId, #invoiceType').on('change', function () {
+        invoiceState.customerId = parseInt($('#customerId').val()) || 0;
+        invoiceState.invoiceType = $('#invoiceType').val() || null;
         invoiceState.currentPage = 1;
         loadInvoices();
     });
-    
+
+    $('#fromDate, #toDate').on('change', function () {
+        if (!invoiceState.isInternalCallScope) {
+            invoiceState.fromDate = $('#fromDate').val() || null;
+            invoiceState.toDate = $('#toDate').val() || null;
+            // Remove active state from all date buttons when dates are manually changed
+            $('#btnToday, #btnYesterday, #btnMonth, #btnYear').removeClass('active');
+            invoiceState.currentPage = 1;
+            loadInvoices();
+        }
+    });
+
+    var formatDateLocal = function (date) {
+        var year = date.getFullYear();
+        var month = String(date.getMonth() + 1).padStart(2, '0');
+        var day = String(date.getDate()).padStart(2, '0');
+        return year + '-' + month + '-' + day;
+    };
+
+    // Date quick buttons
+    $('#btnToday').on('click', function () {
+        var today = new Date();
+        var todayStr = formatDateLocal(today);
+        onDateBtnAction(todayStr, todayStr, this);        
+    });
+
+    $('#btnYesterday').on('click', function () {
+        var yesterday = new Date();
+        yesterday.setDate(yesterday.getDate() - 1);
+        var dateStr = formatDateLocal(yesterday);
+        onDateBtnAction(dateStr, dateStr, this);        
+    });
+
+    $('#btnMonth').on('click', function () {
+        var now = new Date();
+        // Get first day of current month (1st)
+        var firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
+        // Get last day of current month (end of current month)
+        var lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+
+        var firstDayStr = formatDateLocal(firstDay);
+        var lastDayStr = formatDateLocal(lastDay);
+
+        onDateBtnAction(firstDayStr, lastDayStr, this);
+    });
+
+    $('#btnYear').on('click', function () {
+        var now = new Date();
+        // Get first day of current year (January 1st)
+        var firstDay = new Date(now.getFullYear(), 0, 1);
+        // Get last day of current year (December 31st)
+        var lastDay = new Date(now.getFullYear(), 11, 31);
+
+        var firstDayStr = formatDateLocal(firstDay);
+        var lastDayStr = formatDateLocal(lastDay);
+
+        onDateBtnAction(firstDayStr, lastDayStr, this);        
+    });
+
     // Status tab clicks
-    $('.invoice-status-tab').on('click', function(e) {
+    $('.invoice-status-tab').on('click', function (e) {
         e.preventDefault();
         $('.invoice-status-tab').removeClass('active');
         $(this).addClass('active');
-        
+
         var status = $(this).data('status');
         invoiceState.invoiceStatus = status || null;
         invoiceState.currentPage = 1;
         loadInvoices();
     });
-    
+
     // Pagination clicks (delegated)
-    $(document).on('click', '.pagination .page-link', function(e) {
+    $(document).on('click', '.pagination .page-link', function (e) {
         e.preventDefault();
         var href = $(this).attr('href');
         if (href && href !== '#') {
@@ -58,19 +115,19 @@ $(document).ready(function() {
             }
         }
     });
-    
+
     // Delete invoice handler
-    $(document).on('click', '.btn-delete-invoice', function(e) {
+    $(document).on('click', '.btn-delete-invoice', function (e) {
         e.preventDefault();
         e.stopPropagation();
         e.stopImmediatePropagation();
-        
+
         var invoiceId = $(this).data('invoice-id');
         var invoiceNo = $(this).data('invoice-no');
-        
+
         showConfirmDialog(
             'Are you sure you want to delete Invoice #' + invoiceNo + '?',
-            function(confirmed) {
+            function (confirmed) {
                 if (confirmed) {
                     deleteInvoice(invoiceId);
                 }
@@ -84,19 +141,19 @@ $(document).ready(function() {
                 dialogId: 'deleteConfirmDialog'
             }
         );
-        
+
         return false;
     });
 
     // View payments handler
-    $(document).on('click', '.btn-view-payments, .btn-view-payments-icon', function(e) {
+    $(document).on('click', '.btn-view-payments, .btn-view-payments-icon', function (e) {
         e.preventDefault();
         e.stopPropagation();
-        
+
         if ($(this).hasClass('disabled') || $(this).prop('disabled')) {
             return;
         }
-        
+
         var invoiceNo = $(this).data('invoice-no');
         if (!invoiceNo) {
             console.error('Invoice number not found');
@@ -104,7 +161,7 @@ $(document).ready(function() {
         }
 
         $('#modalInvoiceNo').text(invoiceNo);
-        
+
         $('#invoicePaymentsModalBody').html(
             '<div class="text-center py-5">' +
             '<div class="spinner-border text-primary" role="status">' +
@@ -122,7 +179,7 @@ $(document).ready(function() {
             $('#invoicePaymentsModal').modal('show');
         }
 
-        $.getJSON('/Internal/Invoices/GetPayments/' + invoiceNo, function(response) {
+        $.getJSON('/Internal/Invoices/GetPayments/' + invoiceNo, function (response) {
             if (response && response.success && response.data) {
                 renderPayments(response.data);
             } else {
@@ -130,109 +187,32 @@ $(document).ready(function() {
                     '<div class="alert alert-info">No payments found for this invoice.</div>'
                 );
             }
-        }).fail(function(xhr, status, error) {
+        }).fail(function (xhr, status, error) {
             console.error('Error loading payments:', error);
             $('#invoicePaymentsModalBody').html(
                 '<div class="alert alert-danger">Error loading payments. Please try again.</div>'
             );
         });
     });
-    
-    // Date range filter functionality
-    updateDateInputsState();
-    
-    $('#chkEnableDateRange').on('change', function() {
-        updateDateInputsState();
-    });
-    
-    $('#fromDate, #toDate').on('change', function() {
-        invoiceState.fromDate = $('#fromDate').val() || null;
-        invoiceState.toDate = $('#toDate').val() || null;
-        // Remove active state from all date buttons when dates are manually changed
-        clearDateButtonActiveState();
-    });
-    
-    // Helper function to format date as YYYY-MM-DD using local time
-    var formatDateLocal = function(date) {
-        var year = date.getFullYear();
-        var month = String(date.getMonth() + 1).padStart(2, '0');
-        var day = String(date.getDate()).padStart(2, '0');
-        return year + '-' + month + '-' + day;
-    };
-    
-    // Date quick buttons
-    $('#btnToday').on('click', function() {
-        var today = new Date();
-        var todayStr = formatDateLocal(today);
-        $('#fromDate').val(todayStr);
-        $('#toDate').val(todayStr);
-        $('#chkEnableDateRange').prop('checked', true);
-        updateDateInputsState();
-        invoiceState.fromDate = todayStr;
-        invoiceState.toDate = todayStr;
-        setDateButtonActive('btnToday');
-    });
-    
-    $('#btnYesterday').on('click', function() {
-        var yesterday = new Date();
-        yesterday.setDate(yesterday.getDate() - 1);
-        var dateStr = formatDateLocal(yesterday);
-        $('#fromDate').val(dateStr);
-        $('#toDate').val(dateStr);
-        $('#chkEnableDateRange').prop('checked', true);
-        updateDateInputsState();
-        invoiceState.fromDate = dateStr;
-        invoiceState.toDate = dateStr;
-        setDateButtonActive('btnYesterday');
-    });
-    
-    $('#btnMonth').on('click', function() {
-        var now = new Date();
-        // Get first day of current month (1st)
-        var firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
-        // Get last day of current month (end of current month)
-        var lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-        
-        var firstDayStr = formatDateLocal(firstDay);
-        var lastDayStr = formatDateLocal(lastDay);
-        
-        $('#fromDate').val(firstDayStr);
-        $('#toDate').val(lastDayStr);
-        $('#chkEnableDateRange').prop('checked', true);
-        updateDateInputsState();
-        invoiceState.fromDate = firstDayStr;
-        invoiceState.toDate = lastDayStr;
-        setDateButtonActive('btnMonth');
-    });
-    
-    $('#btnYear').on('click', function() {
-        var now = new Date();
-        // Get first day of current year (January 1st)
-        var firstDay = new Date(now.getFullYear(), 0, 1);
-        // Get last day of current year (December 31st)
-        var lastDay = new Date(now.getFullYear(), 11, 31);
-        
-        var firstDayStr = formatDateLocal(firstDay);
-        var lastDayStr = formatDateLocal(lastDay);
-        
-        $('#fromDate').val(firstDayStr);
-        $('#toDate').val(lastDayStr);
-        $('#chkEnableDateRange').prop('checked', true);
-        updateDateInputsState();
-        invoiceState.fromDate = firstDayStr;
-        invoiceState.toDate = lastDayStr;
-        setDateButtonActive('btnYear');
-    });
-    
-    // Check and highlight active button on page load
-    checkAndHighlightActiveDateButton();
-    
-    // Filter change handlers
-    $('#customerId, #invoiceType').on('change', function() {
-        invoiceState.customerId = parseInt($('#customerId').val()) || 0;
-        invoiceState.invoiceType = $('#invoiceType').val() || null;
-    });
+
+
+    // Load initial data(current month)
+    $('#btnMonth').click();    
 });
+
+function onDateBtnAction(fromDate, toDate, ele) {
+    invoiceState.isInternalCallScope = true;
+    $('#fromDate').val(fromDate);
+    $('#toDate').val(toDate);
+    invoiceState.isInternalCallScope = false;
+
+    invoiceState.fromDate = fromDate;
+    invoiceState.toDate = toDate;
+
+    $('.btn', $("#invoiceFilterForm")).removeClass("active")
+    $(ele).addClass("active");
+    loadInvoices();
+}
 
 /**
  * Load invoices via AJAX
@@ -241,13 +221,13 @@ function loadInvoices() {
     // Update state from form
     invoiceState.customerId = parseInt($('#customerId').val()) || 0;
     invoiceState.invoiceType = $('#invoiceType').val() || null;
-    
+
     // Show loading indicator
     $('#invoiceLoadingIndicator').show();
     $('#invoiceTableDesktop').hide();
     $('#invoiceTableMobile').hide();
     $('#invoicePaginationContainer').hide();
-    
+
     // Build request data
     var requestData = {
         page: invoiceState.currentPage,
@@ -256,31 +236,29 @@ function loadInvoices() {
         fromDate: invoiceState.fromDate,
         toDate: invoiceState.toDate
     };
-    
+
     if (invoiceState.invoiceStatus) {
         requestData.invoiceStatus = invoiceState.invoiceStatus;
     }
-    
+
     $.ajax({
         url: '/Internal/Invoices/GetInvoices',
         type: 'GET',
         data: requestData,
-        success: function(response) {
+        success: function (response) {
             if (response.success) {
                 renderInvoices(response.invoices);
                 renderPagination(response.pagination);
-                updateBadgeCounts(response.counts);
-                // Check and highlight active date button after loading
-                checkAndHighlightActiveDateButton();
+                updateBadgeCounts(response.counts);                
             } else {
                 showError('Failed to load invoices.');
             }
         },
-        error: function(xhr, status, error) {
+        error: function (xhr, status, error) {
             console.error('Error loading invoices:', error);
             showError('Error loading invoices. Please try again.');
         },
-        complete: function() {
+        complete: function () {
             $('#invoiceLoadingIndicator').hide();
         }
     });
@@ -294,13 +272,13 @@ function renderInvoices(invoices) {
         renderEmptyState();
         return;
     }
-    
+
     // Render desktop table
     renderDesktopTable(invoices);
-    
+
     // Render mobile cards
     renderMobileCards(invoices);
-    
+
     // Remove inline display styles to let CSS media queries handle visibility
     $('#invoiceTableDesktop').css('display', '');
     $('#invoiceTableMobile').css('display', '');
@@ -311,10 +289,10 @@ function renderInvoices(invoices) {
  */
 function renderDesktopTable(invoices) {
     var html = '';
-    
-    invoices.forEach(function(invoice) {
+
+    invoices.forEach(function (invoice) {
         var isPaymentsDisabled = invoice.status === 'InProgress' || invoice.status === 'Complete';
-        
+
         html += '<tr>';
         html += '<td>' + escapeHtml(invoice.invoiceNo) + '</td>';
         html += '<td>' + escapeHtml(invoice.customerName) + '</td>';
@@ -339,7 +317,7 @@ function renderDesktopTable(invoices) {
         html += '</td>';
         html += '</tr>';
     });
-    
+
     $('#invoiceTableBody').html(html);
 }
 
@@ -349,35 +327,35 @@ function renderDesktopTable(invoices) {
 function renderMobileCards(invoices) {
     // Group invoices by date
     var grouped = {};
-    invoices.forEach(function(invoice) {
+    invoices.forEach(function (invoice) {
         var dateKey = invoice.date;
         if (!grouped[dateKey]) {
             grouped[dateKey] = [];
         }
         grouped[dateKey].push(invoice);
     });
-    
+
     // Sort dates descending
-    var sortedDates = Object.keys(grouped).sort(function(a, b) {
+    var sortedDates = Object.keys(grouped).sort(function (a, b) {
         return new Date(b) - new Date(a);
     });
-    
+
     var html = '';
-    
-    sortedDates.forEach(function(date) {
+
+    sortedDates.forEach(function (date) {
         var dateInvoices = grouped[date];
         var dateDisplay = formatDateDisplay(date);
-        
+
         html += '<div class="invoice-date-group">';
         html += '<div class="invoice-date-header">';
         html += '<h6 class="invoice-date-title">' + dateDisplay + '</h6>';
         html += '</div>';
-        
-        dateInvoices.forEach(function(invoice) {
+
+        dateInvoices.forEach(function (invoice) {
             var statusClass = getStatusClass(invoice.status);
             var typeIcon = getTypeIcon(invoice.type);
             var isPaymentsDisabled = invoice.status === 'InProgress' || invoice.status === 'Complete';
-            
+
             html += '<div class="invoice-row-wrapper">';
             html += '<div class="invoice-row-compact ' + statusClass + '">';
             html += '<div class="invoice-row-header">';
@@ -408,10 +386,10 @@ function renderMobileCards(invoices) {
             html += '</div>';
             html += '</div>';
         });
-        
+
         html += '</div>';
     });
-    
+
     $('#invoiceTableMobile').html(html);
 }
 
@@ -423,37 +401,37 @@ function renderPagination(pagination) {
         $('#invoicePaginationContainer').html('');
         return;
     }
-    
+
     var html = '<div class="d-flex justify-content-center mt-4"><ul class="pagination">';
-    
+
     // First page
     if (pagination.hasPreviousPage) {
         html += '<li class="page-item"><a class="page-link" href="?page=1">First</a></li>';
         html += '<li class="page-item"><a class="page-link" href="?page=' + (pagination.pageNumber - 1) + '">Previous</a></li>';
     }
-    
+
     // Page numbers
     var startPage = Math.max(1, pagination.pageNumber - 1);
     var endPage = Math.min(pagination.pageCount, pagination.pageNumber + 1);
-    
+
     for (var i = startPage; i <= endPage; i++) {
         var activeClass = i === pagination.pageNumber ? 'active' : '';
         html += '<li class="page-item ' + activeClass + '"><a class="page-link" href="?page=' + i + '">' + i + '</a></li>';
     }
-    
+
     // Last page
     if (pagination.hasNextPage) {
         html += '<li class="page-item"><a class="page-link" href="?page=' + (pagination.pageNumber + 1) + '">Next</a></li>';
         html += '<li class="page-item"><a class="page-link" href="?page=' + pagination.pageCount + '">Last</a></li>';
     }
-    
+
     html += '</ul></div>';
     html += '<div class="text-center mt-2"><small class="text-muted">';
     html += 'Showing ' + ((pagination.pageNumber - 1) * 20 + 1) + ' to ';
     html += Math.min(pagination.pageNumber * 20, pagination.totalItemCount) + ' of ';
     html += pagination.totalItemCount + ' invoices';
     html += '</small></div>';
-    
+
     $('#invoicePaginationContainer').html(html).show();
 }
 
@@ -476,7 +454,7 @@ function renderEmptyState() {
     emptyHtml += '<i class="bi bi-inbox fs-1"></i>';
     emptyHtml += '<p class="mt-3 fs-5">No invoices found.</p>';
     emptyHtml += '</div>';
-    
+
     $('#invoiceTableBody').html('<tr><td colspan="7" class="text-center text-muted">No invoices found.</td></tr>');
     $('#invoiceTableMobile').html(emptyHtml);
     // Remove inline display styles to let CSS media queries handle visibility
@@ -490,14 +468,14 @@ function renderEmptyState() {
 function deleteInvoice(invoiceId) {
     var token = $('input[name="__RequestVerificationToken"]').val();
     var deleteUrl = '/Internal/Invoices/Delete/' + invoiceId;
-    
+
     $.ajax({
         url: deleteUrl,
         type: 'POST',
         headers: {
             'RequestVerificationToken': token
         },
-        success: function(response) {
+        success: function (response) {
             if (response.success) {
                 if (typeof showToastSuccess === 'function') {
                     showToastSuccess(response.message || 'Invoice deleted successfully.');
@@ -513,12 +491,12 @@ function deleteInvoice(invoiceId) {
                 }
             }
         },
-        error: function(xhr, status, error) {
+        error: function (xhr, status, error) {
             var errorMessage = 'Error deleting invoice. Please try again.';
             if (xhr.responseJSON && xhr.responseJSON.message) {
                 errorMessage = xhr.responseJSON.message;
             }
-            
+
             if (typeof showToastError === 'function') {
                 showToastError(errorMessage);
             } else {
@@ -539,12 +517,12 @@ function renderPayments(payments) {
         return;
     }
 
-    var totalAmount = payments.reduce(function(sum, payment) {
+    var totalAmount = payments.reduce(function (sum, payment) {
         return sum + parseFloat(payment.amount || 0);
     }, 0);
 
     var groupedPayments = {};
-    payments.forEach(function(payment) {
+    payments.forEach(function (payment) {
         var dateKey = payment.date;
         if (!groupedPayments[dateKey]) {
             groupedPayments[dateKey] = [];
@@ -552,26 +530,26 @@ function renderPayments(payments) {
         groupedPayments[dateKey].push(payment);
     });
 
-    var sortedDates = Object.keys(groupedPayments).sort(function(a, b) {
+    var sortedDates = Object.keys(groupedPayments).sort(function (a, b) {
         return new Date(b) - new Date(a);
     });
 
     var html = '<div class="payments-container">';
-    
-    sortedDates.forEach(function(date) {
+
+    sortedDates.forEach(function (date) {
         var datePayments = groupedPayments[date];
-        var dateTotal = datePayments.reduce(function(sum, p) {
+        var dateTotal = datePayments.reduce(function (sum, p) {
             return sum + parseFloat(p.amount || 0);
         }, 0);
-        
+
         html += '<div class="payment-date-group mb-3">';
         html += '<div class="payment-date-header bg-light p-2 rounded">';
         html += '<h6 class="mb-0 fw-bold">' + formatDate(date) + '</h6>';
         html += '<small class="text-muted">Total: ' + formatCurrency(dateTotal) + '</small>';
         html += '</div>';
-        
+
         html += '<div class="payment-list">';
-        datePayments.forEach(function(payment) {
+        datePayments.forEach(function (payment) {
             html += '<div class="payment-row card mb-2">';
             html += '<div class="card-body p-3">';
             html += '<div class="d-flex justify-content-between align-items-center payment-row-content">';
@@ -625,7 +603,7 @@ function formatCurrency(value) {
 }
 
 function getStatusClass(status) {
-    switch(status) {
+    switch (status) {
         case 'InProgress': return 'status-in-progress';
         case 'Complete': return 'status-complete';
         case 'PartiallyPaid': return 'status-partially-paid';
@@ -635,7 +613,7 @@ function getStatusClass(status) {
 }
 
 function getTypeIcon(type) {
-    switch(type) {
+    switch (type) {
         case 'Dining': return 'bi-cup-hot-fill';
         case 'TakeAway': return 'bi-bag-check-fill';
         case 'Stay': return 'bi-building-check';
@@ -649,8 +627,8 @@ function getTypeIcon(type) {
 function getPaymentTypeBadge(type) {
     var badgeClass = 'bg-secondary';
     var icon = 'bi-credit-card';
-    
-    switch(type.toLowerCase()) {
+
+    switch (type.toLowerCase()) {
         case 'cash':
             badgeClass = 'bg-success';
             icon = 'bi-cash-stack';
@@ -669,7 +647,7 @@ function getPaymentTypeBadge(type) {
             icon = 'bi-receipt';
             break;
     }
-    
+
     return '<span class="badge ' + badgeClass + '"><i class="bi ' + icon + '"></i> ' + escapeHtml(type) + '</span>';
 }
 
@@ -681,101 +659,7 @@ function escapeHtml(text) {
         '"': '&quot;',
         "'": '&#039;'
     };
-    return (text || '').toString().replace(/[&<>"']/g, function(m) { return map[m]; });
-}
-
-function updateDateInputsState() {
-    var enabled = $('#chkEnableDateRange').is(':checked');
-    $('#fromDate, #toDate').prop('disabled', !enabled);
-    if (!enabled) {
-        $('#fromDate, #toDate').val('');
-        invoiceState.fromDate = null;
-        invoiceState.toDate = null;
-        clearDateButtonActiveState();
-    } else {
-        // Check if dates match any button pattern
-        checkAndHighlightActiveDateButton();
-    }
-}
-
-/**
- * Set active state on a date filter button
- */
-function setDateButtonActive(buttonId) {
-    // Remove active from all buttons
-    clearDateButtonActiveState();
-    // Add active to selected button
-    $('#' + buttonId).addClass('active');
-}
-
-/**
- * Clear active state from all date filter buttons
- */
-function clearDateButtonActiveState() {
-    $('#btnToday, #btnYesterday, #btnMonth, #btnYear').removeClass('active');
-}
-
-/**
- * Check current dates and highlight the appropriate button
- */
-function checkAndHighlightActiveDateButton() {
-    var fromDate = $('#fromDate').val();
-    var toDate = $('#toDate').val();
-    
-    if (!fromDate || !toDate) {
-        clearDateButtonActiveState();
-        return;
-    }
-    
-    var from = new Date(fromDate);
-    var to = new Date(toDate);
-    
-    // Helper function to format date as YYYY-MM-DD using local time
-    var formatDateForCheck = function(date) {
-        var year = date.getFullYear();
-        var month = String(date.getMonth() + 1).padStart(2, '0');
-        var day = String(date.getDate()).padStart(2, '0');
-        return year + '-' + month + '-' + day;
-    };
-    
-    // Check Today
-    var today = new Date();
-    today.setHours(0, 0, 0, 0);
-    var todayStr = formatDateForCheck(today);
-    if (fromDate === todayStr && toDate === todayStr) {
-        setDateButtonActive('btnToday');
-        return;
-    }
-    
-    // Check Yesterday
-    var yesterday = new Date();
-    yesterday.setDate(yesterday.getDate() - 1);
-    yesterday.setHours(0, 0, 0, 0);
-    var yesterdayStr = formatDateForCheck(yesterday);
-    if (fromDate === yesterdayStr && toDate === yesterdayStr) {
-        setDateButtonActive('btnYesterday');
-        return;
-    }
-    
-    // Check Month
-    var now = new Date();
-    var monthFirstDay = formatDateForCheck(new Date(now.getFullYear(), now.getMonth(), 1));
-    var monthLastDay = formatDateForCheck(new Date(now.getFullYear(), now.getMonth() + 1, 0));
-    if (fromDate === monthFirstDay && toDate === monthLastDay) {
-        setDateButtonActive('btnMonth');
-        return;
-    }
-    
-    // Check Year
-    var yearFirstDay = formatDateForCheck(new Date(now.getFullYear(), 0, 1));
-    var yearLastDay = formatDateForCheck(new Date(now.getFullYear(), 11, 31));
-    if (fromDate === yearFirstDay && toDate === yearLastDay) {
-        setDateButtonActive('btnYear');
-        return;
-    }
-    
-    // No match - clear all active states
-    clearDateButtonActiveState();
+    return (text || '').toString().replace(/[&<>"']/g, function (m) { return map[m]; });
 }
 
 function showError(message) {
