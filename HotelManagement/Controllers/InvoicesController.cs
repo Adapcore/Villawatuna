@@ -4,6 +4,7 @@ using HotelManagement.Models.DTO;
 using HotelManagement.Models.Entities;
 using HotelManagement.Models.ViewModels;
 using HotelManagement.Services.Interface;
+using HotelManagement.Services.Interfaces;
 using Lucene.Net.Search;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -15,6 +16,7 @@ using X.PagedList.Extensions;
 using Umbraco.Cms.Core.Security;
 using Umbraco.Cms.Core.Services;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.EntityFrameworkCore;
 
 namespace HotelManagement.Controllers
 {
@@ -27,6 +29,7 @@ namespace HotelManagement.Controllers
         private readonly ICustomerService _customerService;
         private readonly IMenuService _menuService;
         private readonly ICurrencyService _currencyService;
+        private readonly IPaymentService _paymentService;
         private readonly int _pageSize;
         private readonly IMemberManager _memberManager;
         private readonly IMemberService _memberService;
@@ -36,6 +39,7 @@ namespace HotelManagement.Controllers
             ICustomerService customerService,
             IMenuService menuService,
             ICurrencyService currencyService,
+            IPaymentService paymentService,
             IOptions<PaginationSettings> paginationSettings,
             IMemberManager memberManager,
             IMemberService memberService)
@@ -44,6 +48,7 @@ namespace HotelManagement.Controllers
             _customerService = customerService;
             _menuService = menuService;
             _currencyService = currencyService;
+            _paymentService = paymentService;
             _pageSize = paginationSettings.Value.DefaultPageSize;
             _memberManager = memberManager;
             _memberService = memberService;
@@ -331,6 +336,33 @@ namespace HotelManagement.Controllers
             catch (Exception ex)
             {
                 return Json(new { success = false, message = $"Error deleting invoice: {ex.Message}" });
+            }
+        }
+
+        [HttpGet("GetPayments/{invoiceNo}")]
+        public async Task<IActionResult> GetPayments(int invoiceNo)
+        {
+            try
+            {
+                var payments = await _paymentService.GetAllAsync();
+                var invoicePayments = payments
+                    .Where(p => p.InvoiceNo == invoiceNo)
+                    .OrderByDescending(p => p.Date)
+                    .Select(p => new
+                    {
+                        id = p.ID,
+                        date = p.Date.ToString("yyyy-MM-dd"),
+                        amount = p.Amount,
+                        type = p.Type.ToString(),
+                        reference = p.Reference ?? ""
+                    })
+                    .ToList();
+
+                return Json(new { success = true, data = invoicePayments });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
             }
         }
 

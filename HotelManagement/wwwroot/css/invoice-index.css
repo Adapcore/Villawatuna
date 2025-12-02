@@ -703,3 +703,232 @@
     }
 }
 
+/* Payments Modal Styles */
+#invoicePaymentsModal .modal-content {
+    border-radius: 8px;
+    border: none;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+#invoicePaymentsModal .modal-header {
+    border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+    padding: 1rem 1.5rem;
+}
+
+#invoicePaymentsModal .modal-body {
+    padding: 1.5rem;
+    max-height: 60vh;
+    overflow-y: auto;
+}
+
+#invoicePaymentsModal .modal-footer {
+    border-top: 1px solid #dee2e6;
+    padding: 1rem 1.5rem;
+}
+
+/* Payment Date Group */
+.payment-date-group {
+    margin-bottom: 1.5rem;
+}
+
+.payment-date-header {
+    background-color: #f8f9fa;
+    padding: 0.75rem 1rem;
+    border-radius: 6px;
+    margin-bottom: 0.75rem;
+    border-left: 4px solid #0d6efd;
+}
+
+.payment-date-header h6 {
+    margin: 0;
+    color: #212529;
+    font-size: 1rem;
+}
+
+.payment-date-header small {
+    color: #6c757d;
+    font-size: 0.875rem;
+}
+
+/* Payment Row */
+.payment-row {
+    border: 1px solid #e9ecef;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+}
+
+.payment-row:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border-color: #0d6efd;
+}
+
+.payment-row .card-body {
+    padding: 1rem;
+}
+
+.payment-row .fw-bold {
+    color: #212529;
+    font-size: 1.1rem;
+}
+
+.payment-row .badge {
+    font-size: 0.75rem;
+    padding: 0.35rem 0.65rem;
+    margin-top: 0.25rem;
+    display: inline-block;
+}
+
+/* Payment Total */
+.payment-total {
+    background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
+    padding: 1rem 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(13, 110, 253, 0.3);
+}
+
+.payment-total .fw-bold {
+    font-size: 1.25rem;
+}
+
+/* Mobile View Payments Button - Icon Only Style (like delete button) */
+.btn-view-payments-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    margin: 0;
+    border: none;
+    background: none;
+    cursor: pointer;
+    width: 18px;
+    height: 18px;
+    min-width: 18px;
+    min-height: 18px;
+    opacity: 0.6;
+    transition: all 0.2s ease;
+    position: relative;
+    z-index: 10;
+    pointer-events: auto;
+}
+
+.btn-view-payments-icon:hover:not(.disabled):not(:disabled) {
+    opacity: 1;
+    transform: scale(1.1);
+}
+
+.btn-view-payments-icon:active:not(.disabled):not(:disabled) {
+    transform: scale(0.95);
+}
+
+.btn-view-payments-icon i {
+    color: #17a2b8;
+    font-size: 0.85rem;
+    margin: 0;
+    pointer-events: none;
+}
+
+.btn-view-payments-icon:hover:not(.disabled):not(:disabled) i {
+    color: #138496;
+}
+
+.btn-view-payments-icon.disabled,
+.btn-view-payments-icon:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+.btn-view-payments-icon.disabled i,
+.btn-view-payments-icon:disabled i {
+    color: #6c757d;
+}
+
+/* Desktop View Payments Button */
+.btn-view-payments {
+    background-color: #17a2b8;
+    color: white;
+    border: none;
+    padding: 0.5rem 0.75rem;
+    border-radius: 4px;
+    font-size: 0.875rem;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s;
+    min-width: 70px;
+    height: auto;
+}
+
+.btn-view-payments .d-flex {
+    gap: 0.25rem;
+}
+
+.btn-view-payments i {
+    font-size: 1.1rem;
+    line-height: 1;
+}
+
+.btn-view-payments .btn-text {
+    font-size: 0.75rem;
+    line-height: 1;
+    white-space: nowrap;
+}
+
+.btn-view-payments:hover:not(.disabled):not(:disabled) {
+    background-color: #138496;
+    color: white;
+}
+
+.btn-view-payments.disabled,
+.btn-view-payments:disabled {
+    background-color: #6c757d;
+    color: #fff;
+    opacity: 0.65;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+/* Responsive adjustments */
+@media (max-width: 767px) {
+    #invoicePaymentsModal .modal-dialog {
+        margin: 0.5rem;
+    }
+    
+    #invoicePaymentsModal .modal-body {
+        padding: 1rem;
+        max-height: 70vh;
+    }
+    
+    .payment-row .card-body {
+        padding: 0.75rem;
+    }
+    
+    .payment-date-header {
+        padding: 0.5rem 0.75rem;
+    }
+    
+    .payment-total {
+        padding: 0.75rem 1rem;
+    }
+}
+
+/* Custom scrollbar for modal */
+#invoicePaymentsModal .modal-body::-webkit-scrollbar {
+    width: 8px;
+}
+
+#invoicePaymentsModal .modal-body::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+#invoicePaymentsModal .modal-body::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+}
+
+#invoicePaymentsModal .modal-body::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+

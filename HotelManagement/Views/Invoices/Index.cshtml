@@ -158,7 +158,20 @@
                                 <td class="text-end">@invoice.GrossAmount.ToString("N2")</td>
                                 <td>
                                     <div class="d-flex gap-1">
-                                        <a href="@Url.Action("Edit", "Invoices", new { id = invoice.InvoiceNo })" class="btn btn-sm btn-warning">View / Edit</a>
+                                        <a href="@Url.Action("Edit", "Invoices", new { id = invoice.InvoiceNo })" class="btn btn-sm btn-warning">
+                                            <i class="bi bi-eye"></i> View                                        </a>
+                                        @{
+                                            bool isPaymentsDisabled = invoice.Status == InvoiceStatus.InProgress || invoice.Status == InvoiceStatus.Complete;
+                                        }
+                                        <button type="button" class="btn btn-sm btn-info btn-view-payments @(isPaymentsDisabled ? "disabled" : "")" 
+                                                data-invoice-no="@invoice.InvoiceNo" 
+                                                @(isPaymentsDisabled ? "disabled" : "")
+                                                title="@(isPaymentsDisabled ? "Payments not available for this invoice status" : "View Payments")">
+                                            <div class="d-flex flex-column align-items-center">
+                                                <i class="bi bi-credit-card"></i>
+                                                <span class="btn-text">Payments</span>
+                                            </div>
+                                        </button>
                                         @if (isAdmin)
                                         {
                                             <button type="button" class="btn btn-sm btn-danger btn-delete-invoice" data-invoice-id="@invoice.InvoiceNo" data-invoice-no="@invoice.InvoiceNo">
@@ -253,6 +266,15 @@
                                             </button>
                                         }
                                     </span>
+                                    @{
+                                        bool isPaymentsDisabledMobile = invoice.Status == InvoiceStatus.InProgress || invoice.Status == InvoiceStatus.Complete;
+                                    }
+                                    <button type="button" class="btn-view-payments-icon btn-view-payments-mobile @(isPaymentsDisabledMobile ? "disabled" : "")" 
+                                            data-invoice-no="@invoice.InvoiceNo" 
+                                            @(isPaymentsDisabledMobile ? "disabled" : "")
+                                            title="@(isPaymentsDisabledMobile ? "Payments not available for this invoice status" : "View Payments")">
+                                        <i class="bi bi-credit-card"></i>
+                                    </button>
                                     <a href="@Url.Action("Edit", "Invoices", new { id = invoice.InvoiceNo })" class="btn-view-invoice">
                                         <i class="bi bi-eye"></i> View
                                     </a>
@@ -277,6 +299,29 @@
     </div>
 
     @await Html.PartialAsync("_Pagination_invoice", Model.Invoices)
+</div>
+
+<!-- Payments Modal -->
+<div class="modal fade" id="invoicePaymentsModal" tabindex="-1" aria-labelledby="invoicePaymentsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="invoicePaymentsModalLabel">Payments for Invoice #<span id="modalInvoiceNo"></span></h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="invoicePaymentsModalBody">
+                <div class="text-center py-5">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-3">Loading payments...</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
 </div>
 
 @Html.AntiForgeryToken()
