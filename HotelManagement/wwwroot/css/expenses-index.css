@@ -54,6 +54,57 @@
         white-space: nowrap !important;
         height: auto !important;
     }
+    
+    /* Expense Filter Fields - Desktop: Label above input */
+    .expense-filter-field {
+        display: block;
+    }
+    
+    .expense-filter-label {
+        margin-bottom: 0.5rem;
+        display: block;
+        min-width: auto;
+    }
+    
+    .expense-filter-input {
+        width: 100%;
+    }
+    
+    /* Expense Filter Actions - Desktop: Checkbox and buttons in same column */
+    .expense-filter-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        align-items: flex-start;
+    }
+    
+    .expense-filter-checkbox {
+        display: flex;
+        align-items: center;
+        margin-bottom: 0;
+    }
+    
+    .expense-filter-checkbox .form-check {
+        margin: 0;
+    }
+    
+    .expense-filter-checkbox .form-check-label {
+        font-size: 0.875rem;
+        padding-left: 0.5rem;
+    }
+    
+    #chkEnableDateRange {
+        width: 1rem;
+        height: 1rem;
+    }
+    
+    .expense-filter-buttons {
+        width: 100%;
+    }
+    
+    .expense-filter-buttons .d-flex {
+        flex-wrap: nowrap !important;
+    }
 }
 
 /* Date Filter Button Active State */
@@ -77,6 +128,22 @@
 
 /* Date Filter Buttons - Mobile View */
 @media (max-width: 767px) {
+    .expense-filter-buttons .d-flex {
+        display: grid !important;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.5rem !important;
+    }
+    
+    .expense-filter-buttons .d-flex button {
+        width: 100%;
+        margin: 0;
+    }
+    
+    .expense-filter-buttons .d-flex #btnApply {
+        grid-column: 1 / -1; /* Span full width */
+    }
+    
+    /* Legacy support for old structure */
     .d-flex.flex-wrap.flex-md-nowrap {
         display: grid !important;
         grid-template-columns: repeat(2, 1fr);
@@ -92,17 +159,65 @@
         grid-column: 1 / -1; /* Span full width */
     }
     
-    /* Make checkbox larger on mobile */
-    #chkEnableDateRange {
-        width: 1.5rem !important;
-        height: 1.5rem !important;
-        min-width: 1.5rem !important;
-        min-height: 1.5rem !important;
+    /* Expense Filter Actions - Mobile: Compact layout */
+    .expense-filter-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
     }
     
-    .form-check-label {
+    .expense-filter-checkbox {
+        display: flex;
+        align-items: center;
+    }
+    
+    .expense-filter-checkbox .form-check {
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+    
+    #chkEnableDateRange {
+        width: 1.2rem !important;
+        height: 1.2rem !important;
+        min-width: 1.2rem !important;
+        min-height: 1.2rem !important;
+        margin: 0 !important;
+        flex-shrink: 0;
+    }
+    
+    .expense-filter-checkbox .form-check-label {
+        font-size: 0.8rem !important;
+        padding-left: 0 !important;
+        margin: 0 !important;
+        white-space: nowrap;
+        cursor: pointer;
+    }
+    
+    .expense-filter-buttons {
+        width: 100%;
+    }
+    
+    /* Expense Filter Fields - Mobile: Label and input on same line */
+    .expense-filter-field {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .expense-filter-label {
+        font-size: 0.85rem;
+        margin-bottom: 0;
+        white-space: nowrap;
+        flex-shrink: 0;
+        min-width: 70px;
+    }
+    
+    .expense-filter-input {
+        flex: 1;
         font-size: 0.9rem;
-        padding-left: 0.5rem;
+        padding: 0.375rem 0.5rem;
     }
 }
 
