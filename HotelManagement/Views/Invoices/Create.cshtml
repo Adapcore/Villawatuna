@@ -106,6 +106,19 @@
                     <!-- Two-column summary form -->
                     <div class="row g-2 mb-2">
                         <div class="col-6">
+                            <label class="form-label fw-bold">Invoice No</label>
+                            <div class="form-control form-control-sm fs-7 bg-light" style="border: 1px solid #ced4da;">
+                                @if (Model.InvoiceNo > 0)
+                                {
+                                    <strong>#@Model.InvoiceNo</strong>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">Auto-generated</span>
+                                }
+                            </div>
+                        </div>
+                        <div class="col-6">
                             <label class="form-label fw-bold ">Date</label>
                             <input asp-for="Date" class="form-control form-control-sm fs-7" type="date" />
                         </div>
@@ -113,7 +126,10 @@
                             <label class="form-label fw-bold small">Status</label>
                             @Html.DropDownListFor(model => model.Status, (IEnumerable<SelectListItem>)ViewBag.StatusList, new { @class = "form-select form-select-sm fs-7" })
                         </div>
-
+                        <div class="col-6">
+                            <label class="form-label fw-bold">Reference No</label>
+                            <input asp-for="ReferenceNo" class="form-control form-control-sm fs-7" />
+                        </div>
                         <div class="col-6">
                             <label class="form-label fw-bold small">Customer</label>
                             <div class="input-group input-group-sm">
@@ -125,16 +141,12 @@
                                 </button>
                             </div>
                         </div>
-                        <div class="col-6">
-                            <label class="form-label fw-bold">Reference No</label>
-                            <input asp-for="ReferenceNo" class="form-control form-control-sm fs-7" />
+                        <div class="col-6 mb-2">
+                            <label class="form-label fw-bold">Note</label>
+                            <input asp-for="Note" class="form-control form-control-sm fs-7" />
                         </div>
                     </div>
 
-                    <div class="mb-2">
-                        <label class="form-label fw-bold">Note</label>
-                        <input asp-for="Note" class="form-control form-control-sm fs-7" />
-                    </div>
                     @if (Model.Type == (int)InvoiceType.Stay)
                     {
                         <div id="dv_currency" class="d-flex justify-content-between">
