@@ -574,18 +574,18 @@ function renderPayments(payments) {
         datePayments.forEach(function(payment) {
             html += '<div class="payment-row card mb-2">';
             html += '<div class="card-body p-3">';
-            html += '<div class="row align-items-center">';
-            html += '<div class="col-6">';
-            html += '<div class="fw-bold">' + formatCurrency(payment.amount) + '</div>';
-            html += '<small class="text-muted">' + getPaymentTypeBadge(payment.type) + '</small>';
+            html += '<div class="d-flex justify-content-between align-items-center payment-row-content">';
+            // Left: Payment ID
+            html += '<div class="payment-id">ID: ' + payment.id + '</div>';
+            // Middle: Payment Type
+            html += '<div class="payment-type">' + escapeHtml(payment.type) + '</div>';
+            // Right: Amount
+            html += '<div class="payment-amount fw-bold">' + formatCurrency(payment.amount) + '</div>';
             html += '</div>';
-            html += '<div class="col-6 text-end">';
+            // Reference below if exists
             if (payment.reference) {
-                html += '<small class="text-muted d-block">Ref: ' + escapeHtml(payment.reference) + '</small>';
+                html += '<div class="mt-2"><small class="text-muted">Ref: ' + escapeHtml(payment.reference) + '</small></div>';
             }
-            html += '<small class="text-muted">ID: #' + payment.id + '</small>';
-            html += '</div>';
-            html += '</div>';
             html += '</div>';
             html += '</div>';
         });

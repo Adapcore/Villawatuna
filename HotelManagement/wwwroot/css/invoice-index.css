@@ -1015,6 +1015,57 @@
     }
 }
 
+/* Payment Row Layout */
+.payment-row-content {
+    gap: 1rem;
+    flex-wrap: nowrap;
+}
+
+.payment-id {
+    flex: 0 0 auto;
+    font-weight: 500;
+    color: #495057;
+    min-width: 60px;
+}
+
+.payment-type {
+    flex: 1 1 auto;
+    text-align: center;
+    font-weight: 500;
+    color: #495057;
+}
+
+.payment-amount {
+    flex: 0 0 auto;
+    text-align: right;
+    color: #198754;
+    min-width: 120px;
+}
+
+@media (max-width: 767px) {
+    .payment-row-content {
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+    
+    .payment-id {
+        min-width: auto;
+        font-size: 0.875rem;
+    }
+    
+    .payment-type {
+        font-size: 0.875rem;
+        text-align: left;
+    }
+    
+    .payment-amount {
+        min-width: auto;
+        font-size: 0.875rem;
+        text-align: right;
+        margin-left: auto;
+    }
+}
+
 /* Custom scrollbar for modal */
 #invoicePaymentsModal .modal-body::-webkit-scrollbar {
     width: 8px;
