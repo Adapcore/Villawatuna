@@ -24,6 +24,7 @@
         this._currentRow = null;
         this._isAdmin = this.options.isAdmin || false;
         this._currencyData = this.options.currencyData || [];
+        this._isSaving = false; // Flag to track if save is in progress
 
         this._formatter = new Intl.NumberFormat('en-US', {
             minimumFractionDigits: 2,
@@ -1220,8 +1221,14 @@
         Save: function () {
             var self = this;
 
-            // Validate before submitting
+            // Prevent multiple saves
+            if (self._isSaving) {
+                console.log("Save already in progress, ignoring click");
+                return;
+            }
+            self._isSaving = true;
             if (!self.ValidateInvoice()) {
+                self._isSaving = false;
                 return;
             }
 
@@ -1283,6 +1290,7 @@
                 contentType: "application/json",
                 data: JSON.stringify(invoice),
                 success: function (res) {
+                    self._isSaving = false;
 
                     if (res.success) {
                         showToastSuccess("Invoice Save Complete");
@@ -1297,6 +1305,7 @@
                     }
                 },
                 error: function (err) {
+                    self._isSaving = false;
                     console.error(err);
                     showToastError("Error creating invoice. Check console for details.");
                 }
