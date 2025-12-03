@@ -49,6 +49,15 @@
     /* Reduce spacing for quick action buttons on mobile */
     .card-body .row.g-3 {
         gap: 8px !important;
+        display: flex !important;
+        flex-wrap: nowrap !important;
+    }
+    
+    /* Ensure buttons stay in one line on mobile */
+    .card-body .row.g-3 > [class*="col-"] {
+        flex: 0 0 auto !important;
+        width: 50% !important;
+        max-width: 50% !important;
     }
     
     .card-header h5 {

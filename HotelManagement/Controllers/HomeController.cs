@@ -141,7 +141,7 @@ namespace HotelManagement.Controllers
                         {
                             id = i.InvoiceNo,
                             date = i.Date,
-                            type = i.Type.ToString(),
+                            type = i.Invoice.Type.ToString(),
                             customerName = i.Invoice.Customer != null ? (i.Invoice.Customer.RoomNo != null ? $"#{i.Invoice.Customer.RoomNo} - {i.Invoice.Customer.FirstName} {i.Invoice.Customer.LastName}" : $"{i.Invoice.Customer.FirstName} {i.Invoice.Customer.LastName}") : "",
                             amount = i.Amount,
                             status = i.Invoice.Status.ToString()
@@ -185,7 +185,7 @@ namespace HotelManagement.Controllers
                         {
                             id = i.InvoiceNo,
                             date = i.Date,
-                            type = i.Type.ToString(),
+                            type = i.Invoice.Type.ToString(),
                             customerName = i.Invoice.Customer != null ? (i.Invoice.Customer.RoomNo != null ? $"#{i.Invoice.Customer.RoomNo} - {i.Invoice.Customer.FirstName} {i.Invoice.Customer.LastName}" : $"{i.Invoice.Customer.FirstName} {i.Invoice.Customer.LastName}") : "",
                             amount = i.Amount,
                             status = i.Invoice.Status.ToString()
@@ -205,7 +205,7 @@ namespace HotelManagement.Controllers
                         {
                             id = i.InvoiceNo,
                             date = i.Date,
-                            type = i.Type.ToString(),
+                            type = i.Invoice.Type.ToString(),
                             customerName = i.Invoice.Customer != null ? (i.Invoice.Customer.RoomNo != null ? $"#{i.Invoice.Customer.RoomNo} - {i.Invoice.Customer.FirstName} {i.Invoice.Customer.LastName}" : $"{i.Invoice.Customer.FirstName} {i.Invoice.Customer.LastName}") : "",
                             amount = i.Amount,
                             status = i.Invoice.Status.ToString()
@@ -225,7 +225,7 @@ namespace HotelManagement.Controllers
                         {
                             id = i.InvoiceNo,
                             date = i.Date,
-                            type = i.Type.ToString(),
+                            type = i.Invoice.Type.ToString(),
                             customerName = i.Invoice.Customer != null ? (i.Invoice.Customer.RoomNo != null ? $"#{i.Invoice.Customer.RoomNo} - {i.Invoice.Customer.FirstName} {i.Invoice.Customer.LastName}" : $"{i.Invoice.Customer.FirstName} {i.Invoice.Customer.LastName}") : "",
                             amount = i.Amount,
                             status = i.Invoice.Status.ToString()

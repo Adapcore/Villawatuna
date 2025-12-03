@@ -8,8 +8,11 @@ function loadMetrics(ele) {
     const from = $('#fromDate').val();
     const to = $('#toDate').val();
 
-    $('.btn', $(".filter-section")).removeClass("btn-primary").addClass("btn-outline-secondary");
-    ele.removeClass("btn-outline-secondary").addClass("btn-primary");
+    // Update button states only if a button element is provided
+    if (ele && ele.length > 0) {
+        $('.btn', $(".filter-section")).removeClass("btn-primary").addClass("btn-outline-secondary");
+        ele.removeClass("btn-outline-secondary").addClass("btn-primary");
+    }
 
     $.getJSON('/Home/GetMetrics', { from: from, to: to }, function (res) {
         if (res && res.success && res.data) {
@@ -90,11 +93,17 @@ function InitializeDashboard() {
         const today = new Date().toISOString().slice(0, 10);
         $('#fromDate').val(today);
         $('#toDate').val(today);
-        loadMetrics($('#btnApply', $(".filter-section")));
-
-        $('#btnApply').on('click', function () {
-            loadMetrics($('#btnApply', $(".filter-section")));
+        
+        // Auto-trigger metrics load when dates change
+        $('#fromDate, #toDate').on('change', function () {
+            // Remove active state from all quick filter buttons when dates are manually changed
+            $('.btn', $(".filter-section")).removeClass("btn-primary").addClass("btn-outline-secondary");
+            // Load metrics without highlighting any button
+            loadMetrics($());
         });
+        
+        // Initial load
+        loadMetrics($());
 
         $('#btnToday').on('click', function () {
             const t = new Date().toISOString().slice(0, 10);
