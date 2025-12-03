@@ -207,6 +207,7 @@
                         </div>
                     </div>
 
+
                     <div id="dv_paymentWrapper" class="mt-2">
                         <hr class="my-2" />
 
@@ -230,12 +231,13 @@
                             <label class="form-label fw-bold small">Payment</label>
                             <input id="txtPayment" type="number" class="form-control form-control-sm" readonly />
                         </div>
-
-                        <div id="dv_balanceDue" class="d-flex justify-content-between fw-bold fs-5 mb-1 text-danger">
-                            <span>Balance Due</span>
-                            <span id="txtBalanceDue" class="fs4">0.00</span>
-                        </div>
                     </div>
+                    <div id="dv_balanceWrapper">
+                    <div id="dv_balanceDue" class="d-flex justify-content-between align-items-center fw-bold fs-4 mb-1 text-danger" style="flex-wrap: nowrap !important; white-space: nowrap !important;">
+                        <span style="white-space: nowrap !important; flex-shrink: 0 !important;">Balance Due</span>
+                        <span id="txtBalanceDue" class="fw-bold fs-4" style="white-space: nowrap !important; flex-shrink: 0 !important;">0.00</span>
+                    </div>
+                </div>
                 </div>
             </div>
 
@@ -373,9 +375,9 @@
                }));
     const isAdmin = @(ViewBag.IsAdmin != null ? ViewBag.IsAdmin.ToString().ToLower() : "false");
     const currencyData = @Html.Raw(JsonConvert.SerializeObject((ViewBag.CurrencyData as IEnumerable<CurrencyDTO>) ?? new List<CurrencyDTO>(), new JsonSerializerSettings
-               {
-                   ContractResolver = new CamelCasePropertyNamesContractResolver()
-               }));
+                    {
+                        ContractResolver = new CamelCasePropertyNamesContractResolver()
+                    }));
 
     InitializeInvoicePage(invoice, '@ViewBag.Mode', isAdmin, currencyData);
 </script>

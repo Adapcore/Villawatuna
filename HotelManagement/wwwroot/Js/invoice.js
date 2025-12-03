@@ -113,6 +113,7 @@
             $('#dv_paidWrapper').hide();
             $('#dv_changeWrapper').addClass('d-none');
             $('#dv_paymentWrapper').hide();
+            $('#dv_balanceWrapper').hide();
 
             $('#btnComplete').hide();
             $('#btnPay').hide();
@@ -162,6 +163,7 @@
                 self.EnableHeader(1);
                 $('#dv_paidWrapper').show();
                 $('#dv_paymentWrapper').slideDown();
+                $('#dv_balanceWrapper').slideDown();
                 $('#btn_print').show();
             }
             else if (self._invoice.status == 4) { // Paid
@@ -323,6 +325,7 @@
             //$('#dv_payment').show();
             //$('#dv_balanceDue').removeClass('d-none');
             $('#dv_paymentWrapper').slideDown();
+            $('#dv_balanceWrapper').slideDown();
             $('#btn_print').show();
         },
 

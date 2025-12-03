@@ -315,3 +315,559 @@
     white-space: nowrap !important;
 }
 
+/* Mobile Responsive Styles for Payment Wrapper */
+@media (max-width: 767px) {
+    /* Payment wrapper container */
+    #dv_paymentWrapper {
+        width: 100%;
+        max-width: 100%;
+        overflow-x: hidden;
+    }
+    
+    /* Payment section flex container - stack vertically on mobile */
+    #dv_paymentWrapper .d-flex.justify-content-between {
+        flex-direction: column !important;
+        gap: 12px !important;
+        align-items: stretch !important;
+    }
+    
+    /* Payment type and button container */
+    #dv_paymentWrapper .d-flex.align-items-center {
+        flex-direction: column !important;
+        gap: 10px !important;
+        width: 100% !important;
+        align-items: stretch !important;
+    }
+    
+    /* Payment Type dropdown - full width on mobile */
+    #PaymentType {
+        width: 100% !important;
+        min-width: 100% !important;
+        max-width: 100% !important;
+        font-size: 1rem !important;
+        padding: 10px 12px !important;
+        min-height: 44px !important;
+    }
+    
+    /* Pay Balance button - full width on mobile */
+    #btnPayBalance {
+        width: 100% !important;
+        padding: 10px 16px !important;
+        font-size: 0.9rem !important;
+        min-height: 44px !important;
+        white-space: normal !important;
+    }
+    
+    /* Cash input - full width on mobile */
+    #txtCash {
+        width: 100% !important;
+        min-width: 100% !important;
+        max-width: 100% !important;
+        margin-left: 0 !important;
+        margin-top: 0 !important;
+        font-size: 1.1rem !important;
+        padding: 12px 16px !important;
+        min-height: 44px !important;
+        text-align: right !important;
+    }
+    
+    /* Payment Reference input - full width */
+    #txtPaymentReference {
+        width: 100% !important;
+        font-size: 0.95rem !important;
+        padding: 10px 12px !important;
+        min-height: 44px !important;
+    }
+    
+    /* Payment input - full width */
+    #txtPayment {
+        width: 100% !important;
+        font-size: 0.95rem !important;
+        padding: 10px 12px !important;
+        min-height: 44px !important;
+    }
+    
+    /* Balance Due section - match Gross Amount styling exactly and prevent wrapping */
+    #dv_balanceDue {
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        flex-wrap: nowrap !important;
+        white-space: nowrap !important;
+        font-size: 1.5rem !important; /* fs-4 Bootstrap equivalent */
+        font-weight: 700 !important; /* fw-bold */
+        color: #dc3545 !important; /* text-danger */
+        margin-bottom: 0.25rem !important; /* mb-1 */
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+        min-width: 0 !important;
+        overflow: hidden !important;
+    }
+    
+    /* Override Bootstrap fs-5 class to match fs-4 like Gross Amount */
+    #dv_balanceDue.fs-5,
+    #dv_balanceDue.fs-4 {
+        font-size: 1.5rem !important; /* Match fs-4 */
+    }
+    
+    #dv_balanceDue span {
+        white-space: nowrap !important;
+        flex-shrink: 0 !important;
+        display: inline-block !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+    }
+    
+    #dv_balanceDue span:first-child {
+        flex: 0 0 auto !important;
+        max-width: 60% !important;
+    }
+    
+    #dv_balanceDue #txtBalanceDue {
+        white-space: nowrap !important;
+        flex-shrink: 0 !important;
+        font-size: 1.5rem !important; /* Match fs-4 */
+        font-weight: 700 !important; /* Match fw-bold */
+        margin-left: 0 !important;
+        max-width: 40% !important;
+        text-align: right !important;
+    }
+    
+    #dv_balanceDue #txtBalanceDue.fs4,
+    #dv_balanceDue #txtBalanceDue.fs-4 {
+        font-size: 1.5rem !important;
+    }
+    
+    /* Balance Due container - ensure it stays on one line */
+    #dv_balanceDue {
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+    
+    /* Ensure parent container doesn't constrain */
+    #dv_paymentWrapper {
+        min-width: 0 !important;
+        overflow-x: hidden !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+    
+    /* Ensure all parent containers allow proper width */
+    #dv_paymentWrapper * {
+        box-sizing: border-box !important;
+    }
+    
+    /* Ensure all form controls don't overflow */
+    #dv_paymentWrapper .form-control,
+    #dv_paymentWrapper .form-select {
+        box-sizing: border-box !important;
+        max-width: 100% !important;
+    }
+    
+    /* Remove any horizontal margins that could cause overflow */
+    #dv_paymentWrapper .ms-2,
+    #dv_paymentWrapper .me-2 {
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+    }
+}
+
+/* Mobile Responsive Styles for Invoice Items Table in Create/Edit View */
+@media (max-width: 767px) {
+    /* Hide table headers on mobile for invoice items table */
+    #invoiceItems thead {
+        display: none;
+    }
+    
+    /* Convert table rows to cards on mobile */
+    #invoiceItems tbody tr {
+        display: block;
+        margin-bottom: 16px;
+        background: #ffffff;
+        border: 1px solid #e9ecef;
+        border-radius: 16px;
+        padding: 16px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.05);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    #invoiceItems tbody tr:hover {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12), 0 2px 6px rgba(0, 0, 0, 0.08);
+    }
+    
+    /* Make table cells display as block elements */
+    #invoiceItems tbody td {
+        display: block;
+        border: none;
+        padding: 10px 0;
+        text-align: left !important;
+        position: relative;
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+    }
+    
+    /* First cell (Item/Room) - Full width header style */
+    #invoiceItems tbody td:first-child {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #212529;
+        margin-bottom: 12px;
+        padding-bottom: 12px;
+        border-bottom: 2px solid #e9ecef;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+    
+    /* Item select input group - full width */
+    #invoiceItems tbody td:first-child .input-group {
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+    }
+    
+    #invoiceItems tbody td:first-child .orderItemSelect,
+    #invoiceItems tbody td:first-child .select2-container,
+    #invoiceItems tbody td:first-child .select2-container--bootstrap-5 {
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+    }
+    
+    /* Other cells - Label/Value layout */
+    #invoiceItems tbody td:not(:first-child):not(:last-child) {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 12px;
+        margin-bottom: 8px;
+        background: rgba(108, 117, 125, 0.05);
+        border-radius: 10px;
+    }
+    
+    /* Add labels using input class detection - more reliable */
+    /* Check-In field */
+    #invoiceItems tbody td:has(input.checkIn)::before {
+        content: "Check-In:";
+        font-weight: 600;
+        color: #6c757d;
+        font-size: 0.9rem;
+        margin-right: auto;
+        flex-shrink: 0;
+    }
+    
+    /* Check-Out field */
+    #invoiceItems tbody td:has(input.checkOut)::before {
+        content: "Check-Out:";
+        font-weight: 600;
+        color: #6c757d;
+        font-size: 0.9rem;
+        margin-right: auto;
+        flex-shrink: 0;
+    }
+    
+    /* Note field - detect by input.note class and not checkIn/checkOut */
+    #invoiceItems tbody td:has(input.note):not(:has(input.checkIn)):not(:has(input.checkOut))::before {
+        content: "Note:";
+        font-weight: 600;
+        color: #6c757d;
+        font-size: 0.9rem;
+        margin-right: auto;
+        flex-shrink: 0;
+    }
+    
+    /* Quantity field */
+    #invoiceItems tbody td:has(input.orderQty)::before {
+        content: "Qty:";
+        font-weight: 600;
+        color: #6c757d;
+        font-size: 0.9rem;
+        margin-right: auto;
+        flex-shrink: 0;
+    }
+    
+    /* Price field */
+    #invoiceItems tbody td:has(input.itemPrice)::before {
+        content: "Price:";
+        font-weight: 600;
+        color: #6c757d;
+        font-size: 0.9rem;
+        margin-right: auto;
+        flex-shrink: 0;
+    }
+    
+    /* Amount field */
+    #invoiceItems tbody td:has(input.itemTotal)::before {
+        content: "Amount:";
+        font-weight: 600;
+        color: #6c757d;
+        font-size: 0.9rem;
+        margin-right: auto;
+        flex-shrink: 0;
+    }
+    
+    /* For Stay invoice - #Room field (Note field in Stay) */
+    #invoiceItems tbody tr:has(td:has(input.checkIn)) td:has(input.note)::before {
+        content: "#Room:";
+        font-weight: 600;
+        color: #6c757d;
+        font-size: 0.9rem;
+        margin-right: auto;
+        flex-shrink: 0;
+    }
+    
+    /* For Stay invoice - #Nights field (Qty field in Stay) */
+    #invoiceItems tbody tr:has(td:has(input.checkIn)) td:has(input.orderQty)::before {
+        content: "#Nights:";
+        font-weight: 600;
+        color: #6c757d;
+        font-size: 0.9rem;
+        margin-right: auto;
+        flex-shrink: 0;
+    }
+    
+    /* For Stay invoice - Price/Night field */
+    #invoiceItems tbody tr:has(td:has(input.checkIn)) td:has(input.itemPrice)::before {
+        content: "Price/Night:";
+        font-weight: 600;
+        color: #6c757d;
+        font-size: 0.9rem;
+        margin-right: auto;
+        flex-shrink: 0;
+    }
+    
+    /* Input fields styling */
+    #invoiceItems tbody td input,
+    #invoiceItems tbody td select {
+        width: 100% !important;
+        max-width: 100% !important;
+        flex: 1 1 auto;
+        margin-left: 8px;
+    }
+    
+    /* Amount field - highlight */
+    #invoiceItems tbody td:nth-child(5) input.itemTotal,
+    #invoiceItems tbody tr:has(td:nth-child(2) input.checkIn) td:nth-child(7) input.itemTotal {
+        font-weight: 700;
+        color: #198754;
+        font-size: 1rem;
+    }
+    
+    /* Remove button - full width on mobile */
+    #invoiceItems tbody td:last-child {
+        display: flex;
+        justify-content: center;
+        padding: 12px 0 !important;
+        margin-top: 8px;
+        border-top: 1px solid #e9ecef;
+    }
+    
+    #invoiceItems tbody td:last-child .removeItemBtn {
+        width: 100% !important;
+        padding: 10px !important;
+        font-size: 1rem !important;
+        min-height: 44px !important;
+    }
+    
+    /* Table responsive wrapper */
+    #invoiceItems {
+        border: none !important;
+    }
+    
+    #invoiceItems tbody {
+        display: block;
+    }
+}
+
+/* Mobile Responsive Styles for Invoice Items Table in Details View */
+@media (max-width: 767px) {
+    /* Hide table headers on mobile */
+    .card .table thead {
+        display: none;
+    }
+    
+    /* Convert table rows to cards on mobile */
+    .card .table tbody tr {
+        display: block;
+        margin-bottom: 16px;
+        background: #ffffff;
+        border: 1px solid #e9ecef;
+        border-radius: 16px;
+        padding: 16px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.05);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .card .table tbody tr:hover {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12), 0 2px 6px rgba(0, 0, 0, 0.08);
+        transform: translateY(-2px);
+    }
+    
+    /* Make table cells display as block elements */
+    .card .table tbody td {
+        display: block;
+        border: none;
+        padding: 10px 0;
+        text-align: left !important;
+        position: relative;
+    }
+    
+    /* First cell (Item/Room Type) - Full width header style */
+    .card .table tbody td:first-child {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #212529;
+        margin-bottom: 12px;
+        padding-bottom: 12px;
+        border-bottom: 2px solid #e9ecef;
+        padding-left: 0 !important;
+    }
+    
+    .card .table tbody td:first-child[data-label=""] {
+        padding-left: 0 !important;
+    }
+    
+    /* Other cells - Label/Value layout */
+    .card .table tbody td:not(:first-child) {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 12px;
+        margin-bottom: 6px;
+        background: rgba(108, 117, 125, 0.05);
+        border-radius: 10px;
+        padding-left: 12px !important;
+    }
+    
+    /* Add labels before each cell (except first) */
+    .card .table tbody td:not(:first-child)::before {
+        content: attr(data-label);
+        font-weight: 600;
+        color: #6c757d;
+        font-size: 0.9rem;
+        margin-right: auto;
+        flex-shrink: 0;
+    }
+    
+    /* Value styling */
+    .card .table tbody td:not(:first-child) {
+        font-weight: 600;
+        color: #212529;
+    }
+    
+    /* Special styling for amount column */
+    .card .table tbody td.text-end.fw-semibold.text-success,
+    .card .table tbody td.text-end.fw-bold.text-success {
+        font-size: 1.15rem;
+        font-weight: 800;
+        color: #198754 !important;
+        padding-top: 14px;
+        margin-top: 10px;
+        border-top: 2px solid #e9ecef;
+        background: rgba(25, 135, 84, 0.08) !important;
+    }
+    
+    /* Style for empty state */
+    .card .table tbody tr td[colspan] {
+        display: block;
+        text-align: center !important;
+        padding: 32px 16px !important;
+        padding-left: 16px !important;
+        background: transparent !important;
+        border: none !important;
+    }
+    
+    .card .table tbody tr td[colspan]::before {
+        display: none;
+    }
+    
+    /* Responsive card padding */
+    .card.shadow-sm.p-4 {
+        padding: 16px !important;
+    }
+    
+    /* Table container adjustments */
+    .card .table {
+        border: none;
+        margin-bottom: 0;
+    }
+    
+    .card .table tbody {
+        display: block;
+    }
+    
+    /* Border info card specific adjustments */
+    .card.border-info .table tbody td:not(:first-child) {
+        background: rgba(13, 202, 240, 0.08);
+    }
+}
+
+/* Mobile styles for Payments table */
+@media (max-width: 767px) {
+    /* Payments table mobile card layout */
+    .card.border-warning .table thead {
+        display: none;
+    }
+    
+    .card.border-warning .table tbody tr {
+        display: block;
+        margin-bottom: 16px;
+        background: #ffffff;
+        border: 1px solid #ffc107;
+        border-radius: 16px;
+        padding: 16px;
+        box-shadow: 0 2px 8px rgba(255, 193, 7, 0.15), 0 1px 3px rgba(255, 193, 7, 0.1);
+    }
+    
+    .card.border-warning .table tbody td {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 12px;
+        margin-bottom: 6px;
+        background: rgba(255, 193, 7, 0.08);
+        border-radius: 10px;
+        border: none;
+        text-align: left !important;
+    }
+    
+    .card.border-warning .table tbody td::before {
+        content: attr(data-label);
+        font-weight: 600;
+        color: #856404;
+        font-size: 0.9rem;
+        margin-right: auto;
+        flex-shrink: 0;
+    }
+    
+    .card.border-warning .table tbody td {
+        font-weight: 600;
+        color: #212529;
+    }
+    
+    .card.border-warning .table tbody td.text-end.fw-bold.text-success {
+        font-size: 1.15rem;
+        font-weight: 800;
+        color: #198754 !important;
+        border-top: 2px solid #ffc107;
+        margin-top: 10px;
+        padding-top: 14px;
+        background: rgba(25, 135, 84, 0.1) !important;
+    }
+    
+    .card.border-warning .table tbody tr td[colspan] {
+        display: block;
+        text-align: center !important;
+        padding: 32px 16px !important;
+        background: transparent !important;
+        border: none !important;
+    }
+    
+    .card.border-warning .table tbody tr td[colspan]::before {
+        display: none;
+    }
+}
+
