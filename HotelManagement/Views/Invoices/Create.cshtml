@@ -147,7 +147,7 @@
                         </div>
                     </div>
 
-                    @if (Model.Type == (int)InvoiceType.Stay)
+                    @if (Model.Type == (int)InvoiceType.Stay || Model.Type == (int)InvoiceType.Tour)
                     {
                         <div id="dv_currency" class="d-flex justify-content-between">
                             <div class="mb-4">
@@ -162,7 +162,7 @@
                     }
                     <hr class="my-1" />
 
-                    @if (Model.Type == (int)InvoiceType.Stay)
+                    @if (Model.Type == (int)InvoiceType.Stay || Model.Type == (int)InvoiceType.Tour)
                     {
                         <div class="d-flex justify-content-between fs-5 mb-1 text-primary">
                             <span>Cury Sub Total</span>
@@ -233,11 +233,11 @@
                         </div>
                     </div>
                     <div id="dv_balanceWrapper">
-                    <div id="dv_balanceDue" class="d-flex justify-content-between align-items-center fw-bold fs-4 mb-1 text-danger" style="flex-wrap: nowrap !important; white-space: nowrap !important;">
-                        <span style="white-space: nowrap !important; flex-shrink: 0 !important;">Balance Due</span>
-                        <span id="txtBalanceDue" class="fw-bold fs-4" style="white-space: nowrap !important; flex-shrink: 0 !important;">0.00</span>
+                        <div id="dv_balanceDue" class="d-flex justify-content-between align-items-center fw-bold fs-4 mb-1 text-danger" style="flex-wrap: nowrap !important; white-space: nowrap !important;">
+                            <span style="white-space: nowrap !important; flex-shrink: 0 !important;">Balance Due</span>
+                            <span id="txtBalanceDue" class="fw-bold fs-4" style="white-space: nowrap !important; flex-shrink: 0 !important;">0.00</span>
+                        </div>
                     </div>
-                </div>
                 </div>
             </div>
 

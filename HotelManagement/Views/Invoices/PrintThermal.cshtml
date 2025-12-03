@@ -337,7 +337,7 @@
             <!-- Totals -->
             <div class="totals">
 
-                @if (Model.Type == InvoiceType.Stay)
+                @if (Model.Type == InvoiceType.Stay || Model.Type == InvoiceType.Tour)
                 {
                     @if (Model.Currency != "LKR")
                     {
