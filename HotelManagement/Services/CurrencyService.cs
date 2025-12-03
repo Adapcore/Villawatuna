@@ -34,7 +34,7 @@ namespace HotelManagement.Services
                     Id = x.Id,
                     Name = x.Name,
                     Code = x.Value<string>("currencyCode"),
-                    ExchangeRate = Convert.ToDecimal(x.Value<int>("exchangeRate"))
+                    ExchangeRate = x.Value<decimal>("exchangeRate")
                 })
                 .ToList();
 
