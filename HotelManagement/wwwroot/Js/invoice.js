@@ -78,6 +78,21 @@
 
             $("#InvoiceNo").val(self._invoice.invoiceNo);
             $("#Status").val(self._invoice.status);
+            
+            // Set invoice date to client's local date (only for new invoices)
+            var dateInput = $('input[type="date"][name="Date"]');
+            if (dateInput.length > 0) {
+                // Only set if it's a new invoice (InvoiceNo is 0 or empty) or if date field is empty
+                var invoiceNo = self._invoice.invoiceNo || 0;
+                if (invoiceNo === 0 || !dateInput.val()) {
+                    // Get client's local date in YYYY-MM-DD format
+                    var now = new Date();
+                    var localDate = now.getFullYear() + '-' + 
+                        String(now.getMonth() + 1).padStart(2, '0') + '-' + 
+                        String(now.getDate()).padStart(2, '0');
+                    dateInput.val(localDate);
+                }
+            }
             //$('#txtPaid').html(self._invoice.paid.toFixed(2));
             $('#txtPaid').html(self._formatter.format(self._invoice.paid));
 
