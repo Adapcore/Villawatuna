@@ -37,6 +37,23 @@ builder.Services.AddScoped<ILaundryService, LaundryService>();
 
 builder.Services.Configure<PaginationSettings>(builder.Configuration.GetSection("Pagination"));
 
+// Add CORS to allow frontend React app to call APIs
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowReactApp", policy =>
+    {
+        policy.WithOrigins(
+                "http://localhost:3000",      // Vite default port
+                "http://localhost:5173",      // Vite alternative port
+                "http://localhost:60713",     // HotelManagement HTTP port
+                "https://localhost:44343"     // HotelManagement HTTPS port
+              )
+              .AllowAnyMethod()
+              .AllowAnyHeader()
+              .AllowCredentials();
+    });
+});
+
 builder.CreateUmbracoBuilder()
     .AddBackOffice()
     .AddWebsite()
@@ -45,6 +62,9 @@ builder.CreateUmbracoBuilder()
     .Build();
 
 WebApplication app = builder.Build();
+
+// Enable CORS
+app.UseCors("AllowReactApp");
 
 await app.BootUmbracoAsync();
 
