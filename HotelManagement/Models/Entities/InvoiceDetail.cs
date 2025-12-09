@@ -28,7 +28,8 @@ namespace HotelManagement.Models.Entities
 		public DateTime? CheckIn { get; set; }
 		public DateTime? CheckOut { get; set; }
 
-		public int Quantity { get; set; }
+		[Column(TypeName = "decimal(18,2)")]
+		public decimal Quantity { get; set; }
 
 		[Column(TypeName = "decimal(18,2)")]
 		public decimal UnitPrice { get; set; }

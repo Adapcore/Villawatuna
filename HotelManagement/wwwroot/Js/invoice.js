@@ -893,7 +893,7 @@
                                 <input type="text" name="InvoiceDetails[${rowIndex}].Note" class="form-control note" placeholder="Note" />
                             </td>
                             <td>
-                                <input type="number" name="InvoiceDetails[${rowIndex}].Quantity" class="form-control orderQty text-end" value="1" min="1" />
+                                <input type="number" name="InvoiceDetails[${rowIndex}].Quantity" class="form-control orderQty text-end" value="1" min="0.01" step="0.01" />
                             </td>
                             <td>
                                 <input type="number" name="InvoiceDetails[${rowIndex}].UnitPrice" class="form-control itemPrice text-end" value="${unitPrice.toFixed(2)}" step="0.01" />
@@ -1293,9 +1293,9 @@
                     Note: $row.find(".note").val(),
                     CheckIn: $row.find(".checkIn").val(),
                     CheckOut: $row.find(".checkOut").val(),
-                    Quantity: self.ParseNumber($row.find(".orderQty").val()) || 0,
-                    UnitPrice: self.ParseNumber($row.find(".itemPrice").val()) || 0,
-                    Amount: self.ParseNumber($row.find(".itemTotal").val()) || 0
+                    Quantity: parseFloat($row.find(".orderQty").val()) || 0,
+                    UnitPrice: parseFloat($row.find(".itemPrice").val()) || 0,
+                    Amount: parseFloat($row.find(".itemTotal").val()) || 0
                 });
             });
 
@@ -1355,7 +1355,7 @@
                         return false;
                     }
                     const qty = parseFloat(qtyValue);
-                    if (qty <= 0) {
+                    if (isNaN(qty) || qty <= 0) {
                         $row.find(".orderQty").addClass("is-invalid");
                         showToastError(`Row ${index + 1}: Quantity must be greater than zero.`);
                         isValid = false;
