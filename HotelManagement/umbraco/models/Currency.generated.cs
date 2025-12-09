@@ -62,6 +62,6 @@ namespace Umbraco.Cms.Web.Common.PublishedModels
 		///</summary>
 		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "13.10.0+c2890e1")]
 		[ImplementPropertyType("exchangeRate")]
-		public virtual int ExchangeRate => this.Value<int>(_publishedValueFallback, "exchangeRate");
+		public virtual decimal ExchangeRate => this.Value<decimal>(_publishedValueFallback, "exchangeRate");
 	}
 }
