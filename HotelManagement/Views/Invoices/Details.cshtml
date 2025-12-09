@@ -151,7 +151,7 @@
                                         <td>@detail.CheckOut?.ToShortDateString()</td>
                                     }
                                     <td>@detail.Note</td>
-                                    <td class="text-end">@detail.Quantity</td>
+                                    <td class="text-end">@detail.Quantity.ToString("F2")</td>
                                     <td class="text-end">@detail.UnitPrice.ToString("F2")</td>
                                     <td class="text-end fw-semibold text-success">@detail.Amount.ToString("F2")</td>
                                 </tr>
