@@ -58,6 +58,13 @@ namespace Umbraco.Cms.Web.Common.PublishedModels
 		public virtual string OpeningHoursText => this.Value<string>(_publishedValueFallback, "openingHoursText");
 
 		///<summary>
+		/// Page
+		///</summary>
+		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "13.10.0+c2890e1")]
+		[ImplementPropertyType("page")]
+		public virtual int Page => this.Value<int>(_publishedValueFallback, "page");
+
+		///<summary>
 		/// Title
 		///</summary>
 		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "13.10.0+c2890e1")]
