@@ -64,6 +64,25 @@ builder.CreateUmbracoBuilder()
 
 WebApplication app = builder.Build();
 
+// Apply pending migrations automatically on startup
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    try
+    {
+        var context = services.GetRequiredService<HotelContext>();
+        // Apply pending migrations
+        context.Database.Migrate();
+    }
+    catch (Exception ex)
+    {
+        var logger = services.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "An error occurred while migrating the database.");
+        // Don't throw - allow app to start even if migration fails
+        // This prevents the app from crashing if DB is temporarily unavailable
+    }
+}
+
 // Enable CORS
 app.UseCors("AllowReactApp");
 
