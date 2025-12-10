@@ -46,7 +46,8 @@ builder.Services.AddCors(options =>
                 "http://localhost:3000",      // Vite default port
                 "http://localhost:5173",      // Vite alternative port
                 "http://localhost:60713",     // HotelManagement HTTP port
-                "https://localhost:44343"     // HotelManagement HTTPS port
+                "https://localhost:44343",     // HotelManagement HTTPS port
+                "https://www.villawatuna.com"     // HotelManagement HTTPS port
               )
               .AllowAnyMethod()
               .AllowAnyHeader()
