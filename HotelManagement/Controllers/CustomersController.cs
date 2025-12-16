@@ -25,14 +25,60 @@ namespace HotelManagement.Controllers
             _pageSize = paginationSettings.Value.DefaultPageSize;
         }
 
-        public async Task<IActionResult> Index(int page = 1)
+        public async Task<IActionResult> Index()
+        {
+            // Initial view; data loaded via AJAX similar to Invoices/Index
+            return View();
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetCustomers(string status = "all", int page = 1)
         {
             int pageNumber = page < 1 ? 1 : page;
-
             var customers = await _customerService.GetAllAsync();
+
+            status = (status ?? "all").ToLower();
+            switch (status)
+            {
+                case "active":
+                    customers = customers.Where(c => c.Active).ToList();
+                    break;
+                case "inactive":
+                    customers = customers.Where(c => !c.Active).ToList();
+                    break;
+                default:
+                    break;
+            }
+
             var pagedList = customers.ToPagedList(pageNumber, _pageSize);
 
-            return View(pagedList);
+            var items = pagedList.Select(c => new
+            {
+                id = c.ID,
+                email = c.Email ?? string.Empty,
+                firstName = c.FirstName ?? string.Empty,
+                lastName = c.LastName ?? string.Empty,
+                contactNo = c.ContactNo ?? string.Empty,
+                passportNo = c.PassportNo ?? string.Empty,
+                roomNo = c.RoomNo ?? string.Empty,
+                active = c.Active
+            }).ToList();
+
+            return Json(new
+            {
+                success = true,
+                customers = items,
+                pagination = new
+                {
+                    pageNumber = pagedList.PageNumber,
+                    pageCount = pagedList.PageCount,
+                    totalItemCount = pagedList.TotalItemCount,
+                    hasPreviousPage = pagedList.HasPreviousPage,
+                    hasNextPage = pagedList.HasNextPage,
+                    isFirstPage = pagedList.IsFirstPage,
+                    isLastPage = pagedList.IsLastPage
+                }
+            });
         }
 
         public IActionResult Create()
