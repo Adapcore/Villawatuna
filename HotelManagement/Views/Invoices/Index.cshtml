@@ -7,7 +7,7 @@
     bool isAdmin = ViewBag.IsAdmin != null && (bool)ViewBag.IsAdmin;
 }
 
-<link rel="stylesheet" href="~/css/invoice-index.css" />
+<link rel="stylesheet" href="~/css/invoice-index.css?v=@Configuration["Assets:Version"]" />
 
 <div class="container-fluid py-3">
     <!-- Touch-Optimized Header -->
@@ -232,4 +232,4 @@
 
 <input type="hidden" id="isAdminFlag" data-is-admin="@isAdmin" />
 
-<script src="~/js/invoice-index.js"></script>
+<script src="~/js/invoice-index.js?v=@Configuration["Assets:Version"]"></script>

@@ -30,14 +30,14 @@
     }
 }
 
-<link rel="stylesheet" href="~/css/dashboard.css" />
-<link rel="stylesheet" href="~/css/invoice-index.css" />
-<link rel="stylesheet" href="~/css/expenses-index.css" />
-<link rel="stylesheet" href="~/css/payments-index.css" />
+<link rel="stylesheet" href="~/css/dashboard.css?v=@Configuration["Assets:Version"]" />
+<link rel="stylesheet" href="~/css/invoice-index.css?v=@Configuration["Assets:Version"]" />
+<link rel="stylesheet" href="~/css/expenses-index.css?v=@Configuration["Assets:Version"]" />
+<link rel="stylesheet" href="~/css/payments-index.css?v=@Configuration["Assets:Version"]" />
 
 @if (!(Context.User?.Identity?.IsAuthenticated ?? false))
 {
-    <script src="~/js/auth-redirect.js"></script>
+    <script src="~/js/auth-redirect.js?v=@Configuration["Assets:Version"]"></script>
     <div class="container-fluid py-4">
         <div class="alert alert-info text-center">
             <p>Redirecting to login page... <a href="/Account/Login">Click here if not redirected</a></p>
@@ -207,7 +207,7 @@ else
     </div>
 
     @section Scripts {
-    <script src="~/js/dashboard.js"></script>
+    <script src="~/js/dashboard.js?v=@Configuration["Assets:Version"]"></script>
     <script>
         $(document).ready(function() {
             InitializeDashboard();

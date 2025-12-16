@@ -6,7 +6,7 @@
     bool isAdmin = ViewBag.IsAdmin != null && (bool)ViewBag.IsAdmin;
 }
 
-<link rel="stylesheet" href="~/css/expenses-index.css" />
+<link rel="stylesheet" href="~/css/expenses-index.css?v=@Configuration["Assets:Version"]" />
 
 <div class="container-fluid py-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
@@ -102,4 +102,4 @@
 @Html.AntiForgeryToken()
 <input type="hidden" id="isAdminFlag" data-is-admin="@isAdmin" />
 
-<script src="~/js/expense-index.js"></script>
+    <script src="~/js/expense-index.js?v=@Configuration["Assets:Version"]"></script>
