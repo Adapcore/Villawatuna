@@ -80,18 +80,18 @@ function renderCustomerDesktop(customers) {
     var html = '';
 
     customers.forEach(function (c) {
-        var fullName = (c.firstName + ' ' + c.lastName).trim();
+        var baseName = (c.firstName + ' ' + c.lastName).trim();
+        var roomDisplay = c.roomNo && c.roomNo.trim() !== '' ? '#' + c.roomNo : '';
+        var fullName = roomDisplay ? (roomDisplay + ' - ' + baseName).trim() : baseName;
         var statusText = c.active ? 'Active' : 'Inactive';
         var statusClass = c.active ? 'text-success' : 'text-muted';
-        var roomDisplay = c.roomNo && c.roomNo.trim() !== '' ? '#' + c.roomNo : '-';
 
         html += '<tr>';
         html += '<td>' + escapeHtml(c.email) + '</td>';
         html += '<td>' + escapeHtml(fullName) + '</td>';
         html += '<td>' + escapeHtml(c.contactNo) + '</td>';
-        html += '<td class="' + statusClass + ' fw-semibold">' + statusText + '</td>';
         html += '<td>' + escapeHtml(c.passportNo) + '</td>';
-        html += '<td>' + escapeHtml(roomDisplay) + '</td>';
+        html += '<td class="' + statusClass + ' fw-semibold">' + statusText + '</td>';
         html += '<td><a class="btn btn-sm btn-warning me-2" href="/Customers/Edit/' + c.id + '">Edit</a></td>';
         html += '</tr>';
     });
