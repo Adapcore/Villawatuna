@@ -390,6 +390,7 @@ function renderMobileCards(invoices) {
             html += '<div class="invoice-amount">' + formatCurrency(invoice.grossAmount) + '</div>';
             html += '</div>';
             html += '<div class="invoice-row-footer">';
+
             html += '<span class="invoice-number">';
             html += '<span class="invoice-number-label">INV No</span>';
             html += '<span class="invoice-number-value">#' + invoice.invoiceNo + '</span>';
@@ -405,16 +406,24 @@ function renderMobileCards(invoices) {
             html += '<i class="bi bi-credit-card"></i></button>';
             html += '<a href="/Internal/Invoices/Edit/' + invoice.invoiceNo + '" class="btn-view-invoice">';
             html += '<i class="bi bi-eye"></i> View</a>';
-            if (invoice.createdByMember && invoice.createdByMember.name) {
-                html += '<span class="invoice-creator">' + escapeHtml(invoice.createdByMember.name) + '</span>';
-            }
-            // Mobile: show Settled On after the invoice creator (for Paid invoices only)
-            // Use same label/value classes as INV No for consistent font and color
-            if (settledOnDisplay) {
-                html += '<span class="invoice-number invoice-settled-on">';
-                html += '<span class="invoice-number-label">Settled On</span>';
-                html += '<span class="invoice-number-value">' + settledOnDisplay + '</span>';
-                html += '</span>';
+            html += '</div>';
+            
+            // Third row: Settled On (left) and invoice-creator (right)
+            if ((invoice.createdByMember && invoice.createdByMember.name) || settledOnDisplay) {
+                html += '<div class="invoice-row-meta">';
+                // Mobile: show Settled On on the left (for Paid invoices only)
+                // Use same label/value classes as INV No for consistent font and color
+                if (settledOnDisplay) {
+                    html += '<span class="invoice-number invoice-settled-on">';
+                    html += '<span class="invoice-number-label">Settled On</span>';
+                    html += '<span class="invoice-number-value">' + settledOnDisplay + '</span>';
+                    html += '</span>';
+                }
+                // Invoice creator on the right
+                if (invoice.createdByMember && invoice.createdByMember.name) {
+                    html += '<span class="invoice-creator">' + escapeHtml(invoice.createdByMember.name) + '</span>';
+                }
+                html += '</div>';
             }
             html += '</div>';
             html += '</div>';

@@ -381,6 +381,16 @@
         flex-wrap: wrap;
     }
     
+    /* Third row: invoice-creator and Settled On */
+    .invoice-row-meta {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding-left: 42px; /* Align with customer name (icon width + gap) */
+        margin-top: 6px;
+        flex-wrap: wrap;
+    }
+    
     .invoice-number {
         font-size: 0.75rem;
         color: #6c757d;
