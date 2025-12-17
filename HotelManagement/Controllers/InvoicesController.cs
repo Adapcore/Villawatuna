@@ -119,6 +119,10 @@ namespace HotelManagement.Controllers
                 type = i.Type.ToString(),
                 typeDisplay = EnumHelper.GetDisplayName(i.Type),
                 date = i.Date.ToString("yyyy-MM-dd"),
+                // SettledOn: use LastModifiedDate only for Paid invoices; otherwise null
+                settledOn = i.Status == InvoiceStatus.Paid && i.LastModifiedDate.HasValue
+                    ? i.LastModifiedDate.Value.ToString("yyyy-MM-dd")
+                    : null,
                 status = i.Status.ToString(),
                 statusDisplay = EnumHelper.GetDisplayName(i.Status),
                 grossAmount = i.GrossAmount,

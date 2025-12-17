@@ -305,12 +305,19 @@ function renderDesktopTable(invoices) {
 
     invoices.forEach(function (invoice) {
         var isPaymentsDisabled = invoice.status === 'InProgress' || invoice.status === 'Complete';
+        var settledOnDisplay = '';
+
+        // Settled on: show only for Paid invoices, using short date
+        if (invoice.status === 'Paid' && invoice.settledOn) {
+            settledOnDisplay = formatDate(invoice.settledOn);
+        }
 
         html += '<tr>';
         html += '<td>' + escapeHtml(invoice.invoiceNo) + '</td>';
         html += '<td>' + escapeHtml(invoice.customerName) + '</td>';
         html += '<td>' + escapeHtml(invoice.typeDisplay) + '</td>';
         html += '<td>' + formatDate(invoice.date) + '</td>';
+        html += '<td>' + escapeHtml(settledOnDisplay) + '</td>';
         html += '<td>' + escapeHtml(invoice.statusDisplay) + '</td>';
         html += '<td class="text-end">' + formatCurrency(invoice.grossAmount) + '</td>';
         html += '<td>';
@@ -368,6 +375,12 @@ function renderMobileCards(invoices) {
             var statusClass = getStatusClass(invoice.status);
             var typeIcon = getTypeIcon(invoice.type);
             var isPaymentsDisabled = invoice.status === 'InProgress' || invoice.status === 'Complete';
+            var settledOnDisplay = '';
+
+            // Settled on: show only for Paid invoices, using short date
+            if (invoice.status === 'Paid' && invoice.settledOn) {
+                settledOnDisplay = formatDate(invoice.settledOn);
+            }
 
             html += '<div class="invoice-row-wrapper">';
             html += '<div class="invoice-row-compact ' + statusClass + '">';
@@ -394,6 +407,14 @@ function renderMobileCards(invoices) {
             html += '<i class="bi bi-eye"></i> View</a>';
             if (invoice.createdByMember && invoice.createdByMember.name) {
                 html += '<span class="invoice-creator">' + escapeHtml(invoice.createdByMember.name) + '</span>';
+            }
+            // Mobile: show Settled On after the invoice creator (for Paid invoices only)
+            // Use same label/value classes as INV No for consistent font and color
+            if (settledOnDisplay) {
+                html += '<span class="invoice-number invoice-settled-on">';
+                html += '<span class="invoice-number-label">Settled On</span>';
+                html += '<span class="invoice-number-value">' + settledOnDisplay + '</span>';
+                html += '</span>';
             }
             html += '</div>';
             html += '</div>';
