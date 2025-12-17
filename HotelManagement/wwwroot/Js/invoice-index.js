@@ -15,9 +15,22 @@ var invoiceState = {
     isInternalCallScope: false
 };
 
+// Safely read the admin flag from the hidden field and normalize to a boolean
+function getIsAdminFlag() {
+    var val = $('#isAdminFlag').data('is-admin');
+
+    // If it's a string like "true"/"false"
+    if (typeof val === 'string') {
+        return val.toLowerCase() === 'true';
+    }
+
+    // For booleans or anything else, coerce to boolean
+    return !!val;
+}
+
 $(document).ready(function () {
-    // Initialize admin flag
-    invoiceState.isAdmin = $('#isAdminFlag').data('is-admin') || false;    
+    // Initialize admin flag (normalized to a real boolean)
+    invoiceState.isAdmin = getIsAdminFlag();   
 
     // Filter form submission
     $('#invoiceFilterForm').on('submit', function (e) {
@@ -308,7 +321,7 @@ function renderDesktopTable(invoices) {
         html += 'title="' + (isPaymentsDisabled ? 'Payments not available for this invoice status' : 'View Payments') + '">';
         html += '<div class="d-flex flex-column align-items-center"><i class="bi bi-credit-card"></i><span class="btn-text">Payments</span></div>';
         html += '</button>';
-        if (invoiceState.isAdmin) {
+        if (invoiceState.isAdmin === true) {
             html += '<button type="button" class="btn btn-sm btn-danger btn-delete-invoice" ';
             html += 'data-invoice-id="' + invoice.invoiceNo + '" data-invoice-no="' + invoice.invoiceNo + '">';
             html += '<i class="bi bi-trash"></i> Delete</button>';
@@ -367,7 +380,7 @@ function renderMobileCards(invoices) {
             html += '<span class="invoice-number">';
             html += '<span class="invoice-number-label">INV No</span>';
             html += '<span class="invoice-number-value">#' + invoice.invoiceNo + '</span>';
-            if (invoiceState.isAdmin) {
+            if (invoiceState.isAdmin === true) {
                 html += '<button type="button" class="btn-delete-invoice-icon btn-delete-invoice" ';
                 html += 'data-invoice-id="' + invoice.invoiceNo + '" data-invoice-no="' + invoice.invoiceNo + '" ';
                 html += 'title="Delete Invoice"><i class="bi bi-trash"></i></button>';

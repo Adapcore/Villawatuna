@@ -22,7 +22,12 @@
         this.subTotal = 0;
         this.grossTotal = 0;
         this._currentRow = null;
-        this._isAdmin = this.options.isAdmin || false;
+        // Normalize isAdmin to a strict boolean
+        if (typeof this.options.isAdmin === 'string') {
+            this._isAdmin = this.options.isAdmin.toLowerCase() === 'true';
+        } else {
+            this._isAdmin = !!this.options.isAdmin;
+        }
         this._currencyData = this.options.currencyData || [];
         this._isSaving = false; // Flag to track if save is in progress
 
@@ -1733,10 +1738,18 @@ function ResetQuickCustomer() {
 // Initialize invoice page
 function InitializeInvoicePage(invoiceData, mode, isAdmin, currencyData) {
     $(document).ready(function () {
+        // Normalize isAdmin which may come as string "true"/"false" from Razor
+        var normalizedIsAdmin;
+        if (typeof isAdmin === 'string') {
+            normalizedIsAdmin = isAdmin.toLowerCase() === 'true';
+        } else {
+            normalizedIsAdmin = !!isAdmin;
+        }
+
         const obj = {
             mode: mode,
             invoice: invoiceData,
-            isAdmin: isAdmin || false,
+            isAdmin: normalizedIsAdmin,
             currencyData: currencyData || []
         };
         $().invoice(obj);

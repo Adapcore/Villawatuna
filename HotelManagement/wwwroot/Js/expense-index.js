@@ -13,9 +13,22 @@ var expenseState = {
     isInternalCallScope: false
 };
 
+// Safely read the admin flag from the hidden field and normalize to a boolean
+function getIsAdminFlagForExpenses() {
+    var val = $('#isAdminFlag').data('is-admin');
+
+    // If it's a string like "true"/"false"
+    if (typeof val === 'string') {
+        return val.toLowerCase() === 'true';
+    }
+
+    // For booleans or anything else, coerce to boolean
+    return !!val;
+}
+
 $(document).ready(function () {
-    // Initialize admin flag
-    expenseState.isAdmin = $('#isAdminFlag').data('is-admin') || false;
+    // Initialize admin flag (normalized to a real boolean)
+    expenseState.isAdmin = getIsAdminFlagForExpenses();
 
     // Filter form submission
     $('#expenseFilterForm').on('submit', function (e) {
@@ -233,7 +246,7 @@ function renderDesktopTable(expenses) {
         html += '<div class="d-flex gap-1">';
         html += '<a href="/Expenses/Details/' + expense.id + '" class="btn btn-sm btn-info">View</a>';
         html += '<a href="/Expenses/Edit/' + expense.id + '" class="btn btn-sm btn-warning">Edit</a>';
-        if (expenseState.isAdmin) {
+        if (expenseState.isAdmin === true) {
             html += '<button type="button" class="btn btn-sm btn-danger btn-delete-expense" ';
             html += 'data-expense-id="' + expense.id + '" data-expense-no="' + expense.id + '">';
             html += 'Delete</button>';
@@ -298,7 +311,7 @@ function renderMobileCards(expenses) {
             html += '</div>';
             html += '<div class="expense-row-footer">';
             html += '<span class="expense-number">';
-            if (expenseState.isAdmin) {
+            if (expenseState.isAdmin === true) {
                 html += '<button type="button" class="btn-delete-expense-icon btn-delete-expense" ';
                 html += 'data-expense-id="' + expense.id + '" data-expense-no="' + expense.id + '" ';
                 html += 'title="Delete Expense"><i class="bi bi-trash"></i></button>';
