@@ -243,6 +243,9 @@ namespace HotelManagement.Migrations
                     b.Property<decimal>("CurySubTotal")
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<bool>("PaidInForeignCurrency")
+                        .HasColumnType("bit");
+
                     b.Property<int>("CustomerId")
                         .HasColumnType("int");
 

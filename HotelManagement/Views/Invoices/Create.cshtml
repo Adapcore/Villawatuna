@@ -190,7 +190,7 @@
                     <div id="dv_paidWrapper">
                         <hr class="my-2" />
                         <div class="d-flex justify-content-between fs-6 mb-1">
-                            <span>Total Paid</span>
+                            <span id="lblTotalPaid">Total Paid</span>
                             <span id="txtPaid">@Model.Paid.ToString("N2")</span>
                         </div>
                         <div class="d-flex justify-content-between fs-6 mb-1 text-danger">
@@ -218,6 +218,15 @@
                                 <button type="button" id="btnPayBalance" class="btn btn-outline-primary btn-sm fs-7 py-1 px-2" title="Fill balance amount" style="font-size: 0.75rem;">
                                     Pay Balance
                                 </button>
+                                @if (Model.Type == (int)InvoiceType.Stay || Model.Type == (int)InvoiceType.Tour)
+                                {
+                                    <div class="form-check ms-2" id="dvPaidInForeignCurrency">
+                                        @Html.CheckBoxFor(model => model.PaidInForeignCurrency, new { @class = "form-check-input", id = "chkPaidInForeignCurrency", disabled = "disabled" })
+                                        <label class="form-check-label small" for="chkPaidInForeignCurrency" style="font-size: 0.75rem;">
+                                            Paid in Foreign Currency
+                                        </label>
+                                    </div>
+                                }
                             </div>
                             <input id="txtCash" type="number" class="form-control form-control-sm fs-6 fw-bold text-primary ms-2 text-end" style="width: 120px;" />
                         </div>

@@ -59,6 +59,8 @@ namespace HotelManagement.Models.Entities
         [Column(TypeName = "decimal(18,6)")]
         public decimal? CurrencyRate { get; set; }
 
+        public bool PaidInForeignCurrency { get; set; } = false;
+
         public ICollection<InvoiceDetail> InvoiceDetails { get; set; }
         public ICollection<Payment>? Payments { get; set; }
 
