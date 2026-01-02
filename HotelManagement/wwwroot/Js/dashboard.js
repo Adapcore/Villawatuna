@@ -224,17 +224,24 @@ function renderInvoicesMobile(data, isAdmin, tileType) {
                             <i class="bi ${typeIcon}"></i>
                         </div>
                         <div class="invoice-customer-name">${customerName}</div>
-                        <div class="invoice-amount">${formatCurrency(invoice.amount)}</div>
+                        <div class="invoice-amount">
+                            <div>${formatCurrency(invoice.amount)}</div>
+                            ${(invoice.type === 'Stay' || invoice.type === 'Tour') && invoice.paidInForeignCurrency === true && invoice.currency && invoice.curySubTotal !== undefined 
+                                ? `<div class="text-primary" style="font-size: 0.75rem; color: #0d6efd;">${invoice.currency} ${Number(invoice.curySubTotal || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>` 
+                                : ''}
+                        </div>
                     </div>
                     <div class="invoice-row-footer">
                         <span class="invoice-number">
                             <span class="invoice-number-label">INV No</span>
                             <span class="invoice-number-value">#${invoice.id}</span>
-                            ${isAdmin ? `<button type="button" class="btn-delete-invoice-icon btn-delete-invoice" data-invoice-id="${invoice.id}" data-invoice-no="${invoice.id}" title="Delete Invoice"><i class="bi bi-trash"></i></button>` : ''}
                         </span>
-                        <a href="/Internal/Invoices/Edit/${invoice.id}" class="btn-view-invoice" target="_Blank">
-                            <i class="bi bi-eye"></i> View
-                        </a>
+                        <div class="d-flex gap-1">
+                            ${isAdmin ? `<button type="button" class="btn-delete-invoice-icon btn-delete-invoice" data-invoice-id="${invoice.id}" data-invoice-no="${invoice.id}" title="Delete Invoice" style="margin-top: 2px;"><i class="bi bi-trash"></i></button>` : ''}
+                            <a href="/Internal/Invoices/Edit/${invoice.id}" class="btn-view-invoice" target="_Blank">
+                                <i class="bi bi-eye"></i> View
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>`;
