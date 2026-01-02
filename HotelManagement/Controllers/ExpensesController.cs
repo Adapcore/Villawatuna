@@ -65,7 +65,7 @@ namespace HotelManagement.Controllers
 
         [HttpGet]
         [Route("Expenses/GetExpenses")]
-        public async Task<IActionResult> GetExpenses(int page = 1, string startDate = null, string endDate = null, int expenseTypeId = 0)
+        public async Task<IActionResult> GetExpenses(int page = 1, string startDate = null, string endDate = null, int expenseTypeId = 0, string payeeName = null)
         {
             int pageNumber = page < 1 ? 1 : page;
             expenseTypeId = expenseTypeId < 0 ? 0 : expenseTypeId;
@@ -80,9 +80,12 @@ namespace HotelManagement.Controllers
             if (!string.IsNullOrWhiteSpace(endDate) && DateTime.TryParse(endDate, out DateTime endDateValue))
                 endDateParsed = endDateValue;
 
+            // Normalize payee name (trim whitespace, null if empty)
+            string payeeFilter = !string.IsNullOrWhiteSpace(payeeName) ? payeeName.Trim() : null;
+
             // Get filtered expenses
             int? expenseTypeFilter = expenseTypeId > 0 ? expenseTypeId : null;
-            IEnumerable<Expense> expenses = await _expenseService.GetAllAsync(startDateParsed, endDateParsed, expenseTypeFilter);
+            IEnumerable<Expense> expenses = await _expenseService.GetAllAsync(startDateParsed, endDateParsed, expenseTypeFilter, payeeFilter);
             var pagedList = expenses.ToPagedList(pageNumber, _pageSize);
 
             // Load CreatedByMember data from Umbraco
@@ -159,7 +162,8 @@ namespace HotelManagement.Controllers
                 {
                     expenseTypeId = expenseTypeId,
                     startDate = startDate,
-                    endDate = endDate
+                    endDate = endDate,
+                    payeeName = payeeFilter
                 }
             });
         }

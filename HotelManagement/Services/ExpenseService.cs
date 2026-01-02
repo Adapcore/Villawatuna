@@ -22,10 +22,10 @@ namespace HotelManagement.Services
 
         public async Task<IEnumerable<Expense>> GetAllAsync()
         {
-            return await GetAllAsync(null, null, null);
+            return await GetAllAsync(null, null, null, null);
         }
 
-        public async Task<IEnumerable<Expense>> GetAllAsync(DateTime? startDate, DateTime? endDate, int? expenseTypeId)
+        public async Task<IEnumerable<Expense>> GetAllAsync(DateTime? startDate, DateTime? endDate, int? expenseTypeId, string payeeName = null)
         {
             var query = _context.Expenses.AsQueryable();
 
@@ -44,6 +44,12 @@ namespace HotelManagement.Services
             if (expenseTypeId.HasValue && expenseTypeId.Value > 0)
             {
                 query = query.Where(e => e.ExpenseTypeID == expenseTypeId.Value);
+            }
+
+            // Apply payee name filter with wildcard search (case-insensitive)
+            if (!string.IsNullOrWhiteSpace(payeeName))
+            {
+                query = query.Where(e => e.PayeeName != null && EF.Functions.Like(e.PayeeName, $"%{payeeName}%"));
             }
 
             IEnumerable<Expense> expenses = await query

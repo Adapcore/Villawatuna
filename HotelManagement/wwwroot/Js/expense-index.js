@@ -7,6 +7,7 @@
 var expenseState = {
     currentPage: 1,
     expenseTypeId: 0,
+    payeeName: null,
     startDate: null,
     endDate: null,
     isAdmin: false,
@@ -84,6 +85,18 @@ $(document).ready(function () {
         expenseState.expenseTypeId = parseInt($('#expenseTypeId').val()) || 0;
         expenseState.currentPage = 1;
         loadExpenses();
+    });
+
+    // Payee filter with debounce for better performance
+    var payeeTimeout;
+    $('#payeeName').on('input', function () {
+        clearTimeout(payeeTimeout);
+        var self = this;
+        payeeTimeout = setTimeout(function () {
+            expenseState.payeeName = $(self).val().trim() || null;
+            expenseState.currentPage = 1;
+            loadExpenses();
+        }, 500); // Wait 500ms after user stops typing
     });
 
     $('#startDate, #endDate').on('change', function () {
@@ -170,6 +183,7 @@ function onDateBtnAction(fromDate, toDate, ele) {
 function loadExpenses() {
     // Update state from form
     expenseState.expenseTypeId = parseInt($('#expenseTypeId').val()) || 0;
+    expenseState.payeeName = $('#payeeName').val().trim() || null;
 
     // Show loading indicator
     $('#expenseLoadingIndicator').show();
@@ -181,6 +195,7 @@ function loadExpenses() {
     var requestData = {
         page: expenseState.currentPage,
         expenseTypeId: expenseState.expenseTypeId,
+        payeeName: expenseState.payeeName,
         startDate: expenseState.startDate,
         endDate: expenseState.endDate
     };
