@@ -319,7 +319,16 @@ function renderDesktopTable(invoices) {
         html += '<td>' + formatDate(invoice.date) + '</td>';
         html += '<td>' + escapeHtml(settledOnDisplay) + '</td>';
         html += '<td>' + escapeHtml(invoice.statusDisplay) + '</td>';
-        html += '<td class="text-end">' + formatCurrency(invoice.grossAmount) + '</td>';
+        html += '<td class="text-end">';
+        html += '<div>' + formatCurrency(invoice.grossAmount) + '</div>';
+        // Show currency and currency amount for Paid invoices with PaidInForeignCurrency = true
+        if (invoice.status === 'Paid' && invoice.paidInForeignCurrency === true && invoice.currency && invoice.curySubTotal !== undefined) {
+            var curyAmount = Number(invoice.curySubTotal || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            html += '<div class="text-primary" style="font-size: 0.75rem; color: #0d6efd;">';
+            html += escapeHtml(invoice.currency) + ' ' + curyAmount;
+            html += '</div>';
+        }
+        html += '</td>';
         html += '<td>';
         html += '<div class="d-flex gap-1">';
         html += '<a href="/Internal/Invoices/Edit/' + invoice.invoiceNo + '" class="btn btn-sm btn-warning"><i class="bi bi-eye"></i> View</a>';
@@ -387,7 +396,16 @@ function renderMobileCards(invoices) {
             html += '<div class="invoice-row-header">';
             html += '<div class="invoice-type-icon"><i class="bi ' + typeIcon + '"></i></div>';
             html += '<div class="invoice-customer-name">' + escapeHtml(invoice.customerName) + '</div>';
-            html += '<div class="invoice-amount">' + formatCurrency(invoice.grossAmount) + '</div>';
+            html += '<div class="invoice-amount">';
+            html += '<div>' + formatCurrency(invoice.grossAmount) + '</div>';
+            // Show currency and currency amount for Paid invoices with PaidInForeignCurrency = true
+            if (invoice.status === 'Paid' && invoice.paidInForeignCurrency === true && invoice.currency && invoice.curySubTotal !== undefined) {
+                var curyAmount = Number(invoice.curySubTotal || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                html += '<div class="text-primary" style="font-size: 0.75rem; color: #0d6efd;">';
+                html += escapeHtml(invoice.currency) + ' ' + curyAmount;
+                html += '</div>';
+            }
+            html += '</div>';
             html += '</div>';
             html += '<div class="invoice-row-footer">';
 
