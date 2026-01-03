@@ -58,6 +58,7 @@ namespace HotelManagement.Controllers.API
 
                 invoice.Balance = invoice.GrossAmount - invoice.TotalPaid;
                 invoice.CurryBalance = invoice.Balance / invoice.CurrencyRate;
+                invoice.PaidCurrency = (PaidCurrency)model.PaidCurrency;
                 invoice.CurryGrossAmount = model.CurryGrossAmount;
                 invoice.CurryLastPaid = model.CurryLastPaid;
                 invoice.CurryChange = model.CurryChange;
@@ -89,6 +90,7 @@ namespace HotelManagement.Controllers.API
                 invoice.LastPaid = model.Cash;
                 invoice.Change = model.Change;
                 invoice.LastPaymentType = (InvoicePaymentType)model.PaymentType;
+                invoice.PaidCurrency = (PaidCurrency)model.PaidCurrency;
                 invoice.CurryGrossAmount = model.CurryGrossAmount;
                 invoice.CurryLastPaid = model.CurryLastPaid;
                 invoice.CurryChange = model.CurryChange;
