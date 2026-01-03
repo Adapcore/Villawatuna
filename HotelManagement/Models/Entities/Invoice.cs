@@ -45,6 +45,9 @@ namespace HotelManagement.Models.Entities
         public decimal TotalPaid { get; set; }
 
         [Column(TypeName = "decimal(18,2)")]
+        public decimal? CurryTotalPaid { get; set; }
+
+        [Column(TypeName = "decimal(18,2)")]
         public decimal Balance { get; set; }
 
         [Column(TypeName = "decimal(18,2)")]
@@ -53,6 +56,17 @@ namespace HotelManagement.Models.Entities
         [Column(TypeName = "decimal(18,2)")]
         public decimal Change { get; set; }
 
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal? CurryGrossAmount { get; set; }
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal? CurryBalance { get; set; }
+
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal? CurryLastPaid { get; set; }
+
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal? CurryChange { get; set; }
+
         // Tracks the payment method used for the most recent payment
         public InvoicePaymentType LastPaymentType { get; set; } = InvoicePaymentType.Cash;
 
@@ -60,6 +74,8 @@ namespace HotelManagement.Models.Entities
         public decimal? CurrencyRate { get; set; }
 
         public bool PaidInForeignCurrency { get; set; } = false;
+
+        public PaidCurrency PaidCurrency { get; set; } = PaidCurrency.BaseCurrency;
 
         public ICollection<InvoiceDetail> InvoiceDetails { get; set; }
         public ICollection<Payment>? Payments { get; set; }

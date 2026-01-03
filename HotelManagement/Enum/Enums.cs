@@ -61,4 +61,13 @@ namespace HotelManagement.Enums
         [Display(Name = "Bank Transfer")]
         BankTransfer = 3
     }
+
+    public enum PaidCurrency
+    {
+        [Display(Name = "Base Currency")]
+        BaseCurrency = 0,
+
+        [Display(Name = "Selected Currency")]
+        SelectedCurrency = 1
+    }
 }

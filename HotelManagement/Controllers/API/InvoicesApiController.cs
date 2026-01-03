@@ -57,6 +57,11 @@ namespace HotelManagement.Controllers.API
                     invoice.Status = InvoiceStatus.PartiallyPaid;
 
                 invoice.Balance = invoice.GrossAmount - invoice.TotalPaid;
+                invoice.CurryBalance = invoice.Balance / invoice.CurrencyRate;
+                invoice.CurryGrossAmount = model.CurryGrossAmount;
+                invoice.CurryLastPaid = model.CurryLastPaid;
+                invoice.CurryChange = model.CurryChange;
+                invoice.CurryTotalPaid = model.CurryTotalPaid ?? 0;
 
                 await _invoiceService.CreateAsync(invoice);
 
@@ -85,7 +90,12 @@ namespace HotelManagement.Controllers.API
                 invoice.Change = model.Change;
                 invoice.LastPaymentType = (InvoicePaymentType)model.PaymentType;
                 invoice.PaidInForeignCurrency = model.PaidInForeignCurrency;
+                invoice.CurryGrossAmount = model.CurryGrossAmount;
+                invoice.CurryLastPaid = model.CurryLastPaid;
+                invoice.CurryChange = model.CurryChange;
+                invoice.CurryTotalPaid = model.CurryTotalPaid ?? 0;
                 invoice.Balance = invoice.GrossAmount - invoice.TotalPaid;
+                invoice.CurryBalance = invoice.Balance / invoice.CurrencyRate;
 
                 if (model.Paid > 0)
                 {
@@ -99,7 +109,9 @@ namespace HotelManagement.Controllers.API
                         invoice.Status = InvoiceStatus.PartiallyPaid;
 
                     invoice.Balance = invoice.Balance - model.Paid;
+                    invoice.CurryBalance = invoice.Balance == 0 ? 0 : invoice.Balance / invoice.CurrencyRate;
                     invoice.TotalPaid = invoice.GrossAmount - invoice.Balance;
+                    invoice.CurryTotalPaid = invoice.TotalPaid == 0 ? 0 : invoice.TotalPaid / invoice.CurrencyRate;
                 }
 
                 // Delete existing details before adding new ones

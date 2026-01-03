@@ -37,6 +37,12 @@ namespace HotelManagement.Models.ViewModels
         public string? PaymentReference { get; set; }
         public decimal? CurrencyRate { get; set; }
         public bool PaidInForeignCurrency { get; set; }
+        public PaidCurrency PaidCurrency { get; set; }
+        public decimal? CurryGrossAmount { get; set; }
+        public decimal? CurryLastPaid { get; set; }
+        public decimal? CurryBalance { get; set; }
+        public decimal? CurryChange { get; set; }
+        public decimal? CurryTotalPaid { get; set; }
         public List<CreateInvoiceDetailViewModel> InvoiceDetails { get; set; } = new();
 
         public CreateInvoiceViewModel()
@@ -65,6 +71,12 @@ namespace HotelManagement.Models.ViewModels
             Change = invoice.Change;
             PaymentType = (int)invoice.LastPaymentType;
             PaidInForeignCurrency = invoice.PaidInForeignCurrency;
+            PaidCurrency = invoice.PaidCurrency;
+            CurryGrossAmount = invoice.CurryGrossAmount;
+            CurryLastPaid = invoice.CurryLastPaid;
+            CurryBalance = invoice.CurryBalance;
+            CurryChange = invoice.CurryChange;
+            CurryTotalPaid = invoice.CurryTotalPaid;
 
             InvoiceDetails = invoice.InvoiceDetails.Select(d => new CreateInvoiceDetailViewModel
             {
@@ -101,6 +113,12 @@ namespace HotelManagement.Models.ViewModels
                 Change = model.Change,
                 LastPaymentType = Enum.Parse<InvoicePaymentType>(model.PaymentType.ToString()),
                 PaidInForeignCurrency = model.PaidInForeignCurrency,
+                PaidCurrency = model.PaidCurrency,
+                CurryGrossAmount = model.CurryGrossAmount,
+                CurryLastPaid = model.CurryLastPaid,
+                CurryBalance = model.CurryBalance,
+                CurryChange = model.CurryChange,
+                CurryTotalPaid = model.CurryTotalPaid ?? 0,
 
                 InvoiceDetails = model.InvoiceDetails.Select((d, index) => new InvoiceDetail
                 {

@@ -246,6 +246,24 @@ namespace HotelManagement.Migrations
                     b.Property<bool>("PaidInForeignCurrency")
                         .HasColumnType("bit");
 
+                    b.Property<int>("PaidCurrency")
+                        .HasColumnType("int");
+
+                    b.Property<decimal?>("CurryBalance")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal?>("CurryChange")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal?>("CurryGrossAmount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal?>("CurryLastPaid")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal?>("CurryTotalPaid")
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<int>("CustomerId")
                         .HasColumnType("int");
 

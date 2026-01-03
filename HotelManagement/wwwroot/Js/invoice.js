@@ -21,7 +21,10 @@
         this.curySubTotal = 0;
         this.subTotal = 0;
         this.grossTotal = 0;
+        this.curryGrossAmount = null;
+        this.txtCash = 0;
         this._currentRow = null;
+
         // Normalize isAdmin to a strict boolean
         if (typeof this.options.isAdmin === 'string') {
             this._isAdmin = this.options.isAdmin.toLowerCase() === 'true';
@@ -52,9 +55,9 @@
             this.LoadItems();
             this.BindItemSelection();
             this.LoadServiceCharge();
-            
+
             // Initialize Select2 on existing dropdowns after a short delay to ensure DOM is ready
-            setTimeout(function() {
+            setTimeout(function () {
                 self.InitializeSelect2();
             }, 100);
 
@@ -80,10 +83,11 @@
             self.curySubTotal = self._invoice.curySubTotal;
             self.subTotal = self._invoice.subTotal;
             self.grossTotal = self._invoice.grossAmount;
+            self.curryGrossAmount = self._invoice.curryGrossAmount;
 
             $("#InvoiceNo").val(self._invoice.invoiceNo);
             $("#Status").val(self._invoice.status);
-            
+
             // Set invoice date to client's local date (only for new invoices)
             var dateInput = $('input[type="date"][name="Date"]');
             if (dateInput.length > 0) {
@@ -92,23 +96,49 @@
                 if (invoiceNo === 0 || !dateInput.val()) {
                     // Get client's local date in YYYY-MM-DD format
                     var now = new Date();
-                    var localDate = now.getFullYear() + '-' + 
-                        String(now.getMonth() + 1).padStart(2, '0') + '-' + 
+                    var localDate = now.getFullYear() + '-' +
+                        String(now.getMonth() + 1).padStart(2, '0') + '-' +
                         String(now.getDate()).padStart(2, '0');
                     dateInput.val(localDate);
                 }
             }
             //$('#txtPaid').html(self._invoice.paid.toFixed(2));
-            $('#txtPaid').html(self._formatter.format(self._invoice.paid));
-
-            $('#txtBalance').html(self._formatter.format(self._invoice.balance));
-            $('#txtChange').html(self._formatter.format(self._invoice.change));
-            $('#txtLastPaid').html(self._formatter.format(self._invoice.cash));
-            $('#txtChange').html(self._formatter.format(self._invoice.change));
+            $('#txtPaid').html(self._baseCurrency + ' ' + self._formatter.format(self._invoice.paid));
+            $('#txtBalance').html(self._baseCurrency + ' ' + self._formatter.format(self._invoice.balance));
+            $('#txtChange').html(self._baseCurrency + ' ' + self._formatter.format(self._invoice.change));
+            $('#txtLastPaid').html(self._baseCurrency + ' ' + self._formatter.format(self._invoice.cash));
+            $('#txtChange').html(self._baseCurrency + ' ' + self._formatter.format(self._invoice.change));
 
             $("#txtPayment").val(0);
             $("#txtCash").val(0);
-            $("#txtBalanceDue").html(self._formatter.format(self._invoice.balance));
+            $("#txtBalanceDue").html(self._baseCurrency + ' ' + self._formatter.format(self._invoice.balance));
+
+            var selectedCurrency = $("#ddlCurrency").val() || self._baseCurrency;
+            var currencyCode = self._invoice.currency;
+            if (self._baseCurrency != selectedCurrency) {
+
+                $('#txtCurryPaid').html(currencyCode + " " + self._formatter.format(self._invoice.curryTotalPaid));
+                $('#txtCurryBalance').html(currencyCode + " " + self._formatter.format(self._invoice.curryBalance));
+                $('#txtCurryChange').html(currencyCode + " " + self._formatter.format(self._invoice.curryChange));
+                $('#txtCurryLastPaid').html(currencyCode + " " + self._formatter.format(self._invoice.curryLastPaid));
+                $('#txtCurryChange').html(currencyCode + " " + self._formatter.format(self._invoice.curryChange));
+                $("#txtCurryBalanceDue").html(currencyCode + " " + self._formatter.format(self._invoice.curryBalance));
+
+                $('#txtCurryPaid').removeClass('d-none');
+                $('#txtCurryBalance').removeClass('d-none');
+                $('#txtCurryChange').removeClass('d-none');
+                $('#txtCurryLastPaid').removeClass('d-none');
+                $('#txtCurryChange').removeClass('d-none');
+                $("#txtCurryBalanceDue").removeClass('d-none');
+            }
+            else {
+                $('#txtCurryPaid').addClass('d-none');
+                $('#txtCurryBalance').addClass('d-none');
+                $('#txtCurryChange').addClass('d-none');
+                $('#txtCurryLastPaid').addClass('d-none');
+                $('#txtCurryChange').addClass('d-none');
+                $("#txtCurryBalanceDue").addClass('d-none');
+            }
 
             if (self._invoice.type == 3 || self._invoice.type == 2) {
                 $("#btn_print").attr("href", "/Internal/Invoices/Print/" + self._invoice.invoiceNo);
@@ -143,6 +173,12 @@
             // Show/hide PaidInForeignCurrency checkbox based on invoice type (Stay=3, Tour=5)
             self.UpdatePaidInForeignCurrencyVisibility();
 
+            // Show/hide currency radio buttons based on invoice type (Stay=3, Tour=5)
+            self.UpdateCurrencyRadioButtonsVisibility();
+
+            // Update base currency label
+            $('#lblBaseCurrency').text(self._baseCurrency);
+
             // Load saved value even when disabled (only if checkbox exists)
             var $checkbox = $('#chkPaidInForeignCurrency');
             if ($checkbox.length > 0) {
@@ -163,7 +199,7 @@
                 // Bind click event when button is shown
                 $('#btnComplete').off('click').on('click', function () {
                     // Show jQuery confirmation dialog
-                    showConfirmDialog("Do you want to complete the invoice?", function(confirmed) {
+                    showConfirmDialog("Do you want to complete the invoice?", function (confirmed) {
                         if (confirmed) {
                             $("#Status").val(2);
                             self.Save();
@@ -188,10 +224,10 @@
                         $("#Status").val(1);
                         self.Save();
                     });
-                }              
+                }
                 $('#btnPay').show();
                 $('#btn_print').show();
-                
+
                 // Enable PaidInForeignCurrency checkbox only when status is Complete and type is Dining or Tour
                 var $checkbox = $('#chkPaidInForeignCurrency');
                 if ($checkbox.length > 0 && self.IsDiningOrTourType()) {
@@ -204,32 +240,32 @@
                 $('#dv_paymentWrapper').slideDown();
                 $('#dv_balanceWrapper').slideDown();
                 $('#btn_print').show();
-                
+
                 // Disable checkbox for PartiallyPaid status (but keep saved value)
                 var $checkbox = $('#chkPaidInForeignCurrency');
                 if ($checkbox.length > 0 && self.IsDiningOrTourType()) {
                     $checkbox.prop('disabled', true);
                 }
-                
+
                 // Ensure label is updated for partially paid invoices
                 self.UpdateTotalPaidLabel();
             }
             else if (self._invoice.status == 4) { // Paid
-                $('#dv_paidWrapper').show();                
+                $('#dv_paidWrapper').show();
                 $('#dv_changeWrapper').removeClass('d-none');
                 $('#btnSave').hide();
                 $('#btn_print').show();
-                
+
                 // Disable checkbox for Paid status (but keep saved value)
                 var $checkbox = $('#chkPaidInForeignCurrency');
                 if ($checkbox.length > 0 && self.IsDiningOrTourType()) {
                     $checkbox.prop('disabled', true);
                 }
-                
+
                 // Ensure label is updated for paid invoices
                 self.UpdateTotalPaidLabel();
             }
-            
+
             // Ensure checkbox is disabled for InProgress status as well (but keep saved value)
             var $checkbox = $('#chkPaidInForeignCurrency');
             if (self._invoice.status == 1 && $checkbox.length > 0 && self.IsDiningOrTourType()) {
@@ -277,7 +313,7 @@
             $("#invoiceItems tbody").on("input change", ".note", function (e) {
                 var $noteField = $(this);
                 var noteValue = $noteField.val();
-                
+
                 // If note has value, remove validation error
                 if (noteValue && noteValue.trim().length > 0) {
                     $noteField.removeClass("is-invalid");
@@ -288,7 +324,7 @@
             $("#invoiceItems tbody").on("input change", ".orderQty, .itemPrice, .itemTotal", function (e) {
                 var $field = $(this);
                 var fieldValue = parseFloat($field.val()) || 0;
-                
+
                 // Remove validation error if field has valid value
                 if (fieldValue > 0 || ($field.hasClass("itemTotal") && fieldValue >= 0)) {
                     $field.removeClass("is-invalid");
@@ -308,6 +344,11 @@
             $("#ddlCurrency").on("change", function () {
                 self.LoadCurrencyRate();
                 self.CalculateTotals();
+                // Update the selected currency radio button label
+                var selectedCurrency = $(this).val() || self._baseCurrency;
+                $('#lblSelectedCurrency').text(selectedCurrency);
+                // Update radio buttons visibility based on currency difference
+                self.UpdateCurrencyRadioButtonsVisibility();
             });
 
             $("#txtCurrencyRate").on("change", function () {
@@ -396,7 +437,7 @@
             $('#dv_paymentWrapper').slideDown();
             $('#dv_balanceWrapper').slideDown();
             $('#btn_print').show();
-            
+
             // Ensure PaidInForeignCurrency checkbox is enabled if status is Complete
             var currentStatus = parseInt($("#Status").val());
             if (currentStatus === 2) { // Complete
@@ -420,7 +461,7 @@
                 // First, try to get rate from Umbraco currency data
                 var umbracoRate = null;
                 if (self._currencyData && self._currencyData.length > 0) {
-                    var selectedCurrency = self._currencyData.find(function(c) {
+                    var selectedCurrency = self._currencyData.find(function (c) {
                         return c.code === fromCurrency;
                     });
                     if (selectedCurrency && selectedCurrency.exchangeRate) {
@@ -472,7 +513,7 @@
                             });
                         });
                     });
-                    
+
                     // Store items data for validation
                     self._itemsData = {};
                     allItems.forEach(function (item) {
@@ -579,10 +620,10 @@
             self.RenderItems(data);
 
             // Bind search functionality
-            $('#itemSearchInput').on('input', function() {
+            $('#itemSearchInput').on('input', function () {
                 const searchTerm = $(this).val().toLowerCase().trim();
                 const $clearBtn = $('#clearSearchBtn');
-                
+
                 if (searchTerm.length > 0) {
                     $clearBtn.removeClass('d-none');
                 } else {
@@ -592,19 +633,19 @@
                 self.FilterItems(searchTerm);
             });
 
-            $('#clearSearchBtn').on('click', function() {
+            $('#clearSearchBtn').on('click', function () {
                 $('#itemSearchInput').val('').trigger('input');
             });
 
             // Focus search on modal show
-            $('#addItemModal').on('shown.bs.modal', function() {
+            $('#addItemModal').on('shown.bs.modal', function () {
                 $('#itemSearchInput').focus();
             });
 
             self.BindItemCardEvents();
         },
 
-        RenderItems: function(data) {
+        RenderItems: function (data) {
             var self = this;
             const $grid = $("#itemsGrid");
             $grid.empty();
@@ -674,7 +715,7 @@
             $grid.html(tabButtons + tabContent);
         },
 
-        CreateItemCard: function(item, index) {
+        CreateItemCard: function (item, index) {
             var self = this;
             // Different gradient colors for visual variety
             const gradients = [
@@ -718,7 +759,7 @@
                 </div>`;
         },
 
-        FilterItems: function(searchTerm) {
+        FilterItems: function (searchTerm) {
             var self = this;
             const $grid = $("#itemsGrid");
             const $noItems = $("#noItemsFound");
@@ -732,11 +773,11 @@
             }
 
             // Filter items
-            $('.itemCardWrapper').each(function() {
+            $('.itemCardWrapper').each(function () {
                 const $wrapper = $(this);
                 const itemName = $wrapper.data('name') || '';
                 const itemId = $wrapper.data('id') || '';
-                
+
                 if (itemName.includes(searchTerm) || itemId.toString().includes(searchTerm)) {
                     $wrapper.removeClass('d-none');
                     visibleCount++;
@@ -839,7 +880,7 @@
                 });
 
                 // Force Select2 container to maintain fixed width
-                setTimeout(function() {
+                setTimeout(function () {
                     var $select2Container = $select.next('.select2-container');
                     if ($select2Container.length) {
                         var containerEl = $select2Container[0];
@@ -847,14 +888,14 @@
                         containerEl.style.setProperty('width', '250px', 'important');
                         containerEl.style.setProperty('min-width', '250px', 'important');
                         containerEl.style.setProperty('max-width', '250px', 'important');
-                        
+
                         // Also fix the selection width
                         $select2Container.find('.select2-selection').css({
                             'width': '100%',
                             'min-width': '100%',
                             'max-width': '100%'
                         });
-                        
+
                         $select2Container.find('.select2-selection__rendered').css({
                             'width': '100%',
                             'max-width': '100%',
@@ -862,9 +903,9 @@
                             'text-overflow': 'ellipsis',
                             'white-space': 'nowrap'
                         });
-                        
+
                         // Use MutationObserver to watch for width changes
-                        var observer = new MutationObserver(function(mutations) {
+                        var observer = new MutationObserver(function (mutations) {
                             var currentWidth = $select2Container.width();
                             if (Math.abs(currentWidth - 250) > 1) {
                                 containerEl.style.setProperty('width', '250px', 'important');
@@ -872,24 +913,24 @@
                                 containerEl.style.setProperty('max-width', '250px', 'important');
                             }
                         });
-                        
+
                         observer.observe(containerEl, {
                             attributes: true,
                             attributeFilter: ['style', 'class'],
                             childList: false,
                             subtree: false
                         });
-                        
+
                         // Store observer on element for cleanup if needed
                         $select2Container.data('widthObserver', observer);
                     }
                 }, 10);
-                
+
                 // Prevent width changes on all Select2 events - use a more aggressive approach
-                $select.on('select2:select select2:unselect select2:open select2:close select2:selecting', function() {
+                $select.on('select2:select select2:unselect select2:open select2:close select2:selecting', function () {
                     var $select2Container = $(this).next('.select2-container');
                     if ($select2Container.length) {
-                        setTimeout(function() {
+                        setTimeout(function () {
                             var containerEl = $select2Container[0];
                             containerEl.style.setProperty('width', '250px', 'important');
                             containerEl.style.setProperty('min-width', '250px', 'important');
@@ -899,7 +940,7 @@
                 });
 
                 // Adjust Select2 border radius to match input-group styling
-                $select.on('select2:open', function() {
+                $select.on('select2:open', function () {
                     $(this).closest('.input-group').find('.select2-container--bootstrap-5 .select2-selection').css({
                         'border-top-right-radius': '0',
                         'border-bottom-right-radius': '0',
@@ -937,10 +978,10 @@
             if (self._type == 3) {
                 // Get today's date in YYYY-MM-DD format
                 var today = new Date();
-                var todayStr = today.getFullYear() + '-' + 
-                               String(today.getMonth() + 1).padStart(2, '0') + '-' + 
-                               String(today.getDate()).padStart(2, '0');
-                
+                var todayStr = today.getFullYear() + '-' +
+                    String(today.getMonth() + 1).padStart(2, '0') + '-' +
+                    String(today.getDate()).padStart(2, '0');
+
                 rowHtml = rowHtml + `<td>
                                 <input type="date" name="InvoiceDetails[${rowIndex}].CheckIn" class="form-control form-control-sm checkIn" value="${todayStr}" />
                             </td>
@@ -984,9 +1025,9 @@
                 allowClear: false,
                 dropdownParent: $newSelect.closest('.modal, body')
             });
-            
+
             // Force Select2 container to maintain fixed width
-            setTimeout(function() {
+            setTimeout(function () {
                 var $select2Container = $newSelect.next('.select2-container');
                 if ($select2Container.length) {
                     var containerEl = $select2Container[0];
@@ -994,13 +1035,13 @@
                     containerEl.style.setProperty('width', '250px', 'important');
                     containerEl.style.setProperty('min-width', '250px', 'important');
                     containerEl.style.setProperty('max-width', '250px', 'important');
-                    
+
                     $select2Container.find('.select2-selection').css({
                         'width': '100%',
                         'min-width': '100%',
                         'max-width': '100%'
                     });
-                    
+
                     $select2Container.find('.select2-selection__rendered').css({
                         'width': '100%',
                         'max-width': '100%',
@@ -1008,9 +1049,9 @@
                         'text-overflow': 'ellipsis',
                         'white-space': 'nowrap'
                     });
-                    
+
                     // Use MutationObserver to watch for width changes
-                    var observer = new MutationObserver(function(mutations) {
+                    var observer = new MutationObserver(function (mutations) {
                         var currentWidth = $select2Container.width();
                         if (Math.abs(currentWidth - 250) > 1) {
                             containerEl.style.setProperty('width', '250px', 'important');
@@ -1018,24 +1059,24 @@
                             containerEl.style.setProperty('max-width', '250px', 'important');
                         }
                     });
-                    
+
                     observer.observe(containerEl, {
                         attributes: true,
                         attributeFilter: ['style', 'class'],
                         childList: false,
                         subtree: false
                     });
-                    
+
                     // Store observer on element for cleanup if needed
                     $select2Container.data('widthObserver', observer);
                 }
             }, 10);
-            
+
             // Prevent width changes on all Select2 events - use a more aggressive approach
-            $newSelect.on('select2:select select2:unselect select2:open select2:close select2:selecting', function() {
+            $newSelect.on('select2:select select2:unselect select2:open select2:close select2:selecting', function () {
                 var $select2Container = $(this).next('.select2-container');
                 if ($select2Container.length) {
-                    setTimeout(function() {
+                    setTimeout(function () {
                         var containerEl = $select2Container[0];
                         containerEl.style.setProperty('width', '250px', 'important');
                         containerEl.style.setProperty('min-width', '250px', 'important');
@@ -1045,7 +1086,7 @@
             });
 
             // Force Select2 container to work within input-group
-            setTimeout(function() {
+            setTimeout(function () {
                 var $select2Container = $newSelect.next('.select2-container');
                 if ($select2Container.length) {
                     $select2Container.css({
@@ -1058,7 +1099,7 @@
             }, 10);
 
             // Adjust Select2 border radius to match input-group styling
-            $newSelect.on('select2:open', function() {
+            $newSelect.on('select2:open', function () {
                 $(this).closest('.input-group').find('.select2-container--bootstrap-5 .select2-selection').css({
                     'border-top-right-radius': '0',
                     'border-bottom-right-radius': '0',
@@ -1095,10 +1136,10 @@
             this.CalculateTotals();
         },
 
-        InitializeSelect2: function() {
+        InitializeSelect2: function () {
             var self = this;
             // Initialize Select2 on all existing orderItemSelect dropdowns
-            $(".orderItemSelect").each(function() {
+            $(".orderItemSelect").each(function () {
                 var $select = $(this);
                 if (!$select.hasClass("select2-hidden-accessible")) {
                     // Set fixed width on select before initializing Select2
@@ -1107,7 +1148,7 @@
                         'min-width': '250px',
                         'max-width': '250px'
                     });
-                    
+
                     $select.select2({
                         theme: 'bootstrap-5',
                         width: '250px',
@@ -1117,7 +1158,7 @@
                     });
 
                     // Force Select2 container to maintain fixed width
-                    setTimeout(function() {
+                    setTimeout(function () {
                         var $select2Container = $select.next('.select2-container');
                         if ($select2Container.length) {
                             var containerEl = $select2Container[0];
@@ -1125,13 +1166,13 @@
                             containerEl.style.setProperty('width', '250px', 'important');
                             containerEl.style.setProperty('min-width', '250px', 'important');
                             containerEl.style.setProperty('max-width', '250px', 'important');
-                            
+
                             $select2Container.find('.select2-selection').css({
                                 'width': '100%',
                                 'min-width': '100%',
                                 'max-width': '100%'
                             });
-                            
+
                             $select2Container.find('.select2-selection__rendered').css({
                                 'width': '100%',
                                 'max-width': '100%',
@@ -1139,9 +1180,9 @@
                                 'text-overflow': 'ellipsis',
                                 'white-space': 'nowrap'
                             });
-                            
+
                             // Use MutationObserver to watch for width changes
-                            var observer = new MutationObserver(function(mutations) {
+                            var observer = new MutationObserver(function (mutations) {
                                 var currentWidth = $select2Container.width();
                                 if (Math.abs(currentWidth - 250) > 1) {
                                     containerEl.style.setProperty('width', '250px', 'important');
@@ -1149,24 +1190,24 @@
                                     containerEl.style.setProperty('max-width', '250px', 'important');
                                 }
                             });
-                            
+
                             observer.observe(containerEl, {
                                 attributes: true,
                                 attributeFilter: ['style', 'class'],
                                 childList: false,
                                 subtree: false
                             });
-                            
+
                             // Store observer on element for cleanup if needed
                             $select2Container.data('widthObserver', observer);
                         }
                     }, 10);
-                    
+
                     // Prevent width changes on all Select2 events - use a more aggressive approach
-                    $select.on('select2:select select2:unselect select2:open select2:close select2:selecting', function() {
+                    $select.on('select2:select select2:unselect select2:open select2:close select2:selecting', function () {
                         var $select2Container = $(this).next('.select2-container');
                         if ($select2Container.length) {
-                            setTimeout(function() {
+                            setTimeout(function () {
                                 var containerEl = $select2Container[0];
                                 containerEl.style.setProperty('width', '250px', 'important');
                                 containerEl.style.setProperty('min-width', '250px', 'important');
@@ -1176,7 +1217,7 @@
                     });
 
                     // Adjust Select2 border radius to match input-group styling
-                    $select.on('select2:open', function() {
+                    $select.on('select2:open', function () {
                         $(this).closest('.input-group').find('.select2-container--bootstrap-5 .select2-selection').css({
                             'border-top-right-radius': '0',
                             'border-bottom-right-radius': '0',
@@ -1203,7 +1244,7 @@
 
                 if (selectedValue && selectedValue > 0) {
                     $row.find(".description").val(name);
-                    
+
                     // Update note field requirement indicator
                     var $noteField = $row.find(".note");
                     if (noteRequired) {
@@ -1238,7 +1279,7 @@
 
                 if (selectedValue && selectedValue > 0) {
                     $row.find(".description").val(name);
-                    
+
                     // Update note field requirement indicator
                     var $noteField = $row.find(".note");
                     if (noteRequired) {
@@ -1304,22 +1345,29 @@
                 console.log("Save already in progress, ignoring click");
                 return;
             }
+
             self._isSaving = true;
+
             if (!self.ValidateInvoice()) {
                 self._isSaving = false;
                 return;
             }
 
+            const selectedCurrency = $("#ddlCurrency").val() || self._baseCurrency;
+            const currencyRate = self.ParseNumber($("#txtCurrencyRate").val() || 1);
+
             var grossAmount = self.ParseNumber($("#grossAmount").html()) || 0;
             var alreadyPaid = self._invoice.paid;
 
-            var cash = self.ParseNumber($("#txtCash").val()) || 0;
+            var cash = self.ParseNumber(self.txtCash) || 0;
+            var curryLastPaid = cash / currencyRate;
+
             var balance = grossAmount - alreadyPaid;
             var change = cash - balance;
-
             if (change < 0) {
                 change = 0;
             }
+            var curryChange = change / currencyRate;
 
             // Get PaidInForeignCurrency value (read from checkbox if visible, regardless of enabled/disabled state)
             // This allows saving the value even when checkbox is disabled (e.g., Partially Paid status)
@@ -1351,11 +1399,16 @@
                 GrossAmount: grossAmount,
                 Paid: self.ParseNumber($("#txtPayment").val()),
                 Cash: cash,
-                Balance: balance,
+                Balance: balance,// this is re-calculated from API
                 Change: change,
                 PaymentType: self.ParseNumber($("#PaymentType").val()) || 1,
                 PaymentReference: $("#txtPaymentReference").val(),
                 PaidInForeignCurrency: paidInForeignCurrency,
+                CurryGrossAmount: self.curryGrossAmount,
+                CurryLastPaid: curryLastPaid,
+                CurryBalance: 0, // this is calculated from API
+                CurryChange: curryChange,
+                CurryTotalPaid: 0, // this is calculated from API
                 InvoiceDetails: []
             };
 
@@ -1372,7 +1425,7 @@
                 });
             });
 
-            var url = "/api/InvoicesApi/Save";                        
+            var url = "/api/InvoicesApi/Save";
 
             // Call the API
             $.ajax({
@@ -1494,51 +1547,51 @@
                     }
                 }
 
-            //if (!$("#ReferenceNo").val()) {
-            //    alert("Reference No is required.");
-            //    return;
-            //}
-            if (!$("#CustomerId").val()) {
-                $("#CustomerId").addClass("is-invalid");
-                showToastError("Customer is required.");
-                isValid = false;
-                return false;
-            }
-            else {
-                $("#CustomerId").removeClass("is-invalid");
-            }
-
-            var grossAmount = self.ParseNumber($("#grossAmount").html());
-            if (grossAmount <= 0) {
-                showToastError("Gross amount must be greater than zero.");
-                isValid = false;
-                return false;
-            }
-            //if ($("#invoiceDetailsTable tbody tr").length === 0) {
-            //    alert("Please add at least one invoice detail.");
-            //   isValid = false;
-            //}
-
-            var paidAmount = self.ParseNumber($("#txtPayment").val());
-            var balanceAmount = self.ParseNumber($("#txtBalance").html());
-
-            if ($("#InvoiceNo").val() == 0) {
-                balanceAmount = grossAmount;
-            }
-
-            if (paidAmount > balanceAmount) {
-                if ($("#InvoiceNo").val() == 0) {
-                    showToastError("Paid amount must be less than or equals to Gross Amount");
-                } else {
-                    showToastError("Paid amount must be less than or equals to Balance Amount");
+                //if (!$("#ReferenceNo").val()) {
+                //    alert("Reference No is required.");
+                //    return;
+                //}
+                if (!$("#CustomerId").val()) {
+                    $("#CustomerId").addClass("is-invalid");
+                    showToastError("Customer is required.");
+                    isValid = false;
+                    return false;
+                }
+                else {
+                    $("#CustomerId").removeClass("is-invalid");
                 }
 
-                isValid = false;
-                return false;
-            }
+                var grossAmount = self.ParseNumber($("#grossAmount").html());
+                if (grossAmount <= 0) {
+                    showToastError("Gross amount must be greater than zero.");
+                    isValid = false;
+                    return false;
+                }
+                //if ($("#invoiceDetailsTable tbody tr").length === 0) {
+                //    alert("Please add at least one invoice detail.");
+                //   isValid = false;
+                //}
 
-           
-                
+                var paidAmount = self.ParseNumber($("#txtPayment").val());
+                var balanceAmount = self.ParseNumber($("#txtBalance").html());
+
+                if ($("#InvoiceNo").val() == 0) {
+                    balanceAmount = grossAmount;
+                }
+
+                if (paidAmount > balanceAmount) {
+                    if ($("#InvoiceNo").val() == 0) {
+                        showToastError("Paid amount must be less than or equals to Gross Amount");
+                    } else {
+                        showToastError("Paid amount must be less than or equals to Balance Amount");
+                    }
+
+                    isValid = false;
+                    return false;
+                }
+
+
+
                 // Validate Stay type specific fields
                 if (self._type == 3) {
                     const checkIn = $row.find(".checkIn").val();
@@ -1613,6 +1666,25 @@
             }
         },
 
+        // Update visibility of currency radio buttons based on invoice type (Stay=3, Tour=5) and currency difference
+        UpdateCurrencyRadioButtonsVisibility: function () {
+            var self = this;
+            var $radioContainer = $('#dvCurrencyRadioButtons');
+            if ($radioContainer.length > 0) {
+                // Show only if: invoice type is Stay or Tour AND selected currency is different from base currency
+                if (self.IsDiningOrTourType()) {
+                    var selectedCurrency = $("#ddlCurrency").val() || self._baseCurrency;
+                    if (selectedCurrency !== self._baseCurrency) {
+                        $radioContainer.removeClass('d-none');
+                    } else {
+                        $radioContainer.addClass('d-none');
+                    }
+                } else {
+                    $radioContainer.addClass('d-none');
+                }
+            }
+        },
+
         // Update Total Paid label to show "(Paid in Foreign currency)" when applicable
         // Shows for any status based on the checkbox value (enabled or disabled)
         UpdateTotalPaidLabel: function () {
@@ -1620,7 +1692,7 @@
             var $label = $('#lblTotalPaid');
             if ($label.length > 0) {
                 var paidInForeignCurrency = false;
-                
+
                 // First check invoice data (most reliable source, works for all statuses)
                 // Check both camelCase (from JSON) and PascalCase (direct property access)
                 if (self._invoice) {
@@ -1642,7 +1714,7 @@
                         paidInForeignCurrency = $checkbox.is(':checked');
                     }
                 }
-                
+
                 if (paidInForeignCurrency) {
                     $label.text('Total Paid (Paid in Foreign currency)');
                 } else {
@@ -1688,11 +1760,12 @@
                 serviceCharge = self.subTotal * self.serviceCharge;
             }
 
-            var grossTotal = parseFloat(self.subTotal) + parseFloat(serviceCharge);
+            var grossAmount = parseFloat(self.subTotal) + parseFloat(serviceCharge);
+            self.curryGrossAmount = grossAmount / currencyRate;
 
             $("#subTotal").html(self._formatter.format(self.subTotal));
             $("#serviceCharge").html(self._formatter.format(serviceCharge));
-            $("#grossAmount").html(self._formatter.format(grossTotal));
+            $("#grossAmount").html(self._formatter.format(grossAmount));
         },
 
         CalculateBalanceDue: function () {
@@ -1703,8 +1776,21 @@
             var cash = self.ParseNumber($("#txtCash").val());
             $("#txtCash").val(cash.toFixed(2));
 
+            const selectedCurrency = $("#ddlCurrency").val() || self._baseCurrency;
+            const currencyRate = self.ParseNumber($("#txtCurrencyRate").val() || 1);
+
+            // Check which radio button is selected (0 = BaseCurrency, 1 = SelectedCurrency)
+            var selectedPaidCurrency = $('input[name="currencyDisplay"]:checked').val();
+
+            if (self._baseCurrency != selectedCurrency && selectedPaidCurrency == 'SelectedCurrency') {
+                cash = cash * currencyRate;
+            }
+
+            self.txtCash = cash;
+
             var payment = 0;
             var balanceDue = 0
+            var curryBalanceDue = 0
 
             if (cash >= balance) {
                 payment = balance;
@@ -1715,8 +1801,11 @@
                 balanceDue = balance - cash;
             }
 
+            curryBalanceDue = balanceDue / currencyRate;
+
             $("#txtPayment").val(payment);// this is hidden text
             $("#txtBalanceDue").html(self._formatter.format(balanceDue));
+            $("#txtCurryBalanceDue").html(self._invoice.currency + " " + self._formatter.format(curryBalanceDue));
         },
 
         ParseNumber: function (value) {
@@ -1879,7 +1968,7 @@ function InitializeInvoicePage(invoiceData, mode, isAdmin, currencyData) {
             currencyData: currencyData || []
         };
         $().invoice(obj);
-        
+
         // Initialize quick customer form
         InitializeQuickCustomerForm();
     });

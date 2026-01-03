@@ -186,23 +186,26 @@
                         <span>Gross Amount</span>
                         <span id="grossAmount">@Model.GrossAmount.ToString("N2")</span>
                     </div>
-
                     <div id="dv_paidWrapper">
                         <hr class="my-2" />
                         <div class="d-flex justify-content-between fs-6 mb-1">
                             <span id="lblTotalPaid">Total Paid</span>
+                            <span id="txtCurryPaid" class="d-none"></span>
                             <span id="txtPaid">@Model.Paid.ToString("N2")</span>
                         </div>
                         <div class="d-flex justify-content-between fs-6 mb-1 text-danger">
                             <span>Balance</span>
+                            <span id="txtCurryBalance" class="d-none"></span>
                             <span id="txtBalance">@Model.Balance.ToString("N2")</span>
                         </div>
                         <div class="d-flex justify-content-between fs-6 mb-1">
                             <span>Last Paid</span>
+                            <span id="txtCurryLastPaid" class="d-none"></span>
                             <span id="txtLastPaid">@Model.Cash.ToString("N2")</span>
                         </div>
                         <div id="dv_changeWrapper" class="d-flex justify-content-between fs-6 mb-1">
                             <span>Change</span>
+                            <span id="txtCurryChange" class="d-none"></span>
                             <span id="txtChange">@Model.Change.ToString("N2")</span>
                         </div>
                     </div>
@@ -211,7 +214,26 @@
                     <div id="dv_paymentWrapper" class="mt-2">
                         <hr class="my-2" />
 
-                        <div class="mb-2 d-flex justify-content-between align-items-center my-4 text-primary">
+                        @if (Model.Type == (int)InvoiceType.Stay || Model.Type == (int)InvoiceType.Tour)
+                        {
+                            <div class="mb-2 d-flex align-items-center gap-2" id="dvCurrencyRadioButtons" style="display: none;">
+                                <label class="form-label fw-bold mb-0 me-2" style="font-size: 0.875rem;">Pay with :</label>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="currencyDisplay" id="radioBaseCurrency" value="@PaidCurrency.BaseCurrency" checked>
+                                    <label class="form-check-label small" for="radioBaseCurrency" id="lblBaseCurrency" style="font-size: 0.75rem;">
+                                        LKR
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="currencyDisplay" id="radioSelectedCurrency" value="@PaidCurrency.SelectedCurrency">
+                                    <label class="form-check-label small" for="radioSelectedCurrency" id="lblSelectedCurrency" style="font-size: 0.75rem;">
+                                        @(Model.Currency ?? "LKR")
+                                    </label>
+                                </div>
+                            </div>
+                        }
+
+                        <div class="mb-2 d-flex justify-content-between align-items-center my-2 text-primary">
                             @* <label class="form-label fw-bold fs-4 pe-5">Cash</label> *@
                             <div class="d-flex align-items-center gap-2">
                                 @Html.DropDownListFor(model => model.PaymentType, (IEnumerable<SelectListItem>)ViewBag.InvoicePaymentTypes, new { @class = "form-select form-select-sm fs-6", id = "PaymentType", style = "width: 200px;" })
@@ -244,6 +266,7 @@
                     <div id="dv_balanceWrapper">
                         <div id="dv_balanceDue" class="d-flex justify-content-between align-items-center fw-bold fs-4 mb-1 text-danger" style="flex-wrap: nowrap !important; white-space: nowrap !important;">
                             <span style="white-space: nowrap !important; flex-shrink: 0 !important;">Balance Due</span>
+                            <span id="txtCurryBalanceDue" class="fw-bold fs-6 d-flex d-none" style="white-space: nowrap !important; flex-shrink: 0 !important;"></span>
                             <span id="txtBalanceDue" class="fw-bold fs-4" style="white-space: nowrap !important; flex-shrink: 0 !important;">0.00</span>
                         </div>
                     </div>
