@@ -321,13 +321,6 @@ function renderDesktopTable(invoices) {
         html += '<td>' + escapeHtml(invoice.statusDisplay) + '</td>';
         html += '<td class="text-end">';
         html += '<div>' + formatCurrency(invoice.grossAmount) + '</div>';
-        // Show currency and currency amount for Paid invoices with PaidInForeignCurrency = true
-        if (invoice.status === 'Paid' && invoice.paidInForeignCurrency === true && invoice.currency && invoice.curySubTotal !== undefined) {
-            var curyAmount = Number(invoice.curySubTotal || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-            html += '<div class="text-primary" style="font-size: 0.75rem; color: #0d6efd;">';
-            html += escapeHtml(invoice.currency) + ' ' + curyAmount;
-            html += '</div>';
-        }
         html += '</td>';
         html += '<td>';
         html += '<div class="d-flex gap-1">';
@@ -398,13 +391,6 @@ function renderMobileCards(invoices) {
             html += '<div class="invoice-customer-name">' + escapeHtml(invoice.customerName) + '</div>';
             html += '<div class="invoice-amount">';
             html += '<div>' + formatCurrency(invoice.grossAmount) + '</div>';
-            // Show currency and currency amount for Paid invoices with PaidInForeignCurrency = true
-            if (invoice.status === 'Paid' && invoice.paidInForeignCurrency === true && invoice.currency && invoice.curySubTotal !== undefined) {
-                var curyAmount = Number(invoice.curySubTotal || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-                html += '<div class="text-primary" style="font-size: 0.75rem; color: #0d6efd;">';
-                html += escapeHtml(invoice.currency) + ' ' + curyAmount;
-                html += '</div>';
-            }
             html += '</div>';
             html += '</div>';
             html += '<div class="invoice-row-footer">';

@@ -89,7 +89,6 @@ namespace HotelManagement.Controllers.API
                 invoice.LastPaid = model.Cash;
                 invoice.Change = model.Change;
                 invoice.LastPaymentType = (InvoicePaymentType)model.PaymentType;
-                invoice.PaidInForeignCurrency = model.PaidInForeignCurrency;
                 invoice.CurryGrossAmount = model.CurryGrossAmount;
                 invoice.CurryLastPaid = model.CurryLastPaid;
                 invoice.CurryChange = model.CurryChange;

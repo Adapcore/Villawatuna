@@ -36,7 +36,6 @@ namespace HotelManagement.Models.ViewModels
         public int PaymentType { get; set; }
         public string? PaymentReference { get; set; }
         public decimal? CurrencyRate { get; set; }
-        public bool PaidInForeignCurrency { get; set; }
         public PaidCurrency PaidCurrency { get; set; }
         public decimal? CurryGrossAmount { get; set; }
         public decimal? CurryLastPaid { get; set; }
@@ -70,7 +69,6 @@ namespace HotelManagement.Models.ViewModels
             Cash = invoice.LastPaid;
             Change = invoice.Change;
             PaymentType = (int)invoice.LastPaymentType;
-            PaidInForeignCurrency = invoice.PaidInForeignCurrency;
             PaidCurrency = invoice.PaidCurrency;
             CurryGrossAmount = invoice.CurryGrossAmount;
             CurryLastPaid = invoice.CurryLastPaid;
@@ -112,7 +110,6 @@ namespace HotelManagement.Models.ViewModels
                 LastPaid = model.Cash,
                 Change = model.Change,
                 LastPaymentType = Enum.Parse<InvoicePaymentType>(model.PaymentType.ToString()),
-                PaidInForeignCurrency = model.PaidInForeignCurrency,
                 PaidCurrency = model.PaidCurrency,
                 CurryGrossAmount = model.CurryGrossAmount,
                 CurryLastPaid = model.CurryLastPaid,

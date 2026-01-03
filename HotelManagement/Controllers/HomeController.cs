@@ -145,7 +145,6 @@ namespace HotelManagement.Controllers
                             customerName = i.Invoice.Customer != null ? (i.Invoice.Customer.RoomNo != null ? $"#{i.Invoice.Customer.RoomNo} - {i.Invoice.Customer.FirstName} {i.Invoice.Customer.LastName}" : $"{i.Invoice.Customer.FirstName} {i.Invoice.Customer.LastName}") : "",
                             amount = i.Amount,
                             status = i.Invoice.Status.ToString(),
-                            paidInForeignCurrency = i.Invoice.PaidInForeignCurrency,
                             currency = i.Invoice.Currency,
                             curySubTotal = i.Invoice.CurySubTotal
                         })

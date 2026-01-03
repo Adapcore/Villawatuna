@@ -170,24 +170,11 @@
             $('#btn_print').hide();
             $('#btnReOpen').hide();
 
-            // Show/hide PaidInForeignCurrency checkbox based on invoice type (Stay=3, Tour=5)
-            self.UpdatePaidInForeignCurrencyVisibility();
-
             // Show/hide currency radio buttons based on invoice type (Stay=3, Tour=5)
             self.UpdateCurrencyRadioButtonsVisibility();
 
             // Update base currency label
             $('#lblBaseCurrency').text(self._baseCurrency);
-
-            // Load saved value even when disabled (only if checkbox exists)
-            var $checkbox = $('#chkPaidInForeignCurrency');
-            if ($checkbox.length > 0) {
-                var paidInForeignCurrency = self._invoice.paidInForeignCurrency || false;
-                $checkbox.prop('checked', paidInForeignCurrency);
-            }
-
-            // Update Total Paid label based on PaidInForeignCurrency
-            self.UpdateTotalPaidLabel();
 
             self.DisableHeader();
             self.DisableDetails();
@@ -228,11 +215,6 @@
                 $('#btnPay').show();
                 $('#btn_print').show();
 
-                // Enable PaidInForeignCurrency checkbox only when status is Complete and type is Dining or Tour
-                var $checkbox = $('#chkPaidInForeignCurrency');
-                if ($checkbox.length > 0 && self.IsDiningOrTourType()) {
-                    $checkbox.prop('disabled', false);
-                }
             }
             else if (self._invoice.status == 3) { // Partally Paid
                 self.EnableHeader(1);
@@ -241,14 +223,6 @@
                 $('#dv_balanceWrapper').slideDown();
                 $('#btn_print').show();
 
-                // Disable checkbox for PartiallyPaid status (but keep saved value)
-                var $checkbox = $('#chkPaidInForeignCurrency');
-                if ($checkbox.length > 0 && self.IsDiningOrTourType()) {
-                    $checkbox.prop('disabled', true);
-                }
-
-                // Ensure label is updated for partially paid invoices
-                self.UpdateTotalPaidLabel();
             }
             else if (self._invoice.status == 4) { // Paid
                 $('#dv_paidWrapper').show();
@@ -256,21 +230,8 @@
                 $('#btnSave').hide();
                 $('#btn_print').show();
 
-                // Disable checkbox for Paid status (but keep saved value)
-                var $checkbox = $('#chkPaidInForeignCurrency');
-                if ($checkbox.length > 0 && self.IsDiningOrTourType()) {
-                    $checkbox.prop('disabled', true);
-                }
-
-                // Ensure label is updated for paid invoices
-                self.UpdateTotalPaidLabel();
             }
 
-            // Ensure checkbox is disabled for InProgress status as well (but keep saved value)
-            var $checkbox = $('#chkPaidInForeignCurrency');
-            if (self._invoice.status == 1 && $checkbox.length > 0 && self.IsDiningOrTourType()) {
-                $checkbox.prop('disabled', true);
-            }
         },
 
         BindEvents: function () {
@@ -1369,18 +1330,6 @@
             }
             var curryChange = change / currencyRate;
 
-            // Get PaidInForeignCurrency value (read from checkbox if visible, regardless of enabled/disabled state)
-            // This allows saving the value even when checkbox is disabled (e.g., Partially Paid status)
-            var paidInForeignCurrency = false;
-            var $checkbox = $('#chkPaidInForeignCurrency');
-            if ($checkbox.length > 0 && $checkbox.is(':visible')) {
-                // Read checkbox value regardless of enabled/disabled state
-                paidInForeignCurrency = $checkbox.is(':checked');
-            } else if (self._invoice && self._invoice.paidInForeignCurrency !== undefined) {
-                // Fall back to invoice data if checkbox doesn't exist or isn't visible
-                paidInForeignCurrency = !!self._invoice.paidInForeignCurrency;
-            }
-
             var invoice = {
                 InvoiceNo: $("#InvoiceNo").val(),
                 Date: $("#Date").val(),
@@ -1403,7 +1352,6 @@
                 Change: change,
                 PaymentType: self.ParseNumber($("#PaymentType").val()) || 1,
                 PaymentReference: $("#txtPaymentReference").val(),
-                PaidInForeignCurrency: paidInForeignCurrency,
                 CurryGrossAmount: self.curryGrossAmount,
                 CurryLastPaid: curryLastPaid,
                 CurryBalance: 0, // this is calculated from API
@@ -1653,19 +1601,6 @@
             return invoiceType == 3 || invoiceType == 5; // Stay = 3, Tour = 5
         },
 
-        // Update visibility of PaidInForeignCurrency checkbox based on invoice type (Stay=3, Tour=5)
-        UpdatePaidInForeignCurrencyVisibility: function () {
-            var self = this;
-            var $checkboxContainer = $('#dvPaidInForeignCurrency');
-            if ($checkboxContainer.length > 0) {
-                if (self.IsDiningOrTourType()) {
-                    $checkboxContainer.show();
-                } else {
-                    $checkboxContainer.hide();
-                }
-            }
-        },
-
         // Update visibility of currency radio buttons based on invoice type (Stay=3, Tour=5) and currency difference
         UpdateCurrencyRadioButtonsVisibility: function () {
             var self = this;
@@ -1681,44 +1616,6 @@
                     }
                 } else {
                     $radioContainer.addClass('d-none');
-                }
-            }
-        },
-
-        // Update Total Paid label to show "(Paid in Foreign currency)" when applicable
-        // Shows for any status based on the checkbox value (enabled or disabled)
-        UpdateTotalPaidLabel: function () {
-            var self = this;
-            var $label = $('#lblTotalPaid');
-            if ($label.length > 0) {
-                var paidInForeignCurrency = false;
-
-                // First check invoice data (most reliable source, works for all statuses)
-                // Check both camelCase (from JSON) and PascalCase (direct property access)
-                if (self._invoice) {
-                    if (self._invoice.paidInForeignCurrency !== undefined) {
-                        paidInForeignCurrency = !!self._invoice.paidInForeignCurrency;
-                    } else if (self._invoice.PaidInForeignCurrency !== undefined) {
-                        paidInForeignCurrency = !!self._invoice.PaidInForeignCurrency;
-                    } else {
-                        // Fall back to checkbox state if invoice data not available (check regardless of enabled/disabled)
-                        var $checkbox = $('#chkPaidInForeignCurrency');
-                        if ($checkbox.length > 0) {
-                            paidInForeignCurrency = $checkbox.is(':checked');
-                        }
-                    }
-                } else {
-                    // Fall back to checkbox state if invoice data not available
-                    var $checkbox = $('#chkPaidInForeignCurrency');
-                    if ($checkbox.length > 0) {
-                        paidInForeignCurrency = $checkbox.is(':checked');
-                    }
-                }
-
-                if (paidInForeignCurrency) {
-                    $label.text('Total Paid (Paid in Foreign currency)');
-                } else {
-                    $label.text('Total Paid');
                 }
             }
         },
