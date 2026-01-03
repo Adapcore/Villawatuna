@@ -176,6 +176,15 @@
             // Update base currency label
             $('#lblBaseCurrency').text(self._baseCurrency);
 
+            // Load saved PaidCurrency value and set the radio button
+            if (self._invoice && self._invoice.paidCurrency !== undefined) {
+                var paidCurrency = parseInt(self._invoice.paidCurrency) || 0;
+                $('input[name="currencyDisplay"][value="' + paidCurrency + '"]').prop('checked', true);
+            } else if (self._invoice && self._invoice.PaidCurrency !== undefined) {
+                var paidCurrency = parseInt(self._invoice.PaidCurrency) || 0;
+                $('input[name="currencyDisplay"][value="' + paidCurrency + '"]').prop('checked', true);
+            }
+
             self.DisableHeader();
             self.DisableDetails();
 
@@ -1381,6 +1390,15 @@
                 Change: change,
                 PaymentType: self.ParseNumber($("#PaymentType").val()) || 1,
                 PaymentReference: $("#txtPaymentReference").val(),
+                PaidCurrency: (function() {
+                    var $radio = $('input[name="currencyDisplay"]:checked');
+                   
+                    if ($radio.length > 0) {
+                        return parseInt($radio.val()) || 0;
+                    }
+                    // Default to BaseCurrency (0) if radio buttons are not visible
+                    return 0;
+                })(),
                 CurryGrossAmount: self.curryGrossAmount,
                 CurryLastPaid: curryLastPaid,
                 CurryBalance: 0, // this is calculated from API
@@ -1388,7 +1406,6 @@
                 CurryTotalPaid: 0, // this is calculated from API
                 InvoiceDetails: []
             };
-
             $("#invoiceItems tbody tr").each(function () {
                 var $row = $(this);
                 invoice.InvoiceDetails.push({
