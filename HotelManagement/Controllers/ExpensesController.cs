@@ -86,6 +86,10 @@ namespace HotelManagement.Controllers
             // Get filtered expenses
             int? expenseTypeFilter = expenseTypeId > 0 ? expenseTypeId : null;
             IEnumerable<Expense> expenses = await _expenseService.GetAllAsync(startDateParsed, endDateParsed, expenseTypeFilter, payeeFilter);
+            
+            // Calculate total amount across all pages (before pagination)
+            decimal totalAmount = expenses.Sum(e => e.Amount);
+            
             var pagedList = expenses.ToPagedList(pageNumber, _pageSize);
 
             // Load CreatedByMember data from Umbraco
@@ -148,6 +152,7 @@ namespace HotelManagement.Controllers
             {
                 success = true,
                 expenses = expenseList,
+                totalAmount = totalAmount,
                 pagination = new
                 {
                     pageNumber = pagedList.PageNumber,

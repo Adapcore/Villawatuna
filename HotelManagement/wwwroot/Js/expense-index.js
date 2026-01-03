@@ -208,6 +208,7 @@ function loadExpenses() {
             if (response.success) {
                 renderExpenses(response.expenses);
                 renderPagination(response.pagination);
+                renderTotalAmount(response.totalAmount);
             }
             else {
                 showError('Failed to load expenses.');
@@ -405,6 +406,7 @@ function renderEmptyState() {
     $('#expenseTableMobile').html(emptyHtml);
     $('#expenseTableDesktop').css('display', '');
     $('#expenseTableMobile').css('display', '');
+    $('#expenseTotalAmountContainer').hide();
 }
 
 /**
@@ -449,6 +451,18 @@ function deleteExpense(expenseId) {
             }
         }
     });
+}
+
+/**
+ * Render total amount across all pages
+ */
+function renderTotalAmount(totalAmount) {
+    if (totalAmount !== undefined && totalAmount !== null) {
+        $('#expenseTotalAmount').text(formatCurrency(totalAmount));
+        $('#expenseTotalAmountContainer').show();
+    } else {
+        $('#expenseTotalAmountContainer').hide();
+    }
 }
 
 /**
