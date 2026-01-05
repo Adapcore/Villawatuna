@@ -341,7 +341,7 @@
                 }
             });
 
-            // Update Total Paid label when PaidInForeignCurrency checkbox changes
+            // When "Pay with" radio button changes, reset txtCash to 0
             $("#chkPaidInForeignCurrency").on("change", function () {
                 self.UpdateTotalPaidLabel();
             });

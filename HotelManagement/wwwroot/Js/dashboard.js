@@ -226,9 +226,6 @@ function renderInvoicesMobile(data, isAdmin, tileType) {
                         <div class="invoice-customer-name">${customerName}</div>
                         <div class="invoice-amount">
                             <div>${formatCurrency(invoice.amount)}</div>
-                            ${(invoice.type === 'Stay' || invoice.type === 'Tour') && invoice.paidInForeignCurrency === true && invoice.currency && invoice.curySubTotal !== undefined 
-                                ? `<div class="text-primary" style="font-size: 0.75rem; color: #0d6efd;">${invoice.currency} ${Number(invoice.curySubTotal || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>` 
-                                : ''}
                         </div>
                     </div>
                     <div class="invoice-row-footer">
