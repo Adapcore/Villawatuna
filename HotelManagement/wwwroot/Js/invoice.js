@@ -102,41 +102,49 @@
                     dateInput.val(localDate);
                 }
             }
-            //$('#txtPaid').html(self._invoice.paid.toFixed(2));
-            $('#txtPaid').html(self._baseCurrency + ' ' + self._formatter.format(self._invoice.paid));
-            $('#txtBalance').html(self._baseCurrency + ' ' + self._formatter.format(self._invoice.balance));
-            $('#txtChange').html(self._baseCurrency + ' ' + self._formatter.format(self._invoice.change));
-            $('#txtLastPaid').html(self._baseCurrency + ' ' + self._formatter.format(self._invoice.cash));
-            $('#txtChange').html(self._baseCurrency + ' ' + self._formatter.format(self._invoice.change));
+
+            // Set base currency amounts (without currency code)
+            $('#txtPaid').html(self._formatter.format(self._invoice.paid));
+            $('#txtBalance').html(self._formatter.format(self._invoice.balance));
+            $('#txtChange').html(self._formatter.format(self._invoice.change));
+            $('#txtLastPaid').html(self._formatter.format(self._invoice.cash));
 
             $("#txtPayment").val(0);
             $("#txtCash").val(0);
-            $("#txtBalanceDue").html(self._baseCurrency + ' ' + self._formatter.format(self._invoice.balance));
+            $("#txtBalanceDue").html(self._formatter.format(self._invoice.balance));
 
             var selectedCurrency = $("#ddlCurrency").val() || self._baseCurrency;
-            var currencyCode = self._invoice.currency;
+            var currencyCode = self._invoice.currency || selectedCurrency;
+            
+            // Set currency codes in the new columns
+            $('.baseCurrencyCode').text(self._baseCurrency);
+            $('.selectedCurrencyCode').text(currencyCode);
+            
             if (self._baseCurrency != selectedCurrency) {
+                // Set currency amounts (without currency code)
+                $('#txtCurryPaid').html(self._formatter.format(self._invoice.curryTotalPaid));
+                $('#txtCurryBalance').html(self._formatter.format(self._invoice.curryBalance));
+                $('#txtCurryChange').html(self._formatter.format(self._invoice.curryChange));
+                $('#txtCurryLastPaid').html(self._formatter.format(self._invoice.curryLastPaid));
+                $("#txtCurryBalanceDue").html(self._formatter.format(self._invoice.curryBalance));
 
-                $('#txtCurryPaid').html(currencyCode + " " + self._formatter.format(self._invoice.curryTotalPaid));
-                $('#txtCurryBalance').html(currencyCode + " " + self._formatter.format(self._invoice.curryBalance));
-                $('#txtCurryChange').html(currencyCode + " " + self._formatter.format(self._invoice.curryChange));
-                $('#txtCurryLastPaid').html(currencyCode + " " + self._formatter.format(self._invoice.curryLastPaid));
-                $('#txtCurryChange').html(currencyCode + " " + self._formatter.format(self._invoice.curryChange));
-                $("#txtCurryBalanceDue").html(currencyCode + " " + self._formatter.format(self._invoice.curryBalance));
-
+                // Show currency columns and amounts
+                $('.selectedCurrencyCode').removeClass('d-none');
+                $('.baseCurrencyCode').removeClass('d-none');
                 $('#txtCurryPaid').removeClass('d-none');
                 $('#txtCurryBalance').removeClass('d-none');
                 $('#txtCurryChange').removeClass('d-none');
                 $('#txtCurryLastPaid').removeClass('d-none');
-                $('#txtCurryChange').removeClass('d-none');
                 $("#txtCurryBalanceDue").removeClass('d-none');
             }
             else {
+                // Hide currency columns and amounts
+                $('.selectedCurrencyCode').addClass('d-none');
+                //$('.baseCurrencyCode').addClass('d-none');
                 $('#txtCurryPaid').addClass('d-none');
                 $('#txtCurryBalance').addClass('d-none');
                 $('#txtCurryChange').addClass('d-none');
                 $('#txtCurryLastPaid').addClass('d-none');
-                $('#txtCurryChange').addClass('d-none');
                 $("#txtCurryBalanceDue").addClass('d-none');
             }
 
@@ -334,7 +342,16 @@
             });
 
             $("#btnPayBalance").on("click", function () {
-                var balance = self.ParseNumber($("#txtBalance").html());
+                var selectedPaidCurrency = $('input[name="currencyDisplay"]:checked').val();
+                var balance = 0;
+
+                if (selectedPaidCurrency == 0) {
+                    balance = self.ParseNumber($("#txtBalance").html());
+                }
+                else {
+                    balance = self.ParseNumber($("#txtCurryBalance").html());
+                }
+
                 $("#txtCash").val(balance.toFixed(2));
                 self.CalculateBalanceDue();
             });
@@ -1339,7 +1356,7 @@
             var curryChange = 0;
 
             var selectedPaidCurrency = $('input[name="currencyDisplay"]:checked').val();
-            if (self._baseCurrency != selectedCurrency && selectedPaidCurrency == 'SelectedCurrency') {
+            if (self._baseCurrency != selectedCurrency && selectedPaidCurrency == 1) {
 
                 var curryGrossAmount = self.ParseNumber($("#curySubTotal").html()) || 0;
                 var curryAlreadyPaid = self._invoice.curryTotalPaid;
@@ -1390,9 +1407,9 @@
                 Change: change,
                 PaymentType: self.ParseNumber($("#PaymentType").val()) || 1,
                 PaymentReference: $("#txtPaymentReference").val(),
-                PaidCurrency: (function() {
+                PaidCurrency: (function () {
                     var $radio = $('input[name="currencyDisplay"]:checked');
-                   
+
                     if ($radio.length > 0) {
                         return parseInt($radio.val()) || 0;
                     }
@@ -1730,7 +1747,7 @@
             var balanceDue = 0;
             var curryBalanceDue = 0;
 
-            if (self._baseCurrency != selectedCurrency && selectedPaidCurrency == 'SelectedCurrency') {
+            if (self._baseCurrency != selectedCurrency && selectedPaidCurrency == 1) {
 
                 var curryPayment = 0;
 
@@ -1778,7 +1795,7 @@
 
             $("#txtPayment").val(payment);// this is hidden text
             $("#txtBalanceDue").html(self._formatter.format(balanceDue));
-            $("#txtCurryBalanceDue").html(self._invoice.currency + " " + self._formatter.format(curryBalanceDue));
+            $("#txtCurryBalanceDue").html(self._formatter.format(curryBalanceDue));
         },
 
         ParseNumber: function (value) {

@@ -166,7 +166,10 @@
                     {
                         <div class="d-flex justify-content-between fs-5 mb-1 text-primary">
                             <span>Cury Sub Total</span>
-                            <span id="curySubTotal">@Model.CurySubTotal.ToString("N2")</span>
+                            <span class="d-flex align-items-baseline" style="gap: 5px;">
+                                <span id="curySubTotalCurrencyCode" class="selectedCurrencyCode fs-5"></span>
+                                <span id="curySubTotal">@Model.CurySubTotal.ToString("N2")</span>
+                            </span>
                         </div>
                         <hr class="my-2" />
                     }
@@ -184,65 +187,83 @@
                     }
                     <div class="d-flex justify-content-between fs-4 fw-bold text-success mb-1">
                         <span>Gross Amount</span>
-                        <span id="grossAmount">@Model.GrossAmount.ToString("N2")</span>
+                        <span class="d-flex align-items-baseline" style="gap: 5px;">
+                            <span id="grossAmountCurrencyCode" class="baseCurrencyCode"></span>
+                            <span id="grossAmount">@Model.GrossAmount.ToString("N2")</span>
+                        </span>
                     </div>
                     <div id="dv_paidWrapper">
                         <hr class="my-2" />
-                        <div class="d-flex justify-content-between fs-6 mb-1">
-                            <span id="lblTotalPaid">Total Paid</span>
-                            <span id="txtCurryPaid" class="d-none"></span>
-                            <span id="txtPaid">@Model.Paid.ToString("N2")</span>
-                        </div>
-                        <div class="d-flex justify-content-between fs-6 mb-1 text-danger">
-                            <span>Balance</span>
-                            <span id="txtCurryBalance" class="d-none"></span>
-                            <span id="txtBalance">@Model.Balance.ToString("N2")</span>
-                        </div>
-                        <div class="d-flex justify-content-between fs-6 mb-1">
-                            <span>Last Paid</span>
-                            <span id="txtCurryLastPaid" class="d-none"></span>
-                            <span id="txtLastPaid">@Model.Cash.ToString("N2")</span>
-                        </div>
-                        <div id="dv_changeWrapper" class="d-flex justify-content-between fs-6 mb-1">
-                            <span>Change</span>
-                            <span id="txtCurryChange" class="d-none"></span>
-                            <span id="txtChange">@Model.Change.ToString("N2")</span>
-                        </div>
+                        <table class="table table-sm table-borderless mb-0">
+                            <tbody>
+                                <tr class="fs-6">
+                                    <td class="ps-0"><span id="lblTotalPaid">Total Paid</span></td>
+                                    <td class="text-end pe-0"><span class="d-none selectedCurrencyCode"></span></td>
+                                    <td class="text-end pe-0" style="width: 40px;"><span id="txtCurryPaid" class="d-none"></span></td>
+                                    <td class="text-end pe-0"><span class="d-none baseCurrencyCode"></span></td>
+                                    <td class="text-end pe-0" style="width: 60px;"><span id="txtPaid">@Model.Paid.ToString("N2")</span></td>
+                                </tr>
+                                <tr class="fs-6 text-danger">
+                                    <td class="ps-0 text-danger">Balance</td>
+                                    <td class="text-end pe-0 text-danger"><span class="d-none selectedCurrencyCode"></span></td>
+                                    <td class="text-end pe-0 text-danger" style="width: 40px;"><span id="txtCurryBalance" class="d-none"></span></td>
+                                    <td class="text-end pe-0 text-danger"><span class="d-none baseCurrencyCode"></span></td>
+                                    <td class="text-end pe-0 text-danger" style="width: 60px;"><span id="txtBalance">@Model.Balance.ToString("N2")</span></td>
+                                </tr>
+                                <tr class="fs-6">
+                                    <td class="ps-0">Last Paid</td>
+                                    <td class="text-end pe-0"><span class="d-none selectedCurrencyCode"></span></td>
+                                    <td class="text-end pe-0" style="width: 40px;"><span id="txtCurryLastPaid" class="d-none"></span></td>
+                                    <td class="text-end pe-0"><span class="d-none baseCurrencyCode"></span></td>
+                                    <td class="text-end pe-0" style="width: 60px;"><span id="txtLastPaid">@Model.Cash.ToString("N2")</span></td>
+                                </tr>
+                                <tr id="dv_changeWrapper" class="fs-6">
+                                    <td class="ps-0">Change</td>
+                                    <td class="text-end pe-0"><span class="d-none selectedCurrencyCode"></span></td>
+                                    <td class="text-end pe-0" style="width: 40px;"><span id="txtCurryChange" class="d-none"></span></td>
+                                    <td class="text-end pe-0"><span class="d-none baseCurrencyCode"></span></td>
+                                    <td class="text-end pe-0" style="width: 60px;"><span id="txtChange">@Model.Change.ToString("N2")</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
 
 
                     <div id="dv_paymentWrapper" class="mt-2">
                         <hr class="my-2" />
 
-                        @if (Model.Type == (int)InvoiceType.Stay || Model.Type == (int)InvoiceType.Tour)
-                        {
-                            int baseCurrencyCode = (int)PaidCurrency.BaseCurrency;
-                            int selectedCurrencyCode = (int)PaidCurrency.SelectedCurrency;
+                        <div class="mb-2 d-flex justify-content-end align-items-center my-2 text-primary">
+                            <button type="button" id="btnPayBalance" class="btn btn-outline-primary btn-sm fs-7 py-1 px-2" title="Fill balance amount" style="font-size: 0.75rem;">
+                                Pay Balance
+                            </button>
+                        </div>                        
 
-                        <div class="mb-2 d-flex align-items-center gap-2" id="dvCurrencyRadioButtons" style="display: none;">
-                                <label class="form-label fw-bold mb-0 me-2" style="font-size: 0.875rem;">Pay with :</label>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="currencyDisplay" id="radioBaseCurrency" value="@baseCurrencyCode" checked>
-                                    <label class="form-check-label small" for="radioBaseCurrency" id="lblBaseCurrency" style="font-size: 0.75rem;">
-                                        LKR
-                                    </label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="currencyDisplay" id="radioSelectedCurrency" value="@selectedCurrencyCode">
-                                    <label class="form-check-label small" for="radioSelectedCurrency" id="lblSelectedCurrency" style="font-size: 0.75rem;">
-                                        @(Model.Currency ?? "LKR")
-                                    </label>
-                                </div>
-                            </div>
-                        }
+                        <div class="mb-2 d-flex justify-content-between align-items-center my-2">         
+                            @if (Model.Type == (int)InvoiceType.Stay || Model.Type == (int)InvoiceType.Tour)
+                            {
+                                int baseCurrencyCode = (int)PaidCurrency.BaseCurrency;
+                                int selectedCurrencyCode = (int)PaidCurrency.SelectedCurrency;
 
-                        <div class="mb-2 d-flex justify-content-between align-items-center my-2 text-primary">
-                            @* <label class="form-label fw-bold fs-4 pe-5">Cash</label> *@
+                                <div class="mb-2 d-flex align-items-center gap-2 fs-5" id="dvCurrencyRadioButtons" style="display: none;">
+                                    <label class="form-label  mb-0 me-2 fs-6">Pay with :</label>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="currencyDisplay" id="radioBaseCurrency" value="@baseCurrencyCode" checked>
+                                        <label class="form-check-label small" for="radioBaseCurrency" id="lblBaseCurrency" style="font-size: 0.875rem;">
+                                            LKR
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="currencyDisplay" id="radioSelectedCurrency" value="@selectedCurrencyCode">
+                                        <label class="form-check-label small" for="radioSelectedCurrency" id="lblSelectedCurrency" style="font-size: 0.875rem;">
+                                            @(Model.Currency ?? "LKR")
+                                        </label>
+                                    </div>
+                                </div>
+                            }
+
                             <div class="d-flex align-items-center gap-2">
-                                @Html.DropDownListFor(model => model.PaymentType, (IEnumerable<SelectListItem>)ViewBag.InvoicePaymentTypes, new { @class = "form-select form-select-sm fs-6", id = "PaymentType", style = "width: 200px;" })
-                                <button type="button" id="btnPayBalance" class="btn btn-outline-primary btn-sm fs-7 py-1 px-2" title="Fill balance amount" style="font-size: 0.75rem;">
-                                    Pay Balance
-                                </button>
+                                @Html.DropDownListFor(model => model.PaymentType, (IEnumerable<SelectListItem>)ViewBag.InvoicePaymentTypes, new { @class = "form-select form-select-sm fs-6", id = "PaymentType", style = "width: 150px;" })
+                                
                             </div>
                             <input id="txtCash" type="number" class="form-control form-control-sm fs-6 fw-bold text-primary ms-2 text-end" style="width: 120px;" />
                         </div>
@@ -260,8 +281,16 @@
                     <div id="dv_balanceWrapper">
                         <div id="dv_balanceDue" class="d-flex justify-content-between align-items-center fw-bold fs-4 mb-1 text-danger" style="flex-wrap: nowrap !important; white-space: nowrap !important;">
                             <span style="white-space: nowrap !important; flex-shrink: 0 !important;">Balance Due</span>
-                            <span id="txtCurryBalanceDue" class="fw-bold fs-6 d-flex d-none" style="white-space: nowrap !important; flex-shrink: 0 !important;"></span>
-                            <span id="txtBalanceDue" class="fw-bold fs-4" style="white-space: nowrap !important; flex-shrink: 0 !important;">0.00</span>
+
+                            <span class="d-flex align-items-center" ">
+                                <span id="txtCurryBalanceDueCurrencyCode" class="selectedCurrencyCode fw-bold fs-6 d-flex d-none"></span>
+                                <span id="txtCurryBalanceDue" class="fw-bold fs-6 d-flex d-none"></span>
+                            </span>
+                            <span class="d-flex align-items-center" style="gap: 5px; margin-left: 8px;">
+                                <span id="txtBalanceDueCurrencyCode" class="baseCurrencyCode"></span>
+                                <span id="txtBalanceDue" class="fw-bold fs-4"></span>
+                            </span>
+
                         </div>
                     </div>
                 </div>
@@ -294,7 +323,7 @@
             </div>
             <div class="modal-body">
                 <form id="frmQuickCustomer" method="post">
-                    @Html.AntiForgeryToken()
+                            @Html.AntiForgeryToken()
                     <input type="hidden" name="ID" id="qcCustomerId" />
                     <div class="row g-2">
                         <div class="col-6">
@@ -321,13 +350,13 @@
                             <label class="form-label fw-bold small">Country</label>
                             <select class="form-select form-select-sm" name="Country">
                                 <option value="">-- Select Country --</option>
-                                @if (ViewBag.Countries != null)
+                            @if (ViewBag.Countries != null)
+                            {
+                                foreach (var c in (IEnumerable<KeyValuePair<string, string>>)ViewBag.Countries)
                                 {
-                                    foreach (var c in (IEnumerable<KeyValuePair<string, string>>)ViewBag.Countries)
-                                    {
                                         <option value="@c.Key">@c.Value</option>
-                                    }
                                 }
+                            }
                             </select>
                         </div>
                         <div class="col-6">
