@@ -342,8 +342,10 @@
             });
 
             // When "Pay with" radio button changes, reset txtCash to 0
-            $("#chkPaidInForeignCurrency").on("change", function () {
-                self.UpdateTotalPaidLabel();
+            $('input[name="currencyDisplay"]').on("change", function () {
+                $("#txtCash").val(0);
+                self.txtCash = 0;
+                self.CalculateBalanceDue();
             });
 
             $(".btnAddItem").on("click", function () {
@@ -1321,14 +1323,41 @@
             var alreadyPaid = self._invoice.paid;
 
             var cash = self.ParseNumber(self.txtCash) || 0;
-            var curryLastPaid = cash / currencyRate;
 
-            var balance = grossAmount - alreadyPaid;
-            var change = cash - balance;
-            if (change < 0) {
-                change = 0;
+            var balance = 0;
+            var change = 0;
+            var curryLastPaid = 0;
+            var curryChange = 0;
+
+            var selectedPaidCurrency = $('input[name="currencyDisplay"]:checked').val();
+            if (self._baseCurrency != selectedCurrency && selectedPaidCurrency == 'SelectedCurrency') {
+
+                var curryGrossAmount = self.ParseNumber($("#curySubTotal").html()) || 0;
+                var curryAlreadyPaid = self._invoice.curryTotalPaid;
+
+                curryLastPaid = cash;
+
+                var curryBalance = curryGrossAmount - curryAlreadyPaid;
+                var curryChange = cash - curryBalance;
+                if (curryChange < 0) {
+                    curryChange = 0;
+                }
+                //curryChange = change / currencyRate;
+                balance = curryBalance * currencyRate;
+                change = curryChange * currencyRate;
+                cash = curryLastPaid * currencyRate;
             }
-            var curryChange = change / currencyRate;
+            else {
+
+                curryLastPaid = cash / currencyRate;
+
+                balance = grossAmount - alreadyPaid;
+                change = cash - balance;
+                if (change < 0) {
+                    change = 0;
+                }
+                curryChange = change / currencyRate;
+            }
 
             var invoice = {
                 InvoiceNo: $("#InvoiceNo").val(),
@@ -1670,6 +1699,7 @@
 
             var grossAmount = self.ParseNumber($("#grossAmount").html());
             var balance = self.ParseNumber($("#txtBalance").html());
+            var curryBalance = self.ParseNumber($("#txtCurryBalance").html());
             var cash = self.ParseNumber($("#txtCash").val());
             $("#txtCash").val(cash.toFixed(2));
 
@@ -1679,26 +1709,55 @@
             // Check which radio button is selected (0 = BaseCurrency, 1 = SelectedCurrency)
             var selectedPaidCurrency = $('input[name="currencyDisplay"]:checked').val();
 
-            if (self._baseCurrency != selectedCurrency && selectedPaidCurrency == 'SelectedCurrency') {
-                cash = cash * currencyRate;
-            }
-
-            self.txtCash = cash;
-
             var payment = 0;
-            var balanceDue = 0
-            var curryBalanceDue = 0
+            var balanceDue = 0;
+            var curryBalanceDue = 0;
 
-            if (cash >= balance) {
-                payment = balance;
-                balanceDue = payment - cash;
+            if (self._baseCurrency != selectedCurrency && selectedPaidCurrency == 'SelectedCurrency') {
+
+                var curryPayment = 0;
+
+                if (cash >= curryBalance) {
+                    curryPayment = curryBalance;
+                    curryBalanceDue = curryPayment - cash;
+                }
+                else {
+                    curryPayment = cash;
+                    curryBalanceDue = curryBalance - cash;
+                }
+
+                if (cash == curryBalance) {
+                    balanceDue = 0;
+                    payment = balance;
+                }
+                else if (cash > curryBalance) {
+                    balanceDue = (curryBalanceDue * currencyRate).toFixed(2);
+                    payment = balance;
+                }
+                else {
+                    balanceDue = (curryBalanceDue * currencyRate).toFixed(2);
+                    payment = (curryPayment * currencyRate).toFixed(2);
+
+                }
+
+                if (cash == 0)
+                    balanceDue = balance;
+
             }
             else {
-                payment = cash;
-                balanceDue = balance - cash;
+
+                if (cash >= balance) {
+                    payment = balance;
+                    balanceDue = payment - cash;
+                }
+                else {
+                    payment = cash;
+                    balanceDue = balance - cash;
+                }
             }
 
             curryBalanceDue = balanceDue / currencyRate;
+            self.txtCash = cash;
 
             $("#txtPayment").val(payment);// this is hidden text
             $("#txtBalanceDue").html(self._formatter.format(balanceDue));
