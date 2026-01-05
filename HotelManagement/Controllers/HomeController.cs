@@ -146,7 +146,9 @@ namespace HotelManagement.Controllers
                             amount = i.Amount,
                             status = i.Invoice.Status.ToString(),
                             currency = i.Invoice.Currency,
-                            curySubTotal = i.Invoice.CurySubTotal
+                            curySubTotal = i.Invoice.CurySubTotal,
+                            curryAmount = i.CurryAmount,
+                            paidCurrency = i.PaidCurrency
                         })
                         .ToListAsync();
                     data = invoices.Cast<object>().ToList();
@@ -210,7 +212,10 @@ namespace HotelManagement.Controllers
                             type = i.Invoice.Type.ToString(),
                             customerName = i.Invoice.Customer != null ? (i.Invoice.Customer.RoomNo != null ? $"#{i.Invoice.Customer.RoomNo} - {i.Invoice.Customer.FirstName} {i.Invoice.Customer.LastName}" : $"{i.Invoice.Customer.FirstName} {i.Invoice.Customer.LastName}") : "",
                             amount = i.Amount,
-                            status = i.Invoice.Status.ToString()
+                            status = i.Invoice.Status.ToString(),
+                            currency = i.Invoice.Currency,
+                            curryAmount = i.CurryAmount,
+                            paidCurrency = i.PaidCurrency
                         })
                         .ToListAsync();
                     data = stayInvoices.Cast<object>().ToList();
@@ -250,7 +255,10 @@ namespace HotelManagement.Controllers
                             type = i.Type.ToString(),
                             customerName = i.Invoice.Customer != null ? (i.Invoice.Customer.RoomNo != null ? $"#{i.Invoice.Customer.RoomNo} - {i.Invoice.Customer.FirstName} {i.Invoice.Customer.LastName}" : $"{i.Invoice.Customer.FirstName} {i.Invoice.Customer.LastName}") : "",
                             amount = i.Amount,
-                            status = i.Invoice.Status.ToString()
+                            status = i.Invoice.Status.ToString(),
+                            currency = i.Invoice.Currency,
+                            curryAmount = i.CurryAmount,
+                            paidCurrency = i.PaidCurrency
                         })
                         .ToListAsync();
                     data = tourInvoices.Cast<object>().ToList();

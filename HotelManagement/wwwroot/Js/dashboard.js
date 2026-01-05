@@ -226,15 +226,16 @@ function renderInvoicesMobile(data, isAdmin, tileType) {
                         <div class="invoice-customer-name">${customerName}</div>
                         <div class="invoice-amount">
                             <div>${formatCurrency(invoice.amount)}</div>
+                            ${invoice.curryAmount && invoice.curryAmount > 0 && invoice.paidCurrency === 1 && invoice.currency ? 
+                                `<div class="text-primary" style="font-size: 0.75rem;">${invoice.currency} ${parseFloat(invoice.curryAmount).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>` : ''}
                         </div>
                     </div>
-                    <div class="invoice-row-footer">
+                    <div class="invoice-row-footer d-flex justify-content-between align-items-center">
                         <span class="invoice-number">
                             <span class="invoice-number-label">INV No</span>
                             <span class="invoice-number-value">#${invoice.id}</span>
                         </span>
-                        <div class="d-flex gap-1">
-                            ${isAdmin ? `<button type="button" class="btn-delete-invoice-icon btn-delete-invoice" data-invoice-id="${invoice.id}" data-invoice-no="${invoice.id}" title="Delete Invoice" style="margin-top: 2px;"><i class="bi bi-trash"></i></button>` : ''}
+                        <div class="d-flex gap-1">                           
                             <a href="/Internal/Invoices/Edit/${invoice.id}" class="btn-view-invoice" target="_Blank">
                                 <i class="bi bi-eye"></i> View
                             </a>
