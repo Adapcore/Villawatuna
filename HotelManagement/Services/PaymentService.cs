@@ -19,6 +19,7 @@ namespace HotelManagement.Services
         public async Task<IEnumerable<Payment>> GetAllAsync()
         {
             return await _context.Payments
+                .Include(p => p.Invoice)
                 .OrderByDescending(p => p.Date)
                 .ToListAsync();
         }
@@ -35,14 +36,16 @@ namespace HotelManagement.Services
             return payment;
         }
 
-        public async Task<Payment> AddPaymentForInvoiceAsync(int invoiceNo, decimal amount, InvoicePaymentType type, string? reference)
+        public async Task<Payment> AddPaymentForInvoiceAsync(int invoiceNo, decimal amount, InvoicePaymentType type, string? reference, decimal? curryLastPaid = null, PaidCurrency paidCurrency = PaidCurrency.BaseCurrency)
         {
             var payment = new Payment
             {
                 Date = DateTime.UtcNow,
                 InvoiceNo = invoiceNo,
                 Amount = amount,
+                CurryAmount = curryLastPaid,
                 Type = type,
+                PaidCurrency = paidCurrency,
                 Reference = reference
             };
 

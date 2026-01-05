@@ -23,8 +23,13 @@ namespace HotelManagement.Models.Entities
         [Column(TypeName = "decimal(18,2)")]
         public decimal Amount { get; set; }
 
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal? CurryAmount { get; set; }
+
         [Required]
         public InvoicePaymentType Type { get; set; }
+
+        public PaidCurrency PaidCurrency { get; set; } = PaidCurrency.BaseCurrency;
 
         [MaxLength(200)]
         public string? Reference { get; set; }

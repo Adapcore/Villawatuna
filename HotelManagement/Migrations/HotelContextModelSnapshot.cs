@@ -459,6 +459,9 @@ namespace HotelManagement.Migrations
                     b.Property<decimal>("Amount")
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<decimal?>("CurryAmount")
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<int>("CreatedBy")
                         .HasColumnType("int");
 
@@ -476,6 +479,9 @@ namespace HotelManagement.Migrations
 
                     b.Property<DateTime?>("LastModifiedDate")
                         .HasColumnType("datetime2");
+
+                    b.Property<int>("PaidCurrency")
+                        .HasColumnType("int");
 
                     b.Property<string>("Reference")
                         .HasMaxLength(200)

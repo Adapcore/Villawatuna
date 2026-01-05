@@ -8,7 +8,7 @@ namespace HotelManagement.Services.Interfaces
         Task<IEnumerable<Payment>> GetAllAsync();
         Task<Payment?> GetByIdAsync(int id);
         Task<Payment> CreateAsync(Payment payment);
-        Task<Payment> AddPaymentForInvoiceAsync(int invoiceNo, decimal amount, InvoicePaymentType method, string? reference);
+        Task<Payment> AddPaymentForInvoiceAsync(int invoiceNo, decimal amount, InvoicePaymentType method, string? reference, decimal? curryLastPaid = null, PaidCurrency paidCurrency = PaidCurrency.BaseCurrency);
         Task DeleteAsync(int id);
     }
 }

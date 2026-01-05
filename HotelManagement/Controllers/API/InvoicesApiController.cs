@@ -69,7 +69,7 @@ namespace HotelManagement.Controllers.API
                 if (model.Paid > 0)
                 {
                     var method = (InvoicePaymentType)(model.PaymentType == 0 ? (int)InvoicePaymentType.Cash : model.PaymentType);
-                    await _paymentService.AddPaymentForInvoiceAsync(invoice.InvoiceNo, model.Paid, method, model.PaymentReference);
+                    await _paymentService.AddPaymentForInvoiceAsync(invoice.InvoiceNo, model.Paid, method, model.PaymentReference, model.CurryLastPaid, model.PaidCurrency);
                     invoice.LastPaymentType = method;
                 }
             }
@@ -137,7 +137,7 @@ namespace HotelManagement.Controllers.API
                 if (model.Paid > 0)
                 {
                     InvoicePaymentType paymentType = (InvoicePaymentType)(model.PaymentType == 0 ? (int)InvoicePaymentType.Cash : model.PaymentType);
-                    await _paymentService.AddPaymentForInvoiceAsync(invoice.InvoiceNo, model.Paid, paymentType, model.PaymentReference);
+                    await _paymentService.AddPaymentForInvoiceAsync(invoice.InvoiceNo, model.Paid, paymentType, model.PaymentReference, model.CurryLastPaid, model.PaidCurrency);
                 }
             }
 
@@ -207,7 +207,7 @@ namespace HotelManagement.Controllers.API
             if (model.Paid > 0)
             {
                 InvoicePaymentType paymentType = (InvoicePaymentType)(model.PaymentType == 0 ? (int)InvoicePaymentType.Cash : model.PaymentType);
-                await _paymentService.AddPaymentForInvoiceAsync(invoice.InvoiceNo, model.Paid, paymentType, model.PaymentReference);
+                await _paymentService.AddPaymentForInvoiceAsync(invoice.InvoiceNo, model.Paid, paymentType, model.PaymentReference, model.CurryLastPaid, model.PaidCurrency);
                 invoice.LastPaymentType = paymentType;
             }
 

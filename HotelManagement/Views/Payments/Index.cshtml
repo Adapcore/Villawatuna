@@ -27,7 +27,6 @@
                             <th>Type</th>
                             <th>Reference</th>
                             <th class="text-end">Amount</th>
-                            <th style="width: 160px;">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -39,10 +38,14 @@
                                 <td>@payment.InvoiceNo</td>
                                 <td>@EnumHelper.GetDisplayName(payment.Type)</td>
                                 <td>@(payment.Reference ?? "-")</td>
-                                <td class="text-end fw-bold">@payment.Amount.ToString("N2")</td>
-                                <td>
-                                    @* Actions can be added here if needed *@
+                                <td class="text-end">
+                                    <div class="fw-bold">LKR @payment.Amount.ToString("N2")</div>
+                                    @if (payment.CurryAmount.HasValue && payment.CurryAmount.Value > 0 && payment.Invoice != null && payment.PaidCurrency == HotelManagement.Enums.PaidCurrency.SelectedCurrency)
+                                    {
+                                        <div class="text-primary" style="font-size: 0.75rem;">@(payment.Invoice.Currency) @payment.CurryAmount.Value.ToString("N2")</div>
+                                    }
                                 </td>
+                              
                             </tr>
                         }
                     </tbody>
@@ -89,7 +92,11 @@
                                         @paymentTypeName
                                     </div>
                                     <div class="payment-amount">
-                                        @payment.Amount.ToString("N2")
+                                        <div class="fw-bold">@payment.Amount.ToString("N2")</div>
+                                        @if (payment.CurryAmount.HasValue && payment.CurryAmount.Value > 0 && payment.Invoice != null)
+                                        {
+                                            <div class="text-primary" style="font-size: 0.75rem;">@(payment.Invoice.Currency ?? "USD") @payment.CurryAmount.Value.ToString("N2")</div>
+                                        }
                                     </div>
                                 </div>
                                 <div class="payment-row-footer">
