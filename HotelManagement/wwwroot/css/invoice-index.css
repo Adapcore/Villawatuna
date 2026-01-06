@@ -925,8 +925,21 @@
     
     .table th:nth-child(7),
     .table td:nth-child(7) {
-        width: 15%;
-        min-width: 120px;
+        width: 130px !important;
+        min-width: 130px;
+    }
+    
+    /* Total, Paid, Balance columns - same width */
+    .table th:nth-child(8),
+    .table td:nth-child(8) {
+        width: 130px !important;
+        min-width: 130px;
+    }
+    
+    .table th:nth-child(9),
+    .table td:nth-child(9) {
+        width: 130px !important;
+        min-width: 130px;
     }
 }
 

@@ -326,10 +326,40 @@ function renderDesktopTable(invoices) {
         html += '<td>' + escapeHtml(invoice.statusDisplay) + '</td>';
         html += '<td class="text-end">';
         html += '<div>' + formatCurrency(invoice.grossAmount) + '</div>';
+        // Show curry amount only for Stay and Tour invoices
+        if ((invoice.type === 'Stay' || invoice.type === 'Tour') && 
+            invoice.curryGrossAmount != null && invoice.curryGrossAmount !== undefined && invoice.currency) {
+            html += '<div class="text-primary" style="font-size: 0.75rem;">' +
+                escapeHtml(invoice.currency) + ' ' +
+                Number(invoice.curryGrossAmount).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) +
+                '</div>';
+        }
+        html += '</td>';
+        html += '<td class="text-end">';
+        html += '<div>' + formatCurrency(invoice.totalPaid || 0) + '</div>';
+        // Show curry amount only for Stay and Tour invoices
+        if ((invoice.type === 'Stay' || invoice.type === 'Tour') && 
+            invoice.curryTotalPaid != null && invoice.curryTotalPaid !== undefined && invoice.currency) {
+            html += '<div class="text-primary" style="font-size: 0.75rem;">' +
+                escapeHtml(invoice.currency) + ' ' +
+                Number(invoice.curryTotalPaid).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) +
+                '</div>';
+        }
+        html += '</td>';
+        html += '<td class="text-end">';
+        html += '<div>' + formatCurrency(invoice.balance || 0) + '</div>';
+        // Show curry amount only for Stay and Tour invoices
+        if ((invoice.type === 'Stay' || invoice.type === 'Tour') && 
+            invoice.curryBalance != null && invoice.curryBalance !== undefined && invoice.currency) {
+            html += '<div class="text-primary" style="font-size: 0.75rem;">' +
+                escapeHtml(invoice.currency) + ' ' +
+                Number(invoice.curryBalance).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) +
+                '</div>';
+        }
         html += '</td>';
         html += '<td>';
         html += '<div class="d-flex gap-1">';
-        html += '<a href="/Internal/Invoices/Edit/' + invoice.invoiceNo + '" class="btn btn-sm btn-warning"><i class="bi bi-eye"></i> View</a>';
+        html += '<a href="/Internal/Invoices/Edit/' + invoice.invoiceNo + '" class="btn btn-sm btn-warning"><i class="bi bi-eye"></i>View</a>';
         html += '<button type="button" class="btn btn-sm btn-info btn-view-payments ' + (isPaymentsDisabled ? 'disabled' : '') + '" ';
         html += 'data-invoice-no="' + invoice.invoiceNo + '" ' + (isPaymentsDisabled ? 'disabled' : '') + ' ';
         html += 'title="' + (isPaymentsDisabled ? 'Payments not available for this invoice status' : 'View Payments') + '">';
@@ -338,7 +368,7 @@ function renderDesktopTable(invoices) {
         if (invoiceState.isAdmin === true) {
             html += '<button type="button" class="btn btn-sm btn-danger btn-delete-invoice" ';
             html += 'data-invoice-id="' + invoice.invoiceNo + '" data-invoice-no="' + invoice.invoiceNo + '">';
-            html += '<i class="bi bi-trash"></i> Delete</button>';
+            html += '<i class="bi bi-trash"></i>Delete</button>';
         }
         html += '</div>';
         html += '</td>';
@@ -507,7 +537,7 @@ function renderEmptyState() {
     emptyHtml += '<p class="mt-3 fs-5">No invoices found.</p>';
     emptyHtml += '</div>';
 
-    $('#invoiceTableBody').html('<tr><td colspan="7" class="text-center text-muted">No invoices found.</td></tr>');
+    $('#invoiceTableBody').html('<tr><td colspan="9" class="text-center text-muted">No invoices found.</td></tr>');
     $('#invoiceTableMobile').html(emptyHtml);
     // Remove inline display styles to let CSS media queries handle visibility
     $('#invoiceTableDesktop').css('display', '');

@@ -126,7 +126,12 @@ namespace HotelManagement.Controllers
                 status = i.Status.ToString(),
                 statusDisplay = EnumHelper.GetDisplayName(i.Status),
                 grossAmount = i.GrossAmount,
+                totalPaid = i.TotalPaid,
+                balance = i.Balance,
                 currency = i.Currency,
+                curryGrossAmount = i.CurryGrossAmount,
+                curryTotalPaid = i.CurryTotalPaid,
+                curryBalance = i.CurryBalance,
                 curySubTotal = i.CurySubTotal,
                 createdByMember = i.CreatedByMember != null ? new
                 {
