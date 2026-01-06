@@ -332,11 +332,63 @@
     }
     
     /* Payment type and button container */
-    #dv_paymentWrapper .d-flex.align-items-center {
+    #dv_paymentWrapper .d-flex.align-items-center:not(#dvCurrencyRadioButtons) {
         flex-direction: column !important;
         gap: 10px !important;
         width: 100% !important;
         align-items: stretch !important;
+    }
+    
+    /* Currency radio buttons - keep in single line on mobile */
+    #dvCurrencyRadioButtons,
+    #dv_paymentWrapper #dvCurrencyRadioButtons {
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        flex-wrap: nowrap !important;
+        gap: 8px !important;
+        width: auto !important;
+        max-width: 100% !important;
+        white-space: nowrap !important;
+    }
+    
+    #dvCurrencyRadioButtons label.form-label,
+    #dv_paymentWrapper #dvCurrencyRadioButtons label.form-label {
+        flex-shrink: 0 !important;
+        white-space: nowrap !important;
+        margin: 0 !important;
+        margin-right: 4px !important;
+        display: inline-block !important;
+    }
+    
+    #dvCurrencyRadioButtons .form-check,
+    #dv_paymentWrapper #dvCurrencyRadioButtons .form-check {
+        display: inline-flex !important;
+        align-items: center !important;
+        flex-shrink: 0 !important;
+        white-space: nowrap !important;
+        margin: 0 !important;
+        margin-right: 8px !important;
+    }
+    
+    #dvCurrencyRadioButtons .form-check-input,
+    #dv_paymentWrapper #dvCurrencyRadioButtons .form-check-input {
+        flex-shrink: 0 !important;
+        margin: 0 !important;
+        margin-right: 6px !important;
+        width: 20px !important;
+        height: 20px !important;
+        min-width: 20px !important;
+        min-height: 20px !important;
+        cursor: pointer !important;
+    }
+    
+    #dvCurrencyRadioButtons .form-check-label,
+    #dv_paymentWrapper #dvCurrencyRadioButtons .form-check-label {
+        flex-shrink: 0 !important;
+        white-space: nowrap !important;
+        margin: 0 !important;
+        display: inline-block !important;
     }
     
     /* Payment Type dropdown - full width on mobile */
@@ -387,56 +439,88 @@
         min-height: 44px !important;
     }
     
-    /* Balance Due section - match Gross Amount styling exactly and prevent wrapping */
+    /* Balance Due section - two lines on mobile */
     #dv_balanceDue {
         display: flex !important;
-        justify-content: space-between !important;
-        align-items: center !important;
-        flex-wrap: nowrap !important;
-        white-space: nowrap !important;
-        font-size: 1.5rem !important; /* fs-4 Bootstrap equivalent */
-        font-weight: 700 !important; /* fw-bold */
-        color: #dc3545 !important; /* text-danger */
-        margin-bottom: 0.25rem !important; /* mb-1 */
+        flex-direction: column !important;
+        gap: 6px !important;
+        font-size: 1.2rem !important;
+        font-weight: 700 !important;
+        color: #dc3545 !important;
+        margin-bottom: 0.25rem !important;
         width: 100% !important;
         max-width: 100% !important;
         box-sizing: border-box !important;
-        min-width: 0 !important;
-        overflow: hidden !important;
     }
     
-    /* Override Bootstrap fs-5 class to match fs-4 like Gross Amount */
+    /* Override Bootstrap fs-5 class to match reduced size for mobile */
     #dv_balanceDue.fs-5,
     #dv_balanceDue.fs-4 {
-        font-size: 1.5rem !important; /* Match fs-4 */
+        font-size: 1.2rem !important;
     }
     
-    #dv_balanceDue span {
+    /* First line: Combine Balance Due label and base currency - use flex row wrapper */
+    #dv_balanceDue > span:first-child {
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        width: 100% !important;
         white-space: nowrap !important;
-        flex-shrink: 0 !important;
-        display: inline-block !important;
-        overflow: hidden !important;
-        text-overflow: ellipsis !important;
     }
     
-    #dv_balanceDue span:first-child {
-        flex: 0 0 auto !important;
-        max-width: 60% !important;
+    /* Second span (curry balance due container) - second line */
+    #dv_balanceDue > span:nth-child(2) {
+        display: flex !important;
+        align-items: center !important;
+        width: 100% !important;
+        justify-content: flex-end !important;
+        white-space: nowrap !important;
     }
     
+    /* Third span (base currency amount container) - position after first span on same line */
+    #dv_balanceDue > span:nth-child(3) {
+        position: absolute !important;
+        right: 0 !important;
+        top: 0 !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 6px !important;
+        white-space: nowrap !important;
+    }
+    
+    /* Make container relative for absolute positioning */
+    #dv_balanceDue {
+        position: relative !important;
+    }
+    
+    /* Base currency amount */
     #dv_balanceDue #txtBalanceDue {
         white-space: nowrap !important;
         flex-shrink: 0 !important;
-        font-size: 1.5rem !important; /* Match fs-4 */
-        font-weight: 700 !important; /* Match fw-bold */
-        margin-left: 0 !important;
-        max-width: 40% !important;
+        font-size: 1.2rem !important;
+        font-weight: 700 !important;
         text-align: right !important;
+    }
+    
+    /* Currency code */
+    #dv_balanceDue #txtBalanceDueCurrencyCode {
+        white-space: nowrap !important;
+        flex-shrink: 0 !important;
+        font-size: 1.2rem !important;
+    }
+    
+    /* Curry balance due - second line */
+    #dv_balanceDue #txtCurryBalanceDue,
+    #dv_balanceDue #txtCurryBalanceDueCurrencyCode {
+        white-space: nowrap !important;
+        flex-shrink: 0 !important;
+        font-size: 1rem !important;
+        font-weight: 600 !important;
     }
     
     #dv_balanceDue #txtBalanceDue.fs4,
     #dv_balanceDue #txtBalanceDue.fs-4 {
-        font-size: 1.5rem !important;
+        font-size: 1.2rem !important;
     }
     
     /* Balance Due container - ensure it stays on one line */
@@ -472,6 +556,152 @@
     #dv_paymentWrapper .me-2 {
         margin-left: 0 !important;
         margin-right: 0 !important;
+    }
+    
+    /* Mobile Responsive Styles for Paid Wrapper - Convert table to div structure */
+    #dv_paidWrapper {
+        width: 100% !important;
+        max-width: 100% !important;
+        overflow-x: hidden !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        background: transparent !important;
+        border: none !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+    }
+    
+    #dv_paidWrapper hr {
+        border-radius: 0 !important;
+        box-shadow: none !important;
+        margin: 12px 0 !important;
+    }
+    
+    /* Convert table to div */
+    #dv_paidWrapper table {
+        display: block !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        background: transparent !important;
+        border: none !important;
+        border-collapse: collapse !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+    }
+    
+    /* Convert tbody to div */
+    #dv_paidWrapper table tbody {
+        display: block !important;
+        width: 100% !important;
+        border: none !important;
+    }
+    
+    /* Convert tr to div */
+    #dv_paidWrapper table tbody tr {
+        display: flex !important;
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        padding: 10px 0 !important;
+        margin: 0 !important;
+        border: none !important;
+        border-bottom: none !important;
+        background: transparent !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+        width: 100% !important;
+    }
+    
+    #dv_paidWrapper table tbody tr:last-child {
+        border: none !important;
+        border-bottom: none !important;
+    }
+    
+    /* Convert td to div - all in one line */
+    #dv_paidWrapper table tbody td {
+        display: flex !important;
+        align-items: center !important;
+        padding: 0 4px !important;
+        margin: 0 !important;
+        white-space: nowrap !important;
+        background: transparent !important;
+        border: none !important;
+        border-top: none !important;
+        border-bottom: none !important;
+        border-left: none !important;
+        border-right: none !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+        flex-shrink: 0 !important;
+    }
+    
+    /* Label column - left side */
+    #dv_paidWrapper table tbody td:first-child {
+        flex: 1 1 auto !important;
+        text-align: left !important;
+        padding-left: 0 !important;
+        padding-right: 8px !important;
+        font-size: 0.95rem !important;
+        font-weight: 500 !important;
+        justify-content: flex-start !important;
+    }
+    
+    /* Currency code and amount columns - right side, all in line */
+    #dv_paidWrapper table tbody td:not(:first-child) {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: flex-end !important;
+        gap: 2px !important;
+        flex: 0 0 auto !important;
+        text-align: right !important;
+        font-size: 0.9rem !important;
+        padding: 0 2px !important;
+    }
+    
+    /* 4th column (base currency code) - add more gap from 3rd column */
+    #dv_paidWrapper table tbody td:nth-child(4) {
+        padding-left: 12px !important;
+        padding-right: 2px !important;
+    }
+    
+    /* 5th column (base currency amount) - add more space to prevent overlap */
+    #dv_paidWrapper table tbody td:nth-child(5) {
+        padding-left: 12px !important;
+        padding-right: 0 !important;
+        min-width: 70px !important;
+    }
+    
+    /* Currency code spans - inline with amounts */
+    #dv_paidWrapper table tbody td .selectedCurrencyCode,
+    #dv_paidWrapper table tbody td .baseCurrencyCode {
+        font-size: 0.85rem !important;
+        margin: 0 !important;
+        padding: 0 2px 0 0 !important;
+        display: inline-block !important;
+        white-space: nowrap !important;
+    }
+    
+    /* Amount spans - inline with currency codes */
+    #dv_paidWrapper table tbody td span[id^="txt"] {
+        font-size: 0.95rem !important;
+        font-weight: 600 !important;
+        display: inline-block !important;
+        text-align: right !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        white-space: nowrap !important;
+    }
+    
+    /* Balance row - ensure red color is visible */
+    #dv_paidWrapper table tbody tr.text-danger td {
+        color: #dc3545 !important;
+    }
+    
+    #dv_paidWrapper table tbody tr.text-danger td span {
+        color: #dc3545 !important;
     }
 }
 
