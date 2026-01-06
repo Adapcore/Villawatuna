@@ -108,14 +108,16 @@
                         <div class="col-6">
                             <label class="form-label fw-bold">Invoice No</label>
                             <div class="form-control form-control-sm fs-7 bg-light" style="border: 1px solid #ced4da;">
-                                @if (Model.InvoiceNo > 0)
-                                {
-                                    <strong>#@Model.InvoiceNo</strong>
-                                }
-                                else
-                                {
-                                    <span class="text-muted">Auto-generated</span>
-                                }
+                                <span id="lblInvoiceNoDisplay">
+                                    @if (Model.InvoiceNo > 0)
+                                    {
+                                        <strong>#@Model.InvoiceNo</strong>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">Auto-generated</span>
+                                    }
+                                </span>
                             </div>
                         </div>
                         <div class="col-6">

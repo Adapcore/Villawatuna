@@ -85,7 +85,11 @@
             self.grossTotal = self._invoice.grossAmount;
             self.curryGrossAmount = self._invoice.curryGrossAmount;
 
-            $("#InvoiceNo").val(self._invoice.invoiceNo);
+            if (self._invoice.invoiceNo && self._invoice.invoiceNo > 0) {
+                $("#lblInvoiceNoDisplay").html("<strong>#"+ self._invoice.invoiceNo +"</strong>");
+            } else {
+                $("#lblInvoiceNoDisplay").html('<span class="text-muted">Auto-generated</span>');
+            }
             $("#Status").val(self._invoice.status);
 
             // Set invoice date to client's local date (only for new invoices)
