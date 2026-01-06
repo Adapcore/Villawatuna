@@ -250,7 +250,7 @@ namespace HotelManagement.Controllers
         {
             var invoice = await _invoiceService.GetByIdAsync(id);
             if (invoice == null)
-                return NotFound();
+                return RedirectToAction(nameof(Index));
 
             var customers = await _customerService.GetAllAsync();
 

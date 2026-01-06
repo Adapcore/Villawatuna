@@ -150,11 +150,14 @@ namespace HotelManagement.Services
             if (invoiceNo <= 0)
                 return null;
 
-            Invoice invoice = await _context.Invoices
+            Invoice? invoice = await _context.Invoices
                 .Include(i => i.Customer)
                 .Include(i => i.InvoiceDetails)
                 .Include(i => i.Payments)
                 .FirstOrDefaultAsync(i => i.InvoiceNo == invoiceNo);
+
+            if (invoice == null)
+                return null;
 
             IEnumerable<ItemDto> menuItems = new List<ItemDto>();
 
