@@ -426,6 +426,42 @@ function renderMobileCards(invoices) {
             html += '<div class="invoice-customer-name">' + escapeHtml(invoice.customerName) + '</div>';
             html += '<div class="invoice-amount">';
             html += '<div>' + formatCurrency(invoice.grossAmount) + '</div>';
+            // Show curry amount only for Stay and Tour invoices
+            if ((invoice.type === 'Stay' || invoice.type === 'Tour') && 
+                invoice.curryGrossAmount != null && invoice.curryGrossAmount !== undefined && invoice.currency) {
+                html += '<div class="text-primary" style="font-size: 0.75rem;">' +
+                    escapeHtml(invoice.currency) + ' ' +
+                    Number(invoice.curryGrossAmount).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) +
+                    '</div>';
+            }
+            html += '</div>';
+            html += '</div>';
+            
+            // Add Paid and Balance row
+            html += '<div class="invoice-row-amounts" style="display: flex; justify-content: space-between; padding: 5px 0px 5px 42px; border-top: 1px solid #e9ecef;">';
+            html += '<div style="flex: 1; text-align: left;">';
+            html += '<div style="font-size: 0.75rem; color: #6c757d; margin-bottom: 2px;">Paid</div>';
+            html += '<div style="font-size: 0.9rem; font-weight: 600; color: #0d6efd;">' + formatCurrency(invoice.totalPaid || 0) + '</div>';
+            // Show curry amount only for Stay and Tour invoices
+            if ((invoice.type === 'Stay' || invoice.type === 'Tour') && 
+                invoice.curryTotalPaid != null && invoice.curryTotalPaid !== undefined && invoice.currency) {
+                html += '<div class="text-primary" style="font-size: 0.7rem;">' +
+                    escapeHtml(invoice.currency) + ' ' +
+                    Number(invoice.curryTotalPaid).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) +
+                    '</div>';
+            }
+            html += '</div>';
+            html += '<div style="flex: 1; text-align: right;">';
+            html += '<div style="font-size: 0.75rem; color: #6c757d; margin-bottom: 2px;">Balance</div>';
+            html += '<div style="font-size: 0.9rem; font-weight: 600; color: #dc3545;">' + formatCurrency(invoice.balance || 0) + '</div>';
+            // Show curry amount only for Stay and Tour invoices
+            if ((invoice.type === 'Stay' || invoice.type === 'Tour') && 
+                invoice.curryBalance != null && invoice.curryBalance !== undefined && invoice.currency) {
+                html += '<div class="" style="font-size: 0.7rem; color: #dc3545;">' +
+                    escapeHtml(invoice.currency) + ' ' +
+                    Number(invoice.curryBalance).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) +
+                    '</div>';
+            }
             html += '</div>';
             html += '</div>';
             html += '<div class="invoice-row-footer">';
