@@ -77,8 +77,8 @@
             /* font-family: 'Courier New', monospace;  */
             /* font-size: 12px;  */
             /* line-height: 1.2;
-                                                                                                                            background: white;
-                                                                                                                            color: black; */
+                                                                                                                                    background: white;
+                                                                                                                                    color: black; */
         }
 
         /* paper widths: 58mm and 80mm */
@@ -188,7 +188,7 @@
             margin-top: 3mm;
             padding-top: 4mm;
             /* font-size: 1.2em;
-                                                                                                                    font-weight: 700; */
+                                                                                                                            font-weight: 700; */
         }
 
         .total-line {
@@ -203,8 +203,8 @@
             font-weight: 700;
             font-size: 1.2em;
             /* border-top: 1px dashed #000;
-                                                                            padding-top: 1mm;
-                                                                            margin-top: 2mm; */
+                                                                                    padding-top: 1mm;
+                                                                                    margin-top: 2mm; */
         }
 
         .total-bottom-border {
@@ -239,9 +239,9 @@
         }
 
         /* @@page {
-                                                                                                                            size: auto;
-                                                                                                                            margin: 0;
-                                                                                                                        } */
+                                                                                                                                    size: auto;
+                                                                                                                                    margin: 0;
+                                                                                                                                } */
     </style>
 </head>
 <body>
@@ -365,8 +365,8 @@
                 }
 
                 <div class="total-line gross-total">
-                    <span>GROSS TOTAL (LKR):</span>
-                    <span>@Model.GrossAmount.ToString("#,###.00")</span>
+                    <span>GROSS TOTAL :</span>
+                    <span>LKR @Model.GrossAmount.ToString("#,###.00")</span>
                 </div>
 
                 @if (Model.Status != InvoiceStatus.InProgress && Model.Status != InvoiceStatus.Complete)
@@ -383,7 +383,7 @@
 
                         <div class="total-line">
                             <span>TOTAL PAID (@Model.LastPaid.ToString("F2")):</span>
-                            <span>@Model.TotalPaid.ToString("F2")</span>
+                            <span>LKR @Model.TotalPaid.ToString("F2")</span>
                         </div>
 
                         <div class="total-line">
@@ -391,42 +391,38 @@
                                 string curryBalanceText = "";
                                 if (@Model.Currency != "LKR" && @Model.CurryBalance != null)
                                 {
-                                     curryBalanceText = $"({Model.Currency} {Model.CurryBalance})";
+                                    curryBalanceText = $"({Model.Currency} {Model.CurryBalance})";
                                 }
                             }
                             <span>BALANCE DUE @curryBalanceText:</span>
-                            <span>@Model.Balance.ToString("F2")</span>
+                            <span>LKR @Model.Balance.ToString("F2")</span>
                         </div>
                     }
                     else if (Model.Status == InvoiceStatus.Paid)
                     {
                         var totalPaid = Model.TotalPaid + Model.Change;
+                        var curryTotalPaidText = "";
 
                         if (@Model.Currency != "LKR" && @Model.CurryTotalPaid != null && Model.CurryChange != null)
                         {
-                            var curryTotalPaid = Model.CurryTotalPaid + Model.CurryChange;
-
-                            <div class="total-line">
-                                <span>TOTAL PAID @Model.Currency:</span>
-                                <span>@curryTotalPaid?.ToString("F2")</span>
-                            </div>
+                            curryTotalPaidText = $"({Model.Currency}: {(Model.CurryTotalPaid + Model.CurryChange)?.ToString("F2")})";                          
                         }
 
                         <div class="total-line">
-                            <span>TOTAL PAID:</span>
-                            <span>@totalPaid.ToString("F2")</span>
+                            <span>TOTAL PAID @curryTotalPaidText:</span>
+                            <span>LKR @totalPaid.ToString("F2")</span>
                         </div>
 
                         if (@Model.Currency != "LKR" && @Model.CurryChange != null)
                         {
-                        <div class="total-line">
-                                <span>Change @Model.Currency:</span>
-                            <span>@Model.CurryChange?.ToString("F2")</span>
-                        </div>
+                            <div class="total-line">
+                                <span>Change:</span>
+                                <span>@Model.Currency @Model.CurryChange?.ToString("F2")</span>
+                            </div>
                         }
                         <div class="total-line">
                             <span>Change:</span>
-                            <span>@Model.Change.ToString("F2")</span>
+                            <span>LKR @Model.Change.ToString("F2")</span>
                         </div>
                     }
                 }
