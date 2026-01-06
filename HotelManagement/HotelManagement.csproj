@@ -5,6 +5,9 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
+    <Content Remove="Views\Invoices\Edit.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
     <None Include="wwwroot\Js\invoice.js" />
   </ItemGroup>
 
