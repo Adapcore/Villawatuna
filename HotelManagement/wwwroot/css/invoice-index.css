@@ -905,16 +905,18 @@
         min-width: 80px;
     }
     
+    /* Date column */
     .table th:nth-child(4),
     .table td:nth-child(4) {
-        width: 12%;
-        min-width: 100px;
+        width: 90px !important;
+        min-width: 90px;
     }
     
+    /* Settled On column - same width as Date */
     .table th:nth-child(5),
     .table td:nth-child(5) {
-        width: 15%;
-        min-width: 120px;
+        width: 90px !important;
+        min-width: 90px;
     }
     
     .table th:nth-child(6),
