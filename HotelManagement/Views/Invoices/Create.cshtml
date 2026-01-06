@@ -230,47 +230,41 @@
                         </table>
                     </div>
 
-
                     <div id="dv_paymentWrapper" class="mt-2">
                         <hr class="my-2" />
 
                         <div class="mb-2 d-flex justify-content-between align-items-center my-2">
-                            @if (Model.Type == (int)InvoiceType.Stay || Model.Type == (int)InvoiceType.Tour)
-                            {
+                            @{
                                 int baseCurrencyCode = (int)PaidCurrency.BaseCurrency;
                                 int selectedCurrencyCode = (int)PaidCurrency.SelectedCurrency;
-
-                                <div class="d-flex align-items-center gap-2 fs-5" id="dvCurrencyRadioButtons" style="display: none;">
-                                    <label class="form-label mb-0 me-2 fs-6">Pay with :</label>
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="radio" name="currencyDisplay" id="radioBaseCurrency" value="@baseCurrencyCode" checked>
-                                        <label class="form-check-label small" for="radioBaseCurrency" id="lblBaseCurrency" style="font-size: 0.875rem;">
-                                            LKR
-                                        </label>
-                                    </div>
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="radio" name="currencyDisplay" id="radioSelectedCurrency" value="@selectedCurrencyCode">
-                                        <label class="form-check-label small" for="radioSelectedCurrency" id="lblSelectedCurrency" style="font-size: 0.875rem;">
-                                            @(Model.Currency ?? "LKR")
-                                        </label>
-                                    </div>
+                            }
+                            <div class="d-flex align-items-center gap-2 fs-5" id="dvCurrencyRadioButtons" style="display: none;">
+                                <label class="form-label mb-0 me-2 fs-6">Pay with :</label>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="currencyDisplay" id="radioBaseCurrency" value="@baseCurrencyCode" checked>
+                                    <label class="form-check-label small" for="radioBaseCurrency" id="lblBaseCurrency" style="font-size: 0.875rem;">
+                                        LKR
+                                    </label>
                                 </div>
-                            }
-                            else
-                            {
-                                <div></div>
-                            }
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="currencyDisplay" id="radioSelectedCurrency" value="@selectedCurrencyCode">
+                                    <label class="form-check-label small" for="radioSelectedCurrency" id="lblSelectedCurrency" style="font-size: 0.875rem;">
+                                        @(Model.Currency ?? "LKR")
+                                    </label>
+                                </div>
+                            </div>
+
                             <button type="button" id="btnPayBalance" class="btn btn-outline-primary btn-sm fs-7 py-1 px-2" title="Fill balance amount" style="font-size: 0.75rem;">
                                 Pay Balance
                             </button>
-                        </div>                        
+                        </div>
 
-                        <div class="mb-2 d-flex justify-content-between align-items-center my-2">         
-                           
+                        <div class="mb-2 d-flex justify-content-between align-items-center my-2">
+
 
                             <div class="d-flex align-items-center gap-2">
                                 @Html.DropDownListFor(model => model.PaymentType, (IEnumerable<SelectListItem>)ViewBag.InvoicePaymentTypes, new { @class = "form-select form-select-sm fs-6", id = "PaymentType", style = "width: 150px;" })
-                                
+
                             </div>
                             <input id="txtCash" type="number" class="form-control form-control-sm fs-6 fw-bold text-primary ms-2 text-end" style="width: 120px;" />
                         </div>
@@ -331,7 +325,7 @@
             </div>
             <div class="modal-body">
                 <form id="frmQuickCustomer" method="post">
-                            @Html.AntiForgeryToken()
+                    @Html.AntiForgeryToken()
                     <input type="hidden" name="ID" id="qcCustomerId" />
                     <div class="row g-2">
                         <div class="col-6">
@@ -358,13 +352,13 @@
                             <label class="form-label fw-bold small">Country</label>
                             <select class="form-select form-select-sm" name="Country">
                                 <option value="">-- Select Country --</option>
-                            @if (ViewBag.Countries != null)
-                            {
-                                foreach (var c in (IEnumerable<KeyValuePair<string, string>>)ViewBag.Countries)
+                                @if (ViewBag.Countries != null)
                                 {
+                                    foreach (var c in (IEnumerable<KeyValuePair<string, string>>)ViewBag.Countries)
+                                    {
                                         <option value="@c.Key">@c.Value</option>
+                                    }
                                 }
-                            }
                             </select>
                         </div>
                         <div class="col-6">
