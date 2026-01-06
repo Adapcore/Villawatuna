@@ -313,7 +313,12 @@ function renderDesktopTable(invoices) {
         }
 
         html += '<tr>';
-        html += '<td>' + escapeHtml(invoice.invoiceNo) + '</td>';
+        html += '<td>';
+        html += '<div>#' + escapeHtml(invoice.invoiceNo) + '</div>';
+        if (invoice.createdByMember && invoice.createdByMember.name) {
+            html += '<div class="text-primary" style="font-size: 0.8rem;">' + escapeHtml(invoice.createdByMember.name) + '</div>';
+        }
+        html += '</td>';
         html += '<td>' + escapeHtml(invoice.customerName) + '</td>';
         html += '<td>' + escapeHtml(invoice.typeDisplay) + '</td>';
         html += '<td>' + formatDate(invoice.date) + '</td>';
