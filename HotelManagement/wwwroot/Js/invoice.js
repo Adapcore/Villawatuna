@@ -85,6 +85,7 @@
             self.grossTotal = self._invoice.grossAmount;
             self.curryGrossAmount = self._invoice.curryGrossAmount;
 
+            $("#InvoiceNo").val(self._invoice.invoiceNo);
             if (self._invoice.invoiceNo && self._invoice.invoiceNo > 0) {
                 $("#lblInvoiceNoDisplay").html("<strong>#"+ self._invoice.invoiceNo +"</strong>");
             } else {
