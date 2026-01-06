@@ -402,10 +402,11 @@
                     {
                         var totalPaid = Model.TotalPaid + Model.Change;
                         var curryTotalPaidText = "";
+                        var curryChangeText = "";
 
                         if (@Model.Currency != "LKR" && @Model.CurryTotalPaid != null && Model.CurryChange != null)
                         {
-                            curryTotalPaidText = $"({Model.Currency}: {(Model.CurryTotalPaid + Model.CurryChange)?.ToString("F2")})";                          
+                            curryTotalPaidText = $"({Model.Currency}: {(Model.CurryTotalPaid + Model.CurryChange)?.ToString("F2")})";
                         }
 
                         <div class="total-line">
@@ -415,13 +416,11 @@
 
                         if (@Model.Currency != "LKR" && @Model.CurryChange != null)
                         {
-                            <div class="total-line">
-                                <span>Change:</span>
-                                <span>@Model.Currency @Model.CurryChange?.ToString("F2")</span>
-                            </div>
+                            curryChangeText = $"({Model.Currency}: {Model.CurryChange?.ToString("F2")})";                          
                         }
+
                         <div class="total-line">
-                            <span>Change:</span>
+                            <span>Change @curryChangeText:</span>
                             <span>LKR @Model.Change.ToString("F2")</span>
                         </div>
                     }
