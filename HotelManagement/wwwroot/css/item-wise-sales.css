@@ -1,0 +1,41 @@
+/* Item Wise Sales report specific styles */
+
+/* Make the last (View button) column compact */
+#itemSalesTableDesktop table thead th:last-child,
+#itemSalesTableDesktop table tbody td:last-child,
+#itemSalesTableDesktop table tfoot td:last-child {
+    width: 70px !important;
+    max-width: 70px !important;
+    white-space: nowrap;
+    padding-left: 4px;
+    padding-right: 4px;
+}
+
+/* Compact but readable View button */
+#itemSalesTableDesktop table tbody td:last-child .item-invoices-btn {
+    font-size: 0.8rem;
+    padding: 2px 8px;
+    line-height: 1.2;
+}
+
+/* Print styles */
+@media print {
+    /* Hide navigation, filters, buttons when printing */
+    header, nav, .navbar, .sidebar, .footer, .btn, #itemSalesFilterForm, #itemSalesPagination {
+        display: none !important;
+    }
+
+    body {
+        background: #fff !important;
+    }
+
+    #itemSalesTableDesktop {
+        margin-top: 0 !important;
+    }
+
+    #itemSalesTableDesktop .table {
+        font-size: 0.85rem;
+    }
+}
+
+

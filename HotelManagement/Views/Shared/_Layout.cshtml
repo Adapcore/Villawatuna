@@ -312,11 +312,27 @@
                             <a asp-controller="Invoices" asp-action="Index" class="nav-link">Invoices</a>
                         </li>
                         <li class="nav-item">
-                            <a asp-controller="Expenses" asp-action="Index" class="nav-link">Expenses</a>
-                        </li>
-                        <li class="nav-item">
                             <a asp-controller="Payments" asp-action="Index" class="nav-link">Payments</a>
                         </li>
+                        <li class="nav-item">
+                            <a asp-controller="Expenses" asp-action="Index" class="nav-link">Expenses</a>
+                        </li>
+                        @if (isAdmin)
+                        {
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="reportsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Reports
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="reportsDropdown">
+                                    <li>
+                                        <a class="dropdown-item" asp-controller="Reports" asp-action="ItemWiseSales">
+                                            Item Wise Sales
+                                        </a>
+                                    </li>
+                                    @* Future reports can be added here as more items *@
+                                </ul>
+                            </li>
+                        }
                     }
 
                     @if (Context.User?.Identity != null && Context.User.Identity.IsAuthenticated)
