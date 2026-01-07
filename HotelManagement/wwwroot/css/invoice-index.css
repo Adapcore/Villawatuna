@@ -377,7 +377,7 @@
         display: flex;
         align-items: center;
         gap: 8px;
-        padding-left: 42px; /* Align with customer name (icon width + gap) */
+        padding-left: 0px; 
         flex-wrap: wrap;
     }
     
@@ -511,7 +511,7 @@
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
-        margin-left: auto; /* Push to the right */
+        /*margin-left: auto;*/ /* Push to the right */
     }
     
     /* Legacy card styles (kept for backward compatibility if needed) */

@@ -423,83 +423,113 @@ function renderMobileCards(invoices) {
             html += '<div class="invoice-row-compact ' + statusClass + '">';
             html += '<div class="invoice-row-header">';
             html += '<div class="invoice-type-icon"><i class="bi ' + typeIcon + '"></i></div>';
+            html += '<div style="display: flex; align-items: center; gap: 8px; flex: 1;">';
+            html += '<span style="font-size: 0.75rem; color: #6c757d; font-weight: 600;">#' + invoice.invoiceNo + '</span>';
             html += '<div class="invoice-customer-name">' + escapeHtml(invoice.customerName) + '</div>';
-            html += '<div class="invoice-amount">';
-            html += '<div>' + formatCurrency(invoice.grossAmount) + '</div>';
-            // Show curry amount only for Stay and Tour invoices
-            if ((invoice.type === 'Stay' || invoice.type === 'Tour') && 
-                invoice.curryGrossAmount != null && invoice.curryGrossAmount !== undefined && invoice.currency) {
-                html += '<div class="text-primary" style="font-size: 0.75rem;">' +
-                    escapeHtml(invoice.currency) + ' ' +
-                    Number(invoice.curryGrossAmount).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) +
-                    '</div>';
-            }
             html += '</div>';
             html += '</div>';
             
-            // Add Paid and Balance row
-            html += '<div class="invoice-row-amounts" style="display: flex; justify-content: space-between; padding: 5px 0px 5px 42px; border-top: 1px solid #e9ecef;">';
-            html += '<div style="flex: 1; text-align: left;">';
-            html += '<div style="font-size: 0.75rem; color: #6c757d; margin-bottom: 2px;">Paid</div>';
-            html += '<div style="font-size: 0.9rem; font-weight: 600; color: #0d6efd;">' + formatCurrency(invoice.totalPaid || 0) + '</div>';
-            // Show curry amount only for Stay and Tour invoices
+            // Add Total, Paid and Balance rows - three lines with curry amount in middle
+            html += '<div class="invoice-row-amounts" style="padding: 5px 0px 5px 42px; border-top: 1px solid #e9ecef;">';
+            
+            // Total row: Label (left) | Curry amount (middle) | Base amount (right)
+            html += '<div style="display: flex; align-items: center; margin-bottom: 4px;">';
+            html += '<div style="font-size: 0.75rem; color: #6c757d; width: 50px; flex-shrink: 0;">Total</div>';
+            // Curry amount in middle - fixed width for alignment, green color
+            if ((invoice.type === 'Stay' || invoice.type === 'Tour') && 
+                invoice.curryGrossAmount != null && invoice.curryGrossAmount !== undefined && invoice.currency) {
+                html += '<div style="font-size: 0.75rem; color: #198754; width: 80px; flex-shrink: 0; text-align: right; margin-left: 16px;">' +
+                    escapeHtml(invoice.currency) + ' ' +
+                    Number(invoice.curryGrossAmount).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) +
+                    '</div>';
+            } else {
+                html += '<div style="width: 80px; flex-shrink: 0; margin-left: 16px;"></div>'; // Empty space if no curry amount
+            }
+            // Base amount on right
+            html += '<div style="font-size: 0.9rem; font-weight: 600; color: #198754; flex: 1; text-align: right;">' + formatCurrency(invoice.grossAmount) + '</div>';
+            html += '</div>';
+            
+            // Paid row: Label (left) | Curry amount (middle) | Base amount (right)
+            html += '<div style="display: flex; align-items: center; margin-bottom: 4px;">';
+            html += '<div style="font-size: 0.75rem; color: #6c757d; width: 50px; flex-shrink: 0;">Paid</div>';
+            // Curry amount in middle - fixed width for alignment
             if ((invoice.type === 'Stay' || invoice.type === 'Tour') && 
                 invoice.curryTotalPaid != null && invoice.curryTotalPaid !== undefined && invoice.currency) {
-                html += '<div class="text-primary" style="font-size: 0.7rem;">' +
+                html += '<div class="text-primary" style="font-size: 0.75rem; width: 80px; flex-shrink: 0; text-align: right; margin-left: 16px;">' +
                     escapeHtml(invoice.currency) + ' ' +
                     Number(invoice.curryTotalPaid).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) +
                     '</div>';
+            } else {
+                html += '<div style="width: 80px; flex-shrink: 0; margin-left: 16px;"></div>'; // Empty space if no curry amount
             }
+            // Base amount on right
+            html += '<div style="font-size: 0.9rem; font-weight: 600; color: #0d6efd; flex: 1; text-align: right;">' + formatCurrency(invoice.totalPaid || 0) + '</div>';
             html += '</div>';
-            html += '<div style="flex: 1; text-align: right;">';
-            html += '<div style="font-size: 0.75rem; color: #6c757d; margin-bottom: 2px;">Balance</div>';
-            html += '<div style="font-size: 0.9rem; font-weight: 600; color: #dc3545;">' + formatCurrency(invoice.balance || 0) + '</div>';
-            // Show curry amount only for Stay and Tour invoices
+            
+            // Balance row: Label (left) | Curry amount (middle) | Base amount (right)
+            html += '<div style="display: flex; align-items: center;">';
+            html += '<div style="font-size: 0.75rem; color: #6c757d; width: 50px; flex-shrink: 0;">Balance</div>';
+            // Curry amount in middle - same fixed width for alignment
             if ((invoice.type === 'Stay' || invoice.type === 'Tour') && 
                 invoice.curryBalance != null && invoice.curryBalance !== undefined && invoice.currency) {
-                html += '<div class="" style="font-size: 0.7rem; color: #dc3545;">' +
+                html += '<div style="font-size: 0.75rem; color: #dc3545; width: 80px; flex-shrink: 0; text-align: right; margin-left: 16px;">' +
                     escapeHtml(invoice.currency) + ' ' +
                     Number(invoice.curryBalance).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) +
                     '</div>';
+            } else {
+                html += '<div style="width: 80px; flex-shrink: 0; margin-left: 16px;"></div>'; // Empty space if no curry amount
             }
+            // Base amount on right
+            html += '<div style="font-size: 0.9rem; font-weight: 600; color: #dc3545; flex: 1; text-align: right;">' + formatCurrency(invoice.balance || 0) + '</div>';
             html += '</div>';
-            html += '</div>';
-            html += '<div class="invoice-row-footer">';
+            
+            html += '</div>';                     
+            
+            html += '<div class="invoice-row-footer" style="display: flex; justify-content: space-between; align-items: center;">';
 
-            html += '<span class="invoice-number">';
-            html += '<span class="invoice-number-label">INV No</span>';
-            html += '<span class="invoice-number-value">#' + invoice.invoiceNo + '</span>';
+            // Left side: Creator name and Settled On
+            html += '<div style="display: flex; align-items: center; gap: 12px;">';           
+           
+            if (invoice.createdByMember && invoice.createdByMember.name) {
+                // Get only the first name (split by space and take first part)
+                var firstName = invoice.createdByMember.name.split(' ')[0];
+                html += '<span class="invoice-creator">' + escapeHtml(firstName) + '</span>';
+            }
+
+            if (settledOnDisplay) {
+                html += '<span class="invoice-number invoice-settled-on">';
+                html += '<span class="invoice-number-label">Settled On</span>';
+                html += '<span class="invoice-number-value">' + settledOnDisplay + '</span>';
+                html += '</span>';
+            }
+            
+            html += '</div>';
+            
+            // Buttons grouped together on the right: Delete, Payment, View
+            html += '<div style="display: flex; align-items: center; gap: 8px;">';
+            
+            // Delete button if admin
             if (invoiceState.isAdmin === true) {
+                html += '<span class="invoice-number">';
                 html += '<button type="button" class="btn-delete-invoice-icon btn-delete-invoice" ';
                 html += 'data-invoice-id="' + invoice.invoiceNo + '" data-invoice-no="' + invoice.invoiceNo + '" ';
                 html += 'title="Delete Invoice"><i class="bi bi-trash"></i></button>';
+                html += '</span>';
             }
-            html += '</span>';
+            
+            // Payment button
             html += '<button type="button" class="btn-view-payments-icon btn-view-payments-mobile ' + (isPaymentsDisabled ? 'disabled' : '') + '" ';
             html += 'data-invoice-no="' + invoice.invoiceNo + '" ' + (isPaymentsDisabled ? 'disabled' : '') + ' ';
             html += 'title="' + (isPaymentsDisabled ? 'Payments not available for this invoice status' : 'View Payments') + '">';
             html += '<i class="bi bi-credit-card"></i></button>';
+            
+            // View button
             html += '<a href="/Internal/Invoices/Edit/' + invoice.invoiceNo + '" class="btn-view-invoice">';
             html += '<i class="bi bi-eye"></i> View</a>';
-            html += '</div>';
             
-            // Third row: Settled On (left) and invoice-creator (right)
-            if ((invoice.createdByMember && invoice.createdByMember.name) || settledOnDisplay) {
-                html += '<div class="invoice-row-meta">';
-                // Mobile: show Settled On on the left (for Paid invoices only)
-                // Use same label/value classes as INV No for consistent font and color
-                if (settledOnDisplay) {
-                    html += '<span class="invoice-number invoice-settled-on">';
-                    html += '<span class="invoice-number-label">Settled On</span>';
-                    html += '<span class="invoice-number-value">' + settledOnDisplay + '</span>';
-                    html += '</span>';
-                }
-                // Invoice creator on the right
-                if (invoice.createdByMember && invoice.createdByMember.name) {
-                    html += '<span class="invoice-creator">' + escapeHtml(invoice.createdByMember.name) + '</span>';
-                }
-                html += '</div>';
-            }
+            html += '</div>'; // End buttons group
+            html += '</div>'; // End footer
+            
             html += '</div>';
             html += '</div>';
             html += '</div>';
