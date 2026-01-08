@@ -349,6 +349,7 @@ namespace HotelManagement.Controllers
                     customer = d.Invoice.Customer != null
                         ? (d.Invoice.Customer.FirstName + " " + d.Invoice.Customer.LastName)
                         : string.Empty,
+                    roomNo = d.Invoice.Customer != null ? d.Invoice.Customer.RoomNo : null,
                     quantity = d.Quantity,
                     amount = d.Amount
                 })

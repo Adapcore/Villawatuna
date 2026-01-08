@@ -777,7 +777,14 @@ $(document).on('click', '.item-invoices-btn', function () {
                 html += '<tr>';
                 html += '<td><a href="/Internal/Invoices/Edit/' + inv.invoiceNo + '" target="_blank">' + inv.invoiceNo + '</a></td>';
                 html += '<td>' + (inv.date || '') + '</td>';
-                html += '<td>' + escapeHtml(inv.customer || '') + '</td>';
+                // Format customer: "#RoomNo - CustomerName" or just "CustomerName" if no room number
+                var customerDisplay = '';
+                if (inv.roomNo && inv.roomNo.trim() !== '') {
+                    customerDisplay = '#' + escapeHtml(inv.roomNo) + ' - ' + escapeHtml(inv.customer || '');
+                } else {
+                    customerDisplay = escapeHtml(inv.customer || '');
+                }
+                html += '<td>' + customerDisplay + '</td>';
                 html += '<td class="text-end">' + Number(inv.quantity || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + '</td>';
                 html += '<td class="text-end">' + formatCurrency(inv.amount || 0) + '</td>';
                 html += '</tr>';
