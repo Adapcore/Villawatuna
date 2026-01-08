@@ -79,7 +79,7 @@
 
         LoadInvoice: function () {
             var self = this;
-
+            
             self.curySubTotal = self._invoice.curySubTotal;
             self.subTotal = self._invoice.subTotal;
             self.grossTotal = self._invoice.grossAmount;
@@ -1237,6 +1237,10 @@
                 $row.find(".itemId").val(selectedValue);
 
                 if (selectedValue && selectedValue > 0) {
+                    // Clear validation errors when a valid item is selected
+                    $row.removeClass("table-warning");
+                    $select.removeClass("is-invalid");
+                    
                     $row.find(".description").val(name);
 
                     // Update note field requirement indicator
@@ -1272,6 +1276,10 @@
                 $row.find(".itemId").val(selectedValue);
 
                 if (selectedValue && selectedValue > 0) {
+                    // Clear validation errors when a valid item is selected
+                    $row.removeClass("table-warning");
+                    $select.removeClass("is-invalid");
+                    
                     $row.find(".description").val(name);
 
                     // Update note field requirement indicator
@@ -1428,17 +1436,52 @@
                 CurryTotalPaid: 0, // this is calculated from API
                 InvoiceDetails: []
             };
+            
+            // Validate: Check for rows without selected items (ItemId = 0)
+            var hasInvalidRows = false;
+            var invalidRowNumbers = [];
+            $("#invoiceItems tbody tr").each(function (index) {
+                var $row = $(this);
+                var itemId = parseInt($row.find(".itemId").val()) || 0;
+                var itemSelect = $row.find(".orderItemSelect").val() || "";
+                
+                // Check if no item is selected
+                if (itemId === 0 || !itemSelect || itemSelect === "" || itemSelect === "0") {
+                    hasInvalidRows = true;
+                    invalidRowNumbers.push(index + 1);
+                    // Highlight the row and the select dropdown
+                    $row.addClass("table-warning");
+                    $row.find(".orderItemSelect").addClass("is-invalid");
+                } else {
+                    $row.removeClass("table-warning");
+                    $row.find(".orderItemSelect").removeClass("is-invalid");
+                }
+            });
+            
+            // If there are rows without items, show error and prevent save
+            if (hasInvalidRows) {
+                self._isSaving = false;
+                var errorMsg = "Please select an item for row" + (invalidRowNumbers.length > 1 ? "s" : "") + " " + invalidRowNumbers.join(", ") + ", or delete the row(s).";
+                showToastError(errorMsg);
+                return;
+            }
+            
+            // Build invoice details array, only including rows with valid ItemId (greater than 0)
             $("#invoiceItems tbody tr").each(function () {
                 var $row = $(this);
-                invoice.InvoiceDetails.push({
-                    ItemId: parseInt($row.find(".itemId").val()),
-                    Note: $row.find(".note").val(),
-                    CheckIn: $row.find(".checkIn").val(),
-                    CheckOut: $row.find(".checkOut").val(),
-                    Quantity: parseFloat($row.find(".orderQty").val()) || 0,
-                    UnitPrice: parseFloat($row.find(".itemPrice").val()) || 0,
-                    Amount: parseFloat($row.find(".itemTotal").val()) || 0
-                });
+                var itemId = parseInt($row.find(".itemId").val()) || 0;
+                // Only include rows with valid ItemId (greater than 0)
+                if (itemId > 0) {
+                    invoice.InvoiceDetails.push({
+                        ItemId: itemId,
+                        Note: $row.find(".note").val(),
+                        CheckIn: $row.find(".checkIn").val(),
+                        CheckOut: $row.find(".checkOut").val(),
+                        Quantity: parseFloat($row.find(".orderQty").val()) || 0,
+                        UnitPrice: parseFloat($row.find(".itemPrice").val()) || 0,
+                        Amount: parseFloat($row.find(".itemTotal").val()) || 0
+                    });
+                }
             });
 
             var url = "/api/InvoicesApi/Save";
