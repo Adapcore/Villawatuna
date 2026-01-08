@@ -47,6 +47,16 @@ $(document).ready(function () {
         loadItemSales();
     });
 
+    // Refresh when dates are changed manually
+    $('#fromDate, #toDate').on('change', function () {
+        itemSalesState.fromDate = $('#fromDate').val() || null;
+        itemSalesState.toDate = $('#toDate').val() || null;
+        // Clear active state from quick buttons when user picks custom dates
+        $('#btnToday, #btnYesterday, #btnMonth, #btnYear').removeClass('active');
+        itemSalesState.page = 1;
+        loadItemSales();
+    });
+
     // Date helper
     var formatDateLocal = function (date) {
         var year = date.getFullYear();
