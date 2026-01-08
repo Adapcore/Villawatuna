@@ -127,6 +127,17 @@ $(document).ready(function () {
         window.print();
     });
 
+    // Refresh button - reload with current filters
+    $('#btnRefreshItemSales').on('click', function () {
+        // Update state with current filter values
+        itemSalesState.itemId = parseInt($('#itemId').val()) || 0;
+        itemSalesState.fromDate = $('#fromDate').val() || null;
+        itemSalesState.toDate = $('#toDate').val() || null;
+        itemSalesState.category = $('#categoryFilter').val() || 'All';
+        itemSalesState.page = 1; // Reset to first page on refresh
+        loadItemSales();
+    });
+
     // Initial load - current month
     $('#btnMonth').click();
 });
