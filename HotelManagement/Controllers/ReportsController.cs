@@ -5,6 +5,8 @@ using HotelManagement.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Umbraco.Cms.Core.Security;
+using Umbraco.Cms.Core.Services;
 
 namespace HotelManagement.Controllers
 {
@@ -18,6 +20,8 @@ namespace HotelManagement.Controllers
         private readonly IOtherTypeService _otherTypeService;
         private readonly ITourTypeService _tourService;
         private readonly ILaundryService _laundryService;
+        private readonly IMemberManager _memberManager;
+        private readonly IMemberService _memberService;
 
         public ReportsController(
             HotelContext context,
@@ -25,7 +29,9 @@ namespace HotelManagement.Controllers
             IRoomService roomService,
             IOtherTypeService otherTypeService,
             ITourTypeService tourService,
-            ILaundryService laundryService)
+            ILaundryService laundryService,
+            IMemberManager memberManager,
+            IMemberService memberService)
         {
             _context = context;
             _menuService = menuService;
@@ -33,17 +39,46 @@ namespace HotelManagement.Controllers
             _otherTypeService = otherTypeService;
             _tourService = tourService;
             _laundryService = laundryService;
+            _memberManager = memberManager;
+            _memberService = memberService;
+        }
+
+        private bool IsAdmin()
+        {
+            if (User?.Identity?.Name == null)
+                return false;
+
+            var memberIdentity = _memberManager.FindByNameAsync(User.Identity.Name).GetAwaiter().GetResult();
+            if (memberIdentity == null)
+                return false;
+
+            var member = _memberService.GetByKey(memberIdentity.Key);
+            if (member == null)
+                return false;
+
+            var rawType = member.GetValue<string>("userType") ?? "";
+            var userType = rawType.Replace("[", "").Replace("]", "").Replace("\"", "").Trim();
+            return string.Equals(userType, "Admin", StringComparison.OrdinalIgnoreCase);
         }
 
         [HttpGet("ItemWiseSales")]
         public IActionResult ItemWiseSales()
         {
+            if (!IsAdmin())
+            {
+                return RedirectToAction("AccessDenied", "Account");
+            }
             return View();
         }
 
         [HttpGet("GetItemOptions")]
         public async Task<IActionResult> GetItemOptions()
         {
+            if (!IsAdmin())
+            {
+                return Json(new { success = false, message = "Access denied" });
+            }
+
             // Get distinct item ids that appear in Dining/TakeAway invoice details only
             var usedItemIds = await _context.InvoiceDetails
                 .Include(d => d.Invoice)
@@ -75,6 +110,11 @@ namespace HotelManagement.Controllers
             int page = 1,
             int pageSize = 50)
         {
+            if (!IsAdmin())
+            {
+                return Json(new { success = false, message = "Access denied" });
+            }
+
             DateTime? fromDateParsed = null;
             DateTime? toDateParsed = null;
 
@@ -219,6 +259,11 @@ namespace HotelManagement.Controllers
         [HttpGet("GetItemInvoices")]
         public async Task<IActionResult> GetItemInvoices(int itemId, string? fromDate = null, string? toDate = null, string? category = null)
         {
+            if (!IsAdmin())
+            {
+                return Json(new { success = false, message = "Access denied" });
+            }
+
             if (itemId <= 0)
             {
                 return Json(new { success = false, items = Array.Empty<object>() });
