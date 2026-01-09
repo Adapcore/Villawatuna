@@ -3,5 +3,6 @@
     public interface IRoomService
     {
         Task<IEnumerable<ItemDto>> GetRoomCategoriesAsync();
+        Task<string?> GetDefaultCurrencyForBillingAsync();
     }   
 }

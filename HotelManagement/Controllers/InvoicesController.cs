@@ -30,6 +30,8 @@ namespace HotelManagement.Controllers
         private readonly IMenuService _menuService;
         private readonly ICurrencyService _currencyService;
         private readonly IPaymentService _paymentService;
+        private readonly IRoomService _roomService;
+        private readonly ITourTypeService _tourTypeService;
         private readonly int _pageSize;
         private readonly IMemberManager _memberManager;
         private readonly IMemberService _memberService;
@@ -40,6 +42,8 @@ namespace HotelManagement.Controllers
             IMenuService menuService,
             ICurrencyService currencyService,
             IPaymentService paymentService,
+            IRoomService roomService,
+            ITourTypeService tourTypeService,
             IOptions<PaginationSettings> paginationSettings,
             IMemberManager memberManager,
             IMemberService memberService)
@@ -49,6 +53,8 @@ namespace HotelManagement.Controllers
             _menuService = menuService;
             _currencyService = currencyService;
             _paymentService = paymentService;
+            _roomService = roomService;
+            _tourTypeService = tourTypeService;
             _pageSize = paginationSettings.Value.DefaultPageSize;
             _memberManager = memberManager;
             _memberService = memberService;
@@ -230,6 +236,25 @@ namespace HotelManagement.Controllers
 
             // Pass currency data with exchange rates for JavaScript
             ViewBag.CurrencyData = currencyTypes;
+
+            // Get default currency from Umbraco based on invoice type
+            string? defaultCurrency = null;
+            var invoiceType = (InvoiceType)model.Type;
+            
+            if (invoiceType == InvoiceType.Stay)
+            {
+                defaultCurrency = await _roomService.GetDefaultCurrencyForBillingAsync();
+            }
+            else if (invoiceType == InvoiceType.Tour)
+            {
+                defaultCurrency = await _tourTypeService.GetDefaultCurrencyForBillingAsync();
+            }
+
+            // Set default currency in model if found
+            if (!string.IsNullOrWhiteSpace(defaultCurrency))
+            {
+                model.Currency = defaultCurrency;
+            }
 
             ViewBag.InvoicePaymentTypes = Enum.GetValues(typeof(InvoicePaymentType))
                            .Cast<InvoicePaymentType>().Select(s => new SelectListItem
