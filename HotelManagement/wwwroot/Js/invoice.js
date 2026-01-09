@@ -1467,11 +1467,13 @@
             }
             
             // Build invoice details array, only including rows with valid ItemId (greater than 0)
+            var validItemCount = 0;
             $("#invoiceItems tbody tr").each(function () {
                 var $row = $(this);
                 var itemId = parseInt($row.find(".itemId").val()) || 0;
                 // Only include rows with valid ItemId (greater than 0)
                 if (itemId > 0) {
+                    validItemCount++;
                     invoice.InvoiceDetails.push({
                         ItemId: itemId,
                         Note: $row.find(".note").val(),
@@ -1483,6 +1485,13 @@
                     });
                 }
             });
+
+            // Validate that at least one valid item is added
+            if (validItemCount === 0) {
+                self._isSaving = false;
+                showToastError("Invoice must have at least one valid item. Please add an item before saving.");
+                return;
+            }
 
             var url = "/api/InvoicesApi/Save";
 
@@ -1520,6 +1529,7 @@
 
             let isValid = true;
             let errors = [];
+            let validItemCount = 0;
 
             // Validate all invoice detail rows
             $("#invoiceItems tbody tr").each(function (index) {
@@ -1604,6 +1614,9 @@
                     } else {
                         $row.find(".note").removeClass("is-invalid");
                     }
+
+                    // Item passed all validations, increment valid item count
+                    validItemCount++;
                 }
 
                 //if (!$("#ReferenceNo").val()) {
@@ -1620,16 +1633,19 @@
                     $("#CustomerId").removeClass("is-invalid");
                 }
 
+                // Validate that at least one valid item is added
+                if (validItemCount === 0) {
+                    showToastError("Invoice must have at least one valid item. Please add an item before saving.");
+                    isValid = false;
+                    return false;
+                }
+
                 var grossAmount = self.ParseNumber($("#grossAmount").html());
                 if (grossAmount <= 0) {
                     showToastError("Gross amount must be greater than zero.");
                     isValid = false;
                     return false;
                 }
-                //if ($("#invoiceDetailsTable tbody tr").length === 0) {
-                //    alert("Please add at least one invoice detail.");
-                //   isValid = false;
-                //}
 
                 var paidAmount = self.ParseNumber($("#txtPayment").val());
                 var balanceAmount = self.ParseNumber($("#txtBalance").html());
