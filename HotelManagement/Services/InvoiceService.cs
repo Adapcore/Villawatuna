@@ -209,7 +209,6 @@ namespace HotelManagement.Services
 
         public async Task UpdateInvoiceAsync(Invoice invoice)
         {
-
             _context.Entry(invoice).State = EntityState.Modified;
             await _context.SaveChangesAsync();
         }

@@ -119,8 +119,9 @@ namespace HotelManagement.Controllers.API
                 await _invoiceService.DeleteInvoiceDetailsAsync(invoice.InvoiceNo);
 
                 // Add new details from the model
-                invoice.InvoiceDetails = model.InvoiceDetails.Select(d => new InvoiceDetail
+                invoice.InvoiceDetails = model.InvoiceDetails.Select((d, index) => new InvoiceDetail
                 {
+                    LineNumber = index + 1,
                     ItemId = d.ItemId,
                     Note = d.Note,
                     CheckIn = d.CheckIn,
@@ -144,80 +145,80 @@ namespace HotelManagement.Controllers.API
             return Ok(new { success = true, invoice = new CreateInvoiceViewModel(invoice) });
         }
 
-        [Obsolete]
-        [HttpPost("update")]
-        public async Task<IActionResult> Update([FromBody] CreateInvoiceViewModel model)
-        {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+        //[Obsolete]
+        //[HttpPost("update")]
+        //public async Task<IActionResult> Update([FromBody] CreateInvoiceViewModel model)
+        //{
+        //    if (!ModelState.IsValid)
+        //        return BadRequest(ModelState);
 
-            if (model.Paid < 0)
-                return BadRequest(ModelState);
+        //    if (model.Paid < 0)
+        //        return BadRequest(ModelState);
 
-            // Get the existing invoice
-            var invoice = await _invoiceService.GetByIdAsync(model.InvoiceNo);
-            if (invoice == null)
-                return NotFound(new { message = "Invoice not found." });
+        //    // Get the existing invoice
+        //    var invoice = await _invoiceService.GetByIdAsync(model.InvoiceNo);
+        //    if (invoice == null)
+        //        return NotFound(new { message = "Invoice not found." });
 
-            // Update header fields
-            invoice.Date = model.Date;
-            invoice.ReferenceNo = model.ReferenceNo;
-            invoice.CustomerId = model.CustomerId;
-            invoice.Note = model.Note;
-            invoice.Status = (InvoiceStatus)model.Status;
-            invoice.CurySubTotal = model.CurySubTotal;
-            invoice.SubTotal = model.SubTotal;
-            invoice.ServiceCharge = model.ServiceCharge;
-            invoice.GrossAmount = model.GrossAmount;
+        //    // Update header fields
+        //    invoice.Date = model.Date;
+        //    invoice.ReferenceNo = model.ReferenceNo;
+        //    invoice.CustomerId = model.CustomerId;
+        //    invoice.Note = model.Note;
+        //    invoice.Status = (InvoiceStatus)model.Status;
+        //    invoice.CurySubTotal = model.CurySubTotal;
+        //    invoice.SubTotal = model.SubTotal;
+        //    invoice.ServiceCharge = model.ServiceCharge;
+        //    invoice.GrossAmount = model.GrossAmount;
 
-            if (model.Paid > 0)
-            {
-                if (model.Paid > invoice.Balance)
-                    return BadRequest(ModelState);
+        //    if (model.Paid > 0)
+        //    {
+        //        if (model.Paid > invoice.Balance)
+        //            return BadRequest(ModelState);
 
-                else if (model.Paid == invoice.Balance)
-                    invoice.Status = InvoiceStatus.Paid;
+        //        else if (model.Paid == invoice.Balance)
+        //            invoice.Status = InvoiceStatus.Paid;
 
-                else
-                    invoice.Status = InvoiceStatus.PartiallyPaid;
+        //        else
+        //            invoice.Status = InvoiceStatus.PartiallyPaid;
 
-                invoice.Balance = invoice.Balance - model.Paid;
-                invoice.TotalPaid = invoice.GrossAmount - invoice.Balance;
-            }
+        //        invoice.Balance = invoice.Balance - model.Paid;
+        //        invoice.TotalPaid = invoice.GrossAmount - invoice.Balance;
+        //    }
 
-            // Delete existing details before adding new ones
-            await _invoiceService.DeleteInvoiceDetailsAsync(invoice.InvoiceNo);
+        //    // Delete existing details before adding new ones
+        //    await _invoiceService.DeleteInvoiceDetailsAsync(invoice.InvoiceNo);
 
-            // Add new details from the model
-            invoice.InvoiceDetails = model.InvoiceDetails.Select(d => new InvoiceDetail
-            {
-                ItemId = d.ItemId,
-                Note = d.Note,
-                CheckIn = d.CheckIn,
-                CheckOut = d.CheckOut,
-                Quantity = d.Quantity,
-                UnitPrice = d.UnitPrice,
-                Amount = d.Amount
-            }).ToList();
+        //    // Add new details from the model
+        //    invoice.InvoiceDetails = model.InvoiceDetails.Select(d => new InvoiceDetail
+        //    {
+        //        ItemId = d.ItemId,
+        //        Note = d.Note,
+        //        CheckIn = d.CheckIn,
+        //        CheckOut = d.CheckOut,
+        //        Quantity = d.Quantity,
+        //        UnitPrice = d.UnitPrice,
+        //        Amount = d.Amount
+        //    }).ToList();
 
-            // Save changes
-            await _invoiceService.UpdateInvoiceAsync(invoice);
+        //    // Save changes
+        //    await _invoiceService.UpdateInvoiceAsync(invoice);
 
-            // Add a payment record
-            if (model.Paid > 0)
-            {
-                InvoicePaymentType paymentType = (InvoicePaymentType)(model.PaymentType == 0 ? (int)InvoicePaymentType.Cash : model.PaymentType);
-                await _paymentService.AddPaymentForInvoiceAsync(invoice.InvoiceNo, model.Paid, paymentType, model.PaymentReference, model.CurryLastPaid, model.PaidCurrency);
-                invoice.LastPaymentType = paymentType;
-            }
+        //    // Add a payment record
+        //    if (model.Paid > 0)
+        //    {
+        //        InvoicePaymentType paymentType = (InvoicePaymentType)(model.PaymentType == 0 ? (int)InvoicePaymentType.Cash : model.PaymentType);
+        //        await _paymentService.AddPaymentForInvoiceAsync(invoice.InvoiceNo, model.Paid, paymentType, model.PaymentReference, model.CurryLastPaid, model.PaidCurrency);
+        //        invoice.LastPaymentType = paymentType;
+        //    }
 
-            return Ok(new
-            {
-                success = true,
-                message = "Invoice updated successfully",
-                invoiceNo = invoice.InvoiceNo
-            });
-        }
+        //    return Ok(new
+        //    {
+        //        success = true,
+        //        message = "Invoice updated successfully",
+        //        invoiceNo = invoice.InvoiceNo
+        //    });
+        //}
 
     }
 
