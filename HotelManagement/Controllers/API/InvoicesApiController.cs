@@ -57,7 +57,7 @@ namespace HotelManagement.Controllers.API
                 if (invoice.TotalPaid > invoice.GrossAmount)
                     return BadRequest(ModelState);
 
-                else if (invoice.TotalPaid == invoice.GrossAmount)
+                else if (invoice.TotalPaid == invoice.GrossAmount && invoice.Status == InvoiceStatus.Complete)
                     invoice.Status = InvoiceStatus.Paid;
 
                 else if (invoice.TotalPaid > 0)
@@ -120,6 +120,10 @@ namespace HotelManagement.Controllers.API
                     invoice.CurryBalance = invoice.Balance == 0 ? 0 : invoice.Balance / invoice.CurrencyRate;
                     invoice.TotalPaid = invoice.GrossAmount - invoice.Balance;
                     invoice.CurryTotalPaid = invoice.TotalPaid == 0 ? 0 : invoice.TotalPaid / invoice.CurrencyRate;
+                }
+                else if(invoice.TotalPaid == invoice.GrossAmount && invoice.Status == InvoiceStatus.Complete)
+                {
+                    invoice.Status = InvoiceStatus.Paid;
                 }
 
                 // Delete existing details before adding new ones
