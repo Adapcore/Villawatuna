@@ -1568,14 +1568,15 @@
                         return false;
                     }
                     const price = parseFloat(priceValue);
-                    if (price <= 0) {
-                        $row.find(".itemPrice").addClass("is-invalid");
-                        showToastError(`Row ${index + 1}: Price must be greater than zero.`);
-                        isValid = false;
-                        return false;
-                    } else {
-                        $row.find(".itemPrice").removeClass("is-invalid");
-                    }
+                    // Allowed Zero Price
+                    //if (price <= 0) {
+                    //    $row.find(".itemPrice").addClass("is-invalid");
+                    //    showToastError(`Row ${index + 1}: Price must be greater than zero.`);
+                    //    isValid = false;
+                    //    return false;
+                    //} else {
+                    //    $row.find(".itemPrice").removeClass("is-invalid");
+                    //}
 
                     // Validate Amount field
                     const amountValue = $row.find(".itemTotal").val();
@@ -1586,14 +1587,15 @@
                         return false;
                     }
                     const amount = parseFloat(amountValue);
-                    if (amount <= 0) {
-                        $row.find(".itemTotal").addClass("is-invalid");
-                        showToastError(`Row ${index + 1}: Amount must be greater than zero.`);
-                        isValid = false;
-                        return false;
-                    } else {
-                        $row.find(".itemTotal").removeClass("is-invalid");
-                    }
+                    // Allowed Zero Price
+                    //if (amount <= 0) {
+                    //    $row.find(".itemTotal").addClass("is-invalid");
+                    //    showToastError(`Row ${index + 1}: Amount must be greater than zero.`);
+                    //    isValid = false;
+                    //    return false;
+                    //} else {
+                    //    $row.find(".itemTotal").removeClass("is-invalid");
+                    //}
 
                     // Validate calculated amount matches Qty * Price
                     const calculatedAmount = qty * price;
@@ -1641,11 +1643,13 @@
                 }
 
                 var grossAmount = self.ParseNumber($("#grossAmount").html());
-                if (grossAmount <= 0) {
-                    showToastError("Gross amount must be greater than zero.");
-                    isValid = false;
-                    return false;
-                }
+
+                // Allowed Zero Price
+                //if (grossAmount <= 0) {
+                //    showToastError("Gross amount must be greater than zero.");
+                //    isValid = false;
+                //    return false;
+                //}
 
                 var paidAmount = self.ParseNumber($("#txtPayment").val());
                 var balanceAmount = self.ParseNumber($("#txtBalance").html());
@@ -1664,8 +1668,6 @@
                     isValid = false;
                     return false;
                 }
-
-
 
                 // Validate Stay type specific fields
                 if (self._type == 3) {

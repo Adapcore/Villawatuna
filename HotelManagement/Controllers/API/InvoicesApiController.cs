@@ -32,9 +32,9 @@ namespace HotelManagement.Controllers.API
 
             // Validate that invoice has at least one valid item
             if (model.InvoiceDetails == null || !model.InvoiceDetails.Any() || 
-                !model.InvoiceDetails.Any(d => d.ItemId > 0 && d.Quantity > 0 && d.Amount > 0))
+                !model.InvoiceDetails.Any(d => d.ItemId > 0 && d.Quantity > 0)) //&& d.Amount > 0
             {
-                return BadRequest(new { message = "Invoice must have at least one valid item with ItemId, Quantity, and Amount greater than zero." });
+                return BadRequest(new { message = "Invoice must have at least one valid item with ItemId and Quantity greater than zero." });
             }
 
             // Validate payment reference for non-cash methods when paying
