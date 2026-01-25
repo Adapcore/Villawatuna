@@ -30,6 +30,7 @@ namespace HotelManagement.Models.ViewModels
         public decimal ServiceCharge { get; set; }
         public decimal GrossAmount { get; set; }
         public decimal Paid { get; set; }
+        public decimal CurryPaid { get; set; }
         public decimal Balance { get; set; }
         public decimal Cash { get; set; }
         public decimal Change { get; set; }

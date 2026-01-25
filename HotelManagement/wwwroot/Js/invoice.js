@@ -79,7 +79,7 @@
 
         LoadInvoice: function () {
             var self = this;
-            
+
             self.curySubTotal = self._invoice.curySubTotal;
             self.subTotal = self._invoice.subTotal;
             self.grossTotal = self._invoice.grossAmount;
@@ -87,7 +87,7 @@
 
             $("#InvoiceNo").val(self._invoice.invoiceNo);
             if (self._invoice.invoiceNo && self._invoice.invoiceNo > 0) {
-                $("#lblInvoiceNoDisplay").html("<strong>#"+ self._invoice.invoiceNo +"</strong>");
+                $("#lblInvoiceNoDisplay").html("<strong>#" + self._invoice.invoiceNo + "</strong>");
             } else {
                 $("#lblInvoiceNoDisplay").html('<span class="text-muted">Auto-generated</span>');
             }
@@ -115,16 +115,17 @@
             $('#txtLastPaid').html(self._formatter.format(self._invoice.cash));
 
             $("#txtPayment").val(0);
+            $("#txtCurryPayment").val(0);
             $("#txtCash").val(0);
             $("#txtBalanceDue").html(self._formatter.format(self._invoice.balance));
 
             var selectedCurrency = $("#ddlCurrency").val() || self._baseCurrency;
             var currencyCode = self._invoice.currency || selectedCurrency;
-            
+
             // Set currency codes in the new columns
             $('.baseCurrencyCode').text(self._baseCurrency);
             $('.selectedCurrencyCode').text(currencyCode);
-            
+
             if (self._baseCurrency != selectedCurrency) {
                 // Set currency amounts (without currency code)
                 $('#txtCurryPaid').html(self._formatter.format(self._invoice.curryTotalPaid));
@@ -1240,7 +1241,7 @@
                     // Clear validation errors when a valid item is selected
                     $row.removeClass("table-warning");
                     $select.removeClass("is-invalid");
-                    
+
                     $row.find(".description").val(name);
 
                     // Update note field requirement indicator
@@ -1279,7 +1280,7 @@
                     // Clear validation errors when a valid item is selected
                     $row.removeClass("table-warning");
                     $select.removeClass("is-invalid");
-                    
+
                     $row.find(".description").val(name);
 
                     // Update note field requirement indicator
@@ -1415,6 +1416,7 @@
                 ServiceCharge: self.ParseNumber($("#serviceCharge").html()) || 0,
                 GrossAmount: grossAmount,
                 Paid: self.ParseNumber($("#txtPayment").val()),
+                CurryPaid: self.ParseNumber($("#txtCurryPayment").val()),
                 Cash: cash,
                 Balance: balance,// this is re-calculated from API
                 Change: change,
@@ -1436,7 +1438,7 @@
                 CurryTotalPaid: 0, // this is calculated from API
                 InvoiceDetails: []
             };
-            
+
             // Validate: Check for rows without selected items (ItemId = 0)
             var hasInvalidRows = false;
             var invalidRowNumbers = [];
@@ -1444,7 +1446,7 @@
                 var $row = $(this);
                 var itemId = parseInt($row.find(".itemId").val()) || 0;
                 var itemSelect = $row.find(".orderItemSelect").val() || "";
-                
+
                 // Check if no item is selected
                 if (itemId === 0 || !itemSelect || itemSelect === "" || itemSelect === "0") {
                     hasInvalidRows = true;
@@ -1457,7 +1459,7 @@
                     $row.find(".orderItemSelect").removeClass("is-invalid");
                 }
             });
-            
+
             // If there are rows without items, show error and prevent save
             if (hasInvalidRows) {
                 self._isSaving = false;
@@ -1465,7 +1467,7 @@
                 showToastError(errorMsg);
                 return;
             }
-            
+
             // Build invoice details array, only including rows with valid ItemId (greater than 0)
             var validItemCount = 0;
             $("#invoiceItems tbody tr").each(function () {
@@ -1812,10 +1814,9 @@
             var payment = 0;
             var balanceDue = 0;
             var curryBalanceDue = 0;
+            var curryPayment = 0;
 
             if (self._baseCurrency != selectedCurrency && selectedPaidCurrency == 1) {
-
-                var curryPayment = 0;
 
                 if (cash >= curryBalance) {
                     curryPayment = curryBalance;
@@ -1854,12 +1855,14 @@
                     payment = cash;
                     balanceDue = balance - cash;
                 }
+                curryPayment = payment;
             }
 
             curryBalanceDue = balanceDue / currencyRate;
             self.txtCash = cash;
 
             $("#txtPayment").val(payment);// this is hidden text
+            $("#txtCurryPayment").val(curryPayment);// this is hidden text
             $("#txtBalanceDue").html(self._formatter.format(balanceDue));
             $("#txtCurryBalanceDue").html(self._formatter.format(curryBalanceDue));
         },
