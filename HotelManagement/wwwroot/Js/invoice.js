@@ -1608,6 +1608,8 @@
                     //    $row.find(".itemTotal").removeClass("is-invalid");
                     //}
 
+                    // DISABLED: Allow any line Amount; uncomment block below to restore Qty × Price match validation.
+                    /*
                     // Validate calculated amount matches Qty * Price
                     const calculatedAmount = qty * price;
                     const amountDifference = Math.abs(amount - calculatedAmount);
@@ -1617,6 +1619,7 @@
                         isValid = false;
                         return false;
                     }
+                    */
 
                     // Validate note required field
                     if (noteRequired && (!note || note.trim().length === 0)) {
