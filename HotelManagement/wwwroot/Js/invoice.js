@@ -1,4 +1,4 @@
-﻿(function ($) {
+(function ($) {
     $.fn.invoice = function (options) {
         return new $.invoice(this, options);
     };
@@ -231,8 +231,7 @@
                     $('#btnReOpen').show();
                     // Bind click event when button is shown
                     $('#btnReOpen').off('click').on('click', function () {
-                        $("#Status").val(1);
-                        self.Save();
+                        self.Save({ statusOverride: 1 });
                     });
                 }
                 $('#btnPay').show();
@@ -1340,8 +1339,9 @@
             self.UpdateRowTotal(row);
         },
 
-        Save: function () {
+        Save: function (saveOptions) {
             var self = this;
+            saveOptions = saveOptions || {};
 
             // Prevent multiple saves
             if (self._isSaving) {
@@ -1351,7 +1351,16 @@
 
             self._isSaving = true;
 
-            if (!self.ValidateInvoice()) {
+            var currentStatus = parseInt($("#Status").val(), 10);
+            var savingStatus = $("#Status").val();
+
+            var statusOverride = saveOptions.statusOverride;
+            if (statusOverride !== undefined && statusOverride !== null) {
+                savingStatus = String(statusOverride);
+            }
+
+            // Validate only when the form shows In Progress (reopen: currentStatus stays Complete, savingStatus uses override)
+            if (currentStatus === 1 && !self.ValidateInvoice()) {
                 self._isSaving = false;
                 return;
             }
@@ -1405,7 +1414,7 @@
                 Type: $("#Type").val(),
                 Currency: $("#ddlCurrency").val(),
                 CurrencyRate: self.ParseNumber($("#txtCurrencyRate").val()) || 1,
-                Status: $("#Status").val(),
+                Status: savingStatus,
                 ReferenceNo: $("#ReferenceNo").val(),
                 CustomerId: $("#CustomerId").val(),
                 Note: $("#Note").val(),
