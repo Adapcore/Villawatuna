@@ -31,51 +31,9 @@
     }
 }
 
+<link rel="stylesheet" href="~/css/leaves-calendar.css?v=@Configuration["Assets:Version"]" />
+
 <div class="container-fluid py-3">
-    <style>
-        /* Make status filters more visible on mobile */
-        @@media (max-width: 767.98px) {
-            .calendar-status-filters {
-                background: #f8f9fa;
-                border: 1px solid rgba(0,0,0,.1);
-                border-radius: 10px;
-                padding: 10px 12px;
-            }
-
-            .calendar-status-filters .form-check {
-                background: #ffffff;
-                border: 1px solid rgba(0,0,0,.1);
-                border-radius: 10px;
-                padding: 10px 12px;
-                margin: 0;
-                min-width: 110px;
-                display: flex;
-                align-items: center;
-                gap: 10px;
-                box-shadow: 0 1px 2px rgba(0,0,0,.06);
-            }
-
-            .calendar-status-filters .form-check-input {
-                transform: scale(1.35);
-            }
-
-            .calendar-status-filters .form-check-label {
-                font-weight: 700;
-                font-size: 0.95rem;
-            }
-        }
-
-        /* Desktop toolbar highlight + spacing */
-        @@media (min-width: 768px) {
-            .calendar-toolbar {
-                background: rgba(13, 110, 253, 0.08); /* bootstrap primary subtle-ish */
-                border: 1px solid rgba(13, 110, 253, 0.25);
-                border-radius: 12px;
-                padding: 12px 14px;
-                margin-bottom: 18px;
-            }
-        }
-    </style>
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h1 class="fw-bold text-primary mb-0 fs-2">📅 Leaves Calendar</h1>
         <!-- Desktop actions -->
@@ -121,19 +79,19 @@
                        asp-route-showRejected="@Model.CalendarShowRejected">Next</a>
                 </div>
 
-                <form method="get" class="m-0" id="calendarFilterForm">
+                <form method="get" class="m-0" id="calendarFilterForm" data-calendar-url="@Url.Action("Calendar", "Leaves")">
                     <input type="hidden" name="year" value="@monthStart.Year" />
                     <input type="hidden" name="month" value="@monthStart.Month" />
                     <div class="calendar-status-filters d-flex gap-2 flex-wrap justify-content-md-end">
-                        <div class="form-check" style="border-left: 6px solid #ffc107;">
+                        <div class="form-check calendar-filter-open">
                             <input class="form-check-input" type="checkbox" id="showOpen" @(Model.CalendarShowOpen ? "checked" : "") />
                             <label class="form-check-label" for="showOpen">Open</label>
                         </div>
-                        <div class="form-check" style="border-left: 6px solid #198754;">
+                        <div class="form-check calendar-filter-approved">
                             <input class="form-check-input" type="checkbox" id="showApproved" @(Model.CalendarShowApproved ? "checked" : "") />
                             <label class="form-check-label" for="showApproved">Approved</label>
                         </div>
-                        <div class="form-check" style="border-left: 6px solid #dc3545;">
+                        <div class="form-check calendar-filter-rejected">
                             <input class="form-check-input" type="checkbox" id="showRejected" @(Model.CalendarShowRejected ? "checked" : "") />
                             <label class="form-check-label" for="showRejected">Rejected</label>
                         </div>
@@ -145,33 +103,7 @@
                 @monthStart.ToString("MMMM yyyy")
             </div>
 
-            <script>
-                (function () {
-                    const form = document.getElementById('calendarFilterForm');
-                    const openCb = document.getElementById('showOpen');
-                    const approvedCb = document.getElementById('showApproved');
-                    const rejectedCb = document.getElementById('showRejected');
-                    if (!form || !openCb || !approvedCb || !rejectedCb) return;
-
-                    function navigateWithFilters() {
-                        const year = form.querySelector('input[name="year"]')?.value;
-                        const month = form.querySelector('input[name="month"]')?.value;
-
-                        const params = new URLSearchParams();
-                        if (year) params.set('year', year);
-                        if (month) params.set('month', month);
-                        params.set('showOpen', openCb.checked ? 'true' : 'false');
-                        params.set('showApproved', approvedCb.checked ? 'true' : 'false');
-                        params.set('showRejected', rejectedCb.checked ? 'true' : 'false');
-
-                        window.location.href = '@Url.Action("Calendar", "Leaves")' + '?' + params.toString();
-                    }
-
-                    openCb.addEventListener('change', navigateWithFilters);
-                    approvedCb.addEventListener('change', navigateWithFilters);
-                    rejectedCb.addEventListener('change', navigateWithFilters);
-                })();
-            </script>
+            <script src="~/js/leaves-calendar.js" asp-append-version="true"></script>
 
             <!-- Desktop/tablet grid -->
             <div class="table-responsive d-none d-md-block">
@@ -180,7 +112,7 @@
                         <tr>
                             @foreach (var dn in dayNames)
                             {
-                                <th class="text-center" style="min-width: 150px;">@dn</th>
+                                <th class="text-center calendar-day-header">@dn</th>
                             }
                         </tr>
                     </thead>
@@ -199,7 +131,7 @@
                                         .OrderBy(l => l.FromDate)
                                         .ToList();
 
-                                    <td class="p-2 @(inMonth ? "" : "bg-light text-muted") @(isToday ? "bg-primary-subtle" : "")" style="vertical-align: top;">
+                                    <td class="p-2 calendar-day-cell @(inMonth ? "" : "bg-light text-muted") @(isToday ? "bg-primary-subtle" : "")">
                                         <div class="d-flex justify-content-between align-items-center mb-1">
                                             <div class="fw-bold @(isToday ? "text-primary" : "")">@day.Day</div>
                                             @if (isToday)

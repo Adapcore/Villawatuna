@@ -118,19 +118,6 @@
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-    <script>
-        (function () {
-            const durationSelect = document.getElementById('durationSelect');
-            const halfDayRow = document.getElementById('halfDayRow');
-
-            function toggleHalfDay() {
-                const isHalfDay = durationSelect && durationSelect.value === '2';
-                if (halfDayRow) halfDayRow.style.display = isHalfDay ? '' : 'none';
-            }
-
-            if (durationSelect) durationSelect.addEventListener('change', toggleHalfDay);
-            toggleHalfDay();
-        })();
-    </script>
+    <script src="~/js/leaves-edit.js" asp-append-version="true"></script>
 }
 

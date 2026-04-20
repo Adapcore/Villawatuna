@@ -1,0 +1,65 @@
+/* Leaves Calendar page styles */
+
+/* Desktop day header/cell layout */
+.calendar-day-header {
+  min-width: 150px;
+}
+
+.calendar-day-cell {
+  vertical-align: top;
+}
+
+/* Desktop toolbar highlight + spacing */
+@media (min-width: 768px) {
+  .calendar-toolbar {
+    background: rgba(13, 110, 253, 0.08); /* bootstrap primary subtle-ish */
+    border: 1px solid rgba(13, 110, 253, 0.25);
+    border-radius: 12px;
+    padding: 12px 14px;
+    margin-bottom: 18px;
+  }
+}
+
+/* Mobile: make status filters more visible */
+@media (max-width: 767.98px) {
+  .calendar-status-filters {
+    background: #f8f9fa;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    padding: 10px 12px;
+  }
+
+  .calendar-status-filters .form-check {
+    background: #ffffff;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    padding: 10px 12px;
+    margin: 0;
+    min-width: 110px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+  }
+
+  .calendar-status-filters .form-check-input {
+    transform: scale(1.35);
+  }
+
+  .calendar-status-filters .form-check-label {
+    font-weight: 700;
+    font-size: 0.95rem;
+  }
+}
+
+/* Status left-border accents */
+.calendar-filter-open {
+  border-left: 6px solid #ffc107;
+}
+.calendar-filter-approved {
+  border-left: 6px solid #198754;
+}
+.calendar-filter-rejected {
+  border-left: 6px solid #dc3545;
+}
+

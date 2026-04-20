@@ -1,0 +1,13 @@
+/* Leaves list page styles */
+
+/* Desktop table min-widths */
+.leave-col-id { min-width: 70px; }
+.leave-col-employee { min-width: 200px; }
+.leave-col-requested { min-width: 130px; }
+.leave-col-from { min-width: 110px; }
+.leave-col-to { min-width: 110px; }
+.leave-col-days { min-width: 80px; }
+.leave-col-reason { min-width: 180px; }
+.leave-col-status { min-width: 110px; }
+.leave-col-actions { min-width: 220px; }
+

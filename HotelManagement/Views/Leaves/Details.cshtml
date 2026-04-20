@@ -97,39 +97,6 @@
 </div>
 
 @section Scripts {
-    <script>
-        (function () {
-            if (typeof showConfirmDialog !== 'function') return;
-
-            var approveBtn = document.querySelector('.js-leave-approve-btn');
-            var rejectBtn = document.querySelector('.js-leave-reject-btn');
-
-            function wire(btn, message, options) {
-                if (!btn) return;
-                btn.addEventListener('click', function (e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    var form = btn.closest('form');
-                    if (!form) return;
-                    showConfirmDialog(message, function (confirmed) {
-                        if (confirmed) form.submit();
-                    }, options);
-                    return false;
-                });
-            }
-
-            var id = (approveBtn && approveBtn.getAttribute('data-leave-id')) || (rejectBtn && rejectBtn.getAttribute('data-leave-id')) || '';
-            wire(
-                approveBtn,
-                'Do you want to approve Leave #' + id + '?',
-                { type: 'Success', title: 'Approve Leave', yesButtonText: 'Yes, Approve', noButtonText: 'No', dialogId: 'approveLeaveDialog_details_' + id }
-            );
-            wire(
-                rejectBtn,
-                'Do you want to reject Leave #' + id + '?',
-                { type: 'Danger', title: 'Reject Leave', yesButtonText: 'Yes, Reject', noButtonText: 'No', warningText: 'This action cannot be undone.', dialogId: 'rejectLeaveDialog_details_' + id }
-            );
-        })();
-    </script>
+    <script src="~/js/leaves-confirm.js" asp-append-version="true"></script>
 }
 
