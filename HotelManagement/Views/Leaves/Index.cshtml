@@ -19,7 +19,8 @@
 <div class="container-fluid py-3">
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h1 class="fw-bold text-primary mb-0 fs-2">🗓️ Employee Leaves</h1>
-        <div class="d-flex gap-2">
+        <!-- Desktop actions (keep previous layout) -->
+        <div class="d-none d-md-flex gap-2">
             <a asp-controller="Leaves" asp-action="Calendar" class="btn btn-outline-primary btn-sm d-flex align-items-center gap-2 px-3 py-2">
                 <i class="bi bi-calendar3"></i>
                 <span>Calendar</span>
@@ -29,6 +30,18 @@
                 <span>Add Leave</span>
             </a>
         </div>
+    </div>
+
+    <!-- Mobile actions (move to next line) -->
+    <div class="d-flex d-md-none gap-2 flex-column mb-3">
+        <a asp-controller="Leaves" asp-action="Calendar" class="btn btn-outline-primary btn-sm d-flex align-items-center justify-content-center gap-2 px-3 py-2 w-100">
+            <i class="bi bi-calendar3"></i>
+            <span>Calendar</span>
+        </a>
+        <a asp-controller="Leaves" asp-action="Apply" class="btn btn-success btn-sm d-flex align-items-center justify-content-center gap-2 px-3 py-2 w-100">
+            <i class="bi bi-plus-circle"></i>
+            <span>Add Leave</span>
+        </a>
     </div>
 
     <!-- Filters -->
@@ -58,7 +71,6 @@
                         <a class="btn btn-sm @(activeRange == "today" ? "btn-secondary" : "btn-outline-secondary")" asp-action="Index" asp-route-range="today">Today</a>
                         <a class="btn btn-sm @(activeRange == "month" ? "btn-secondary" : "btn-outline-secondary")" asp-action="Index" asp-route-range="month">Month</a>
                         <a class="btn btn-sm @(activeRange == "year" ? "btn-secondary" : "btn-outline-secondary")" asp-action="Index" asp-route-range="year">Year</a>
-                        <button type="submit" class="btn btn-primary btn-sm">Filter</button>
                         <a class="btn btn-outline-dark btn-sm" asp-action="Index">Clear</a>
                     </div>
                 </div>
@@ -66,23 +78,60 @@
         </div>
     </div>
 
-    <!-- Total days -->
-    <div class="d-flex justify-content-between align-items-center mb-2">
-        <div class="small text-muted">
-            Ordered by <strong>From Date ASC</strong>
+    <!-- Totals -->
+    <div class="mb-2">
+        <!-- Desktop: single line -->
+        <div class="d-none d-md-flex justify-content-end fw-bold">
+            Total Days: <span class="text-primary ms-1">@Model.TotalDays.ToString("0.0")</span>
+            <span class="mx-2 text-muted">|</span>
+            Open Days: <span class="text-primary ms-1">@Model.OpenDays.ToString("0.0")</span>
+            <span class="mx-2 text-muted">|</span>
+            Approved Days: <span class="text-primary ms-1">@Model.ApprovedDays.ToString("0.0")</span>
+            <span class="mx-2 text-muted">|</span>
+            Rejected Days: <span class="text-primary ms-1">@Model.RejectedDays.ToString("0.0")</span>
         </div>
-        <div class="fw-bold">
-            Total Days: <span class="text-primary">@Model.TotalDays.ToString("0.0")</span>
-            <span class="mx-2 text-muted">|</span>
-            Open Days: <span class="text-primary">@Model.OpenDays.ToString("0.0")</span>
-            <span class="mx-2 text-muted">|</span>
-            Approved Days: <span class="text-primary">@Model.ApprovedDays.ToString("0.0")</span>
-            <span class="mx-2 text-muted">|</span>
-            Rejected Days: <span class="text-primary">@Model.RejectedDays.ToString("0.0")</span>
+
+        <!-- Mobile: clear blocks -->
+        <div class="d-block d-md-none">
+            <div class="row g-2">
+                <div class="col-6">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-body p-2">
+                            <div class="text-muted small">Total Days</div>
+                            <div class="fw-bold text-primary">@Model.TotalDays.ToString("0.0")</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-body p-2">
+                            <div class="text-muted small">Open Days</div>
+                            <div class="fw-bold text-primary">@Model.OpenDays.ToString("0.0")</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-body p-2">
+                            <div class="text-muted small">Approved Days</div>
+                            <div class="fw-bold text-primary">@Model.ApprovedDays.ToString("0.0")</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-body p-2">
+                            <div class="text-muted small">Rejected Days</div>
+                            <div class="fw-bold text-primary">@Model.RejectedDays.ToString("0.0")</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
-    <div class="card">
+    <!-- Desktop Table -->
+    <div class="card d-none d-md-block">
         <div class="card-body p-0">
             <div class="table-responsive shadow-sm">
                 <table class="table table-striped table-hover table-bordered mb-0 align-middle">
@@ -163,6 +212,96 @@
                 </table>
             </div>
         </div>
+    </div>
+
+    <!-- Mobile Cards -->
+    <div class="d-block d-md-none">
+        @if (Model.Leaves != null && Model.Leaves.Any())
+        {
+            foreach (var l in Model.Leaves)
+            {
+                var rowClass =
+                    l.ToDate.Date < today ? "border-success bg-success-subtle" :
+                    (l.FromDate.Date <= today && l.ToDate.Date >= today) ? "border-danger bg-danger-subtle" :
+                    "border-info bg-info-subtle";
+
+                var empName = l.Employee != null
+                    ? $"{l.Employee.FirstName} {l.Employee.LastName}".Trim()
+                    : l.EmployeeId.ToString();
+
+                var statusBadge =
+                    l.Status == LeaveStatus.Approved ? "bg-success" :
+                    l.Status == LeaveStatus.Rejected ? "bg-danger" :
+                    l.Status == LeaveStatus.Cancelled ? "bg-secondary" :
+                    "bg-warning text-dark";
+
+                <div class="card shadow-sm mb-3 border @rowClass">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <div class="fw-bold">@empName</div>
+                                <div class="text-muted small">#@l.ID</div>
+                            </div>
+                            <span class="badge @statusBadge">@l.Status</span>
+                        </div>
+
+                        <hr class="my-2" />
+
+                        <div class="row g-2">
+                            <div class="col-6">
+                                <div class="text-muted small">Requested</div>
+                                <div class="fw-semibold">@l.RequestDate.ToString("yyyy-MM-dd")</div>
+                            </div>
+                            <div class="col-6 text-end">
+                                <div class="text-muted small">Days</div>
+                                <div class="fw-semibold">@FormatDays(l.NoOfDays)</div>
+                            </div>
+                            <div class="col-6">
+                                <div class="text-muted small">Frm Date</div>
+                                <div class="fw-semibold">@l.FromDate.ToString("yyyy-MM-dd")</div>
+                            </div>
+                            <div class="col-6 text-end">
+                                <div class="text-muted small">To Date</div>
+                                <div class="fw-semibold">@l.ToDate.ToString("yyyy-MM-dd")</div>
+                            </div>
+                            <div class="col-12">
+                                <div class="text-muted small">Reason</div>
+                                <div class="fw-semibold">@l.Reason</div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex gap-2 flex-wrap mt-3">
+                            <a class="btn btn-sm btn-outline-primary" href="@Url.Action("Details", "Leaves", new { id = l.ID })">View</a>
+                            @if (l.Status == LeaveStatus.Open)
+                            {
+                                <a class="btn btn-sm btn-warning" href="@Url.Action("Edit", "Leaves", new { id = l.ID })">Edit</a>
+                            }
+
+                            @if (isAdmin && l.Status == LeaveStatus.Open)
+                            {
+                                <form asp-controller="Leaves" asp-action="Approve" method="post" class="d-inline js-leave-approve-form">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@l.ID" />
+                                    <button type="submit" class="btn btn-sm btn-success js-leave-approve-btn" data-leave-id="@l.ID">Approve</button>
+                                </form>
+                                <form asp-controller="Leaves" asp-action="Reject" method="post" class="d-inline js-leave-reject-form">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@l.ID" />
+                                    <button type="submit" class="btn btn-sm btn-danger js-leave-reject-btn" data-leave-id="@l.ID">Reject</button>
+                                </form>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="text-center text-muted py-5">
+                <i class="bi bi-inbox fs-1"></i>
+                <p class="mt-3 fs-5">No leaves found for selected filters.</p>
+            </div>
+        }
     </div>
 
     <!-- Pagination (preserve filters) -->

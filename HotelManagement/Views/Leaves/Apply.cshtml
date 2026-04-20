@@ -98,7 +98,7 @@
         </div>
 
         <button type="submit" class="btn btn-success me-2">Add</button>
-        <a class="btn btn-secondary" href="/">Cancel</a>
+        <a class="btn btn-secondary" href="@Url.Action("Index","Leaves")">Cancel</a>
     </form>
 </div>
 
@@ -197,9 +197,10 @@
                 const isFullDay = durationSelect && durationSelect.value === '1';
 
                 if (lastDayHalfRow) {
-                    lastDayHalfRow.style.display = isFullDay ? '' : 'none';
+                    // Show "Last day is half day" only for Full Day and when there is a multi-day range (From < To)
+                    lastDayHalfRow.style.display = (isFullDay && rangeOk) ? '' : 'none';
                 }
-                if (!isFullDay && lastDayHalfCheck) {
+                if ((!isFullDay || !rangeOk) && lastDayHalfCheck) {
                     lastDayHalfCheck.checked = false;
                 }
 

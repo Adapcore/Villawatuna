@@ -32,9 +32,54 @@
 }
 
 <div class="container-fluid py-3">
+    <style>
+        /* Make status filters more visible on mobile */
+        @@media (max-width: 767.98px) {
+            .calendar-status-filters {
+                background: #f8f9fa;
+                border: 1px solid rgba(0,0,0,.1);
+                border-radius: 10px;
+                padding: 10px 12px;
+            }
+
+            .calendar-status-filters .form-check {
+                background: #ffffff;
+                border: 1px solid rgba(0,0,0,.1);
+                border-radius: 10px;
+                padding: 10px 12px;
+                margin: 0;
+                min-width: 110px;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                box-shadow: 0 1px 2px rgba(0,0,0,.06);
+            }
+
+            .calendar-status-filters .form-check-input {
+                transform: scale(1.35);
+            }
+
+            .calendar-status-filters .form-check-label {
+                font-weight: 700;
+                font-size: 0.95rem;
+            }
+        }
+
+        /* Desktop toolbar highlight + spacing */
+        @@media (min-width: 768px) {
+            .calendar-toolbar {
+                background: rgba(13, 110, 253, 0.08); /* bootstrap primary subtle-ish */
+                border: 1px solid rgba(13, 110, 253, 0.25);
+                border-radius: 12px;
+                padding: 12px 14px;
+                margin-bottom: 18px;
+            }
+        }
+    </style>
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h1 class="fw-bold text-primary mb-0 fs-2">📅 Leaves Calendar</h1>
-        <div class="d-flex gap-2">
+        <!-- Desktop actions -->
+        <div class="d-none d-md-flex gap-2">
             <a class="btn btn-secondary btn-sm" href="@Url.Action("Index","Leaves")">Back to List</a>
             <a asp-controller="Leaves" asp-action="Apply" class="btn btn-success btn-sm d-flex align-items-center gap-2 px-3 py-2">
                 <i class="bi bi-plus-circle"></i>
@@ -43,48 +88,62 @@
         </div>
     </div>
 
+    <!-- Mobile actions (stacked) -->
+    <div class="d-flex d-md-none gap-2 flex-column mb-3">
+        <a class="btn btn-secondary btn-sm w-100" href="@Url.Action("Index","Leaves")">Back to List</a>
+        <a asp-controller="Leaves" asp-action="Apply" class="btn btn-success btn-sm d-flex align-items-center justify-content-center gap-2 px-3 py-2 w-100">
+            <i class="bi bi-plus-circle"></i>
+            <span>Add Leave</span>
+        </a>
+    </div>
+
     <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
-            <div class="d-flex gap-2">
-                <a class="btn btn-outline-secondary btn-sm" asp-action="Calendar"
-                   asp-route-year="@prev.Year" asp-route-month="@prev.Month"
-                   asp-route-showOpen="@Model.CalendarShowOpen"
-                   asp-route-showApproved="@Model.CalendarShowApproved"
-                   asp-route-showRejected="@Model.CalendarShowRejected">Prev</a>
-                <a class="btn btn-outline-secondary btn-sm" asp-action="Calendar"
-                   asp-route-year="@next.Year" asp-route-month="@next.Month"
-                   asp-route-showOpen="@Model.CalendarShowOpen"
-                   asp-route-showApproved="@Model.CalendarShowApproved"
-                   asp-route-showRejected="@Model.CalendarShowRejected">Next</a>
-                <a class="btn btn-outline-dark btn-sm" asp-action="Calendar"
-                   asp-route-showOpen="@Model.CalendarShowOpen"
-                   asp-route-showApproved="@Model.CalendarShowApproved"
-                   asp-route-showRejected="@Model.CalendarShowRejected">Current Month</a>
-            </div>
-            <div class="fw-bold">
-                Leaves — @monthStart.ToString("MMMM yyyy")
-            </div>
-            <div class="small text-muted">Select statuses to display</div>
+            <div></div>
+            <div></div>
         </div>
         <div class="card-body p-2">
-            <form method="get" class="mb-2" id="calendarFilterForm">
-                <input type="hidden" name="year" value="@monthStart.Year" />
-                <input type="hidden" name="month" value="@monthStart.Month" />
-                <div class="d-flex gap-4 flex-wrap">
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" id="showOpen" @(Model.CalendarShowOpen ? "checked" : "") />
-                        <label class="form-check-label" for="showOpen">Open</label>
-                    </div>
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" id="showApproved" @(Model.CalendarShowApproved ? "checked" : "") />
-                        <label class="form-check-label" for="showApproved">Approved</label>
-                    </div>
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" id="showRejected" @(Model.CalendarShowRejected ? "checked" : "") />
-                        <label class="form-check-label" for="showRejected">Rejected</label>
-                    </div>
+            <div class="calendar-toolbar d-flex flex-column flex-md-row justify-content-md-between align-items-md-center gap-2">
+                <div class="d-flex gap-2 flex-wrap">
+                    <a class="btn btn-outline-secondary btn-sm" asp-action="Calendar"
+                       asp-route-year="@prev.Year" asp-route-month="@prev.Month"
+                       asp-route-showOpen="@Model.CalendarShowOpen"
+                       asp-route-showApproved="@Model.CalendarShowApproved"
+                       asp-route-showRejected="@Model.CalendarShowRejected">Prev</a>
+                    <a class="btn btn-outline-dark btn-sm" asp-action="Calendar"
+                       asp-route-showOpen="@Model.CalendarShowOpen"
+                       asp-route-showApproved="@Model.CalendarShowApproved"
+                       asp-route-showRejected="@Model.CalendarShowRejected">Current Month</a>
+                    <a class="btn btn-outline-secondary btn-sm" asp-action="Calendar"
+                       asp-route-year="@next.Year" asp-route-month="@next.Month"
+                       asp-route-showOpen="@Model.CalendarShowOpen"
+                       asp-route-showApproved="@Model.CalendarShowApproved"
+                       asp-route-showRejected="@Model.CalendarShowRejected">Next</a>
                 </div>
-            </form>
+
+                <form method="get" class="m-0" id="calendarFilterForm">
+                    <input type="hidden" name="year" value="@monthStart.Year" />
+                    <input type="hidden" name="month" value="@monthStart.Month" />
+                    <div class="calendar-status-filters d-flex gap-2 flex-wrap justify-content-md-end">
+                        <div class="form-check" style="border-left: 6px solid #ffc107;">
+                            <input class="form-check-input" type="checkbox" id="showOpen" @(Model.CalendarShowOpen ? "checked" : "") />
+                            <label class="form-check-label" for="showOpen">Open</label>
+                        </div>
+                        <div class="form-check" style="border-left: 6px solid #198754;">
+                            <input class="form-check-input" type="checkbox" id="showApproved" @(Model.CalendarShowApproved ? "checked" : "") />
+                            <label class="form-check-label" for="showApproved">Approved</label>
+                        </div>
+                        <div class="form-check" style="border-left: 6px solid #dc3545;">
+                            <input class="form-check-input" type="checkbox" id="showRejected" @(Model.CalendarShowRejected ? "checked" : "") />
+                            <label class="form-check-label" for="showRejected">Rejected</label>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div class="text-center fw-bold fs-4 mt-2 mb-2">
+                @monthStart.ToString("MMMM yyyy")
+            </div>
 
             <script>
                 (function () {
@@ -114,7 +173,8 @@
                 })();
             </script>
 
-            <div class="table-responsive">
+            <!-- Desktop/tablet grid -->
+            <div class="table-responsive d-none d-md-block">
                 <table class="table table-bordered mb-0 align-middle">
                     <thead class="table-light">
                         <tr>
@@ -127,7 +187,8 @@
                     <tbody>
                         @for (var d = firstCellDate; d <= lastCellDate; d = d.AddDays(7))
                         {
-                            <tr>
+                            var weekIndex = (int)((d.Date - firstCellDate.Date).TotalDays / 7);
+                            <tr class="@(weekIndex % 2 == 1 ? "table-light" : "")">
                                 @for (var i = 0; i < 7; i++)
                                 {
                                     var day = d.AddDays(i).Date;
@@ -138,12 +199,12 @@
                                         .OrderBy(l => l.FromDate)
                                         .ToList();
 
-                                    <td class="p-2 @(inMonth ? "" : "bg-light text-muted")" style="vertical-align: top;">
+                                    <td class="p-2 @(inMonth ? "" : "bg-light text-muted") @(isToday ? "bg-primary-subtle" : "")" style="vertical-align: top;">
                                         <div class="d-flex justify-content-between align-items-center mb-1">
-                                            <div class="fw-bold @(isToday ? "text-danger" : "")">@day.Day</div>
+                                            <div class="fw-bold @(isToday ? "text-primary" : "")">@day.Day</div>
                                             @if (isToday)
                                             {
-                                                <span class="badge bg-danger">Today</span>
+                                                <span class="badge bg-primary">Today</span>
                                             }
                                         </div>
 
@@ -184,6 +245,79 @@
                         }
                     </tbody>
                 </table>
+            </div>
+
+            <!-- Mobile agenda (no horizontal scroll) -->
+            <div class="d-block d-md-none">
+                @for (var day = monthStart; day <= monthEnd; day = day.AddDays(1))
+                {
+                    var isToday = day == today;
+                    var weekStart = day.AddDays(-(int)day.DayOfWeek).Date; // Sunday
+                    var weekEnd = weekStart.AddDays(6).Date;
+                    var mobileWeekIndex = (int)((weekStart - firstCellDate.Date).TotalDays / 7);
+                    var dayLeaves = Model.CalendarLeaves
+                        .Where(l => l.FromDate.Date <= day && l.ToDate.Date >= day)
+                        .OrderBy(l => l.FromDate)
+                        .ToList();
+
+                    if (day == monthStart || day.DayOfWeek == DayOfWeek.Sunday)
+                    {
+                        <div class="d-flex justify-content-between align-items-center px-1 py-2 mt-2">
+                            <div class="fw-bold text-muted small">Week</div>
+                            <div class="text-muted small">@weekStart.ToString("MMM dd") - @weekEnd.ToString("MMM dd")</div>
+                        </div>
+                    }
+
+                    <div class="card shadow-sm mb-2 @(isToday ? "border-primary bg-primary-subtle" : "border-0") @(mobileWeekIndex % 2 == 1 ? "bg-light" : "")">
+                        <div class="card-body p-2">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="fw-bold @(isToday ? "text-primary" : "")">
+                                    @day.ToString("ddd, yyyy-MM-dd")
+                                </div>
+                                @if (isToday)
+                                {
+                                    <span class="badge bg-primary">Today</span>
+                                }
+                            </div>
+
+                            @if (dayLeaves.Any())
+                            {
+                                <div class="d-flex flex-column gap-1 mt-2">
+                                    @foreach (var l in dayLeaves)
+                                    {
+                                        var empName = l.Employee != null
+                                            ? $"{l.Employee.FirstName} {l.Employee.LastName}".Trim()
+                                            : l.EmployeeId.ToString();
+
+                                        var isHalf = IsHalfDayOnDate(l, day) || IsLastDayHalfOnDate(l, day);
+                                        var session = isHalf ? l.HalfDaySession : null;
+                                        var widthClass = isHalf ? "w-50" : "w-100";
+                                        var alignClass = session == HalfDaySession.SecondHalf ? "ms-auto" : "me-auto";
+                                        var sessionText = session == HalfDaySession.FirstHalf ? "FH" :
+                                                          session == HalfDaySession.SecondHalf ? "SH" :
+                                                          "";
+
+                                        var badgeClass = l.Status == LeaveStatus.Open
+                                            ? "bg-warning text-dark"
+                                            : l.Status == LeaveStatus.Approved
+                                                ? "bg-success"
+                                                : "bg-danger";
+
+                                        <a class="badge @badgeClass text-decoration-none text-wrap d-block @widthClass @(isHalf ? alignClass : "")"
+                                           href="@Url.Action("Details", "Leaves", new { id = l.ID })"
+                                           title="@($"{empName} ({l.FromDate:yyyy-MM-dd} to {l.ToDate:yyyy-MM-dd})")">
+                                            @empName @(isHalf && !string.IsNullOrWhiteSpace(sessionText) ? $"({sessionText})" : "")
+                                        </a>
+                                    }
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="text-muted small mt-2">No leaves</div>
+                            }
+                        </div>
+                    </div>
+                }
             </div>
         </div>
     </div>
