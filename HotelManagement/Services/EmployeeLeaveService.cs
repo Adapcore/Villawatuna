@@ -96,6 +96,39 @@ namespace HotelManagement.Services
 			return (paged, totalDays, openDays, approvedDays, rejectedDays);
 		}
 
+		public async Task<List<EmployeeLeave>> GetCalendarLeavesInRangeAsync(
+			DateTime fromDate,
+			DateTime toDate,
+			bool showOpen,
+			bool showApproved,
+			bool showRejected,
+			CancellationToken cancellationToken = default)
+		{
+			var from = fromDate.Date;
+			var to = toDate.Date;
+
+			// If user unchecks everything, default back to "all" (requested default: all checked).
+			if (!showOpen && !showApproved && !showRejected)
+			{
+				showOpen = true;
+				showApproved = true;
+				showRejected = true;
+			}
+
+			var allowedStatuses = new List<LeaveStatus>();
+			if (showOpen) allowedStatuses.Add(LeaveStatus.Open);
+			if (showApproved) allowedStatuses.Add(LeaveStatus.Approved);
+			if (showRejected) allowedStatuses.Add(LeaveStatus.Rejected);
+
+			return await _repository.Query()
+				.AsNoTracking()
+				.Include(l => l.Employee)
+				.Where(l => allowedStatuses.Contains(l.Status))
+				.Where(l => l.FromDate.Date <= to && l.ToDate.Date >= from) // overlap
+				.OrderBy(l => l.FromDate)
+				.ToListAsync(cancellationToken);
+		}
+
 		public async Task<EmployeeLeave?> GetByIdAsync(int id, CancellationToken cancellationToken = default)
 		{
 			return await _repository.Query()

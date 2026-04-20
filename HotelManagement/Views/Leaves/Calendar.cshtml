@@ -1,0 +1,191 @@
+@using HotelManagement.Enums
+@model HotelManagement.Models.ViewModels.LeaveIndexViewModel
+
+@{
+    ViewData["Title"] = "Leaves Calendar";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var today = DateTime.UtcNow.Date;
+
+    var monthStart = Model.CalendarMonthStart.Date;
+    var monthEnd = Model.CalendarMonthEnd.Date;
+    var firstCellDate = monthStart.AddDays(-((int)monthStart.DayOfWeek)); // Sunday start
+    var lastCellDate = monthEnd.AddDays(6 - (int)monthEnd.DayOfWeek);
+    var dayNames = new[] { "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" };
+
+    var prev = monthStart.AddMonths(-1);
+    var next = monthStart.AddMonths(1);
+
+    static bool IsHalfDayOnDate(HotelManagement.Models.Entities.EmployeeLeave l, DateTime date)
+    {
+        return l.Duration == LeaveDuration.HalfDay
+               && l.FromDate.Date == date.Date
+               && l.ToDate.Date == date.Date;
+    }
+
+    // For "Last day is half day" requests we store Duration=FullDay and HalfDaySession != null.
+    static bool IsLastDayHalfOnDate(HotelManagement.Models.Entities.EmployeeLeave l, DateTime date)
+    {
+        return l.Duration == LeaveDuration.FullDay
+               && l.HalfDaySession.HasValue
+               && l.ToDate.Date == date.Date;
+    }
+}
+
+<div class="container-fluid py-3">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="fw-bold text-primary mb-0 fs-2">📅 Leaves Calendar</h1>
+        <div class="d-flex gap-2">
+            <a class="btn btn-secondary btn-sm" href="@Url.Action("Index","Leaves")">Back to List</a>
+            <a asp-controller="Leaves" asp-action="Apply" class="btn btn-success btn-sm d-flex align-items-center gap-2 px-3 py-2">
+                <i class="bi bi-plus-circle"></i>
+                <span>Add Leave</span>
+            </a>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <div class="d-flex gap-2">
+                <a class="btn btn-outline-secondary btn-sm" asp-action="Calendar"
+                   asp-route-year="@prev.Year" asp-route-month="@prev.Month"
+                   asp-route-showOpen="@Model.CalendarShowOpen"
+                   asp-route-showApproved="@Model.CalendarShowApproved"
+                   asp-route-showRejected="@Model.CalendarShowRejected">Prev</a>
+                <a class="btn btn-outline-secondary btn-sm" asp-action="Calendar"
+                   asp-route-year="@next.Year" asp-route-month="@next.Month"
+                   asp-route-showOpen="@Model.CalendarShowOpen"
+                   asp-route-showApproved="@Model.CalendarShowApproved"
+                   asp-route-showRejected="@Model.CalendarShowRejected">Next</a>
+                <a class="btn btn-outline-dark btn-sm" asp-action="Calendar"
+                   asp-route-showOpen="@Model.CalendarShowOpen"
+                   asp-route-showApproved="@Model.CalendarShowApproved"
+                   asp-route-showRejected="@Model.CalendarShowRejected">Current Month</a>
+            </div>
+            <div class="fw-bold">
+                Leaves — @monthStart.ToString("MMMM yyyy")
+            </div>
+            <div class="small text-muted">Select statuses to display</div>
+        </div>
+        <div class="card-body p-2">
+            <form method="get" class="mb-2" id="calendarFilterForm">
+                <input type="hidden" name="year" value="@monthStart.Year" />
+                <input type="hidden" name="month" value="@monthStart.Month" />
+                <div class="d-flex gap-4 flex-wrap">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="showOpen" @(Model.CalendarShowOpen ? "checked" : "") />
+                        <label class="form-check-label" for="showOpen">Open</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="showApproved" @(Model.CalendarShowApproved ? "checked" : "") />
+                        <label class="form-check-label" for="showApproved">Approved</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="showRejected" @(Model.CalendarShowRejected ? "checked" : "") />
+                        <label class="form-check-label" for="showRejected">Rejected</label>
+                    </div>
+                </div>
+            </form>
+
+            <script>
+                (function () {
+                    const form = document.getElementById('calendarFilterForm');
+                    const openCb = document.getElementById('showOpen');
+                    const approvedCb = document.getElementById('showApproved');
+                    const rejectedCb = document.getElementById('showRejected');
+                    if (!form || !openCb || !approvedCb || !rejectedCb) return;
+
+                    function navigateWithFilters() {
+                        const year = form.querySelector('input[name="year"]')?.value;
+                        const month = form.querySelector('input[name="month"]')?.value;
+
+                        const params = new URLSearchParams();
+                        if (year) params.set('year', year);
+                        if (month) params.set('month', month);
+                        params.set('showOpen', openCb.checked ? 'true' : 'false');
+                        params.set('showApproved', approvedCb.checked ? 'true' : 'false');
+                        params.set('showRejected', rejectedCb.checked ? 'true' : 'false');
+
+                        window.location.href = '@Url.Action("Calendar", "Leaves")' + '?' + params.toString();
+                    }
+
+                    openCb.addEventListener('change', navigateWithFilters);
+                    approvedCb.addEventListener('change', navigateWithFilters);
+                    rejectedCb.addEventListener('change', navigateWithFilters);
+                })();
+            </script>
+
+            <div class="table-responsive">
+                <table class="table table-bordered mb-0 align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            @foreach (var dn in dayNames)
+                            {
+                                <th class="text-center" style="min-width: 150px;">@dn</th>
+                            }
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (var d = firstCellDate; d <= lastCellDate; d = d.AddDays(7))
+                        {
+                            <tr>
+                                @for (var i = 0; i < 7; i++)
+                                {
+                                    var day = d.AddDays(i).Date;
+                                    var inMonth = day.Month == monthStart.Month && day.Year == monthStart.Year;
+                                    var isToday = day == today;
+                                    var cellLeaves = Model.CalendarLeaves
+                                        .Where(l => l.FromDate.Date <= day && l.ToDate.Date >= day)
+                                        .OrderBy(l => l.FromDate)
+                                        .ToList();
+
+                                    <td class="p-2 @(inMonth ? "" : "bg-light text-muted")" style="vertical-align: top;">
+                                        <div class="d-flex justify-content-between align-items-center mb-1">
+                                            <div class="fw-bold @(isToday ? "text-danger" : "")">@day.Day</div>
+                                            @if (isToday)
+                                            {
+                                                <span class="badge bg-danger">Today</span>
+                                            }
+                                        </div>
+
+                                        @if (cellLeaves.Any())
+                                        {
+                                            <div class="d-flex flex-column gap-1">
+                                                @foreach (var l in cellLeaves)
+                                                {
+                                                    var empName = l.Employee != null
+                                                        ? $"{l.Employee.FirstName} {l.Employee.LastName}".Trim()
+                                                        : l.EmployeeId.ToString();
+
+                                                    var isHalf = IsHalfDayOnDate(l, day) || IsLastDayHalfOnDate(l, day);
+                                                    var session = isHalf ? l.HalfDaySession : null;
+                                                    var widthClass = isHalf ? "w-50" : "w-100";
+                                                    var alignClass = session == HalfDaySession.SecondHalf ? "ms-auto" : "me-auto";
+                                                    var sessionText = session == HalfDaySession.FirstHalf ? "First Half" :
+                                                                      session == HalfDaySession.SecondHalf ? "Second Half" :
+                                                                      "";
+
+                                                    var badgeClass = l.Status == LeaveStatus.Open
+                                                        ? "bg-warning text-dark"
+                                                        : l.Status == LeaveStatus.Approved
+                                                            ? "bg-success"
+                                                            : "bg-danger";
+
+                                                    <a class="badge @badgeClass text-decoration-none text-wrap d-block @widthClass @(isHalf ? alignClass : "")"
+                                                       href="@Url.Action("Details", "Leaves", new { id = l.ID })"
+                                                       title="@($"{empName} ({l.FromDate:yyyy-MM-dd} to {l.ToDate:yyyy-MM-dd}){(isHalf && !string.IsNullOrWhiteSpace(sessionText) ? " - " + sessionText : "")}")">
+                                                        @empName
+                                                    </a>
+                                                }
+                                            </div>
+                                        }
+                                    </td>
+                                }
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+

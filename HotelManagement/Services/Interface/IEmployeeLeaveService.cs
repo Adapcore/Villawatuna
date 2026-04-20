@@ -13,6 +13,13 @@ namespace HotelManagement.Services.Interface
 		Task ApproveAsync(int id, int adminUserId, CancellationToken cancellationToken = default);
 		Task RejectAsync(int id, int adminUserId, CancellationToken cancellationToken = default);
 		Task CancelAsync(int id, int userId, CancellationToken cancellationToken = default);
+		Task<List<EmployeeLeave>> GetCalendarLeavesInRangeAsync(
+			DateTime fromDate,
+			DateTime toDate,
+			bool showOpen,
+			bool showApproved,
+			bool showRejected,
+			CancellationToken cancellationToken = default);
 		Task<(IPagedList<EmployeeLeave> Leaves, decimal TotalDays, decimal OpenDays, decimal ApprovedDays, decimal RejectedDays)> GetPagedAsync(
 			int pageNumber,
 			int pageSize,

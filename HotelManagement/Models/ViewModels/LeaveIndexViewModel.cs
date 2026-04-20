@@ -35,6 +35,16 @@ namespace HotelManagement.Models.ViewModels
 		// Dropdowns
 		public List<SelectListItem> Employees { get; set; } = new();
 		public List<SelectListItem> Statuses { get; set; } = new();
+
+		// Calendar (current month)
+		public DateTime CalendarMonthStart { get; set; }
+		public DateTime CalendarMonthEnd { get; set; }
+		public List<EmployeeLeave> CalendarLeaves { get; set; } = new();
+
+		// Calendar filters
+		public bool CalendarShowOpen { get; set; } = true;
+		public bool CalendarShowApproved { get; set; } = true;
+		public bool CalendarShowRejected { get; set; } = true;
 	}
 }
 

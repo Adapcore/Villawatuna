@@ -88,6 +88,46 @@ namespace HotelManagement.Controllers
 		}
 
 		[HttpGet]
+		public async Task<IActionResult> Calendar(
+			int? year = null,
+			int? month = null,
+			bool? showOpen = null,
+			bool? showApproved = null,
+			bool? showRejected = null)
+		{
+			ViewBag.IsAdmin = IsAdminUser();
+
+			var today = DateTime.UtcNow.Date;
+			var y = year ?? today.Year;
+			var m = month ?? today.Month;
+
+			// Basic bounds (avoid invalid month values)
+			if (m < 1) m = 1;
+			if (m > 12) m = 12;
+
+			var monthStart = new DateTime(y, m, 1);
+			var monthEnd = monthStart.AddMonths(1).AddDays(-1);
+
+			// default: all checked (first load). If any filter value is provided, treat missing ones as false.
+			var anySpecified = showOpen.HasValue || showApproved.HasValue || showRejected.HasValue;
+			var open = anySpecified ? (showOpen ?? false) : true;
+			var approved = anySpecified ? (showApproved ?? false) : true;
+			var rejected = anySpecified ? (showRejected ?? false) : true;
+
+			var model = new LeaveIndexViewModel
+			{
+				CalendarMonthStart = monthStart,
+				CalendarMonthEnd = monthEnd,
+				CalendarShowOpen = open,
+				CalendarShowApproved = approved,
+				CalendarShowRejected = rejected,
+				CalendarLeaves = await _leaveService.GetCalendarLeavesInRangeAsync(monthStart, monthEnd, open, approved, rejected)
+			};
+
+			return View(model);
+		}
+
+		[HttpGet]
 		public async Task<IActionResult> Details(int id)
 		{
 			ViewBag.IsAdmin = IsAdminUser();
