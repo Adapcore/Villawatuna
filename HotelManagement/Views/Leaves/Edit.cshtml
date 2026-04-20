@@ -1,0 +1,136 @@
+@using HotelManagement.Enums
+@model HotelManagement.Models.ViewModels.EditLeaveViewModel
+
+@{
+    ViewData["Title"] = "Edit Leave";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    bool isAdmin = ViewBag.IsAdmin != null && (bool)ViewBag.IsAdmin;
+    int currentUserId = ViewBag.CurrentUserId != null ? (int)ViewBag.CurrentUserId : 0;
+
+    string FormatDays(decimal days) => days == decimal.Truncate(days)
+        ? decimal.Truncate(days).ToString("0")
+        : days.ToString("0.#");
+}
+
+<div class="container my-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="fw-bold text-primary mb-0">Edit Leave</h2>
+        <div class="d-flex gap-2">
+            <a class="btn btn-secondary" href="@Url.Action("Index","Leaves")">Back</a>
+            <a class="btn btn-outline-primary" href="@Url.Action("Details","Leaves", new { id = Model.ID })">View</a>
+        </div>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+    }
+
+    <div class="card">
+        <div class="card-body">
+            <form asp-action="Edit" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" asp-for="ID" />
+                <input type="hidden" asp-for="CreatedBy" />
+
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <label class="form-label fw-bold">Employee</label>
+                        <input type="text" class="form-control" value="@Model.EmployeeName" readonly />
+                    </div>
+                    <div class="col-md-4">
+                        <label asp-for="Status" class="form-label fw-bold"></label>
+                        <input type="text" class="form-control" value="@Model.Status" readonly />
+                    </div>
+                    <div class="col-md-4">
+                        <label asp-for="NoOfDays" class="form-label fw-bold"></label>
+                        <input type="text" class="form-control" value="@FormatDays(Model.NoOfDays)" readonly />
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <label asp-for="Type" class="form-label fw-bold"></label>
+                        <select asp-for="Type" class="form-select">
+                            <option value="1">Planned</option>
+                            <option value="2">Unplanned</option>
+                        </select>
+                        <span asp-validation-for="Type" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-4">
+                        <label asp-for="FromDate" class="form-label fw-bold"></label>
+                        <input asp-for="FromDate" type="date" class="form-control" />
+                        <span asp-validation-for="FromDate" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-4">
+                        <label asp-for="ToDate" class="form-label fw-bold"></label>
+                        <input asp-for="ToDate" type="date" class="form-control" />
+                        <span asp-validation-for="ToDate" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <label asp-for="Duration" class="form-label fw-bold"></label>
+                        <select asp-for="Duration" class="form-select" id="durationSelect">
+                            <option value="1">Full Day</option>
+                            <option value="2">Half Day (single date only)</option>
+                        </select>
+                        <span asp-validation-for="Duration" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-4" id="halfDayRow">
+                        <label asp-for="HalfDaySession" class="form-label fw-bold"></label>
+                        <select asp-for="HalfDaySession" class="form-select">
+                            <option value="">-- Select --</option>
+                            <option value="1">First Half</option>
+                            <option value="2">Second Half</option>
+                        </select>
+                        <span asp-validation-for="HalfDaySession" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label asp-for="Reason" class="form-label fw-bold"></label>
+                        <input asp-for="Reason" class="form-control" maxlength="100" />
+                        <span asp-validation-for="Reason" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="Comment" class="form-label fw-bold"></label>
+                        <input asp-for="Comment" class="form-control" maxlength="100" />
+                        <span asp-validation-for="Comment" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="d-flex gap-2 flex-wrap">
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        (function () {
+            const durationSelect = document.getElementById('durationSelect');
+            const halfDayRow = document.getElementById('halfDayRow');
+
+            function toggleHalfDay() {
+                const isHalfDay = durationSelect && durationSelect.value === '2';
+                if (halfDayRow) halfDayRow.style.display = isHalfDay ? '' : 'none';
+            }
+
+            if (durationSelect) durationSelect.addEventListener('change', toggleHalfDay);
+            toggleHalfDay();
+        })();
+    </script>
+}
+

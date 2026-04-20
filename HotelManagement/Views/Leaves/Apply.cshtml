@@ -1,0 +1,235 @@
+@model HotelManagement.Models.ViewModels.ApplyLeaveViewModel
+
+@{
+    ViewData["Title"] = "Add Leave";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container my-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold text-primary mb-0">Add Leave</h2>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+    }
+
+    <form asp-action="Apply" method="post">
+        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label asp-for="EmployeeId" class="form-label"></label>
+                <select asp-for="EmployeeId" asp-items="Model.Employees" class="form-select">
+                    <option value="">-- Select --</option>
+                </select>
+                <span asp-validation-for="EmployeeId" class="text-danger"></span>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="Type" class="form-label"></label>
+                <select asp-for="Type" class="form-select">
+                    <option value="1">Planned</option>
+                    <option value="2">Unplanned</option>
+                </select>
+                <span asp-validation-for="Type" class="text-danger"></span>
+            </div>
+        </div>
+
+        <div class="row mb-3">
+            <div class="col-md-3">
+                <label asp-for="FromDate" class="form-label"></label>
+                <input asp-for="FromDate" type="date" class="form-control" id="fromDateInput" />
+                <span asp-validation-for="FromDate" class="text-danger"></span>
+            </div>
+            <div class="col-md-3">
+                <label asp-for="ToDate" class="form-label"></label>
+                <input asp-for="ToDate" type="date" class="form-control" id="toDateInput" />
+                <span asp-validation-for="ToDate" class="text-danger"></span>
+            </div>
+            <div class="col-md-3">
+                <label asp-for="Duration" class="form-label"></label>
+                <select asp-for="Duration" class="form-select" id="durationSelect">
+                    <option value="1">Full Day</option>
+                    <option value="2">Half Day (single date only)</option>
+                </select>
+                <span asp-validation-for="Duration" class="text-danger"></span>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">No. of days</label>
+                <input type="text" class="form-control" id="noOfDaysDisplay" readonly value="—" />
+                <div class="form-text">Includes Saturday and Sunday. Updates as you change dates and options.</div>
+            </div>
+        </div>
+
+        <div class="row mb-3" id="lastDayHalfRow">
+            <div class="col-md-12">
+                <div class="form-check">
+                    <input asp-for="LastDayIsHalfDay" class="form-check-input" id="lastDayHalfCheck" />
+                    <label asp-for="LastDayIsHalfDay" class="form-check-label"></label>
+                </div>
+                <div class="form-text">Use this for fractional multi-day leave (e.g. Mon–Wed with Wednesday half = 2.5 days).</div>
+            </div>
+        </div>
+
+        <div class="row mb-3" id="halfDayRow">
+            <div class="col-md-4">
+                <label asp-for="HalfDaySession" class="form-label" id="halfDaySessionLabel">Half day session</label>
+                <select asp-for="HalfDaySession" class="form-select" id="halfDaySessionSelect">
+                    <option value="">-- Select --</option>
+                    <option value="1">First Half</option>
+                    <option value="2">Second Half</option>
+                </select>
+                <span asp-validation-for="HalfDaySession" class="text-danger"></span>
+            </div>
+        </div>
+
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label asp-for="Reason" class="form-label"></label>
+                <input asp-for="Reason" class="form-control" maxlength="100" />
+                <span asp-validation-for="Reason" class="text-danger"></span>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="Comment" class="form-label"></label>
+                <input asp-for="Comment" class="form-control" maxlength="100" />
+                <span asp-validation-for="Comment" class="text-danger"></span>
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-success me-2">Add</button>
+        <a class="btn btn-secondary" href="/">Cancel</a>
+    </form>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        (function () {
+            const durationSelect = document.getElementById('durationSelect');
+            const halfDayRow = document.getElementById('halfDayRow');
+            const lastDayHalfRow = document.getElementById('lastDayHalfRow');
+            const lastDayHalfCheck = document.getElementById('lastDayHalfCheck');
+            const fromDateInput = document.getElementById('fromDateInput');
+            const toDateInput = document.getElementById('toDateInput');
+            const noOfDaysDisplay = document.getElementById('noOfDaysDisplay');
+            const halfDaySessionLabel = document.getElementById('halfDaySessionLabel');
+
+            function parseIsoDate(value) {
+                if (!value) return null;
+                const parts = value.split('-');
+                if (parts.length !== 3) return null;
+                const y = parseInt(parts[0], 10);
+                const m = parseInt(parts[1], 10) - 1;
+                const d = parseInt(parts[2], 10);
+                return new Date(y, m, d);
+            }
+
+            /** If To is missing or before From, set To to From (string compare works for yyyy-MM-dd). */
+            function ensureToNotBeforeFrom() {
+                if (!fromDateInput || !toDateInput || !fromDateInput.value) return;
+                if (!toDateInput.value || toDateInput.value < fromDateInput.value) {
+                    toDateInput.value = fromDateInput.value;
+                }
+            }
+
+            /** Inclusive calendar days; Saturday and Sunday count (same rule as server). */
+            function inclusiveDays(from, to) {
+                if (!from || !to) return null;
+                let n = 0;
+                const cur = new Date(from.getFullYear(), from.getMonth(), from.getDate());
+                const end = new Date(to.getFullYear(), to.getMonth(), to.getDate());
+                while (cur <= end) {
+                    n++;
+                    cur.setDate(cur.getDate() + 1);
+                }
+                return n;
+            }
+
+            function computeNoOfDays() {
+                const from = parseIsoDate(fromDateInput && fromDateInput.value);
+                const to = parseIsoDate(toDateInput && toDateInput.value);
+                const isHalfDuration = durationSelect && durationSelect.value === '2';
+                const lastHalf = lastDayHalfCheck && lastDayHalfCheck.checked;
+
+                if (!from || !to) return null;
+                if (from > to) return null;
+
+                if (isHalfDuration) {
+                    return from.getTime() === to.getTime() ? 0.5 : null;
+                }
+
+                const inc = inclusiveDays(from, to);
+                if (inc === null) return null;
+
+                if (lastHalf) {
+                    if (from.getTime() >= to.getTime()) return null;
+                    return inc - 0.5;
+                }
+
+                return inc;
+            }
+
+            function formatDays(v) {
+                if (v === null) return '—';
+                // If integer (e.g. 2.0) show without decimals; otherwise show as-is (0.5, 2.5)
+                return Number.isInteger(v) ? String(v) : String(v);
+            }
+
+            function refreshNoOfDays() {
+                if (!noOfDaysDisplay) return;
+                const v = computeNoOfDays();
+                noOfDaysDisplay.value = formatDays(v);
+            }
+
+            function toggleHalfDayUi() {
+                ensureToNotBeforeFrom();
+                const isHalfDay = durationSelect && durationSelect.value === '2';
+                // Half day always applies to one calendar day only — align To with From if user had a longer range.
+                if (isHalfDay && fromDateInput && toDateInput && fromDateInput.value) {
+                    if (!toDateInput.value || toDateInput.value !== fromDateInput.value) {
+                        toDateInput.value = fromDateInput.value;
+                    }
+                }
+                const from = parseIsoDate(fromDateInput && fromDateInput.value);
+                const to = parseIsoDate(toDateInput && toDateInput.value);
+                const rangeOk = from && to && from < to;
+                const isFullDay = durationSelect && durationSelect.value === '1';
+
+                if (lastDayHalfRow) {
+                    lastDayHalfRow.style.display = isFullDay ? '' : 'none';
+                }
+                if (!isFullDay && lastDayHalfCheck) {
+                    lastDayHalfCheck.checked = false;
+                }
+
+                const lastHalf = lastDayHalfCheck && lastDayHalfCheck.checked;
+                const showSession = isHalfDay || (isFullDay && lastHalf && rangeOk);
+
+                if (halfDayRow) halfDayRow.style.display = showSession ? '' : 'none';
+                if (halfDaySessionLabel) {
+                    if (isHalfDay) {
+                        halfDaySessionLabel.textContent = 'Half day session';
+                    } else if (isFullDay && lastHalf) {
+                        halfDaySessionLabel.textContent = 'Half of last day (To date)';
+                    } else {
+                        halfDaySessionLabel.textContent = 'Half day session';
+                    }
+                }
+
+                refreshNoOfDays();
+            }
+
+            if (durationSelect) durationSelect.addEventListener('change', toggleHalfDayUi);
+            if (fromDateInput) {
+                fromDateInput.addEventListener('change', toggleHalfDayUi);
+                fromDateInput.addEventListener('input', toggleHalfDayUi);
+            }
+            if (toDateInput) toDateInput.addEventListener('change', toggleHalfDayUi);
+            if (lastDayHalfCheck) lastDayHalfCheck.addEventListener('change', toggleHalfDayUi);
+
+            toggleHalfDayUi();
+        })();
+    </script>
+}
+

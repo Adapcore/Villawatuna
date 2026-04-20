@@ -1,4 +1,4 @@
-﻿using HotelManagement.Models.Entities;
+using HotelManagement.Models.Entities;
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics.SymbolStore;
 
@@ -22,6 +22,7 @@ namespace HotelManagement.Data
         public DbSet<InvoiceDetail> InvoiceDetails { get; set; }
         public DbSet<Expense> Expenses { get; set; }
         public DbSet<Payment> Payments { get; set; }
+		public DbSet<EmployeeLeave> EmployeeLeaves { get; set; }
 
 
         public override int SaveChanges()
@@ -158,6 +159,22 @@ namespace HotelManagement.Data
                       .WithMany(o => o.Payments)
                       .HasForeignKey(p => p.InvoiceNo);
             });
+
+			// EmployeeLeave
+			modelBuilder.Entity<EmployeeLeave>(entity =>
+			{
+				entity.ToTable("EmployeeLeaves");
+
+				entity.HasOne(l => l.Employee)
+					  .WithMany()
+					  .HasForeignKey(l => l.EmployeeId)
+					  .OnDelete(DeleteBehavior.Restrict);
+
+				entity.HasIndex(l => new { l.EmployeeId, l.FromDate });
+				entity.HasIndex(l => new { l.Status, l.RequestDate });
+
+				entity.Property(l => l.NoOfDays).HasColumnType("decimal(3,1)");
+			});
             
             // Expense - no additional configuration needed as CreatedByMember is [NotMapped]
         }

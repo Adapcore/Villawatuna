@@ -6,6 +6,7 @@ using Umbraco.Cms.Web.Common.PublishedModels;
 using HotelManagement.Services.Interface;
 using HotelManagement.Services.Interfaces;
 using HotelManagement.Models.DTO;
+using HotelManagement.Repositories;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
@@ -33,6 +34,8 @@ builder.Services.AddScoped<IExpenseService, ExpenseService>();
 builder.Services.AddScoped<IExpenseTypeService, ExpenseTypeService>();
 builder.Services.AddScoped<IPaymentService, PaymentService>();
 builder.Services.AddScoped<ILaundryService, LaundryService>();
+builder.Services.AddScoped<IEmployeeLeaveRepository, EmployeeLeaveRepository>();
+builder.Services.AddScoped<IEmployeeLeaveService, EmployeeLeaveService>();
 
 
 builder.Services.Configure<PaginationSettings>(builder.Configuration.GetSection("Pagination"));

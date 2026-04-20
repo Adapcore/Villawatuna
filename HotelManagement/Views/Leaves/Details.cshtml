@@ -1,0 +1,135 @@
+@using HotelManagement.Enums
+@model HotelManagement.Models.Entities.EmployeeLeave
+
+@{
+    ViewData["Title"] = "View Leave";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    bool isAdmin = ViewBag.IsAdmin != null && (bool)ViewBag.IsAdmin;
+    int currentUserId = ViewBag.CurrentUserId != null ? (int)ViewBag.CurrentUserId : 0;
+
+    string FormatDays(decimal days) => days == decimal.Truncate(days)
+        ? decimal.Truncate(days).ToString("0")
+        : days.ToString("0.#");
+}
+
+<div class="container my-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="fw-bold text-primary mb-0">View Leave</h2>
+        <div class="d-flex gap-2">
+            <a class="btn btn-secondary" href="@Url.Action("Index","Leaves")">Back</a>
+            @if (Model.Status == LeaveStatus.Open)
+            {
+                <a class="btn btn-warning" href="@Url.Action("Edit","Leaves", new { id = Model.ID })">Edit</a>
+            }
+        </div>
+    </div>
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+    }
+
+    <div class="card">
+        <div class="card-body">
+            <dl class="row mb-0">
+                <dt class="col-sm-3">ID</dt>
+                <dd class="col-sm-9">@Model.ID</dd>
+
+                <dt class="col-sm-3">Employee</dt>
+                <dd class="col-sm-9">@((Model.Employee != null) ? $"{Model.Employee.FirstName} {Model.Employee.LastName}".Trim() : Model.EmployeeId.ToString())</dd>
+
+                <dt class="col-sm-3">Requested Date</dt>
+                <dd class="col-sm-9">@Model.RequestDate.ToString("yyyy-MM-dd")</dd>
+
+                <dt class="col-sm-3">From</dt>
+                <dd class="col-sm-9">@Model.FromDate.ToString("yyyy-MM-dd")</dd>
+
+                <dt class="col-sm-3">To</dt>
+                <dd class="col-sm-9">@Model.ToDate.ToString("yyyy-MM-dd")</dd>
+
+                <dt class="col-sm-3">Days</dt>
+                <dd class="col-sm-9">@FormatDays(Model.NoOfDays)</dd>
+
+                <dt class="col-sm-3">Reason</dt>
+                <dd class="col-sm-9">@Model.Reason</dd>
+
+                <dt class="col-sm-3">Comment</dt>
+                <dd class="col-sm-9">@Model.Comment</dd>
+
+                <dt class="col-sm-3">Status</dt>
+                <dd class="col-sm-9">
+                    <span class="badge @(Model.Status == LeaveStatus.Approved ? "bg-success" : Model.Status == LeaveStatus.Rejected ? "bg-danger" : Model.Status == LeaveStatus.Cancelled ? "bg-secondary" : "bg-warning text-dark")">
+                        @Model.Status
+                    </span>
+                </dd>
+            </dl>
+
+            @if (Model.Status == LeaveStatus.Open)
+            {
+                <hr />
+                <div class="d-flex gap-2 flex-wrap">
+                    @if (currentUserId > 0 && Model.CreatedBy == currentUserId)
+                    {
+                        <form asp-controller="Leaves" asp-action="Cancel" method="post" class="d-inline">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="id" value="@Model.ID" />
+                            <button type="submit" class="btn btn-outline-secondary">Cancel Leave</button>
+                        </form>
+                    }
+
+                    @if (isAdmin)
+                    {
+                    <form asp-controller="Leaves" asp-action="Approve" method="post" class="d-inline js-leave-approve-form">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="id" value="@Model.ID" />
+                        <button type="submit" class="btn btn-success js-leave-approve-btn" data-leave-id="@Model.ID">Approve</button>
+                    </form>
+                    <form asp-controller="Leaves" asp-action="Reject" method="post" class="d-inline js-leave-reject-form">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="id" value="@Model.ID" />
+                        <button type="submit" class="btn btn-danger js-leave-reject-btn" data-leave-id="@Model.ID">Reject</button>
+                    </form>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        (function () {
+            if (typeof showConfirmDialog !== 'function') return;
+
+            var approveBtn = document.querySelector('.js-leave-approve-btn');
+            var rejectBtn = document.querySelector('.js-leave-reject-btn');
+
+            function wire(btn, message, options) {
+                if (!btn) return;
+                btn.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    var form = btn.closest('form');
+                    if (!form) return;
+                    showConfirmDialog(message, function (confirmed) {
+                        if (confirmed) form.submit();
+                    }, options);
+                    return false;
+                });
+            }
+
+            var id = (approveBtn && approveBtn.getAttribute('data-leave-id')) || (rejectBtn && rejectBtn.getAttribute('data-leave-id')) || '';
+            wire(
+                approveBtn,
+                'Do you want to approve Leave #' + id + '?',
+                { type: 'Success', title: 'Approve Leave', yesButtonText: 'Yes, Approve', noButtonText: 'No', dialogId: 'approveLeaveDialog_details_' + id }
+            );
+            wire(
+                rejectBtn,
+                'Do you want to reject Leave #' + id + '?',
+                { type: 'Danger', title: 'Reject Leave', yesButtonText: 'Yes, Reject', noButtonText: 'No', warningText: 'This action cannot be undone.', dialogId: 'rejectLeaveDialog_details_' + id }
+            );
+        })();
+    </script>
+}
+
