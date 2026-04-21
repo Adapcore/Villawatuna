@@ -252,27 +252,32 @@
                         <hr class="my-2" />
 
                         <div class="row g-2">
+                            <!-- Line 1 -->
                             <div class="col-6">
                                 <div class="text-muted small">User Id</div>
                                 <div class="fw-semibold">@l.CreatedBy</div>
                             </div>
-                            <div class="col-6">
-                                <div class="text-muted small">Requested</div>
+                            <div class="col-6 text-end">
+                                <div class="text-muted small">Requested Date</div>
                                 <div class="fw-semibold">@l.RequestDate.ToString("yyyy-MM-dd")</div>
                             </div>
-                            <div class="col-6 text-end">
-                                <div class="text-muted small">Days</div>
-                                <div class="fw-semibold">@FormatDays(l.NoOfDays)</div>
-                            </div>
+
+                            <!-- Line 2 -->
                             <div class="col-6">
-                                <div class="text-muted small">Frm Date</div>
+                                <div class="text-muted small">From Date</div>
                                 <div class="fw-semibold">@l.FromDate.ToString("yyyy-MM-dd")</div>
                             </div>
                             <div class="col-6 text-end">
                                 <div class="text-muted small">To Date</div>
                                 <div class="fw-semibold">@l.ToDate.ToString("yyyy-MM-dd")</div>
                             </div>
-                            <div class="col-12">
+
+                            <!-- Line 3 -->
+                            <div class="col-4">
+                                <div class="text-muted small">Days</div>
+                                <div class="fw-semibold">@FormatDays(l.NoOfDays)</div>
+                            </div>
+                            <div class="col-8 text-end">
                                 <div class="text-muted small">Reason</div>
                                 <div class="fw-semibold">@l.Reason</div>
                             </div>

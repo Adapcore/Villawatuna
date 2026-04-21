@@ -85,7 +85,10 @@ namespace HotelManagement.Services
 				query = query.Where(l => l.ToDate.Date <= t);
 			}
 
-			query = query.OrderBy(l => l.FromDate);
+			// List view ordering: latest leave start date first
+			query = query
+				.OrderByDescending(l => l.FromDate)
+				.ThenByDescending(l => l.ID);
 
 			var totalDays = await query.SumAsync(l => l.NoOfDays, cancellationToken);
 			var openDays = await query.Where(l => l.Status == LeaveStatus.Open).SumAsync(l => l.NoOfDays, cancellationToken);
