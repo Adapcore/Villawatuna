@@ -182,7 +182,7 @@
                                     </td>
                                     <td>
                                         <div class="d-flex gap-1 flex-wrap">
-                                            <a class="btn btn-sm btn-outline-primary" href="@Url.Action("Details", "Leaves", new { id = l.ID })">View</a>
+                                            <a class="btn btn-sm btn-info" href="@Url.Action("Details", "Leaves", new { id = l.ID })">View</a>
                                             @if (l.Status == LeaveStatus.Open)
                                             {
                                                 <a class="btn btn-sm btn-warning" href="@Url.Action("Edit", "Leaves", new { id = l.ID })">Edit</a>
@@ -279,7 +279,7 @@
                         </div>
 
                         <div class="d-flex gap-2 flex-wrap mt-3">
-                            <a class="btn btn-sm btn-outline-primary" href="@Url.Action("Details", "Leaves", new { id = l.ID })">View</a>
+                            <a class="btn btn-sm btn-info" href="@Url.Action("Details", "Leaves", new { id = l.ID })">View</a>
                             @if (l.Status == LeaveStatus.Open)
                             {
                                 <a class="btn btn-sm btn-warning" href="@Url.Action("Edit", "Leaves", new { id = l.ID })">Edit</a>

@@ -14,12 +14,12 @@
 
 <div class="container my-4">
     <div class="d-flex justify-content-between align-items-center mb-3">
-        <h2 class="fw-bold text-primary mb-0">View Leave</h2>
+        <h2 class="fw-bold text-primary mb-0">Leave Details</h2>
         <div class="d-flex gap-2">
-            <a class="btn btn-secondary" href="@Url.Action("Index","Leaves")">Back</a>
+            <a class="btn btn-sm btn-secondary" href="@Url.Action("Index","Leaves")">Back</a>
             @if (Model.Status == LeaveStatus.Open)
             {
-                <a class="btn btn-warning" href="@Url.Action("Edit","Leaves", new { id = Model.ID })">Edit</a>
+                <a class="btn btn-sm btn-warning" href="@Url.Action("Edit","Leaves", new { id = Model.ID })">Edit</a>
             }
         </div>
     </div>

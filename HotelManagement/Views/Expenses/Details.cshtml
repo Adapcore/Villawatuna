@@ -1,96 +1,60 @@
-﻿@model HotelManagement.Models.Entities.Expense
+@model HotelManagement.Models.Entities.Expense
 
 @{
     ViewData["Title"] = "Expense Detail";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<div class="container py-4">
-    <div class="card shadow-lg border-0 rounded-4">
-        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-            <h4 class="mb-0 fw-bold">Expense Details</h4>
-            <a asp-action="Index" class="btn btn-light btn-sm px-3">
-                ← Back
-            </a>
+<div class="container my-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="fw-bold text-primary mb-0">Expense Details</h2>
+        <div class="d-flex gap-2">
+            <a class="btn btn-sm btn-secondary" href="@Url.Action("Index","Expenses")">Back</a>
+            <a class="btn btn-sm btn-warning" href="@Url.Action("Edit","Expenses", new { id = Model.ID })">Edit</a>
         </div>
+    </div>
 
-        <div class="card-body p-4">
-            <div class="row g-4">
-                <div class="col-md-6">
-                    <label class="fw-bold text-secondary">Date</label>
-                    <div class="form-control-plaintext fs-5">@Model.Date.ToString("yyyy-MM-dd")</div>
-                </div>
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+    }
 
-                <div class="col-md-6">
-                    <label class="fw-bold text-secondary">Expense Type</label>
-                    <div class="form-control-plaintext fs-5">@Model.ExpenseType</div>
-                </div>
+    <div class="card">
+        <div class="card-body">
+            <dl class="row mb-0">
+                <dt class="col-sm-3">ID</dt>
+                <dd class="col-sm-9">@Model.ID</dd>
 
-                <div class="col-md-6">
-                    <label class="fw-bold text-secondary">Payee Name</label>
-                    <div class="form-control-plaintext fs-5">@Model.PayeeName</div>
-                </div>
+                <dt class="col-sm-3">Date</dt>
+                <dd class="col-sm-9">@Model.Date.ToString("yyyy-MM-dd")</dd>
 
-                <div class="col-md-6">
-                    <label class="fw-bold text-secondary">Payment Method</label>
-                    <div class="form-control-plaintext fs-5">@Model.PaymentMethod</div>
-                </div>
+                <dt class="col-sm-3">Expense Type</dt>
+                <dd class="col-sm-9">@Model.ExpenseType</dd>
 
-                <div class="col-md-6">
-                    <label class="fw-bold text-secondary">Amount</label>
-                    <div class="form-control-plaintext fs-5 text-success fw-bold">
-                        @Model.Amount.ToString("N2")
-                    </div>
-                </div>
+                <dt class="col-sm-3">Payee Name</dt>
+                <dd class="col-sm-9">@Model.PayeeName</dd>
 
-                <div class="col-md-12">
-                    <label class="fw-bold text-secondary">Description</label>
-                    <div class="form-control-plaintext fs-5">
-                        @(string.IsNullOrEmpty(Model.Description) ? "-" : Model.Description)
-                    </div>
-                </div>
+                <dt class="col-sm-3">Payment Method</dt>
+                <dd class="col-sm-9">@Model.PaymentMethod</dd>
 
-                @if (!string.IsNullOrEmpty(Model.Attachment))
-                {
-                    <div class="col-md-12 text-center">
-                        <label class="fw-bold text-secondary d-block">Attachment</label>
-                        <img src="@Model.Attachment" class="img-fluid rounded shadow-sm mt-2" style="max-height: 200px;" />
-                    </div>
-                }
+                <dt class="col-sm-3">Amount</dt>
+                <dd class="col-sm-9">@Model.Amount.ToString("N2")</dd>
 
-                <div class="col-md-12 text-center mt-4">
-                    <a asp-action="Edit" asp-route-id="@Model.ID" class="btn btn-warning btn-lg px-4 me-2">
-                        ✏️ Edit
-                    </a>
-                    <a asp-action="Index" class="btn btn-secondary btn-lg px-4">
-                        ← Back to List
-                    </a>
-                </div>
-            </div>
+                <dt class="col-sm-3">Description</dt>
+                <dd class="col-sm-9">@(string.IsNullOrEmpty(Model.Description) ? "-" : Model.Description)</dd>
+
+                <dt class="col-sm-3">Attachment</dt>
+                <dd class="col-sm-9">
+                    @if (!string.IsNullOrEmpty(Model.Attachment))
+                    {
+                        <a href="@Model.Attachment" target="_blank" rel="noopener noreferrer">View attachment</a>
+                    }
+                    else
+                    {
+                        <span>-</span>
+                    }
+                </dd>
+            </dl>
         </div>
     </div>
 </div>
-
-
-<style>
-    .form-control-plaintext {
-        background-color: #f8f9fa;
-        border-radius: 0.5rem;
-        padding: 0.75rem 1rem;
-    }
-
-    .card {
-        border-radius: 1.2rem;
-    }
-
-    .btn-lg {
-        font-size: 1.1rem;
-        border-radius: 0.8rem;
-    }
-
-    @@media (max-width: 768px) {
-        .fs-5 {
-            font-size: 1rem !important;
-        }
-    }
-</style>
