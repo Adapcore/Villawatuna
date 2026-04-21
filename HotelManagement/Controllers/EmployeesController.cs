@@ -43,11 +43,7 @@ namespace HotelManagement.Controllers
 		[ValidateAntiForgeryToken]
 		public async Task<IActionResult> Create(Employee model)
 		{
-			// Require Password, FirstName, and LastName on create
-			if (string.IsNullOrWhiteSpace(model.Password))
-			{
-				ModelState.AddModelError(nameof(model.Password), "Password is required.");
-			}
+			// Require FirstName and LastName on create
 			if (string.IsNullOrWhiteSpace(model.FirstName))
 			{
 				ModelState.AddModelError(nameof(model.FirstName), "First name is required.");
@@ -90,6 +86,17 @@ namespace HotelManagement.Controllers
 			return View(employee);
 		}
 
+		public async Task<IActionResult> Details(int id)
+		{
+			Employee? employee = await _employeeService.GetByIdAsync(id);
+			if (employee == null)
+			{
+				return NotFound();
+			}
+
+			return View(employee);
+		}
+
 		[HttpPost]
 		[ValidateAntiForgeryToken]
 		public async Task<IActionResult> Edit(int id, Employee model)
@@ -99,11 +106,7 @@ namespace HotelManagement.Controllers
 				return BadRequest();
 			}
 
-			// Require Password, FirstName, and LastName on update
-			if (string.IsNullOrWhiteSpace(model.Password))
-			{
-				ModelState.AddModelError(nameof(model.Password), "Password is required.");
-			}
+			// Require FirstName and LastName on update
 			if (string.IsNullOrWhiteSpace(model.FirstName))
 			{
 				ModelState.AddModelError(nameof(model.FirstName), "First name is required.");

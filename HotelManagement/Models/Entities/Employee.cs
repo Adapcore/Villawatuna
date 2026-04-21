@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -12,15 +12,9 @@ namespace HotelManagement.Models.Entities
 		[DatabaseGenerated(DatabaseGeneratedOption.Identity)]
 		public int ID { get; set; }
 
-		[Required]
-		[MaxLength(100)]
-		[Display(Name = "Username")]
-		public string Username { get; set; }
-
-		[Required]
-		[MaxLength(100)]
-		[Display(Name = "Password")]
-		public string Password { get; set; }
+		[MaxLength(50)]
+		[Display(Name = "EPF No")]
+		public string? EPFNo { get; set; }
 
 		[MaxLength(100)]
 		[Display(Name = "First Name")]

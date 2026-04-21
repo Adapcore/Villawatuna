@@ -140,6 +140,7 @@
                     <thead class="table-dark">
                         <tr>
                             <th class="leave-col-id">ID</th>
+                            <th class="leave-col-userid">User Id</th>
                             <th class="leave-col-employee">Employee</th>
                             <th class="leave-col-requested">Requested Date</th>
                             <th class="leave-col-from">From Date</th>
@@ -167,6 +168,7 @@
 
                                 <tr class="@rowClass">
                                     <td>@l.ID</td>
+                                    <td>@l.CreatedBy</td>
                                     <td>@empName</td>
                                     <td>@l.RequestDate.ToString("yyyy-MM-dd")</td>
                                     <td>@l.FromDate.ToString("yyyy-MM-dd")</td>
@@ -207,7 +209,7 @@
                         else
                         {
                             <tr>
-                                <td colspan="9" class="text-center py-4 text-muted">No leaves found for selected filters.</td>
+                                <td colspan="10" class="text-center py-4 text-muted">No leaves found for selected filters.</td>
                             </tr>
                         }
                     </tbody>
@@ -250,6 +252,10 @@
                         <hr class="my-2" />
 
                         <div class="row g-2">
+                            <div class="col-6">
+                                <div class="text-muted small">User Id</div>
+                                <div class="fw-semibold">@l.CreatedBy</div>
+                            </div>
                             <div class="col-6">
                                 <div class="text-muted small">Requested</div>
                                 <div class="fw-semibold">@l.RequestDate.ToString("yyyy-MM-dd")</div>

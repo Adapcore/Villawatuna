@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.DataAnnotations.Schema;
 using HotelManagement.Models.DTO;
 
 namespace HotelManagement.Models.Entities
@@ -12,7 +12,7 @@ namespace HotelManagement.Models.Entities
         
         // Non-mapped property for Umbraco member creator info
         [NotMapped]
-        public MemberDTO CreatedByMember { get; set; }
+        public MemberDTO? CreatedByMember { get; set; }
     }
 
 }

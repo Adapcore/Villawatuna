@@ -1,4 +1,4 @@
-﻿@model X.PagedList.IPagedList<HotelManagement.Models.Entities.Employee>
+@model X.PagedList.IPagedList<HotelManagement.Models.Entities.Employee>
 
 @{
     ViewData["Title"] = "Employees";
@@ -21,7 +21,7 @@
             <table class="table table-striped table-bordered">
                 <thead class="table-dark">
                     <tr>
-                        <th>Username</th>
+                        <th>Employee ID</th>
                         <th>Name</th>
                         <th>Email</th>
                         <th>Contact</th>
@@ -42,11 +42,12 @@
                         @foreach (var e in Model)
                         {
                             <tr>
-                                <td>@e.Username</td>
+                                <td>@e.ID</td>
                                 <td>@(string.Join(" ", new[]{e.FirstName, e.LastName}.Where(s => !string.IsNullOrWhiteSpace(s))))</td>
                                 <td>@e.Email</td>
                                 <td>@e.ContactNo</td>
                                 <td>
+                                    <a class="btn btn-sm btn-info me-2" href="@Url.Action("Details", "Employees", new { id = e.ID })">View</a>
                                     <a class="btn btn-sm btn-warning me-2" href="@Url.Action("Edit", "Employees", new { id = e.ID })">Edit</a>
                                 </td>
                             </tr>
@@ -72,13 +73,9 @@
             {
                 <div class="list-card">
                     <div class="list-card-header">
-                        <h6 class="list-card-title">@e.Username</h6>
+                        <h6 class="list-card-title">#@e.ID @(string.Join(" ", new[]{e.FirstName, e.LastName}.Where(s => !string.IsNullOrWhiteSpace(s))))</h6>
                     </div>
                     <div class="list-card-body">
-                        <div class="list-card-row full-width">
-                            <div class="list-card-label">Name</div>
-                            <div class="list-card-value">@(string.Join(" ", new[]{e.FirstName, e.LastName}.Where(s => !string.IsNullOrWhiteSpace(s))))</div>
-                        </div>
                         <div class="list-card-row full-width">
                             <div class="list-card-label">Email</div>
                             <div class="list-card-value">@e.Email</div>
@@ -89,6 +86,7 @@
                         </div>
                     </div>
                     <div class="list-card-footer">
+                        <a href="@Url.Action("Details", "Employees", new { id = e.ID })" class="btn btn-sm btn-info me-2">View</a>
                         <a href="@Url.Action("Edit", "Employees", new { id = e.ID })" class="btn btn-warning btn-sm">
                             <i class="bi bi-pencil-square"></i> Edit
                         </a>

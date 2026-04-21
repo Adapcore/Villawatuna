@@ -1,4 +1,4 @@
-﻿@model HotelManagement.Models.Entities.Employee
+@model HotelManagement.Models.Entities.Employee
 
 @{
     ViewData["Title"] = "Edit Employee";
@@ -15,20 +15,7 @@
         <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
         <!-- Same structure as Create.cshtml -->
-        <div class="row mb-3">
-            <div class="col-md-6">
-                <label asp-for="Username" class="form-label"></label>
-                <input asp-for="Username" class="form-control" />
-                <span asp-validation-for="Username" class="text-danger"></span>
-            </div>
-            <div class="col-md-6">
-                <label asp-for="Password" class="form-label"></label>
-                <input asp-for="Password" type="password" class="form-control" />
-                <span asp-validation-for="Password" class="text-danger"></span>
-            </div>
-        </div>
-
-        <div class="row mb-3">
+        <div class="row mb-3">           
             <div class="col-md-6">
                 <label asp-for="FirstName" class="form-label"></label>
                 <input asp-for="FirstName" class="form-control" />
@@ -54,10 +41,17 @@
             </div>
         </div>
 
-        <div class="mb-3">
-            <label asp-for="Address" class="form-label"></label>
-            <input asp-for="Address" class="form-control" />
-            <span asp-validation-for="Address" class="text-danger"></span>
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label asp-for="Address" class="form-label"></label>
+                <input asp-for="Address" class="form-control" />
+                <span asp-validation-for="Address" class="text-danger"></span>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="EPFNo" class="form-label"></label>
+                <input asp-for="EPFNo" class="form-control" />
+                <span asp-validation-for="EPFNo" class="text-danger"></span>
+            </div>
         </div>
 
         <div class="row mb-3">

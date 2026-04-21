@@ -35,6 +35,9 @@
                 <dt class="col-sm-3">ID</dt>
                 <dd class="col-sm-9">@Model.ID</dd>
 
+                <dt class="col-sm-3">User Id</dt>
+                <dd class="col-sm-9">@Model.CreatedBy</dd>
+
                 <dt class="col-sm-3">Employee</dt>
                 <dd class="col-sm-9">@((Model.Employee != null) ? $"{Model.Employee.FirstName} {Model.Employee.LastName}".Trim() : Model.EmployeeId.ToString())</dd>
 
