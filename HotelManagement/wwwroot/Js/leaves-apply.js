@@ -80,6 +80,9 @@
       ensureToNotBeforeFrom();
 
       var isHalfDay = durationSelect && durationSelect.value === '2';
+      if (toDateInput) {
+        toDateInput.disabled = !!isHalfDay;
+      }
       if (isHalfDay && fromDateInput && toDateInput && fromDateInput.value) {
         if (!toDateInput.value || toDateInput.value !== fromDateInput.value) {
           toDateInput.value = fromDateInput.value;

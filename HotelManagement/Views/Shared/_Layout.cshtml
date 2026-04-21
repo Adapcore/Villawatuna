@@ -302,18 +302,12 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto align-items-lg-center">
                     @if (Context.User?.Identity != null && Context.User.Identity.IsAuthenticated)
-                    {
-                        <li class="nav-item">
-                            <a asp-controller="Employees" asp-action="Index" class="nav-link">Employees</a>
-                        </li>
+                    {                       
                         <li class="nav-item">
                             <a asp-controller="Customers" asp-action="Index" class="nav-link">Customers</a>
                         </li>
                         <li class="nav-item">
                             <a asp-controller="Invoices" asp-action="Index" class="nav-link">Invoices</a>
-                        </li>
-                        <li class="nav-item">
-                            <a asp-controller="Leaves" asp-action="Index" class="nav-link">Leaves</a>
                         </li>
                         <li class="nav-item">
                             <a asp-controller="Payments" asp-action="Index" class="nav-link">Payments</a>
@@ -337,6 +331,12 @@
                                 </ul>
                             </li>
                         }
+                        <li class="nav-item">
+                            <a asp-controller="Employees" asp-action="Index" class="nav-link">Employees</a>
+                        </li>
+                        <li class="nav-item">
+                            <a asp-controller="Leaves" asp-action="Index" class="nav-link">Leaves</a>
+                        </li>
                     }
 
                     @if (Context.User?.Identity != null && Context.User.Identity.IsAuthenticated)

@@ -54,26 +54,16 @@
                     <option value="2">Half Day (single date only)</option>
                 </select>
                 <span asp-validation-for="Duration" class="text-danger"></span>
-            </div>
-            <div class="col-md-3">
-                <label class="form-label">No. of days</label>
-                <input type="text" class="form-control" id="noOfDaysDisplay" readonly value="—" />
-                <div class="form-text">Includes Saturday and Sunday. Updates as you change dates and options.</div>
-            </div>
-        </div>
 
-        <div class="row mb-3" id="lastDayHalfRow">
-            <div class="col-md-12">
-                <div class="form-check">
-                    <input asp-for="LastDayIsHalfDay" class="form-check-input" id="lastDayHalfCheck" />
-                    <label asp-for="LastDayIsHalfDay" class="form-check-label"></label>
+                <div class="mt-2" id="lastDayHalfRow">
+                    <div class="form-check">
+                        <input asp-for="LastDayIsHalfDay" class="form-check-input" id="lastDayHalfCheck" />
+                        <label asp-for="LastDayIsHalfDay" class="form-check-label"></label>
+                    </div>
+                    <div class="form-text">Use this for fractional multi-day leave (e.g. Mon–Wed with Wednesday half = 2.5 days).</div>
                 </div>
-                <div class="form-text">Use this for fractional multi-day leave (e.g. Mon–Wed with Wednesday half = 2.5 days).</div>
             </div>
-        </div>
-
-        <div class="row mb-3" id="halfDayRow">
-            <div class="col-md-4">
+            <div class="col-md-3" id="halfDayRow">
                 <label asp-for="HalfDaySession" class="form-label" id="halfDaySessionLabel">Half day session</label>
                 <select asp-for="HalfDaySession" class="form-select" id="halfDaySessionSelect">
                     <option value="">-- Select --</option>
@@ -85,12 +75,17 @@
         </div>
 
         <div class="row mb-3">
-            <div class="col-md-6">
+            <div class="col-md-3">
+                <label class="form-label">No. of days</label>
+                <input type="text" class="form-control" id="noOfDaysDisplay" readonly value="—" />
+                <div class="form-text">Includes Saturday and Sunday. Updates as you change dates and options.</div>
+            </div>
+            <div class="col-md-5">
                 <label asp-for="Reason" class="form-label"></label>
                 <input asp-for="Reason" class="form-control" maxlength="100" />
                 <span asp-validation-for="Reason" class="text-danger"></span>
             </div>
-            <div class="col-md-6">
+            <div class="col-md-4">
                 <label asp-for="Comment" class="form-label"></label>
                 <input asp-for="Comment" class="form-control" maxlength="100" />
                 <span asp-validation-for="Comment" class="text-danger"></span>
