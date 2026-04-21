@@ -50,6 +50,7 @@
     <div class="card mb-3">
         <div class="card-body p-3">
             <form method="get" class="row g-3 align-items-end" id="leaveFilterForm">
+                <input type="hidden" name="range" id="range" value="@activeRange" />
                 <div class="col-md-3 col-sm-6">
                     <label class="form-label fw-bold">Employee</label>
                     <select name="employeeId" id="employeeId" class="form-select form-select-sm" asp-items="Model.Employees">
@@ -70,9 +71,9 @@
                 </div>
                 <div class="col-md-3 col-12">
                     <div class="d-flex gap-2 flex-nowrap justify-content-md-end">
-                        <a class="btn btn-sm @(activeRange == "today" ? "btn-secondary" : "btn-outline-secondary")" asp-action="Index" asp-route-range="today">Today</a>
-                        <a class="btn btn-sm @(activeRange == "month" ? "btn-secondary" : "btn-outline-secondary")" asp-action="Index" asp-route-range="month">Month</a>
-                        <a class="btn btn-sm @(activeRange == "year" ? "btn-secondary" : "btn-outline-secondary")" asp-action="Index" asp-route-range="year">Year</a>
+                        <button type="button" class="btn btn-sm @(activeRange == "today" ? "btn-secondary" : "btn-outline-secondary")" data-range="today">Today</button>
+                        <button type="button" class="btn btn-sm @(activeRange == "month" ? "btn-secondary" : "btn-outline-secondary")" data-range="month">Month</button>
+                        <button type="button" class="btn btn-sm @(activeRange == "year" ? "btn-secondary" : "btn-outline-secondary")" data-range="year">Year</button>
                         <a class="btn btn-outline-dark btn-sm" asp-action="Index">Clear</a>
                     </div>
                 </div>
