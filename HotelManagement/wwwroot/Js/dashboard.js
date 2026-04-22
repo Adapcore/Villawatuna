@@ -89,8 +89,14 @@ function handleDashboardTileClick() {
 
 function InitializeDashboard() {
     $(function () {
+        // Format YYYY-MM-DD using local time (avoid UTC date shifts around midnight)
+        const formatLocalYMD = (d) =>
+            d.getFullYear() + '-' +
+            String(d.getMonth() + 1).padStart(2, '0') + '-' +
+            String(d.getDate()).padStart(2, '0');
+
         // Default to today
-        const today = new Date().toISOString().slice(0, 10);
+        const today = formatLocalYMD(new Date());
         $('#fromDate').val(today);
         $('#toDate').val(today);
         
@@ -106,7 +112,7 @@ function InitializeDashboard() {
         loadMetrics($());
 
         $('#btnToday').on('click', function () {
-            const t = new Date().toISOString().slice(0, 10);
+            const t = formatLocalYMD(new Date());
             $('#fromDate').val(t);
             $('#toDate').val(t);
 
@@ -116,7 +122,7 @@ function InitializeDashboard() {
         $('#btnYesterday').on('click', function () {
             var date = new Date();
             date.setDate(date.getDate() - 1);
-            const t = date.toISOString().slice(0, 10);
+            const t = formatLocalYMD(date);
             $('#fromDate').val(t);
             $('#toDate').val(t);
 
@@ -128,15 +134,8 @@ function InitializeDashboard() {
 
             // Get first day of current month (local time)
             const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
-
-            // Format to YYYY-MM-DD in local time
-            const formatDate = (d) =>
-                d.getFullYear() + '-' +
-                String(d.getMonth() + 1).padStart(2, '0') + '-' +
-                String(d.getDate()).padStart(2, '0');
-
-            $('#fromDate').val(formatDate(firstDay));
-            $('#toDate').val(formatDate(now));
+            $('#fromDate').val(formatLocalYMD(firstDay));
+            $('#toDate').val(formatLocalYMD(now));
 
             loadMetrics($('#btnMonth', $(".filter-section")));
         });
@@ -146,15 +145,8 @@ function InitializeDashboard() {
 
             // Get January 1st of the current year
             const firstDayOfYear = new Date(now.getFullYear(), 0, 1);
-
-            // Format date to YYYY-MM-DD (local)
-            const formatDate = (d) =>
-                d.getFullYear() + '-' +
-                String(d.getMonth() + 1).padStart(2, '0') + '-' +
-                String(d.getDate()).padStart(2, '0');
-
-            $('#fromDate').val(formatDate(firstDayOfYear));
-            $('#toDate').val(formatDate(now));
+            $('#fromDate').val(formatLocalYMD(firstDayOfYear));
+            $('#toDate').val(formatLocalYMD(now));
 
             loadMetrics($('#btnYear', $(".filter-section")));
         });
