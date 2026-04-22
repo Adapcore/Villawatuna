@@ -109,7 +109,10 @@ function renderCustomerDesktop(customers) {
         html += '<td>' + escapeHtml(c.contactNo) + '</td>';
         html += '<td>' + escapeHtml(c.passportNo) + '</td>';
         html += '<td class="' + statusClass + ' fw-semibold">' + statusText + '</td>';
-        html += '<td><a class="btn btn-sm btn-warning me-2" href="/Customers/Edit/' + c.id + '">Edit</a></td>';
+        html += '<td>';
+        html += '<a class="btn btn-sm btn-info me-2" href="/Customers/Details/' + c.id + '">View</a>';
+        html += '<a class="btn btn-sm btn-warning me-2" href="/Customers/Edit/' + c.id + '">Edit</a>';
+        html += '</td>';
         html += '</tr>';
     });
 
@@ -163,6 +166,8 @@ function renderCustomerMobile(customers) {
         html += '</div>'; // body
 
         html += '<div class="list-card-footer">';
+        html += '<a href="/Customers/Details/' + c.id + '" class="btn btn-info btn-sm me-2">';
+        html += '<i class="bi bi-eye"></i> View</a>';
         html += '<a href="/Customers/Edit/' + c.id + '" class="btn btn-warning btn-sm">';
         html += '<i class="bi bi-pencil-square"></i> Edit</a>';
         html += '</div>';

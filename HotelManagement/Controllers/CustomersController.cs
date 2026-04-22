@@ -164,6 +164,14 @@ namespace HotelManagement.Controllers
             return View(customer);
         }
 
+        public async Task<IActionResult> Details(int id)
+        {
+            var customer = await _customerService.GetByIdAsync(id);
+            if (customer == null) return NotFound();
+
+            return View(customer);
+        }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, Customer model)
