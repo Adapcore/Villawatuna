@@ -251,6 +251,65 @@ namespace HotelManagement.Controllers
 		}
 
 		[HttpGet]
+		public async Task<IActionResult> CalendarDayLeaves(
+			DateTime date,
+			bool? showOpen = null,
+			bool? showApproved = null,
+			bool? showRejected = null)
+		{
+			// Use same filter defaults as Calendar()
+			var anySpecified = showOpen.HasValue || showApproved.HasValue || showRejected.HasValue;
+			var open = anySpecified ? (showOpen ?? false) : true;
+			var approved = anySpecified ? (showApproved ?? false) : true;
+			var rejected = anySpecified ? (showRejected ?? false) : true;
+
+			var day = date.Date;
+			var leaves = await _leaveService.GetCalendarLeavesInRangeAsync(day, day, open, approved, rejected);
+
+			var items = leaves.Select(l =>
+			{
+				var empName = l.Employee != null
+					? $"{l.Employee.FirstName} {l.Employee.LastName}".Trim()
+					: l.EmployeeId.ToString();
+
+				var isHalf = IsHalfDayOnDate(l, day) || IsLastDayHalfOnDate(l, day);
+				var session = isHalf ? l.HalfDaySession : null;
+				var sessionText = session == HalfDaySession.FirstHalf ? "First Half" :
+					session == HalfDaySession.SecondHalf ? "Second Half" :
+					"";
+
+				return new
+				{
+					id = l.ID,
+					employeeName = empName,
+					status = l.Status.ToString(),
+					fromDate = l.FromDate.ToString("yyyy-MM-dd"),
+					toDate = l.ToDate.ToString("yyyy-MM-dd"),
+					reason = l.Reason,
+					isHalfDay = isHalf,
+					halfDaySession = sessionText
+				};
+			}).ToList();
+
+			return Json(new { success = true, date = day.ToString("yyyy-MM-dd"), leaves = items });
+		}
+
+		private static bool IsHalfDayOnDate(Models.Entities.EmployeeLeave l, DateTime date)
+		{
+			return l.Duration == LeaveDuration.HalfDay
+			       && l.FromDate.Date == date.Date
+			       && l.ToDate.Date == date.Date;
+		}
+
+		// For "Last day is half day" requests we store Duration=FullDay and HalfDaySession != null.
+		private static bool IsLastDayHalfOnDate(Models.Entities.EmployeeLeave l, DateTime date)
+		{
+			return l.Duration == LeaveDuration.FullDay
+			       && l.HalfDaySession.HasValue
+			       && l.ToDate.Date == date.Date;
+		}
+
+		[HttpGet]
 		public async Task<IActionResult> Details(int id)
 		{
 			ViewBag.IsAdmin = IsAdminUser();
@@ -386,12 +445,22 @@ namespace HotelManagement.Controllers
 		}
 
 		[HttpGet]
-		public async Task<IActionResult> Apply()
+		public async Task<IActionResult> Apply(DateTime? fromDate = null, DateTime? toDate = null)
 		{
+			// If a date is provided from the calendar, prefill the form.
+			// When only one side is provided, mirror it to keep the range valid.
+			var from = (fromDate ?? toDate)?.Date;
+			var to = (toDate ?? fromDate)?.Date;
+
+			if (from.HasValue && to.HasValue && to.Value < from.Value)
+			{
+				to = from;
+			}
+
 			var model = new ApplyLeaveViewModel
 			{
-				FromDate = DateTime.UtcNow.Date,
-				ToDate = DateTime.UtcNow.Date,
+				FromDate = from ?? DateTime.UtcNow.Date,
+				ToDate = to ?? DateTime.UtcNow.Date,
 				Type = LeaveType.Planned,
 				Duration = LeaveDuration.FullDay
 			};

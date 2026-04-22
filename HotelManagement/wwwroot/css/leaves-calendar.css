@@ -11,6 +11,14 @@
 
 /* Desktop toolbar highlight + spacing */
 @media (min-width: 768px) {
+  .calendar-day-cell[data-date] {
+    cursor: pointer;
+  }
+
+  .calendar-day-cell[data-date]:hover {
+    background: rgba(25, 135, 84, 0.08); /* bootstrap success subtle-ish */
+  }
+
   .calendar-toolbar {
     background: rgba(13, 110, 253, 0.08); /* bootstrap primary subtle-ish */
     border: 1px solid rgba(13, 110, 253, 0.25);
