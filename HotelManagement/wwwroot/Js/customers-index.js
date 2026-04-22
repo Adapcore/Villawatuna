@@ -9,7 +9,45 @@ var customerState = {
     q: null
 };
 
+function getUrlSearchParams() {
+    return new URLSearchParams(window.location.search || '');
+}
+
+function setQueryParam(key, value) {
+    var params = getUrlSearchParams();
+    if (value === null || value === undefined || value === '') {
+        params.delete(key);
+    } else {
+        params.set(key, value);
+    }
+
+    var qs = params.toString();
+    var newUrl = window.location.pathname + (qs ? ('?' + qs) : '') + (window.location.hash || '');
+    window.history.replaceState({}, '', newUrl);
+}
+
+function getQueryParam(key) {
+    return getUrlSearchParams().get(key);
+}
+
+function applyStatusFromQuery() {
+    var status = (getQueryParam('status') || '').toLowerCase();
+    if (status !== 'all' && status !== 'active' && status !== 'inactive') {
+        status = 'all';
+    }
+
+    customerState.status = status;
+    $('#customerStatusTabs [data-filter]').removeClass('active');
+    $('#customerStatusTabs [data-filter="' + status + '"]').addClass('active');
+}
+
 $(document).ready(function () {
+    // Initialize tab from query string (supports redirect/back navigation)
+    applyStatusFromQuery();
+    // Initialize page from query string
+    var pageFromQuery = parseInt(getQueryParam('page') || '1');
+    customerState.currentPage = (!isNaN(pageFromQuery) && pageFromQuery > 0) ? pageFromQuery : 1;
+
     // Tab clicks
     $('#customerStatusTabs [data-filter]').on('click', function () {
         $('#customerStatusTabs [data-filter]').removeClass('active');
@@ -17,6 +55,8 @@ $(document).ready(function () {
 
         customerState.status = $(this).data('filter') || 'all';
         customerState.currentPage = 1;
+        setQueryParam('status', customerState.status);
+        setQueryParam('page', null);
         loadCustomers();
     });
 
@@ -28,6 +68,7 @@ $(document).ready(function () {
             var pageMatch = href.match(/page=(\d+)/);
             if (pageMatch) {
                 customerState.currentPage = parseInt(pageMatch[1]);
+                setQueryParam('page', customerState.currentPage);
                 loadCustomers();
             }
         }
@@ -186,8 +227,8 @@ function renderCustomerPagination(pagination) {
     var html = '<div class="d-flex justify-content-center mt-4"><ul class="pagination">';
 
     if (pagination.hasPreviousPage) {
-        html += '<li class="page-item"><a class="page-link" href="?page=1">First</a></li>';
-        html += '<li class="page-item"><a class="page-link" href="?page=' + (pagination.pageNumber - 1) + '">Previous</a></li>';
+        html += '<li class="page-item"><a class="page-link" href="' + buildPageHref(1) + '">First</a></li>';
+        html += '<li class="page-item"><a class="page-link" href="' + buildPageHref(pagination.pageNumber - 1) + '">Previous</a></li>';
     }
 
     var startPage = Math.max(1, pagination.pageNumber - 1);
@@ -195,12 +236,12 @@ function renderCustomerPagination(pagination) {
 
     for (var i = startPage; i <= endPage; i++) {
         var activeClass = i === pagination.pageNumber ? 'active' : '';
-        html += '<li class="page-item ' + activeClass + '"><a class="page-link" href="?page=' + i + '">' + i + '</a></li>';
+        html += '<li class="page-item ' + activeClass + '"><a class="page-link" href="' + buildPageHref(i) + '">' + i + '</a></li>';
     }
 
     if (pagination.hasNextPage) {
-        html += '<li class="page-item"><a class="page-link" href="?page=' + (pagination.pageNumber + 1) + '">Next</a></li>';
-        html += '<li class="page-item"><a class="page-link" href="?page=' + pagination.pageCount + '">Last</a></li>';
+        html += '<li class="page-item"><a class="page-link" href="' + buildPageHref(pagination.pageNumber + 1) + '">Next</a></li>';
+        html += '<li class="page-item"><a class="page-link" href="' + buildPageHref(pagination.pageCount) + '">Last</a></li>';
     }
 
     html += '</ul></div>';
@@ -213,6 +254,17 @@ function renderCustomerPagination(pagination) {
     html += '</small></div>';
 
     $('#customerPaginationContainer').html(html);
+}
+
+function buildPageHref(pageNumber) {
+    var params = getUrlSearchParams();
+    params.set('page', pageNumber);
+    // ensure the tab is preserved when paging
+    if (customerState && customerState.status) {
+        params.set('status', customerState.status);
+    }
+    var qs = params.toString();
+    return window.location.pathname + (qs ? ('?' + qs) : '');
 }
 
 function showCustomerError(message) {
