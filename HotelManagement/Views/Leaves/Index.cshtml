@@ -72,6 +72,7 @@
                 <div class="col-md-3 col-12">
                     <div class="d-flex gap-2 flex-nowrap justify-content-md-end">
                         <button type="button" class="btn btn-sm @(activeRange == "today" ? "btn-secondary" : "btn-outline-secondary")" data-range="today">Today</button>
+                        <button type="button" class="btn btn-sm @(activeRange == "yesterday" ? "btn-secondary" : "btn-outline-secondary")" data-range="yesterday">Yesterday</button>
                         <button type="button" class="btn btn-sm @(activeRange == "month" ? "btn-secondary" : "btn-outline-secondary")" data-range="month">Month</button>
                         <button type="button" class="btn btn-sm @(activeRange == "year" ? "btn-secondary" : "btn-outline-secondary")" data-range="year">Year</button>
                         <a class="btn btn-outline-dark btn-sm" asp-action="Index">Clear</a>

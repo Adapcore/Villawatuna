@@ -104,6 +104,35 @@ $(document).ready(function () {
         onDateBtnAction(firstDayStr, lastDayStr, this);        
     });
 
+    // Clear filters
+    $(document).on('click', '#btnInvoiceClear', function (e) {
+        e.preventDefault();
+
+        // reset dropdowns
+        invoiceState.isInternalCallScope = true;
+        $('#customerId').val('0');
+        $('#invoiceType').val('');
+        $('#fromDate').val('');
+        $('#toDate').val('');
+        invoiceState.isInternalCallScope = false;
+
+        invoiceState.customerId = 0;
+        invoiceState.invoiceType = null;
+        invoiceState.fromDate = null;
+        invoiceState.toDate = null;
+        invoiceState.currentPage = 1;
+
+        // reset status tab to All
+        invoiceState.invoiceStatus = null;
+        $('.invoice-status-tab').removeClass('active');
+        $('.invoice-status-tab[data-status=""]').addClass('active');
+
+        // clear quick button active highlight
+        $('#btnToday, #btnYesterday, #btnMonth, #btnYear').removeClass('active');
+
+        loadInvoices();
+    });
+
     // Status tab clicks
     $('.invoice-status-tab').on('click', function (e) {
         e.preventDefault();

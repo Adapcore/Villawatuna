@@ -1,4 +1,4 @@
-﻿@using HotelManagement.Enums
+@using HotelManagement.Enums
 @using HotelManagement.Helper
 
 @{
@@ -120,6 +120,9 @@
                                         <button type="button" id="btnYesterday" class="btn btn-outline-secondary btn-sm">Yesterday</button>
                                         <button type="button" id="btnMonth" class="btn btn-outline-secondary btn-sm">Month</button>
                                         <button type="button" id="btnYear" class="btn btn-outline-secondary btn-sm">Year</button>
+                                        <button type="button" id="btnInvoiceClear" class="btn btn-outline-dark btn-sm" title="Clear filters" aria-label="Clear filters">
+                                            Clear
+                                        </button>
                                         @* <button type="button" id="btnApply" class="btn btn-primary btn-sm"><i class="bi bi-funnel"></i> Apply</button> *@
                                     </div>
                                 </div>
@@ -235,4 +238,4 @@
 
 <input type="hidden" id="isAdminFlag" data-is-admin="@isAdmin" />
 
-<script src="~/js/invoice-index.js?v=@Configuration["Assets:Version"]"></script>
+<script src="~/js/invoice-index.js" asp-append-version="true"></script>

@@ -158,6 +158,27 @@ $(document).ready(function () {
         onDateBtnAction(firstDayStr, lastDayStr, this);
     });
 
+    // Clear filters
+    $('#btnExpenseClear').on('click', function (e) {
+        e.preventDefault();
+
+        expenseState.isInternalCallScope = true;
+        $('#startDate').val('');
+        $('#endDate').val('');
+        $('#expenseTypeId').val('0');
+        $('#payeeName').val('');
+        expenseState.isInternalCallScope = false;
+
+        expenseState.startDate = null;
+        expenseState.endDate = null;
+        expenseState.expenseTypeId = 0;
+        expenseState.payeeName = null;
+        expenseState.currentPage = 1;
+
+        $('#btnToday, #btnYesterday, #btnMonth, #btnYear').removeClass('active');
+        loadExpenses();
+    });
+
     //Load initial data(current month)
     $('#btnMonth').click();
 });

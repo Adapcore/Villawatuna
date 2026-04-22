@@ -49,6 +49,10 @@ namespace HotelManagement.Controllers
 						fromDate = today;
 						toDate = today;
 						break;
+					case "yesterday":
+						fromDate = today.AddDays(-1);
+						toDate = today.AddDays(-1);
+						break;
 					case "month":
 						fromDate = new DateTime(today.Year, today.Month, 1);
 						toDate = fromDate.Value.AddMonths(1).AddDays(-1);
@@ -129,6 +133,10 @@ namespace HotelManagement.Controllers
 					case "today":
 						fromParsed = today;
 						toParsed = today;
+						break;
+					case "yesterday":
+						fromParsed = today.AddDays(-1);
+						toParsed = today.AddDays(-1);
 						break;
 					case "month":
 						fromParsed = new DateTime(today.Year, today.Month, 1);

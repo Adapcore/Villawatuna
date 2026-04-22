@@ -54,14 +54,14 @@ $(document).ready(function () {
     $('[data-range]').each(function () {
       var $b = $(this);
       var isActive = ($b.data('range') || '') === rangeValue;
-      $b.toggleClass('btn-secondary', isActive);
+      $b.toggleClass('btn-primary', isActive);
       $b.toggleClass('btn-outline-secondary', !isActive);
     });
   }
 
   function clearRangeButtonActive() {
     $('[data-range]').each(function () {
-      $(this).removeClass('btn-secondary').addClass('btn-outline-secondary');
+      $(this).removeClass('btn-primary').addClass('btn-outline-secondary');
     });
   }
 
@@ -76,6 +76,11 @@ $(document).ready(function () {
     if (v === 'today') {
       var t = formatDateLocal(now);
       setDatesInternal(t, t);
+    } else if (v === 'yesterday') {
+      var y = new Date(now);
+      y.setDate(y.getDate() - 1);
+      var ys = formatDateLocal(y);
+      setDatesInternal(ys, ys);
     } else if (v === 'month') {
       var firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
       var lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
