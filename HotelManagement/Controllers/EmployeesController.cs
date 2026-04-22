@@ -21,13 +21,33 @@ namespace HotelManagement.Controllers
             _pageSize = paginationSettings.Value.DefaultPageSize;
         }
 
-        public async Task<IActionResult> Index(int page = 1)
+        public async Task<IActionResult> Index(int page = 1, string? q = null)
         {
             int pageNumber = page < 1 ? 1 : page;
 
             List<Employee> employees = await _employeeService.GetAllAsync();
+
+            if (!string.IsNullOrWhiteSpace(q))
+            {
+                var term = q.Trim();
+                if (term.Length >= 3)
+                {
+                    term = term.ToLowerInvariant();
+                    employees = employees
+                        .Where(e =>
+                            (($"{e.FirstName} {e.LastName}").ToLowerInvariant().Contains(term))
+                            || ((e.Email ?? string.Empty).ToLowerInvariant().Contains(term))
+                            || ((e.ContactNo ?? string.Empty).ToLowerInvariant().Contains(term))
+                            || ((e.NIC ?? string.Empty).ToLowerInvariant().Contains(term))
+                            || ((e.EPFNo ?? string.Empty).ToLowerInvariant().Contains(term))
+                        )
+                        .ToList();
+                }
+            }
+
             var pagedList = employees.ToPagedList(pageNumber, _pageSize);
 
+            ViewBag.Search = q ?? string.Empty;
             return View(pagedList);
         }
 

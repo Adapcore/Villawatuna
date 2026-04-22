@@ -15,6 +15,25 @@
         </a>
     </div>
 
+    <!-- Search -->
+    <div class="card mb-3">
+        <div class="card-body p-3">
+            <div class="row g-2 align-items-end">
+                <div class="col-12 col-lg-8">
+                    <label class="form-label fw-bold mb-1">Search</label>
+                    <input type="text"
+                           id="employeeSearch"
+                           class="form-control"
+                           value="@(ViewBag.Search ?? "")"
+                           placeholder="Name / NIC / Contact / Email"
+                           autocomplete="off" />
+                    <div class="form-text">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- 🔹 Desktop Table -->
     <div class="list-table-desktop">
         <div class="table-responsive shadow-sm">
@@ -98,6 +117,9 @@
     @await Html.PartialAsync("_Pagination", Model)
 </div>
 
+@section Scripts {
+    <script src="~/js/employees-index.js" asp-append-version="true"></script>
+}
 
 
 
