@@ -11,3 +11,104 @@
 .leave-col-status { min-width: 110px; }
 .leave-col-actions { min-width: 220px; }
 
+/* Pagination - match invoice list look */
+@media (max-width: 991.98px) {
+  .d-flex.justify-content-center {
+    width: 100%;
+    padding: 12px 0;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .pagination {
+    flex-wrap: wrap;
+    justify-content: center;
+    margin: 0;
+    padding: 0;
+    gap: 4px;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .pagination .page-item {
+    margin: 0;
+    flex-shrink: 0;
+  }
+
+  .pagination .page-link {
+    padding: 10px 14px;
+    font-size: 0.85rem;
+    min-width: 44px;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    border: 1px solid #dee2e6;
+    color: #0d6efd;
+    background-color: #fff;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+  }
+
+  .pagination .page-link:hover {
+    background-color: #e9ecef;
+    border-color: #adb5bd;
+    color: #0a58ca;
+    transform: scale(1.05);
+  }
+
+  .pagination .page-item.active .page-link {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+    color: #fff;
+    font-weight: 600;
+    z-index: 1;
+  }
+
+  .pagination .page-item.disabled .page-link {
+    color: #6c757d;
+    background-color: #f8f9fa;
+    border-color: #dee2e6;
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+
+  .pagination .page-item.disabled .page-link:hover {
+    transform: none;
+    background-color: #f8f9fa;
+  }
+
+  .d-flex.justify-content-center.mt-4 {
+    margin-top: 20px !important;
+    margin-bottom: 20px;
+  }
+
+  .pagination li {
+    list-style: none;
+  }
+
+  @media (max-width: 400px) {
+    .pagination .page-link {
+      padding: 8px 10px;
+      font-size: 0.8rem;
+      min-width: 40px;
+      min-height: 40px;
+    }
+
+    .pagination {
+      gap: 2px;
+    }
+  }
+
+  @media (max-width: 360px) {
+    .pagination .page-link {
+      padding: 8px 8px;
+      font-size: 0.75rem;
+      min-width: 36px;
+      min-height: 36px;
+    }
+  }
+}
+

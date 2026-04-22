@@ -5,6 +5,7 @@ using HotelManagement.Services.Interface;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using System.Globalization;
 using X.PagedList;
 using Umbraco.Cms.Core.Security;
 using Umbraco.Cms.Core.Services;
@@ -85,6 +86,120 @@ namespace HotelManagement.Controllers
 			PopulateStatuses(model);
 
 			return View(model);
+		}
+
+		[HttpGet]
+		public async Task<IActionResult> GetLeaves(
+			int page = 1,
+			int? employeeId = null,
+			LeaveStatus? status = null,
+			string? fromDate = null,
+			string? toDate = null,
+			string? range = null)
+		{
+			var isAdmin = IsAdminUser();
+			var today = DateTime.UtcNow.Date;
+
+			DateTime? fromParsed = null;
+			DateTime? toParsed = null;
+
+			// Accept yyyy-MM-dd (and fallback to current culture parsing).
+			if (!string.IsNullOrWhiteSpace(fromDate))
+			{
+				if (DateTime.TryParseExact(fromDate, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out var fd)
+					|| DateTime.TryParse(fromDate, out fd))
+				{
+					fromParsed = fd.Date;
+				}
+			}
+			if (!string.IsNullOrWhiteSpace(toDate))
+			{
+				if (DateTime.TryParseExact(toDate, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out var td)
+					|| DateTime.TryParse(toDate, out td))
+				{
+					toParsed = td.Date;
+				}
+			}
+
+			// If range is provided, it overrides explicit dates (same behavior as server-rendered page).
+			if (!string.IsNullOrWhiteSpace(range))
+			{
+				switch (range.Trim().ToLowerInvariant())
+				{
+					case "today":
+						fromParsed = today;
+						toParsed = today;
+						break;
+					case "month":
+						fromParsed = new DateTime(today.Year, today.Month, 1);
+						toParsed = fromParsed.Value.AddMonths(1).AddDays(-1);
+						break;
+					case "year":
+						fromParsed = new DateTime(today.Year, 1, 1);
+						toParsed = new DateTime(today.Year, 12, 31);
+						break;
+				}
+			}
+
+			var pageNumber = page < 1 ? 1 : page;
+			var (leaves, totalDays, openDays, approvedDays, rejectedDays) = await _leaveService.GetPagedAsync(
+				pageNumber: pageNumber,
+				pageSize: _pageSize,
+				employeeId: employeeId,
+				fromDate: fromParsed,
+				toDate: toParsed,
+				status: status);
+
+			var currentUserId = GetCurrentUserId();
+
+			var items = leaves.Select(l => new
+			{
+				id = l.ID,
+				createdBy = l.CreatedBy,
+				employeeId = l.EmployeeId,
+				employeeName = l.Employee != null ? $"{l.Employee.FirstName} {l.Employee.LastName}".Trim() : l.EmployeeId.ToString(),
+				requestDate = l.RequestDate.ToString("yyyy-MM-dd"),
+				fromDate = l.FromDate.ToString("yyyy-MM-dd"),
+				toDate = l.ToDate.ToString("yyyy-MM-dd"),
+				noOfDays = l.NoOfDays,
+				reason = l.Reason,
+				status = l.Status.ToString(),
+				statusValue = (int)l.Status,
+				canEdit = l.Status == LeaveStatus.Open,
+				canApproveReject = isAdmin && l.Status == LeaveStatus.Open,
+				canCancel = l.Status == LeaveStatus.Open && l.CreatedBy == currentUserId
+			}).ToList();
+
+			return Json(new
+			{
+				success = true,
+				isAdmin,
+				leaves = items,
+				totals = new
+				{
+					totalDays,
+					openDays,
+					approvedDays,
+					rejectedDays
+				},
+				pagination = new
+				{
+					pageNumber = leaves.PageNumber,
+					pageCount = leaves.PageCount,
+					totalItemCount = leaves.TotalItemCount,
+					pageSize = leaves.PageSize,
+					hasPreviousPage = leaves.HasPreviousPage,
+					hasNextPage = leaves.HasNextPage
+				},
+				filters = new
+				{
+					employeeId,
+					status = status?.ToString(),
+					fromDate = fromParsed?.ToString("yyyy-MM-dd"),
+					toDate = toParsed?.ToString("yyyy-MM-dd"),
+					range = (range ?? "").Trim().ToLowerInvariant()
+				}
+			});
 		}
 
 		[HttpGet]
@@ -199,10 +314,19 @@ namespace HotelManagement.Controllers
 			try
 			{
 				await _leaveService.ApproveAsync(id, adminUserId: GetCurrentUserId());
+				if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+				{
+					return Json(new { success = true, message = "Leave approved." });
+				}
+
 				TempData["SuccessMessage"] = "Leave approved.";
 			}
 			catch (Exception ex)
 			{
+				if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+				{
+					return Json(new { success = false, message = ex.Message });
+				}
 				TempData["ErrorMessage"] = ex.Message;
 			}
 
@@ -217,10 +341,19 @@ namespace HotelManagement.Controllers
 			try
 			{
 				await _leaveService.RejectAsync(id, adminUserId: GetCurrentUserId());
+				if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+				{
+					return Json(new { success = true, message = "Leave rejected." });
+				}
+
 				TempData["SuccessMessage"] = "Leave rejected.";
 			}
 			catch (Exception ex)
 			{
+				if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+				{
+					return Json(new { success = false, message = ex.Message });
+				}
 				TempData["ErrorMessage"] = ex.Message;
 			}
 
