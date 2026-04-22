@@ -1,5 +1,3 @@
-﻿@model X.PagedList.IPagedList<HotelManagement.Models.Entities.Payment>
-
 @using HotelManagement.Helper
 @{
     ViewData["Title"] = "Payments";
@@ -13,119 +11,73 @@
         <h2 class="fw-bold text-primary mb-0">💲Payments</h2>
     </div>
 
-    <!-- 🔹 Desktop Table -->
-    <div class="payments-table-desktop">
-        @if (Model != null && Model.Any())
-        {
-            <div class="table-responsive shadow-sm">
-                <table class="table table-striped table-bordered">
-                    <thead class="table-dark">
-                        <tr>
-                            <th>Payment ID</th>
-                            <th>Date</th>
-                            <th>Invoice No</th>
-                            <th>Type</th>
-                            <th>Reference</th>
-                            <th class="text-end">Amount</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var payment in Model)
-                        {
-                            <tr>
-                                <td>@payment.ID</td>
-                                <td>@payment.Date.ToString("dd MMM yyyy")</td>
-                                <td>@payment.InvoiceNo</td>
-                                <td>@EnumHelper.GetDisplayName(payment.Type)</td>
-                                <td>@(payment.Reference ?? "-")</td>
-                                <td class="text-end">
-                                    <div class="fw-bold">LKR @payment.Amount.ToString("N2")</div>
-                                    @if (payment.CurryAmount.HasValue && payment.CurryAmount.Value > 0 && payment.Invoice != null && payment.PaidCurrency == HotelManagement.Enums.PaidCurrency.SelectedCurrency)
-                                    {
-                                        <div class="text-primary" style="font-size: 0.75rem;">@(payment.Invoice.Currency) @payment.CurryAmount.Value.ToString("N2")</div>
-                                    }
-                                </td>
-                              
-                            </tr>
-                        }
-                    </tbody>
-                </table>
-            </div>
-        }
-        else
-        {
-            <div class="alert alert-info">
-                No payments found.
-            </div>
-        }
-    </div>
-
-    <!-- 🔹 Mobile Card Layout -->
-    <div class="payments-table-mobile">
-        @if (Model != null && Model.Any())
-        {
-            // Group payments by date (descending order)
-            var groupedPayments = Model
-                .OrderByDescending(p => p.Date)
-                .ThenByDescending(p => p.ID)
-                .GroupBy(p => p.Date.Date)
-                .ToList();
-
-            @foreach (var dateGroup in groupedPayments)
-            {
-                <div class="payment-date-group">
-                    <div class="payment-date-header">
-                        <h6 class="payment-date-title">@dateGroup.Key.ToString("MMM dd, yyyy")</h6>
-                    </div>
-
-                    @foreach (var payment in dateGroup)
-                    {
-                        var paymentTypeName = $"Invoice #{payment.InvoiceNo}";
-
-                        <div class="payment-row-wrapper">
-                            <div class="payment-row-compact payment-status-success">
-                                <div class="payment-row-header">
-                                    <div class="payment-type-icon">
-                                        <i class="bi bi-credit-card"></i>
-                                    </div>
-                                    <div class="payment-invoice-name">
-                                        @paymentTypeName
-                                    </div>
-                                    <div class="payment-amount">
-                                        <div class="fw-bold">@payment.Amount.ToString("N2")</div>
-                                        @if (payment.CurryAmount.HasValue && payment.CurryAmount.Value > 0 && payment.Invoice != null)
-                                        {
-                                            <div class="text-primary" style="font-size: 0.75rem;">@(payment.Invoice.Currency ?? "USD") @payment.CurryAmount.Value.ToString("N2")</div>
-                                        }
-                                    </div>
-                                </div>
-                                <div class="payment-row-footer">
-                                    <span class="payment-number">
-                                        <span class="payment-number-label">PAY No</span>
-                                        <span class="payment-number-value">#@payment.ID</span>
-                                    </span>
-                                    <span class="payment-type-badge">@EnumHelper.GetDisplayName(payment.Type)</span>
-                                    <a href="@Url.Action("Details", "Payments", new { id = payment.ID })" class="btn-view-payment">
-                                        <i class="bi bi-eye"></i> View
-                                    </a>
-                                    @if (payment.CreatedByMember != null && !string.IsNullOrEmpty(payment.CreatedByMember.Name))
-                                    {
-                                        <span class="payment-creator">@payment.CreatedByMember.Name</span>
-                                    }
-                                </div>
-                            </div>
-                        </div>
-                    }
+    <!-- Filters -->
+    <div class="card mb-3">
+        <div class="card-body p-3">
+            <form id="paymentFilterForm" class="row g-3 align-items-end">
+                <div class="col-md-3 col-sm-6">
+                    <label class="form-label fw-bold">From Date</label>
+                    <input type="date" name="fromDate" id="paymentFromDate" class="form-control form-control-sm" />
                 </div>
-            }
-        }
-        else
-        {
-            <div class="text-center text-muted py-5">
-                <i class="bi bi-inbox fs-1"></i>
-                <p class="mt-3 fs-5">No payments found.</p>
-            </div>
-        }
+                <div class="col-md-3 col-sm-6">
+                    <label class="form-label fw-bold">To Date</label>
+                    <input type="date" name="toDate" id="paymentToDate" class="form-control form-control-sm" />
+                </div>
+                <div class="col-md-3 col-sm-6">
+                    <label class="form-label fw-bold">Type</label>
+                    <select name="type" id="paymentType" class="form-select form-select-sm" asp-items="ViewBag.PaymentTypes">
+                        <option value="">-- All --</option>
+                    </select>
+                </div>
+                <div class="col-md-3 col-12">
+                    <div class="d-flex gap-1 flex-wrap flex-md-nowrap justify-content-md-end">
+                        <button type="button" class="btn btn-outline-secondary btn-sm" data-range="today">Today</button>
+                        <button type="button" class="btn btn-outline-secondary btn-sm" data-range="yesterday">Yesterday</button>
+                        <button type="button" class="btn btn-outline-secondary btn-sm" data-range="month">Month</button>
+                        <button type="button" class="btn btn-outline-secondary btn-sm" data-range="year">Year</button>
+                        <button type="button" class="btn btn-outline-dark btn-sm" id="btnPaymentClear">Clear</button>
+                    </div>
+                </div>
+            </form>
+        </div>
     </div>
+
+    <!-- Loading Indicator -->
+    <div id="paymentLoadingIndicator" class="text-center py-5" style="display: none;">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+        <p class="mt-3">Loading payments...</p>
+    </div>
+
+    <!-- Desktop Table -->
+    <div class="payments-table-desktop" id="paymentTableDesktop">
+        <div class="table-responsive shadow-sm">
+            <table class="table table-striped table-bordered">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Payment ID</th>
+                        <th>Date</th>
+                        <th>Invoice No</th>
+                        <th>Type</th>
+                        <th>Reference</th>
+                        <th class="text-end">Amount</th>
+                    </tr>
+                </thead>
+                <tbody id="paymentTableBody">
+                    <!-- Content loaded via AJAX -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Mobile Card Layout -->
+    <div class="payments-table-mobile" id="paymentTableMobile">
+        <!-- Content loaded via AJAX -->
+    </div>
+
+    <!-- Pagination Container -->
+    <div id="paymentPaginationContainer"></div>
 </div>
-@await Html.PartialAsync("_Pagination", Model)
+
+<script src="~/js/payments-index.js" asp-append-version="true"></script>
