@@ -1,4 +1,4 @@
-﻿@{
+@{
     ViewData["Title"] = "Customers";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
@@ -11,6 +11,22 @@
         <a asp-action="Create" class="btn btn-success">
             <i class="bi bi-plus-circle"></i> Add Customer
         </a>
+    </div>
+
+    <!-- Search -->
+    <div class="card mb-3">
+        <div class="card-body p-3">
+            <div class="row g-2 align-items-end">
+                <div class="col-12 col-lg-8">
+                    <label class="form-label fw-bold mb-1">Search</label>
+                    <input type="text"
+                           id="customerSearch"
+                           class="form-control"
+                           placeholder="Name / Passport / Contact / Email"
+                           autocomplete="off" />
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- 🔹 Status Tabs -->
@@ -68,5 +84,5 @@
 </div>
 
 @section Scripts {
-    <script src="~/js/customers-index.js"></script>
+    <script src="~/js/customers-index.js" asp-append-version="true"></script>
 }

@@ -1,4 +1,4 @@
-﻿using HotelManagement.Models.DTO;
+using HotelManagement.Models.DTO;
 using HotelManagement.Models.Entities;
 using HotelManagement.Services.Interface;
 using Microsoft.AspNetCore.Authorization;
@@ -32,7 +32,7 @@ namespace HotelManagement.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetCustomers(string status = "all", int page = 1)
+        public async Task<IActionResult> GetCustomers(string status = "all", int page = 1, string? q = null)
         {
             int pageNumber = page < 1 ? 1 : page;
             var customers = await _customerService.GetAllAsync();
@@ -48,6 +48,24 @@ namespace HotelManagement.Controllers
                     break;
                 default:
                     break;
+            }
+
+            // Search (single textbox): Name, Passport, Contact, Email (min 3 chars on client, but safe on server too)
+            if (!string.IsNullOrWhiteSpace(q))
+            {
+                var term = q.Trim();
+                if (term.Length >= 3)
+                {
+                    term = term.ToLowerInvariant();
+                    customers = customers.Where(c =>
+                            ((c.FirstName ?? "") + " " + (c.LastName ?? "")).ToLowerInvariant().Contains(term)
+                            || (c.Email ?? "").ToLowerInvariant().Contains(term)
+                            || (c.ContactNo ?? "").ToLowerInvariant().Contains(term)
+                            || (c.PassportNo ?? "").ToLowerInvariant().Contains(term)
+                            || (c.RoomNo ?? "").ToLowerInvariant().Contains(term)
+                        )
+                        .ToList();
+                }
             }
 
             var pagedList = customers.ToPagedList(pageNumber, _pageSize);
@@ -73,6 +91,7 @@ namespace HotelManagement.Controllers
                     pageNumber = pagedList.PageNumber,
                     pageCount = pagedList.PageCount,
                     totalItemCount = pagedList.TotalItemCount,
+                    pageSize = pagedList.PageSize,
                     hasPreviousPage = pagedList.HasPreviousPage,
                     hasNextPage = pagedList.HasNextPage,
                     isFirstPage = pagedList.IsFirstPage,

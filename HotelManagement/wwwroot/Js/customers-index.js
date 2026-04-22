@@ -5,7 +5,8 @@
 
 var customerState = {
     currentPage: 1,
-    status: 'all'
+    status: 'all',
+    q: null
 };
 
 $(document).ready(function () {
@@ -32,6 +33,21 @@ $(document).ready(function () {
         }
     });
 
+    // Search (debounced). Trigger load when 3+ chars, or when cleared.
+    var searchTimer = null;
+    $('#customerSearch').on('input', function () {
+        var v = ($(this).val() || '').trim();
+        customerState.q = v;
+
+        if (searchTimer) clearTimeout(searchTimer);
+        searchTimer = setTimeout(function () {
+            if (!customerState.q || customerState.q.length === 0 || customerState.q.length >= 3) {
+                customerState.currentPage = 1;
+                loadCustomers();
+            }
+        }, 350);
+    });
+
     // Initial load (all customers)
     loadCustomers();
 });
@@ -39,7 +55,8 @@ $(document).ready(function () {
 function loadCustomers() {
     var requestData = {
         page: customerState.currentPage,
-        status: customerState.status
+        status: customerState.status,
+        q: (customerState.q && customerState.q.trim().length >= 3) ? customerState.q.trim() : null
     };
 
     $.ajax({
@@ -183,8 +200,10 @@ function renderCustomerPagination(pagination) {
 
     html += '</ul></div>';
     html += '<div class="text-center mt-2"><small class="text-muted">';
-    html += 'Showing ' + ((pagination.pageNumber - 1) * customerState.pageSize + 1 || 1) + ' to ';
-    html += Math.min(pagination.pageNumber * customerState.pageSize || pagination.totalItemCount, pagination.totalItemCount) + ' of ';
+    var pageSize = pagination.pageSize || 10;
+    var start = ((pagination.pageNumber - 1) * pageSize) + 1;
+    var end = Math.min(pagination.pageNumber * pageSize, pagination.totalItemCount);
+    html += 'Showing ' + start + ' to ' + end + ' of ';
     html += pagination.totalItemCount + ' customers';
     html += '</small></div>';
 
