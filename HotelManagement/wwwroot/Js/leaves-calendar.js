@@ -117,6 +117,11 @@
                 var session = (l.halfDaySession || '').trim();
                 var sessionText = session ? (' · ' + escapeHtml(session)) : '';
                 var rangeText = escapeHtml(l.fromDate) + ' → ' + escapeHtml(l.toDate);
+                var daysText = (l.noOfDays !== null && l.noOfDays !== undefined && String(l.noOfDays) !== '')
+                  ? (' (' + escapeHtml(l.noOfDays) + ')')
+                  : '';
+                var leaveType = (l.leaveType || '').toString().trim();
+                var typeHtml = leaveType ? ('<div class="small text-muted">Type: ' + escapeHtml(leaveType) + '</div>') : '';
                 var reason = (l.reason || '').toString().trim();
                 var reasonHtml = reason ? ('<div class="small text-muted mt-1">Reason: ' + escapeHtml(reason) + '</div>') : '';
                 var itemClass = statusItemClass(l.status);
@@ -126,7 +131,8 @@
                   'href="/Leaves/Details/' + encodeURIComponent(l.id) + '">' +
                   '<div class="me-auto">' +
                   '<div class="fw-semibold">' + escapeHtml(l.employeeName) + '</div>' +
-                  '<div class="text-muted small">' + rangeText + sessionText + '</div>' +
+                  '<div class="text-muted small">' + rangeText + daysText + sessionText + '</div>' +
+                  typeHtml +
                   reasonHtml +
                   '</div>' +
                   '<span class="badge ' + statusBadgeClass(l.status) + ' align-self-center">' + escapeHtml(l.status) + '</span>' +

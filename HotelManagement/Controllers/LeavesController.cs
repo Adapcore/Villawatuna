@@ -285,6 +285,8 @@ namespace HotelManagement.Controllers
 					status = l.Status.ToString(),
 					fromDate = l.FromDate.ToString("yyyy-MM-dd"),
 					toDate = l.ToDate.ToString("yyyy-MM-dd"),
+					noOfDays = l.NoOfDays,
+					leaveType = l.Type.ToString(),
 					reason = l.Reason,
 					isHalfDay = isHalf,
 					halfDaySession = sessionText

@@ -192,14 +192,19 @@
                     <div class="modal-content">
                         <div class="modal-header">
                             <h5 class="modal-title" id="calendarDayModalLabel">Leaves</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            <div class="d-flex align-items-center gap-2 ms-auto">
+                                <a id="calendarDayAddBtn"
+                                   class="btn btn-sm btn-success d-inline-flex align-items-center gap-1"
+                                   href="@Url.Action("Apply","Leaves")"
+                                   title="Add Leave">
+                                    <i class="bi bi-plus-lg"></i>
+                                    <span>Add Leave</span>
+                                </a>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
                         </div>
                         <div class="modal-body">
                             <div id="calendarDayModalBody" class="small text-muted">Loading…</div>
-                        </div>
-                        <div class="modal-footer">
-                            <a id="calendarDayAddBtn" class="btn btn-success" href="@Url.Action("Apply","Leaves")">Add Leave</a>
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                         </div>
                     </div>
                 </div>
