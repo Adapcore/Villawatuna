@@ -300,7 +300,7 @@ function renderExpensesMobile(data, isAdmin) {
                         </span>
                         <span class="expense-type-badge">${expense.expenseTypeName || '-'}</span>
                         <span class="expense-payment-method">${expense.paymentMethod}</span>
-                        <a href="/Expenses/Edit/${expense.id}" class="btn-view-expense">
+                        <a href="/Expenses/Details/${expense.id}" class="btn-view-expense">
                             <i class="bi bi-eye"></i> View
                         </a>
                     </div>
