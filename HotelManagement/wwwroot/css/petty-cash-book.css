@@ -368,11 +368,6 @@
         word-break: break-word;
     }
 
-    #summaryIncomeByCurrency {
-        width: 100%;
-        text-align: right;
-    }
-
     .petty-cash-actions {
         flex-direction: column;
     }

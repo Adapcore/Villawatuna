@@ -23,12 +23,6 @@
         }).join('');
     }
 
-    function formatByCurrency(byCurrency) {
-        return Object.keys(byCurrency).sort().map(function (c) {
-            return c + ': ' + byCurrency[c].toFixed(2);
-        }).join(' | ');
-    }
-
     function collectIncomeRows() {
         var rows = [];
         $('#incomeTable tbody tr').each(function (index) {
@@ -87,10 +81,8 @@
         var balance = Math.round((openingBalance + totalIncomeLkr - totalExpensesLkr) * 100) / 100;
         var closeBalance = Math.round((balance - handedOver) * 100) / 100;
 
-        var byCurHtml = formatByCurrency(byCurrency);
-        $('#totalIncomeByCurrency').text(byCurHtml || '');
-        $('#summaryIncomeByCurrency').text(byCurHtml || '');
         $('#summaryOpeningBalance').text(money(openingBalance));
+        $('#totalIncomeLkrDisplay').text(money(totalIncomeLkr));
         $('#totalExpensesLkrDisplay').text(money(totalExpensesLkr));
         $('#summaryIncome').text(money(totalIncomeLkr));
         $('#summaryExpenses').text(money(totalExpensesLkr));
@@ -101,8 +93,7 @@
             totalIncomeLkr: totalIncomeLkr,
             totalExpensesLkr: totalExpensesLkr,
             balance: balance,
-            closeBalance: closeBalance,
-            byCurrency: byCurrency
+            closeBalance: closeBalance
         });
     }
 

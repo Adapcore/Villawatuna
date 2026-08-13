@@ -92,12 +92,9 @@
                             <tfoot>
                                 <tr class="petty-cash-totals">
                                     <td colspan="4">
-                                        <div class="fw-bold mb-1">Total Income</div>
-                                        <div id="totalIncomeByCurrency" class="small">
-                                            @if (Model.TotalIncome != null && Model.TotalIncome.Count > 0)
-                                            {
-                                                @string.Join(" | ", Model.TotalIncome.Select(t => $"{t.Currency}: {t.Total:0.00}"))
-                                            }
+                                        <div class="d-flex justify-content-between flex-wrap gap-1">
+                                            <span>Total Income (LKR)</span>
+                                            <span id="totalIncomeLkrDisplay">Rs. @Model.TotalIncomeBaseCurry.ToString("0.00")</span>
                                         </div>
                                     </td>
                                 </tr>
@@ -167,7 +164,7 @@
                 <div class="col-lg-6 col-12 petty-cash-summary">
                     <div class="summary-row">
                         <span class="fw-bold">Opening Balance</span>
-                        <span id="summaryOpeningBalance">Rs. @Model.OpeningBalance.ToString("0.00")</span>                     
+                        <span id="summaryOpeningBalance">Rs. @Model.OpeningBalance.ToString("0.00")</span>
                         @* <label class="mb-0 fw-bold" for="moneyInHand">💰 Money in Hand</label>
                         <div class="input-group">
                             <span class="input-group-text">Rs.</span>
@@ -178,15 +175,6 @@
                     <div class="summary-row">
                         <span>➕ Income (LKR)</span>
                         <span id="summaryIncome">Rs. @Model.TotalIncomeBaseCurry.ToString("0.00")</span>
-                    </div>
-                    <div class="summary-row">
-                        <span class="text-muted small">All currencies</span>
-                        <span id="summaryIncomeByCurrency" class="small text-muted">
-                            @if (Model.TotalIncome != null && Model.TotalIncome.Count > 0)
-                            {
-                                @string.Join(" | ", Model.TotalIncome.Select(t => $"{t.Currency}: {t.Total:0.00}"))
-                            }
-                        </span>
                     </div>
                     <div class="summary-row">
                         <span>➖ Expenses</span>
