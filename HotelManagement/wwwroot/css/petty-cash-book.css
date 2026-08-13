@@ -43,7 +43,146 @@
     flex-wrap: wrap;
 }
 
+/* Index list — desktop/mobile visibility */
+@media (min-width: 768px) {
+    .petty-cash-table-mobile {
+        display: none !important;
+    }
+
+    .petty-cash-table-desktop {
+        display: block;
+    }
+}
+
 @media (max-width: 767.98px) {
+    .petty-cash-table-desktop {
+        display: none !important;
+    }
+
+    .petty-cash-table-mobile {
+        display: block;
+    }
+
+    .petty-cash-index-header {
+        flex-direction: column;
+        align-items: stretch !important;
+        gap: 0.75rem;
+    }
+
+    .petty-cash-index-header .btn {
+        width: 100%;
+    }
+
+    .petty-cash-filter-card .card-body {
+        padding: 0.85rem;
+    }
+
+    .petty-cash-filter-buttons {
+        width: 100%;
+    }
+
+    .petty-cash-filter-buttons .d-flex {
+        width: 100%;
+    }
+
+    .petty-cash-filter-buttons .btn {
+        flex: 1 1 auto;
+        min-width: 0;
+    }
+
+    /* Mobile entry cards */
+    .pcb-card {
+        background: #fff;
+        border: 1px solid #dee2e6;
+        border-left: 4px solid #0d6efd;
+        border-radius: 8px;
+        padding: 12px 14px;
+        margin-bottom: 10px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+    }
+
+    .pcb-card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 10px;
+        padding-bottom: 8px;
+        border-bottom: 1px solid #e9ecef;
+    }
+
+    .pcb-card-date {
+        font-size: 1rem;
+        font-weight: 700;
+        color: #212529;
+        margin: 0;
+    }
+
+    .pcb-card-close {
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: #0d6efd;
+        white-space: nowrap;
+    }
+
+    .pcb-card-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px 12px;
+        margin-bottom: 10px;
+    }
+
+    .pcb-metric {
+        background: #f8f9fa;
+        border-radius: 6px;
+        padding: 8px 10px;
+    }
+
+    .pcb-metric-label {
+        display: block;
+        font-size: 0.72rem;
+        font-weight: 600;
+        color: #6c757d;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+        margin-bottom: 2px;
+    }
+
+    .pcb-metric-value {
+        display: block;
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: #212529;
+    }
+
+    .pcb-metric-value.is-income {
+        color: #198754;
+    }
+
+    .pcb-metric-value.is-expense {
+        color: #dc3545;
+    }
+
+    .pcb-card-actions {
+        display: flex;
+        gap: 8px;
+    }
+
+    .pcb-card-actions .btn {
+        flex: 1;
+        min-height: 42px;
+    }
+
+    .pcb-empty {
+        text-align: center;
+        color: #6c757d;
+        padding: 2rem 1rem;
+        background: #fff;
+        border: 1px dashed #dee2e6;
+        border-radius: 8px;
+    }
+
+    /* Create/Edit mobile (details form) */
     .petty-cash-page-header {
         flex-direction: column;
         align-items: stretch;
@@ -61,7 +200,6 @@
         padding: 1rem !important;
     }
 
-    /* Stack header fields full width */
     .petty-cash-meta .col-md-3 {
         width: 100%;
     }
@@ -71,7 +209,6 @@
         min-height: 44px;
     }
 
-    /* Hide table headers — rows become cards */
     #incomeTable thead,
     #expenseTable thead {
         display: none;
@@ -191,7 +328,6 @@
         min-height: 42px;
     }
 
-    /* Totals stay as a footer block */
     #incomeTable tfoot,
     #expenseTable tfoot {
         display: block;
@@ -246,7 +382,6 @@
         min-height: 48px;
     }
 
-    /* Avoid page-level horizontal scroll from nested tables */
     .petty-cash-panel .table-responsive {
         overflow: visible;
     }

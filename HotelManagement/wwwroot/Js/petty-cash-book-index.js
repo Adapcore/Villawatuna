@@ -1,5 +1,6 @@
 /**
  * Petty Cash Book Index — list, filters, pagination, delete
+ * Desktop table + mobile cards
  */
 var pettyCashState = {
     currentPage: 1,
@@ -20,6 +21,14 @@ function formatMoney(value) {
     var n = parseFloat(value);
     if (isNaN(n)) n = 0;
     return 'Rs. ' + n.toFixed(2);
+}
+
+function formatDateDisplay(dateStr) {
+    if (!dateStr) return '';
+    var d = new Date(dateStr + 'T00:00:00');
+    if (isNaN(d.getTime())) return dateStr;
+    var opts = { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' };
+    return d.toLocaleDateString(undefined, opts);
 }
 
 function getIsAdminFlag() {
@@ -144,6 +153,7 @@ function onDateBtnAction(fromDate, toDate, ele) {
 function loadEntries() {
     $('#pettyCashLoadingIndicator').show();
     $('#pettyCashTableDesktop').hide();
+    $('#pettyCashTableMobile').hide();
     $('#pettyCashPaginationContainer').hide();
 
     $.ajax({
@@ -162,14 +172,17 @@ function loadEntries() {
                 }
                 return;
             }
-            renderTable(response.entries || []);
+            renderEntries(response.entries || []);
             renderPagination(response.pagination);
-            $('#pettyCashTableDesktop').show();
+            // Let CSS media queries control desktop vs mobile visibility
+            $('#pettyCashTableDesktop').css('display', '');
+            $('#pettyCashTableMobile').css('display', '');
             $('#pettyCashPaginationContainer').show();
         },
         error: function () {
             $('#pettyCashLoadingIndicator').hide();
-            $('#pettyCashTableDesktop').show();
+            $('#pettyCashTableDesktop').css('display', '');
+            $('#pettyCashTableMobile').css('display', '');
             if (typeof showToast === 'function') {
                 showToast('Error loading petty cash entries.', 'error');
             }
@@ -177,7 +190,12 @@ function loadEntries() {
     });
 }
 
-function renderTable(entries) {
+function renderEntries(entries) {
+    renderDesktopTable(entries);
+    renderMobileCards(entries);
+}
+
+function renderDesktopTable(entries) {
     var $tbody = $('#pettyCashTableBody');
     $tbody.empty();
 
@@ -207,12 +225,50 @@ function renderTable(entries) {
     });
 }
 
+function renderMobileCards(entries) {
+    var $mobile = $('#pettyCashTableMobile');
+    $mobile.empty();
+
+    if (!entries.length) {
+        $mobile.html('<div class="pcb-empty">No entries found.</div>');
+        return;
+    }
+
+    var html = '';
+    entries.forEach(function (e) {
+        html += '<div class="pcb-card">';
+        html += '<div class="pcb-card-header">';
+        html += '<h6 class="pcb-card-date">' + formatDateDisplay(e.date) + '</h6>';
+        html += '<span class="pcb-card-close">' + formatMoney(e.closeBalance) + '</span>';
+        html += '</div>';
+
+        html += '<div class="pcb-card-grid">';
+        html += '<div class="pcb-metric"><span class="pcb-metric-label">Opening</span><span class="pcb-metric-value">' + formatMoney(e.openingBalance) + '</span></div>';
+        html += '<div class="pcb-metric"><span class="pcb-metric-label">Money in Hand</span><span class="pcb-metric-value">' + formatMoney(e.moneyInHand) + '</span></div>';
+        html += '<div class="pcb-metric"><span class="pcb-metric-label">Income (LKR)</span><span class="pcb-metric-value is-income">' + formatMoney(e.totalIncomeBaseCurry) + '</span></div>';
+        html += '<div class="pcb-metric"><span class="pcb-metric-label">Expenses</span><span class="pcb-metric-value is-expense">' + formatMoney(e.totalExpences) + '</span></div>';
+        html += '<div class="pcb-metric"><span class="pcb-metric-label">Balance</span><span class="pcb-metric-value">' + formatMoney(e.balance) + '</span></div>';
+        html += '<div class="pcb-metric"><span class="pcb-metric-label">Handed Over</span><span class="pcb-metric-value">' + formatMoney(e.handedOver) + '</span></div>';
+        html += '</div>';
+
+        html += '<div class="pcb-card-actions">';
+        html += '<a href="/PettyCashBook/Edit/' + e.id + '" class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i> Edit</a>';
+        if (pettyCashState.isAdmin) {
+            html += '<button type="button" class="btn btn-sm btn-outline-danger btn-delete-petty-cash" data-id="' + e.id + '" data-date="' + e.date + '"><i class="bi bi-trash"></i> Delete</button>';
+        }
+        html += '</div>';
+        html += '</div>';
+    });
+
+    $mobile.html(html);
+}
+
 function renderPagination(p) {
     var $container = $('#pettyCashPaginationContainer');
     $container.empty();
     if (!p || p.pageCount <= 1) return;
 
-    var html = '<nav><ul class="pagination justify-content-center">';
+    var html = '<nav><ul class="pagination justify-content-center flex-wrap">';
     html += '<li class="page-item' + (p.hasPreviousPage ? '' : ' disabled') + '">' +
         '<a class="page-link" href="?page=' + (p.pageNumber - 1) + '">Previous</a></li>';
 
