@@ -110,7 +110,7 @@
             '<td><input type="text" class="form-control income-title" maxlength="100" placeholder="Title" /></td>' +
             '<td><select class="form-select income-currency">' + currencyOptionsHtml('LKR') + '</select></td>' +
             '<td><input type="number" class="form-control income-amount text-end" step="0.01" min="0" value="0.00" /></td>' +
-            '<td class="text-center"><button type="button" class="btn btn-sm btn-outline-danger btn-remove-income" title="Remove"><i class="bi bi-x"></i></button></td>' +
+            '<td class="text-center"><button type="button" class="btn btn-sm btn-outline-danger btn-remove-income" title="Remove"><i class="bi bi-x"></i> <span class="d-inline d-md-none">Remove</span></button></td>' +
             '</tr>';
         $('#incomeTable tbody').append(html);
     }
@@ -120,7 +120,7 @@
             '<td><input type="text" class="form-control expense-title" maxlength="100" placeholder="Title" /></td>' +
             '<td><input type="text" class="form-control expense-currency text-center" value="LKR" readonly tabindex="-1" /></td>' +
             '<td><input type="number" class="form-control expense-amount text-end" step="0.01" min="0" value="0.00" /></td>' +
-            '<td class="text-center"><button type="button" class="btn btn-sm btn-outline-danger btn-remove-expense" title="Remove"><i class="bi bi-x"></i></button></td>' +
+            '<td class="text-center"><button type="button" class="btn btn-sm btn-outline-danger btn-remove-expense" title="Remove"><i class="bi bi-x"></i> <span class="d-inline d-md-none">Remove</span></button></td>' +
             '</tr>';
         $('#expenseTable tbody').append(html);
     }
