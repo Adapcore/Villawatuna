@@ -36,6 +36,7 @@ builder.Services.AddScoped<IPaymentService, PaymentService>();
 builder.Services.AddScoped<ILaundryService, LaundryService>();
 builder.Services.AddScoped<IEmployeeLeaveRepository, EmployeeLeaveRepository>();
 builder.Services.AddScoped<IEmployeeLeaveService, EmployeeLeaveService>();
+builder.Services.AddScoped<IPettyCashBookService, PettyCashBookService>();
 
 
 builder.Services.Configure<PaginationSettings>(builder.Configuration.GetSection("Pagination"));

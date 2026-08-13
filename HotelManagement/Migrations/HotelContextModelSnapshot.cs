@@ -562,6 +562,58 @@ namespace HotelManagement.Migrations
                     b.ToTable("Payments");
                 });
 
+            modelBuilder.Entity("HotelManagement.Models.Entities.PettyCashBook", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("Balance")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("CloseBalance")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("CreatedBy")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("datetime2");
+
+                    b.Property<decimal>("HandedOver")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int?>("LastModifiedBy")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("LastModifiedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<decimal>("MoneyInHand")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("OpeningBalance")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("TotalExpences")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("TotalIncomeBaseCurry")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Date")
+                        .IsUnique();
+
+                    b.ToTable("PettyCashBook", (string)null);
+                });
+
             modelBuilder.Entity("HotelManagement.Models.Entities.EmployeeLeave", b =>
                 {
                     b.HasOne("HotelManagement.Models.Entities.Employee", "Employee")
@@ -626,6 +678,112 @@ namespace HotelManagement.Migrations
                         .IsRequired();
 
                     b.Navigation("Invoice");
+                });
+
+            modelBuilder.Entity("HotelManagement.Models.Entities.PettyCashBook", b =>
+                {
+                    b.OwnsMany("HotelManagement.Models.Entities.PettyCashCurrencyTotal", "TotalIncome", b1 =>
+                        {
+                            b1.Property<int>("PettyCashBookId")
+                                .HasColumnType("int");
+
+                            b1.Property<int>("__synthesizedOrdinal")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("int");
+
+                            b1.Property<string>("Currency")
+                                .IsRequired()
+                                .HasMaxLength(3)
+                                .HasColumnType("nvarchar(3)");
+
+                            b1.Property<decimal>("Total")
+                                .HasColumnType("decimal(18,2)");
+
+                            b1.HasKey("PettyCashBookId", "__synthesizedOrdinal");
+
+                            b1.ToTable("PettyCashBook");
+
+                            b1.ToJson("TotalIncome");
+
+                            b1.WithOwner()
+                                .HasForeignKey("PettyCashBookId");
+                        });
+
+                    b.OwnsMany("HotelManagement.Models.Entities.PettyCashExpenseLine", "Expences", b1 =>
+                        {
+                            b1.Property<int>("PettyCashBookId")
+                                .HasColumnType("int");
+
+                            b1.Property<int>("__synthesizedOrdinal")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("int");
+
+                            b1.Property<decimal>("Amount")
+                                .HasColumnType("decimal(18,2)");
+
+                            b1.Property<string>("Currency")
+                                .IsRequired()
+                                .HasMaxLength(3)
+                                .HasColumnType("nvarchar(3)");
+
+                            b1.Property<int>("Id")
+                                .HasColumnType("int");
+
+                            b1.Property<string>("Title")
+                                .IsRequired()
+                                .HasMaxLength(100)
+                                .HasColumnType("nvarchar(100)");
+
+                            b1.HasKey("PettyCashBookId", "__synthesizedOrdinal");
+
+                            b1.ToTable("PettyCashBook");
+
+                            b1.ToJson("Expences");
+
+                            b1.WithOwner()
+                                .HasForeignKey("PettyCashBookId");
+                        });
+
+                    b.OwnsMany("HotelManagement.Models.Entities.PettyCashIncomeLine", "Income", b1 =>
+                        {
+                            b1.Property<int>("PettyCashBookId")
+                                .HasColumnType("int");
+
+                            b1.Property<int>("__synthesizedOrdinal")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("int");
+
+                            b1.Property<decimal>("Amount")
+                                .HasColumnType("decimal(18,2)");
+
+                            b1.Property<string>("Currency")
+                                .IsRequired()
+                                .HasMaxLength(3)
+                                .HasColumnType("nvarchar(3)");
+
+                            b1.Property<int>("Id")
+                                .HasColumnType("int");
+
+                            b1.Property<string>("Title")
+                                .IsRequired()
+                                .HasMaxLength(100)
+                                .HasColumnType("nvarchar(100)");
+
+                            b1.HasKey("PettyCashBookId", "__synthesizedOrdinal");
+
+                            b1.ToTable("PettyCashBook");
+
+                            b1.ToJson("Income");
+
+                            b1.WithOwner()
+                                .HasForeignKey("PettyCashBookId");
+                        });
+
+                    b.Navigation("Expences");
+
+                    b.Navigation("Income");
+
+                    b.Navigation("TotalIncome");
                 });
 
             modelBuilder.Entity("HotelManagement.Models.Entities.Invoice", b =>

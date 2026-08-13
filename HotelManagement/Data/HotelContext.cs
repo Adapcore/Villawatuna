@@ -23,6 +23,7 @@ namespace HotelManagement.Data
         public DbSet<Expense> Expenses { get; set; }
         public DbSet<Payment> Payments { get; set; }
 		public DbSet<EmployeeLeave> EmployeeLeaves { get; set; }
+		public DbSet<PettyCashBook> PettyCashBooks { get; set; }
 
 
         public override int SaveChanges()
@@ -177,6 +178,26 @@ namespace HotelManagement.Data
 			});
             
             // Expense - no additional configuration needed as CreatedByMember is [NotMapped]
+
+			// PettyCashBook — JSON columns for line items and per-currency income totals
+			modelBuilder.Entity<PettyCashBook>(entity =>
+			{
+				entity.ToTable("PettyCashBook");
+				entity.HasKey(e => e.Id);
+				entity.HasIndex(e => e.Date).IsUnique();
+
+				entity.Property(e => e.OpeningBalance).HasColumnType("decimal(18,2)");
+				entity.Property(e => e.CloseBalance).HasColumnType("decimal(18,2)");
+				entity.Property(e => e.TotalIncomeBaseCurry).HasColumnType("decimal(18,2)");
+				entity.Property(e => e.TotalExpences).HasColumnType("decimal(18,2)");
+				entity.Property(e => e.Balance).HasColumnType("decimal(18,2)");
+				entity.Property(e => e.HandedOver).HasColumnType("decimal(18,2)");
+				entity.Property(e => e.MoneyInHand).HasColumnType("decimal(18,2)");
+
+				entity.OwnsMany(p => p.Income, b => b.ToJson("Income"));
+				entity.OwnsMany(p => p.Expences, b => b.ToJson("Expences"));
+				entity.OwnsMany(p => p.TotalIncome, b => b.ToJson("TotalIncome"));
+			});
         }
 	}
 }

@@ -1,0 +1,245 @@
+@model HotelManagement.Models.Entities.PettyCashBook
+@using Microsoft.AspNetCore.Mvc.Rendering
+@{
+    ViewData["Title"] = Model.Id == 0 ? "New Petty Cash Entry" : "Edit Petty Cash Entry";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var currencies = ViewBag.Currencies as IEnumerable<SelectListItem> ?? Enumerable.Empty<SelectListItem>();
+    var currencyCodes = (ViewBag.CurrencyCodes as IEnumerable<string>)?.ToList() ?? new List<string> { "LKR", "USD", "GBP", "EUR" };
+    bool isEdit = Model.Id > 0;
+}
+
+<style>
+    .petty-cash-summary .summary-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.4rem 0;
+        border-bottom: 1px dashed #dee2e6;
+        font-size: 1.05rem;
+    }
+    .petty-cash-summary .summary-row:last-child {
+        border-bottom: none;
+        font-weight: 700;
+    }
+    .petty-cash-panel .table th {
+        white-space: nowrap;
+    }
+    .petty-cash-totals {
+        font-weight: 600;
+        background: #f8f9fa;
+    }
+</style>
+
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold text-primary mb-0">📅 Daily Cash Summary</h2>
+        <a asp-action="Index" class="btn btn-outline-secondary">Back to List</a>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body p-4">
+            <input type="hidden" id="entryId" value="@Model.Id" />
+            <input type="hidden" id="isEdit" value="@(isEdit ? "true" : "false")" />
+
+            <div class="row g-3 mb-4">
+                <div class="col-md-3">
+                    <label class="form-label fw-bold" for="entryDate">Date</label>
+                    <input type="date" id="entryDate" class="form-control form-control-lg"
+                           value="@Model.Date.ToString("yyyy-MM-dd")"
+                           @(isEdit ? "readonly" : "") />
+                    <div id="dateWarning" class="text-danger small mt-1" style="display:none;"></div>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label fw-bold" for="openingBalance">Opening Balance (LKR)</label>
+                    <input type="number" id="openingBalance" class="form-control form-control-lg" step="0.01"
+                           value="@Model.OpeningBalance.ToString("0.00")" readonly />
+                </div>
+            </div>
+
+            <div class="row g-4">
+                <!-- Income -->
+                <div class="col-lg-6 petty-cash-panel">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h5 class="mb-0 text-success fw-bold">Income</h5>
+                        <button type="button" id="btnAddIncome" class="btn btn-sm btn-outline-success">
+                            <i class="bi bi-plus"></i> Add
+                        </button>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-bordered align-middle" id="incomeTable">
+                            <thead class="table-light">
+                                <tr>
+                                    <th style="width:45%">Title</th>
+                                    <th style="width:20%">Currency</th>
+                                    <th style="width:25%">Amount</th>
+                                    <th style="width:10%"></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @for (int i = 0; i < Model.Income.Count; i++)
+                                {
+                                    var line = Model.Income[i];
+                                    <tr data-line-id="@line.Id">
+                                        <td>
+                                            <input type="text" class="form-control income-title" maxlength="100" value="@line.Title" placeholder="Title" />
+                                        </td>
+                                        <td>
+                                            <select class="form-select income-currency">
+                                                @foreach (var c in currencies)
+                                                {
+                                                    if (string.Equals(c.Value, line.Currency, StringComparison.OrdinalIgnoreCase))
+                                                    {
+                                                        <option value="@c.Value" selected>@c.Text</option>
+                                                    }
+                                                    else
+                                                    {
+                                                        <option value="@c.Value">@c.Text</option>
+                                                    }
+                                                }
+                                            </select>
+                                        </td>
+                                        <td>
+                                            <input type="number" class="form-control income-amount text-end" step="0.01" min="0" value="@line.Amount.ToString("0.00")" />
+                                        </td>
+                                        <td class="text-center">
+                                            <button type="button" class="btn btn-sm btn-outline-danger btn-remove-income" title="Remove">
+                                                <i class="bi bi-x"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                            <tfoot>
+                                <tr class="petty-cash-totals">
+                                    <td colspan="4">
+                                        <div class="fw-bold mb-1">Total Income</div>
+                                        <div id="totalIncomeByCurrency" class="small">
+                                            @if (Model.TotalIncome != null && Model.TotalIncome.Count > 0)
+                                            {
+                                                @string.Join(" | ", Model.TotalIncome.Select(t => $"{t.Currency}: {t.Total:0.00}"))
+                                            }
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Expenses -->
+                <div class="col-lg-6 petty-cash-panel">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h5 class="mb-0 text-danger fw-bold">Expenses</h5>
+                        <button type="button" id="btnAddExpense" class="btn btn-sm btn-outline-danger">
+                            <i class="bi bi-plus"></i> Add
+                        </button>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-bordered align-middle" id="expenseTable">
+                            <thead class="table-light">
+                                <tr>
+                                    <th style="width:55%">Title</th>
+                                    <th style="width:15%">Currency</th>
+                                    <th style="width:20%">Amount</th>
+                                    <th style="width:10%"></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @for (int i = 0; i < Model.Expences.Count; i++)
+                                {
+                                    var line = Model.Expences[i];
+                                    <tr data-line-id="@line.Id">
+                                        <td>
+                                            <input type="text" class="form-control expense-title" maxlength="100" value="@line.Title" placeholder="Title" />
+                                        </td>
+                                        <td>
+                                            <input type="text" class="form-control expense-currency text-center" value="LKR" readonly tabindex="-1" />
+                                        </td>
+                                        <td>
+                                            <input type="number" class="form-control expense-amount text-end" step="0.01" min="0" value="@line.Amount.ToString("0.00")" />
+                                        </td>
+                                        <td class="text-center">
+                                            <button type="button" class="btn btn-sm btn-outline-danger btn-remove-expense" title="Remove">
+                                                <i class="bi bi-x"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                            <tfoot>
+                                <tr class="petty-cash-totals">
+                                    <td colspan="4">
+                                        <div class="d-flex justify-content-between">
+                                            <span>Total Expenses (LKR)</span>
+                                            <span id="totalExpensesLkrDisplay">Rs. @Model.TotalExpences.ToString("0.00")</span>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <hr class="my-4" />
+
+            <div class="row">
+                <div class="col-lg-6 petty-cash-summary">
+                    <div class="summary-row">
+                        <label class="mb-0 fw-bold" for="moneyInHand">💰 Money in Hand</label>
+                        <div class="input-group" style="max-width: 220px;">
+                            <span class="input-group-text">Rs.</span>
+                            <input type="number" id="moneyInHand" class="form-control text-end" step="0.01" min="0"
+                                   value="@Model.MoneyInHand.ToString("0.00")" />
+                        </div>
+                    </div>
+                    <div class="summary-row">
+                        <span>➕ Income (LKR)</span>
+                        <span id="summaryIncome">Rs. @Model.TotalIncomeBaseCurry.ToString("0.00")</span>
+                    </div>
+                    <div class="summary-row">
+                        <span class="text-muted small">All currencies</span>
+                        <span id="summaryIncomeByCurrency" class="small text-muted">
+                            @if (Model.TotalIncome != null && Model.TotalIncome.Count > 0)
+                            {
+                                @string.Join(" | ", Model.TotalIncome.Select(t => $"{t.Currency}: {t.Total:0.00}"))
+                            }
+                        </span>
+                    </div>
+                    <div class="summary-row">
+                        <span>➖ Expenses</span>
+                        <span id="summaryExpenses">Rs. @Model.TotalExpences.ToString("0.00")</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Balance</span>
+                        <span id="summaryBalance">Rs. @Model.Balance.ToString("0.00")</span>
+                    </div>
+                    <div class="summary-row">
+                        <label class="mb-0 fw-bold" for="handedOver">🤝 Handed Over</label>
+                        <div class="input-group" style="max-width: 220px;">
+                            <span class="input-group-text">Rs.</span>
+                            <input type="number" id="handedOver" class="form-control text-end" step="0.01" min="0"
+                                   value="@Model.HandedOver.ToString("0.00")" />
+                        </div>
+                    </div>
+                    <div class="summary-row">
+                        <span>Close Balance</span>
+                        <span id="summaryCloseBalance">Rs. @Model.CloseBalance.ToString("0.00")</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-flex gap-2 mt-4">
+                <button type="button" id="btnSave" class="btn btn-primary btn-lg">
+                    <i class="bi bi-save"></i> Save
+                </button>
+                <a asp-action="Index" class="btn btn-outline-secondary btn-lg">Cancel</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    window.pettyCashCurrencies = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(currencyCodes));
+</script>
+<script src="~/js/petty-cash-book.js?v=@Configuration["Assets:Version"]"></script>

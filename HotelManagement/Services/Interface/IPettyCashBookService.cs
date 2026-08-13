@@ -1,0 +1,16 @@
+using HotelManagement.Models.Entities;
+
+namespace HotelManagement.Services.Interface
+{
+    public interface IPettyCashBookService
+    {
+        Task<IEnumerable<PettyCashBook>> GetAllAsync(DateTime? startDate = null, DateTime? endDate = null);
+        Task<PettyCashBook?> GetByIdAsync(int id);
+        Task<PettyCashBook?> GetByDateAsync(DateTime date);
+        Task<decimal> GetPreviousCloseBalanceAsync(DateTime date);
+        void CalculateTotals(PettyCashBook book);
+        Task<PettyCashBook> CreateAsync(PettyCashBook book);
+        Task<PettyCashBook> UpdateAsync(PettyCashBook book);
+        Task DeleteAsync(int id);
+    }
+}
