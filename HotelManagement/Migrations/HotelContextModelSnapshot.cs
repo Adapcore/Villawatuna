@@ -573,8 +573,9 @@ namespace HotelManagement.Migrations
                     b.Property<decimal>("Balance")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<decimal>("CloseBalance")
-                        .HasColumnType("decimal(18,2)");
+                    b.Property<decimal>("ClosingBalance")
+                        .HasColumnType("decimal(18,2)")
+                        .HasColumnName("CloseBalance");
 
                     b.Property<int>("CreatedBy")
                         .HasColumnType("int");

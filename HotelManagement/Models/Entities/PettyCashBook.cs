@@ -16,7 +16,7 @@ namespace HotelManagement.Models.Entities
         public decimal OpeningBalance { get; set; }
 
         [Column(TypeName = "decimal(18,2)")]
-        public decimal CloseBalance { get; set; }
+        public decimal ClosingBalance { get; set; }
 
         [Column(TypeName = "decimal(18,2)")]
         public decimal TotalIncomeBaseCurry { get; set; }

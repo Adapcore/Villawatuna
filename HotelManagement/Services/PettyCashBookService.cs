@@ -49,7 +49,7 @@ namespace HotelManagement.Services
                 .OrderByDescending(e => e.Date)
                 .FirstOrDefaultAsync();
 
-            return previous?.CloseBalance ?? 0m;
+            return previous?.ClosingBalance ?? 0m;
         }
 
         public void CalculateTotals(PettyCashBook book)
@@ -109,7 +109,7 @@ namespace HotelManagement.Services
             book.Balance = Math.Round(book.MoneyInHand + book.TotalIncomeBaseCurry - book.TotalExpences, 2);
 
             // CloseBalance = Balance - HandedOver
-            book.CloseBalance = Math.Round(book.Balance - book.HandedOver, 2);
+            book.ClosingBalance = Math.Round(book.Balance - book.HandedOver, 2);
         }
 
         public async Task<PettyCashBook> CreateAsync(PettyCashBook book)

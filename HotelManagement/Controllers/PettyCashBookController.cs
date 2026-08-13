@@ -68,7 +68,7 @@ namespace HotelManagement.Controllers
                 moneyInHand = e.MoneyInHand,
                 balance = e.Balance,
                 handedOver = e.HandedOver,
-                closeBalance = e.CloseBalance
+                closeBalance = e.ClosingBalance
             }).ToList();
 
             return Json(new
