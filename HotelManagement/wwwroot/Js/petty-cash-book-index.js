@@ -200,7 +200,7 @@ function renderDesktopTable(entries) {
     $tbody.empty();
 
     if (!entries.length) {
-        $tbody.append('<tr><td colspan="9" class="text-center text-muted py-4">No entries found.</td></tr>');
+        $tbody.append('<tr><td colspan="8" class="text-center text-muted py-4">No entries found.</td></tr>');
         return;
     }
 
@@ -210,7 +210,6 @@ function renderDesktopTable(entries) {
             '<td class="text-end">' + formatMoney(e.openingBalance) + '</td>' +
             '<td class="text-end">' + formatMoney(e.totalIncomeBaseCurry) + '</td>' +
             '<td class="text-end">' + formatMoney(e.totalExpences) + '</td>' +
-            '<td class="text-end">' + formatMoney(e.moneyInHand) + '</td>' +
             '<td class="text-end">' + formatMoney(e.balance) + '</td>' +
             '<td class="text-end">' + formatMoney(e.handedOver) + '</td>' +
             '<td class="text-end">' + formatMoney(e.closeBalance) + '</td>' +
@@ -244,11 +243,11 @@ function renderMobileCards(entries) {
 
         html += '<div class="pcb-card-grid">';
         html += '<div class="pcb-metric"><span class="pcb-metric-label">Opening</span><span class="pcb-metric-value">' + formatMoney(e.openingBalance) + '</span></div>';
-        html += '<div class="pcb-metric"><span class="pcb-metric-label">Money in Hand</span><span class="pcb-metric-value">' + formatMoney(e.moneyInHand) + '</span></div>';
         html += '<div class="pcb-metric"><span class="pcb-metric-label">Income (LKR)</span><span class="pcb-metric-value is-income">' + formatMoney(e.totalIncomeBaseCurry) + '</span></div>';
         html += '<div class="pcb-metric"><span class="pcb-metric-label">Expenses</span><span class="pcb-metric-value is-expense">' + formatMoney(e.totalExpences) + '</span></div>';
         html += '<div class="pcb-metric"><span class="pcb-metric-label">Balance</span><span class="pcb-metric-value">' + formatMoney(e.balance) + '</span></div>';
         html += '<div class="pcb-metric"><span class="pcb-metric-label">Handed Over</span><span class="pcb-metric-value">' + formatMoney(e.handedOver) + '</span></div>';
+        html += '<div class="pcb-metric"><span class="pcb-metric-label">Closing</span><span class="pcb-metric-value">' + formatMoney(e.closeBalance) + '</span></div>';
         html += '</div>';
 
         html += '<div class="pcb-card-actions">';

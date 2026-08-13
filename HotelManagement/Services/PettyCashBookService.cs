@@ -102,13 +102,15 @@ namespace HotelManagement.Services
 
             book.TotalExpences = Math.Round(book.Expences.Sum(e => e.Amount), 2);
 
-            book.MoneyInHand = Math.Round(book.MoneyInHand, 2);
+            // MoneyInHand hidden in UI for now — keep at 0
+            book.MoneyInHand = 0m;
+            book.OpeningBalance = Math.Round(book.OpeningBalance, 2);
             book.HandedOver = Math.Round(book.HandedOver, 2);
 
-            // Balance uses LKR amounts only: MoneyInHand + LKR income - LKR expenses
-            book.Balance = Math.Round(book.MoneyInHand + book.TotalIncomeBaseCurry - book.TotalExpences, 2);
+            // Balance = OpeningBalance + LKR income - LKR expenses
+            book.Balance = Math.Round(book.OpeningBalance + book.TotalIncomeBaseCurry - book.TotalExpences, 2);
 
-            // CloseBalance = Balance - HandedOver
+            // ClosingBalance = Balance - HandedOver
             book.ClosingBalance = Math.Round(book.Balance - book.HandedOver, 2);
         }
 
@@ -142,7 +144,6 @@ namespace HotelManagement.Services
 
             // Opening balance is fixed at create time (no cascade to future days)
             existing.Date = book.Date;
-            existing.MoneyInHand = book.MoneyInHand;
             existing.HandedOver = book.HandedOver;
             existing.Income = book.Income ?? new List<PettyCashIncomeLine>();
             existing.Expences = book.Expences ?? new List<PettyCashExpenseLine>();

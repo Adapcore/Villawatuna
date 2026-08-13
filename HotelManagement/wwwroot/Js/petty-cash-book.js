@@ -82,14 +82,15 @@
         });
         totalExpensesLkr = Math.round(totalExpensesLkr * 100) / 100;
 
-        var moneyInHand = parseAmount($('#moneyInHand'));
+        var openingBalance = parseAmount($('#openingBalance'));
         var handedOver = parseAmount($('#handedOver'));
-        var balance = Math.round((moneyInHand + totalIncomeLkr - totalExpensesLkr) * 100) / 100;
+        var balance = Math.round((openingBalance + totalIncomeLkr - totalExpensesLkr) * 100) / 100;
         var closeBalance = Math.round((balance - handedOver) * 100) / 100;
 
         var byCurHtml = formatByCurrency(byCurrency);
         $('#totalIncomeByCurrency').text(byCurHtml || '');
         $('#summaryIncomeByCurrency').text(byCurHtml || '');
+        $('#summaryOpeningBalance').text(money(openingBalance));
         $('#totalExpensesLkrDisplay').text(money(totalExpensesLkr));
         $('#summaryIncome').text(money(totalIncomeLkr));
         $('#summaryExpenses').text(money(totalExpensesLkr));
@@ -143,6 +144,8 @@
                 }
                 $('#dateWarning').hide().text('');
                 $('#openingBalance').val(parseFloat(res.openingBalance || 0).toFixed(2));
+                $('#summaryOpeningBalance').text(money(res.openingBalance || 0));
+                recalculateTotals();
             });
     }
 
@@ -162,7 +165,7 @@
                 id: parseInt($('#entryId').val(), 10) || 0,
                 date: $('#entryDate').val(),
                 openingBalance: parseAmount($('#openingBalance')),
-                moneyInHand: parseAmount($('#moneyInHand')),
+                moneyInHand: 0,
                 handedOver: parseAmount($('#handedOver')),
                 income: income,
                 expences: expenses
@@ -227,7 +230,7 @@
             recalculateTotals();
         });
 
-        $(document).on('input change', '.income-title, .income-currency, .income-amount, .expense-title, .expense-amount, #moneyInHand, #handedOver', function () {
+        $(document).on('input change', '.income-title, .income-currency, .income-amount, .expense-title, .expense-amount, #handedOver', function () {
             recalculateTotals();
         });
 

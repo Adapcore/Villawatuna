@@ -65,7 +65,6 @@ namespace HotelManagement.Controllers
                 openingBalance = e.OpeningBalance,
                 totalIncomeBaseCurry = e.TotalIncomeBaseCurry,
                 totalExpences = e.TotalExpences,
-                moneyInHand = e.MoneyInHand,
                 balance = e.Balance,
                 handedOver = e.HandedOver,
                 closeBalance = e.ClosingBalance
