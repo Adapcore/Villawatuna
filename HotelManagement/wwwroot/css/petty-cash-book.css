@@ -12,12 +12,99 @@
 
 .petty-cash-summary .summary-row:last-child {
     border-bottom: none;
+}
+
+.petty-cash-summary .summary-row.fw-bold,
+.petty-cash-summary .summary-row:last-child {
     font-weight: 700;
 }
 
 .petty-cash-summary .summary-row .input-group {
     max-width: 220px;
     flex-shrink: 0;
+}
+
+.petty-cash-summary .pcb-summary-opening,
+.petty-cash-meta .pcb-summary-opening {
+    color: #0d6efd;
+}
+
+.petty-cash-summary .pcb-summary-opening {
+    background-color: #e7f1ff;
+    padding: 0.5rem 0.65rem;
+    border-radius: 6px;
+    border-bottom: none;
+}
+
+.petty-cash-meta .pcb-opening-amount {
+    color: #0d6efd !important;
+    font-weight: 700;
+}
+
+.petty-cash-summary .pcb-summary-opening #summaryOpening {
+    color: #0d6efd;
+}
+
+.petty-cash-summary .pcb-summary-refill-opening {
+    color: #0d6efd;
+}
+
+.petty-cash-summary .pcb-summary-refill-opening #pettyCashRefillOpening,
+.petty-cash-summary .pcb-summary-refill-opening .input-group-text {
+    color: #0d6efd !important;
+    font-weight: 600;
+}
+
+.petty-cash-summary .pcb-summary-balance {
+    color: #0d6efd;
+}
+
+.petty-cash-summary .pcb-summary-balance #summaryPettyCashBalance {
+    color: #0d6efd;
+}
+
+.petty-cash-summary .pcb-summary-refill-closing {
+    color: #6f42c1;
+}
+
+.petty-cash-summary .pcb-summary-refill-closing #pettyCashRefillClosing,
+.petty-cash-summary .pcb-summary-refill-closing .input-group-text {
+    color: #6f42c1 !important;
+    font-weight: 600;
+}
+
+.petty-cash-summary .pcb-summary-closing {
+    color: #6f42c1;
+    background-color: #f3e8ff;
+    padding: 0.5rem 0.65rem;
+    border-radius: 6px;
+    border-bottom: none;
+}
+
+.petty-cash-summary .pcb-summary-closing #summaryCloseBalance {
+    color: #6f42c1;
+}
+
+.petty-cash-summary .text-success #summaryIncome {
+    color: inherit;
+}
+
+.petty-cash-summary .text-danger #summaryExpenses {
+    color: inherit;
+}
+
+.petty-cash-summary .pcb-summary-refill-opening label,
+.petty-cash-summary .pcb-summary-refill-closing label {
+    color: inherit;
+}
+
+.petty-cash-other-currency-totals {
+    font-size: 0.8rem;
+    line-height: 1.35;
+}
+
+.petty-cash-other-currency-totals:empty {
+    display: none;
 }
 
 .petty-cash-panel .table th {
@@ -37,9 +124,127 @@
     padding-right: 0.4rem;
 }
 
-.petty-cash-totals {
+/* Income rows colored by invoice type (full row; palette avoids summary colors) */
+#incomeTable tbody tr[class*="income-type-"] td {
+    background-color: inherit;
+    border-color: #dee2e6;
+}
+
+#incomeTable tbody tr.income-type-dining {
+    background-color: #ecfccb;
+}
+
+#incomeTable tbody tr.income-type-dining .income-title,
+#incomeTable tbody tr.income-type-dining .income-currency,
+#incomeTable tbody tr.income-type-dining .income-amount {
+    color: #3f6212;
     font-weight: 600;
-    background: #f8f9fa;
+}
+
+#incomeTable tbody tr.income-type-takeaway {
+    background-color: #ccfbf1;
+}
+
+#incomeTable tbody tr.income-type-takeaway .income-title,
+#incomeTable tbody tr.income-type-takeaway .income-currency,
+#incomeTable tbody tr.income-type-takeaway .income-amount {
+    color: #115e59;
+    font-weight: 600;
+}
+
+#incomeTable tbody tr.income-type-stay {
+    background-color: #f5d0fe;
+}
+
+#incomeTable tbody tr.income-type-stay .income-title,
+#incomeTable tbody tr.income-type-stay .income-currency,
+#incomeTable tbody tr.income-type-stay .income-amount {
+    color: #86198f;
+    font-weight: 600;
+}
+
+#incomeTable tbody tr.income-type-other {
+    background-color: #e2e8f0;
+}
+
+#incomeTable tbody tr.income-type-other .income-title,
+#incomeTable tbody tr.income-type-other .income-currency,
+#incomeTable tbody tr.income-type-other .income-amount {
+    color: #1e293b;
+    font-weight: 600;
+}
+
+#incomeTable tbody tr.income-type-tour {
+    background-color: #ffedd5;
+}
+
+#incomeTable tbody tr.income-type-tour .income-title,
+#incomeTable tbody tr.income-type-tour .income-currency,
+#incomeTable tbody tr.income-type-tour .income-amount {
+    color: #7c2d12;
+    font-weight: 600;
+}
+
+#incomeTable tbody tr.income-type-laundry {
+    background-color: #e0e7ff;
+}
+
+#incomeTable tbody tr.income-type-laundry .income-title,
+#incomeTable tbody tr.income-type-laundry .income-currency,
+#incomeTable tbody tr.income-type-laundry .income-amount {
+    color: #312e81;
+    font-weight: 600;
+}
+
+.petty-cash-totals,
+.petty-cash-totals > td {
+    font-weight: 600;
+    background-color: var(--bs-table-bg, #f8f9fa) !important;
+}
+
+#incomeTable thead.table-light th,
+#expenseTable thead.table-light th,
+#incomeTable tfoot .petty-cash-totals > td,
+#expenseTable tfoot .petty-cash-totals > td {
+    background-color: var(--bs-table-bg, #f8f9fa) !important;
+}
+
+/* Expense rows — zebra striping */
+#expenseTable tbody tr:not(.expense-empty-row):nth-child(odd) {
+    background-color: #fff5f5;
+}
+
+#expenseTable tbody tr:not(.expense-empty-row):nth-child(even) {
+    background-color: #ffe4e6;
+}
+
+#expenseTable tbody tr:not(.expense-empty-row) td {
+    background-color: inherit;
+    border-color: #dee2e6;
+}
+
+/* Scroll after ~8 body rows; header & footer stay visible */
+.petty-cash-table-scroll {
+    --pcb-head-h: 2.75rem;
+    --pcb-row-h: 3.05rem;
+    --pcb-foot-h: 3.5rem;
+    max-height: calc(var(--pcb-head-h) + (8 * var(--pcb-row-h)) + var(--pcb-foot-h));
+    overflow-y: auto;
+    overflow-x: auto;
+}
+
+#incomeTable thead th,
+#expenseTable thead th {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+}
+
+#incomeTable tfoot td,
+#expenseTable tfoot td {
+    position: sticky;
+    bottom: 0;
+    z-index: 2;
 }
 
 .petty-cash-page-header {
@@ -284,6 +489,56 @@
         box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
     }
 
+    #expenseTable tbody tr:not(.expense-empty-row):nth-child(odd) {
+        background-color: #fff5f5;
+    }
+
+    #expenseTable tbody tr:not(.expense-empty-row):nth-child(even) {
+        background-color: #ffe4e6;
+    }
+
+    #expenseTable tbody tr:not(.expense-empty-row) td:not(:first-child) {
+        background: transparent;
+    }
+
+    #incomeTable tbody tr.income-type-dining {
+        background-color: #ecfccb;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+    }
+
+    #incomeTable tbody tr.income-type-takeaway {
+        background-color: #ccfbf1;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+    }
+
+    #incomeTable tbody tr.income-type-stay {
+        background-color: #f5d0fe;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+    }
+
+    #incomeTable tbody tr.income-type-other {
+        background-color: #e2e8f0;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+    }
+
+    #incomeTable tbody tr.income-type-tour {
+        background-color: #ffedd5;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+    }
+
+    #incomeTable tbody tr.income-type-laundry {
+        background-color: #e0e7ff;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+    }
+
+    #incomeTable tbody tr[class*="income-type-"] td:not(:first-child) {
+        background: transparent;
+    }
+
+    #incomeTable tbody tr[class*="income-type-"] td:first-child {
+        border-bottom-color: rgba(0, 0, 0, 0.12);
+    }
+
     #incomeTable tbody td,
     #expenseTable tbody td {
         display: flex;
@@ -304,30 +559,15 @@
         border-bottom: 1px solid #e9ecef;
     }
 
-    #incomeTable tbody td:not(:first-child):not(:last-child),
-    #expenseTable tbody td:not(:first-child):not(:last-child) {
+    #incomeTable tbody td:not(:first-child),
+    #expenseTable tbody td:not(:first-child) {
         padding: 8px 10px;
         margin-bottom: 6px;
         background: rgba(108, 117, 125, 0.05);
         border-radius: 8px;
     }
 
-    #incomeTable tbody td:has(.income-currency)::before {
-        content: "Currency:";
-        font-weight: 600;
-        color: #6c757d;
-        font-size: 0.9rem;
-        flex-shrink: 0;
-    }
-
-    #incomeTable tbody td:has(.income-amount)::before {
-        content: "Amount:";
-        font-weight: 600;
-        color: #6c757d;
-        font-size: 0.9rem;
-        flex-shrink: 0;
-    }
-
+    #incomeTable tbody td:has(.income-currency)::before,
     #expenseTable tbody td:has(.expense-currency)::before {
         content: "Currency:";
         font-weight: 600;
@@ -336,53 +576,13 @@
         flex-shrink: 0;
     }
 
+    #incomeTable tbody td:has(.income-amount)::before,
     #expenseTable tbody td:has(.expense-amount)::before {
         content: "Amount:";
         font-weight: 600;
         color: #6c757d;
         font-size: 0.9rem;
         flex-shrink: 0;
-    }
-
-    #incomeTable tbody td input,
-    #incomeTable tbody td select,
-    #expenseTable tbody td input,
-    #expenseTable tbody td select {
-        width: 100% !important;
-        max-width: 100% !important;
-        min-height: 42px;
-        flex: 1 1 auto;
-    }
-
-    #incomeTable tbody td:not(:first-child) input,
-    #incomeTable tbody td:not(:first-child) select,
-    #expenseTable tbody td:not(:first-child) input,
-    #expenseTable tbody td:not(:first-child) select {
-        max-width: 55% !important;
-        margin-left: auto;
-    }
-
-    #incomeTable tbody td:has(.income-currency) select,
-    #expenseTable tbody td:has(.expense-currency) input {
-        max-width: 5.5rem !important;
-        width: 5.5rem !important;
-        min-width: 5.5rem !important;
-        flex: 0 0 5.5rem;
-    }
-
-    #incomeTable tbody td:last-child,
-    #expenseTable tbody td:last-child {
-        display: flex;
-        justify-content: center;
-        padding-top: 10px;
-        margin-top: 4px;
-        border-top: 1px solid #e9ecef;
-    }
-
-    #incomeTable tbody td:last-child .btn,
-    #expenseTable tbody td:last-child .btn {
-        width: 100%;
-        min-height: 42px;
     }
 
     #incomeTable tfoot,
@@ -396,6 +596,7 @@
         border: 1px solid #dee2e6;
         border-radius: 10px;
         overflow: hidden;
+        background-color: var(--bs-table-bg, #f8f9fa) !important;
     }
 
     #incomeTable tfoot td,
@@ -403,6 +604,7 @@
         display: block;
         width: 100% !important;
         padding: 12px !important;
+        background-color: var(--bs-table-bg, #f8f9fa) !important;
     }
 
     .petty-cash-summary {
@@ -436,5 +638,27 @@
 
     .petty-cash-panel .table-responsive {
         overflow: visible;
+    }
+
+    .petty-cash-panel .petty-cash-table-scroll {
+        --pcb-head-h: 0rem;
+        --pcb-row-h: 7.5rem;
+        --pcb-foot-h: 4rem;
+        max-height: calc(var(--pcb-head-h) + (8 * var(--pcb-row-h)) + var(--pcb-foot-h));
+        overflow-y: auto;
+        overflow-x: hidden;
+        padding-right: 2px;
+    }
+
+    #incomeTable thead th,
+    #expenseTable thead th {
+        position: static;
+    }
+
+    #incomeTable tfoot td,
+    #expenseTable tfoot td {
+        position: sticky;
+        bottom: 0;
+        z-index: 2;
     }
 }

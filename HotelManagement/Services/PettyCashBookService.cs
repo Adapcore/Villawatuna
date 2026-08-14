@@ -1,4 +1,6 @@
 using HotelManagement.Data;
+using HotelManagement.Enums;
+using HotelManagement.Helper;
 using HotelManagement.Models.Entities;
 using HotelManagement.Services.Interface;
 using Microsoft.EntityFrameworkCore;
@@ -8,10 +10,12 @@ namespace HotelManagement.Services
     public class PettyCashBookService : IPettyCashBookService
     {
         private readonly HotelContext _context;
+        private readonly IExpenseTypeService _expenseTypeService;
 
-        public PettyCashBookService(HotelContext context)
+        public PettyCashBookService(HotelContext context, IExpenseTypeService expenseTypeService)
         {
             _context = context;
+            _expenseTypeService = expenseTypeService;
         }
 
         public async Task<IEnumerable<PettyCashBook>> GetAllAsync(DateTime? startDate = null, DateTime? endDate = null)
@@ -51,6 +55,106 @@ namespace HotelManagement.Services
                 .FirstOrDefaultAsync();
 
             return previousClose ?? 0m;
+        }
+
+        public async Task<List<PettyCashIncomeLine>> GetIncomeLinesFromPaymentsAsync(DateTime date)
+        {
+            var day = date.Date;
+            var nextDay = day.AddDays(1);
+
+            var payments = await _context.Payments
+                .AsNoTracking()
+                .Include(p => p.Invoice)
+                    .ThenInclude(i => i.Customer)
+                .Where(p => p.Date >= day && p.Date < nextDay
+                    && p.Type == InvoicePaymentType.Cash)
+                .OrderBy(p => p.Date)
+                .ThenBy(p => p.ID)
+                .ToListAsync();
+
+            var lines = new List<PettyCashIncomeLine>();
+            int lineId = 1;
+            foreach (var payment in payments)
+            {
+                var invoice = payment.Invoice;
+                var customer = invoice?.Customer;
+                var customerId = invoice?.CustomerId ?? 0;
+                var customerName = customer == null
+                    ? string.Empty
+                    : $"{customer.FirstName} {customer.LastName}".Trim();
+                var invoiceType = invoice != null
+                    ? EnumHelper.GetDisplayName(invoice.Type)
+                    : string.Empty;
+
+                var title = $"#{payment.InvoiceNo} - #{customerId} - {customerName} - {invoiceType}";
+                if (title.Length > 250)
+                    title = title.Substring(0, 250);
+
+                string currency;
+                decimal amount;
+                if (payment.PaidCurrency == PaidCurrency.SelectedCurrency)
+                {
+                    currency = NormalizeCurrency(invoice?.Currency);
+                    amount = payment.CurryAmount.GetValueOrDefault(payment.Amount);
+                }
+                else
+                {
+                    currency = "LKR";
+                    amount = payment.Amount;
+                }
+
+                lines.Add(new PettyCashIncomeLine
+                {
+                    Id = lineId++,
+                    Title = title,
+                    Currency = currency,
+                    Amount = Math.Round(amount, 2),
+                    InvoiceTypeCode = invoice?.Type.ToString()
+                });
+            }
+
+            return lines;
+        }
+
+        public async Task<List<PettyCashExpenseLine>> GetExpenseLinesFromExpensesAsync(DateTime date)
+        {
+            var day = date.Date;
+            var nextDay = day.AddDays(1);
+
+            var expenses = await _context.Expenses
+                .AsNoTracking()
+                .Where(e => e.Date >= day && e.Date < nextDay
+                    && e.PaymentMethod == PaymentMethod.Cash)
+                .OrderBy(e => e.Date)
+                .ThenBy(e => e.ID)
+                .ToListAsync();
+
+            var expenseTypes = (await _expenseTypeService.GetExpenseTypesAsync()).ToList();
+            var typeLookup = expenseTypes.ToDictionary(t => t.Id, t => t.Name ?? string.Empty);
+
+            var lines = new List<PettyCashExpenseLine>();
+            int lineId = 1;
+            foreach (var expense in expenses)
+            {
+                var expenseTypeName = typeLookup.TryGetValue(expense.ExpenseTypeID, out var name)
+                    ? name
+                    : string.Empty;
+                var payee = (expense.PayeeName ?? string.Empty).Trim();
+
+                var title = $"#{expense.ID} - {expenseTypeName} - {payee}";
+                if (title.Length > 250)
+                    title = title.Substring(0, 250);
+
+                lines.Add(new PettyCashExpenseLine
+                {
+                    Id = lineId++,
+                    Title = title,
+                    Currency = "LKR",
+                    Amount = Math.Round(expense.Amount, 2)
+                });
+            }
+
+            return lines;
         }
 
         public void CalculateTotals(PettyCashBook book)
@@ -132,6 +236,8 @@ namespace HotelManagement.Services
                 throw new InvalidOperationException($"A petty cash entry already exists for {book.Date:yyyy-MM-dd}.");
 
             book.OpeningBalance = await GetPreviousCloseBalanceAsync(book.Date);
+            book.Income ??= new List<PettyCashIncomeLine>();
+            book.Expences ??= new List<PettyCashExpenseLine>();
             CalculateTotals(book);
 
             _context.PettyCashBooks.Add(book);

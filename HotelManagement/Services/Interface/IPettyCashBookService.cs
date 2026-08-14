@@ -8,6 +8,8 @@ namespace HotelManagement.Services.Interface
         Task<PettyCashBook?> GetByIdAsync(int id);
         Task<PettyCashBook?> GetByDateAsync(DateTime date);
         Task<decimal> GetPreviousCloseBalanceAsync(DateTime date);
+        Task<List<PettyCashIncomeLine>> GetIncomeLinesFromPaymentsAsync(DateTime date);
+        Task<List<PettyCashExpenseLine>> GetExpenseLinesFromExpensesAsync(DateTime date);
         void CalculateTotals(PettyCashBook book);
         Task<PettyCashBook> CreateAsync(PettyCashBook book);
         Task<PettyCashBook> UpdateAsync(PettyCashBook book);

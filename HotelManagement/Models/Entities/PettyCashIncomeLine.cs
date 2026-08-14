@@ -7,7 +7,7 @@ namespace HotelManagement.Models.Entities
     {
         public int Id { get; set; }
 
-        [MaxLength(100)]
+        [MaxLength(250)]
         public string Title { get; set; } = string.Empty;
 
         [MaxLength(3)]
@@ -15,5 +15,9 @@ namespace HotelManagement.Models.Entities
 
         [Column(TypeName = "decimal(18,2)")]
         public decimal Amount { get; set; }
+
+        /// <summary>Invoice type enum name (e.g. Stay, Dining) used for row coloring.</summary>
+        [MaxLength(50)]
+        public string? InvoiceTypeCode { get; set; }
     }
 }

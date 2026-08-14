@@ -92,36 +92,35 @@ namespace HotelManagement.Controllers
         [HttpGet]
         public async Task<IActionResult> Create(string? date = null)
         {
-            DateTime entryDate = DateTime.Today;
+            DateTime? entryDate = null;
             if (!string.IsNullOrWhiteSpace(date) && DateTime.TryParse(date, out var parsed))
                 entryDate = parsed.Date;
 
-            var existing = await _service.GetByDateAsync(entryDate);
-            if (existing != null)
-                return RedirectToAction(nameof(Edit), new { id = existing.Id });
-
-            var openingBalance = await _service.GetPreviousCloseBalanceAsync(entryDate);
-
-            var blankIncome = new PettyCashIncomeLine();
-            blankIncome.Id = 1;
-            blankIncome.Title = string.Empty;
-            blankIncome.Amount = 0;
-
-            var blankExpense = new PettyCashExpenseLine();
-            blankExpense.Id = 1;
-            blankExpense.Title = string.Empty;
-            blankExpense.Amount = 0;
+            if (entryDate.HasValue)
+            {
+                var existing = await _service.GetByDateAsync(entryDate.Value);
+                if (existing != null)
+                    return RedirectToAction(nameof(Edit), new { id = existing.Id });
+            }
 
             var model = new PettyCashBook
             {
-                Date = entryDate,
-                OpeningBalance = openingBalance,
+                Date = entryDate ?? default,
+                OpeningBalance = 0,
                 PettyCashRefillOpening = 0,
                 PettyCashRefillClosing = 0,
-                Income = new List<PettyCashIncomeLine> { blankIncome },
-                Expences = new List<PettyCashExpenseLine> { blankExpense }
+                Income = new List<PettyCashIncomeLine>(),
+                Expences = new List<PettyCashExpenseLine>()
             };
 
+            if (entryDate.HasValue)
+            {
+                model.OpeningBalance = await _service.GetPreviousCloseBalanceAsync(entryDate.Value);
+                model.Income = await _service.GetIncomeLinesFromPaymentsAsync(entryDate.Value);
+                model.Expences = await _service.GetExpenseLinesFromExpensesAsync(entryDate.Value);
+            }
+
+            ViewBag.HasEntryDate = entryDate.HasValue;
             await PopulateCurrencyViewBagAsync();
             return View(model);
         }
@@ -133,24 +132,10 @@ namespace HotelManagement.Controllers
             if (model == null)
                 return NotFound();
 
-            if (model.Income == null || model.Income.Count == 0)
-            {
-                var blankIncome = new PettyCashIncomeLine();
-                blankIncome.Id = 1;
-                blankIncome.Title = string.Empty;
-                blankIncome.Amount = 0;
-                model.Income = new List<PettyCashIncomeLine> { blankIncome };
-            }
+            model.Income ??= new List<PettyCashIncomeLine>();
+            model.Expences ??= new List<PettyCashExpenseLine>();
 
-            if (model.Expences == null || model.Expences.Count == 0)
-            {
-                var blankExpense = new PettyCashExpenseLine();
-                blankExpense.Id = 1;
-                blankExpense.Title = string.Empty;
-                blankExpense.Amount = 0;
-                model.Expences = new List<PettyCashExpenseLine> { blankExpense };
-            }
-
+            ViewBag.HasEntryDate = true;
             await PopulateCurrencyViewBagAsync();
             return View("Create", model);
         }
@@ -176,12 +161,86 @@ namespace HotelManagement.Controllers
             }
 
             var opening = await _service.GetPreviousCloseBalanceAsync(entryDate);
+            var income = await _service.GetIncomeLinesFromPaymentsAsync(entryDate);
+            var expenses = await _service.GetExpenseLinesFromExpensesAsync(entryDate);
             return Json(new
             {
                 success = true,
                 exists = false,
-                openingBalance = opening
+                openingBalance = opening,
+                income = income.Select(i => new
+                {
+                    id = i.Id,
+                    title = i.Title,
+                    currency = i.Currency,
+                    amount = i.Amount,
+                    invoiceTypeCode = i.InvoiceTypeCode
+                }),
+                expenses = expenses.Select(e => new
+                {
+                    id = e.Id,
+                    title = e.Title,
+                    currency = e.Currency,
+                    amount = e.Amount
+                })
             });
+        }
+
+        [HttpGet]
+        [Route("PettyCashBook/GetIncomeFromPayments")]
+        public async Task<IActionResult> GetIncomeFromPayments(string date)
+        {
+            if (!DateTime.TryParse(date, out var entryDate))
+                return BadRequest(new { success = false, message = "Invalid date." });
+
+            try
+            {
+                var income = await _service.GetIncomeLinesFromPaymentsAsync(entryDate.Date);
+                return Json(new
+                {
+                    success = true,
+                    income = income.Select(i => new
+                    {
+                        id = i.Id,
+                        title = i.Title,
+                        currency = i.Currency,
+                        amount = i.Amount,
+                        invoiceTypeCode = i.InvoiceTypeCode
+                    })
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { success = false, message = ex.Message });
+            }
+        }
+
+        [HttpGet]
+        [Route("PettyCashBook/GetExpensesFromExpenses")]
+        public async Task<IActionResult> GetExpensesFromExpenses(string date)
+        {
+            if (!DateTime.TryParse(date, out var entryDate))
+                return BadRequest(new { success = false, message = "Invalid date." });
+
+            try
+            {
+                var expenses = await _service.GetExpenseLinesFromExpensesAsync(entryDate.Date);
+                return Json(new
+                {
+                    success = true,
+                    expenses = expenses.Select(e => new
+                    {
+                        id = e.Id,
+                        title = e.Title,
+                        currency = e.Currency,
+                        amount = e.Amount
+                    })
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { success = false, message = ex.Message });
+            }
         }
 
         [HttpPost]
@@ -190,6 +249,9 @@ namespace HotelManagement.Controllers
         {
             if (model == null)
                 return BadRequest(new { success = false, message = "Invalid payload." });
+
+            if (model.Date == default || model.Date.Year < 1900)
+                return BadRequest(new { success = false, message = "Please select a date." });
 
             try
             {

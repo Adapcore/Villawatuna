@@ -7,7 +7,7 @@ namespace HotelManagement.Models.Entities
     {
         public int Id { get; set; }
 
-        [MaxLength(100)]
+        [MaxLength(250)]
         public string Title { get; set; } = string.Empty;
 
         [MaxLength(3)]

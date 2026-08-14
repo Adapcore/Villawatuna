@@ -1,13 +1,22 @@
 /**
- * Petty Cash Book Create/Edit — dynamic rows, per-currency income totals (no conversion), LKR-only expenses
+ * Petty Cash Book Create/Edit — cash income/expenses (readonly labels)
  */
 (function () {
-    var currencies = window.pettyCashCurrencies || ['LKR', 'USD', 'GBP', 'EUR'];
-
-    function money(n) {
+    function formatNumber(n) {
         var v = parseFloat(n);
         if (isNaN(v)) v = 0;
-        return 'Rs. ' + v.toFixed(2);
+        return v.toLocaleString('en-US', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
+    }
+
+    function money(n) {
+        return 'Rs. ' + formatNumber(n);
+    }
+
+    function moneyWithCurrency(currency, n) {
+        return escapeHtml(currency || '') + ' ' + formatNumber(n);
     }
 
     function parseAmount($el) {
@@ -15,40 +24,69 @@
         return isNaN(v) ? 0 : v;
     }
 
-    function currencyOptionsHtml(selected) {
-        selected = (selected || 'LKR').toUpperCase();
-        return currencies.map(function (c) {
-            var code = (c || '').toUpperCase();
-            return '<option value="' + code + '"' + (code === selected ? ' selected' : '') + '>' + code + '</option>';
-        }).join('');
+    function escapeHtml(value) {
+        return String(value || '')
+            .replace(/&/g, '&amp;')
+            .replace(/"/g, '&quot;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;');
+    }
+
+    function resolveIncomeTypeCode(code, title) {
+        var typeCode = (code || '').trim();
+        if (typeCode) return typeCode;
+
+        var parts = String(title || '').split(' - ');
+        var last = (parts[parts.length - 1] || '').trim();
+        var map = {
+            'Dining': 'Dining',
+            'Take Away': 'TakeAway',
+            'Stay': 'Stay',
+            'Other': 'Other',
+            'Tour': 'Tour',
+            'Laundry': 'Laundry'
+        };
+        return map[last] || last.replace(/\s+/g, '');
+    }
+
+    function incomeTypeClass(typeCode) {
+        if (!typeCode) return '';
+        return 'income-type-' + String(typeCode).toLowerCase();
+    }
+
+    function collectReadonlyRows(tableSelector, emptyClass, includeInvoiceType) {
+        var rows = [];
+        $(tableSelector + ' tbody tr').each(function (index) {
+            var $tr = $(this);
+            if ($tr.hasClass(emptyClass)) return;
+
+            var title = ($tr.attr('data-title') || '').trim();
+            var currency = ($tr.attr('data-currency') || 'LKR').trim().toUpperCase();
+            var amount = parseFloat($tr.attr('data-amount'));
+            if (isNaN(amount)) amount = 0;
+
+            var row = {
+                id: index + 1,
+                title: title,
+                currency: currency,
+                amount: amount
+            };
+
+            if (includeInvoiceType) {
+                row.invoiceTypeCode = resolveIncomeTypeCode($tr.attr('data-invoice-type-code'), title);
+            }
+
+            rows.push(row);
+        });
+        return rows;
     }
 
     function collectIncomeRows() {
-        var rows = [];
-        $('#incomeTable tbody tr').each(function (index) {
-            var $tr = $(this);
-            rows.push({
-                id: index + 1,
-                title: ($tr.find('.income-title').val() || '').trim(),
-                currency: ($tr.find('.income-currency').val() || 'LKR').toUpperCase(),
-                amount: parseAmount($tr.find('.income-amount'))
-            });
-        });
-        return rows;
+        return collectReadonlyRows('#incomeTable', 'income-empty-row', true);
     }
 
     function collectExpenseRows() {
-        var rows = [];
-        $('#expenseTable tbody tr').each(function (index) {
-            var $tr = $(this);
-            rows.push({
-                id: index + 1,
-                title: ($tr.find('.expense-title').val() || '').trim(),
-                currency: 'LKR',
-                amount: parseAmount($tr.find('.expense-amount'))
-            });
-        });
-        return rows;
+        return collectReadonlyRows('#expenseTable', 'expense-empty-row');
     }
 
     function enforceHandedOverRefillExclusive(changedId) {
@@ -79,8 +117,18 @@
             byCurrency[c] = Math.round(byCurrency[c] * 100) / 100;
         });
 
-        // LKR income only for balance sheet (no conversion of other currencies)
         var totalIncomeLkr = byCurrency['LKR'] || 0;
+
+        var otherCurrencyHtml = '';
+        Object.keys(byCurrency).sort().forEach(function (c) {
+            if (c === 'LKR') return;
+            otherCurrencyHtml +=
+                '<div class="d-flex justify-content-between flex-wrap gap-1">' +
+                '<span>Total Income (' + escapeHtml(c) + ')</span>' +
+                '<span>' + moneyWithCurrency(c, byCurrency[c]) + '</span>' +
+                '</div>';
+        });
+        $('#totalIncomeOtherCurrencies').html(otherCurrencyHtml);
 
         var totalExpensesLkr = 0;
         expenses.forEach(function (r) {
@@ -116,24 +164,74 @@
         });
     }
 
-    function addIncomeRow() {
-        var html = '<tr>' +
-            '<td><input type="text" class="form-control income-title" maxlength="100" placeholder="Title" /></td>' +
-            '<td><select class="form-select income-currency">' + currencyOptionsHtml('LKR') + '</select></td>' +
-            '<td><input type="number" class="form-control income-amount text-end" step="0.01" min="0" value="0.00" /></td>' +
-            '<td class="text-center"><button type="button" class="btn btn-sm btn-outline-danger btn-remove-income" title="Remove"><i class="bi bi-x"></i> <span class="d-inline d-md-none">Remove</span></button></td>' +
-            '</tr>';
-        $('#incomeTable tbody').append(html);
+    function renderReadonlyRows(tableSelector, lines, emptyClass, emptyMessage, titleClass, currencyClass, amountClass) {
+        var $tbody = $(tableSelector + ' tbody');
+        $tbody.empty();
+
+        if (!lines || !lines.length) {
+            $tbody.append('<tr class="' + emptyClass + '"><td colspan="3" class="text-center text-muted py-3">' + emptyMessage + '</td></tr>');
+            return;
+        }
+
+        lines.forEach(function (line, index) {
+            var title = line.title || '';
+            var currency = (line.currency || 'LKR').toUpperCase();
+            var amount = line.amount != null ? Number(line.amount) : 0;
+            if (isNaN(amount)) amount = 0;
+
+            var typeCode = '';
+            var typeClass = '';
+            var typeAttr = '';
+            if (titleClass === 'income-title') {
+                typeCode = resolveIncomeTypeCode(line.invoiceTypeCode, title);
+                typeClass = incomeTypeClass(typeCode);
+                typeAttr = ' data-invoice-type-code="' + escapeHtml(typeCode) + '"';
+            }
+
+            var html = '<tr' + (typeClass ? ' class="' + typeClass + '"' : '') +
+                ' data-line-id="' + (index + 1) + '"' +
+                ' data-title="' + escapeHtml(title) + '"' +
+                ' data-currency="' + escapeHtml(currency) + '"' +
+                ' data-amount="' + amount.toFixed(2) + '"' +
+                typeAttr + '>' +
+                '<td><span class="' + titleClass + '">' + escapeHtml(title) + '</span></td>' +
+                '<td class="text-center"><span class="' + currencyClass + '">' + escapeHtml(currency) + '</span></td>' +
+                '<td class="text-end"><span class="' + amountClass + '">' + formatNumber(amount) + '</span></td>' +
+                '</tr>';
+            $tbody.append(html);
+        });
     }
 
-    function addExpenseRow() {
-        var html = '<tr>' +
-            '<td><input type="text" class="form-control expense-title" maxlength="100" placeholder="Title" /></td>' +
-            '<td><input type="text" class="form-control expense-currency text-center" value="LKR" readonly tabindex="-1" /></td>' +
-            '<td><input type="number" class="form-control expense-amount text-end" step="0.01" min="0" value="0.00" /></td>' +
-            '<td class="text-center"><button type="button" class="btn btn-sm btn-outline-danger btn-remove-expense" title="Remove"><i class="bi bi-x"></i> <span class="d-inline d-md-none">Remove</span></button></td>' +
-            '</tr>';
-        $('#expenseTable tbody').append(html);
+    function renderIncomeRows(lines) {
+        renderReadonlyRows(
+            '#incomeTable',
+            lines,
+            'income-empty-row',
+            'No cash payments for this date.',
+            'income-title',
+            'income-currency',
+            'income-amount'
+        );
+    }
+
+    function renderExpenseRows(lines) {
+        renderReadonlyRows(
+            '#expenseTable',
+            lines,
+            'expense-empty-row',
+            'No cash expenses for this date.',
+            'expense-title',
+            'expense-currency',
+            'expense-amount'
+        );
+    }
+
+    function setOpeningBalance(value) {
+        var amount = parseFloat(value);
+        if (isNaN(amount)) amount = 0;
+        amount = Math.round(amount * 100) / 100;
+        $('#openingBalance').val(amount.toFixed(2));
+        $('#openingBalanceDisplay').val(formatNumber(amount));
     }
 
     function loadOpeningBalanceForDate() {
@@ -153,13 +251,98 @@
                     return;
                 }
                 $('#dateWarning').hide().text('');
-                $('#openingBalance').val(parseFloat(res.openingBalance || 0).toFixed(2));
+                setOpeningBalance(res.openingBalance || 0);
+                renderIncomeRows(res.income || []);
+                renderExpenseRows(res.expenses || []);
                 recalculateTotals();
+            });
+    }
+
+    function refreshIncomeFromPayments() {
+        var date = $('#entryDate').val();
+        if (!date) {
+            if (typeof showToast === 'function') {
+                showToast('Please select a date first.', 'error');
+            }
+            return;
+        }
+
+        var $btn = $('#btnRefreshIncome');
+        $btn.prop('disabled', true);
+
+        $.getJSON('/PettyCashBook/GetIncomeFromPayments', { date: date })
+            .done(function (res) {
+                if (!res.success) {
+                    if (typeof showToast === 'function') {
+                        showToast(res.message || 'Failed to refresh income.', 'error');
+                    }
+                    return;
+                }
+                renderIncomeRows(res.income || []);
+                recalculateTotals();
+                if (typeof showToast === 'function') {
+                    showToast('Income refreshed from cash payments.', 'success');
+                }
+            })
+            .fail(function (xhr) {
+                var msg = (xhr.responseJSON && xhr.responseJSON.message) || 'Failed to refresh income.';
+                if (typeof showToast === 'function') {
+                    showToast(msg, 'error');
+                }
+            })
+            .always(function () {
+                $btn.prop('disabled', false);
+            });
+    }
+
+    function refreshExpensesFromExpenses() {
+        var date = $('#entryDate').val();
+        if (!date) {
+            if (typeof showToast === 'function') {
+                showToast('Please select a date first.', 'error');
+            }
+            return;
+        }
+
+        var $btn = $('#btnRefreshExpenses');
+        $btn.prop('disabled', true);
+
+        $.getJSON('/PettyCashBook/GetExpensesFromExpenses', { date: date })
+            .done(function (res) {
+                if (!res.success) {
+                    if (typeof showToast === 'function') {
+                        showToast(res.message || 'Failed to refresh expenses.', 'error');
+                    }
+                    return;
+                }
+                renderExpenseRows(res.expenses || []);
+                recalculateTotals();
+                if (typeof showToast === 'function') {
+                    showToast('Expenses refreshed from cash expenses.', 'success');
+                }
+            })
+            .fail(function (xhr) {
+                var msg = (xhr.responseJSON && xhr.responseJSON.message) || 'Failed to refresh expenses.';
+                if (typeof showToast === 'function') {
+                    showToast(msg, 'error');
+                }
+            })
+            .always(function () {
+                $btn.prop('disabled', false);
             });
     }
 
     function saveEntry() {
         var $btn = $('#btnSave');
+        var date = $('#entryDate').val();
+        if (!date) {
+            if (typeof showToast === 'function') {
+                showToast('Please select a date first.', 'error');
+            }
+            $('#entryDate').focus();
+            return;
+        }
+
         $btn.prop('disabled', true);
 
         enforceHandedOverRefillExclusive('handedOver');
@@ -212,38 +395,7 @@
     }
 
     $(document).ready(function () {
-        $('#btnAddIncome').on('click', function () {
-            addIncomeRow();
-            recalculateTotals();
-        });
-        $('#btnAddExpense').on('click', function () {
-            addExpenseRow();
-            recalculateTotals();
-        });
-
-        $(document).on('click', '.btn-remove-income', function () {
-            if ($('#incomeTable tbody tr').length <= 1) {
-                $(this).closest('tr').find('input').val('');
-                $(this).closest('tr').find('select').val('LKR');
-                $(this).closest('tr').find('.income-amount').val('0.00');
-            } else {
-                $(this).closest('tr').remove();
-            }
-            recalculateTotals();
-        });
-
-        $(document).on('click', '.btn-remove-expense', function () {
-            if ($('#expenseTable tbody tr').length <= 1) {
-                $(this).closest('tr').find('.expense-title').val('');
-                $(this).closest('tr').find('.expense-currency').val('LKR');
-                $(this).closest('tr').find('.expense-amount').val('0.00');
-            } else {
-                $(this).closest('tr').remove();
-            }
-            recalculateTotals();
-        });
-
-        $(document).on('input change', '.income-title, .income-currency, .income-amount, .expense-title, .expense-amount, #pettyCashRefillOpening', function () {
+        $(document).on('input change', '#pettyCashRefillOpening', function () {
             recalculateTotals();
         });
 
@@ -253,6 +405,8 @@
         });
 
         $('#entryDate').on('change', loadOpeningBalanceForDate);
+        $('#btnRefreshIncome').on('click', refreshIncomeFromPayments);
+        $('#btnRefreshExpenses').on('click', refreshExpensesFromExpenses);
         $('#btnSave').on('click', saveEntry);
 
         recalculateTotals();

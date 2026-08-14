@@ -6,6 +6,8 @@
     var currencies = ViewBag.Currencies as IEnumerable<SelectListItem> ?? Enumerable.Empty<SelectListItem>();
     var currencyCodes = (ViewBag.CurrencyCodes as IEnumerable<string>)?.ToList() ?? new List<string> { "LKR", "USD", "GBP", "EUR" };
     bool isEdit = Model.Id > 0;
+    bool hasEntryDate = isEdit || (ViewBag.HasEntryDate != null && (bool)ViewBag.HasEntryDate);
+    string Fmt(decimal value) => value.ToString("N2", System.Globalization.CultureInfo.GetCultureInfo("en-US"));
 }
 
 <link rel="stylesheet" href="~/css/petty-cash-book.css?v=@Configuration["Assets:Version"]" />
@@ -25,14 +27,18 @@
                 <div class="petty-cash-meta-field">
                     <label class="form-label fw-bold" for="entryDate">Date</label>
                     <input type="date" id="entryDate" class="form-control form-control-lg"
-                           value="@Model.Date.ToString("yyyy-MM-dd")"
+                           value="@(hasEntryDate ? Model.Date.ToString("yyyy-MM-dd") : "")"
                            @(isEdit ? "readonly" : "") />
                     <div id="dateWarning" class="text-danger small mt-1" style="display:none;"></div>
                 </div>
                 <div class="petty-cash-meta-field">
-                    <label class="form-label fw-bold" for="openingBalance">Petty Cash (Opening)</label>
-                    <input type="number" id="openingBalance" class="form-control form-control-lg text-end" step="0.01"
-                           value="@Model.OpeningBalance.ToString("0.00")" readonly />
+                    <label class="form-label fw-bold pcb-summary-opening" for="openingBalanceDisplay">
+                        <i class="bi bi-wallet2 me-1"></i>Petty Cash (Opening)
+                    </label>
+                    <input type="hidden" id="openingBalance"
+                           value="@(hasEntryDate ? Model.OpeningBalance.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture) : "0.00")" />
+                    <input type="text" id="openingBalanceDisplay" class="form-control form-control-lg text-end pcb-opening-amount"
+                           value="@(hasEntryDate ? Fmt(Model.OpeningBalance) : "0.00")" readonly tabindex="-1" />
                 </div>
             </div>
 
@@ -40,61 +46,85 @@
                 <!-- Income -->
                 <div class="col-lg-6 col-12 petty-cash-panel">
                     <div class="d-flex justify-content-between align-items-center mb-2">
-                        <h5 class="mb-0 text-success fw-bold">Income</h5>
-                        <button type="button" id="btnAddIncome" class="btn btn-sm btn-outline-success">
-                            <i class="bi bi-plus"></i> Add
+                        <h5 class="mb-0 text-success fw-bold">Income (Cash)</h5>
+                        <button type="button" id="btnRefreshIncome" class="btn btn-sm btn-outline-success" title="Reload cash payments">
+                            <i class="bi bi-arrow-clockwise"></i> Refresh
                         </button>
                     </div>
-                    <div class="table-responsive">
+                    <div class="table-responsive petty-cash-table-scroll">
                         <table class="table table-bordered align-middle" id="incomeTable">
                             <thead class="table-light">
                                 <tr>
-                                    <th style="width:50%">Title</th>
+                                    <th style="width:55%">Title</th>
                                     <th class="petty-cash-currency-col">Currency</th>
-                                    <th style="width:28%">Amount</th>
-                                    <th style="width:10%"></th>
+                                    <th style="width:28%" class="text-end">Amount</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                @for (int i = 0; i < Model.Income.Count; i++)
+                                @if (Model.Income == null || Model.Income.Count == 0)
                                 {
-                                    var line = Model.Income[i];
-                                    <tr data-line-id="@line.Id">
-                                        <td>
-                                            <input type="text" class="form-control income-title" maxlength="100" value="@line.Title" placeholder="Title" />
-                                        </td>
-                                        <td>
-                                            <select class="form-select income-currency">
-                                                @foreach (var c in currencies)
-                                                {
-                                                    if (string.Equals(c.Value, line.Currency, StringComparison.OrdinalIgnoreCase))
-                                                    {
-                                                        <option value="@c.Value" selected>@c.Text</option>
-                                                    }
-                                                    else
-                                                    {
-                                                        <option value="@c.Value">@c.Text</option>
-                                                    }
-                                                }
-                                            </select>
-                                        </td>
-                                        <td>
-                                            <input type="number" class="form-control income-amount text-end" step="0.01" min="0" value="@line.Amount.ToString("0.00")" />
-                                        </td>
-                                        <td class="text-center">
-                                            <button type="button" class="btn btn-sm btn-outline-danger btn-remove-income" title="Remove">
-                                                <i class="bi bi-x"></i> <span class="d-inline d-md-none">Remove</span>
-                                            </button>
-                                        </td>
+                                    <tr class="income-empty-row">
+                                        <td colspan="3" class="text-center text-muted py-3">No cash payments for this date.</td>
                                     </tr>
+                                }
+                                else
+                                {
+                                    @for (int i = 0; i < Model.Income.Count; i++)
+                                    {
+                                        var line = Model.Income[i];
+                                        var typeCode = (line.InvoiceTypeCode ?? string.Empty).Trim();
+                                        if (string.IsNullOrEmpty(typeCode) && !string.IsNullOrWhiteSpace(line.Title))
+                                        {
+                                            var parts = line.Title.Split(new[] { " - " }, StringSplitOptions.None);
+                                            var last = parts.Length > 0 ? parts[^1].Trim() : string.Empty;
+                                            typeCode = last switch
+                                            {
+                                                "Dining" => "Dining",
+                                                "Take Away" => "TakeAway",
+                                                "Stay" => "Stay",
+                                                "Other" => "Other",
+                                                "Tour" => "Tour",
+                                                "Laundry" => "Laundry",
+                                                _ => last.Replace(" ", string.Empty)
+                                            };
+                                        }
+                                        var typeClass = string.IsNullOrEmpty(typeCode)
+                                            ? string.Empty
+                                            : "income-type-" + typeCode.ToLowerInvariant();
+                                        <tr class="@typeClass"
+                                            data-line-id="@line.Id"
+                                            data-title="@line.Title"
+                                            data-currency="@line.Currency"
+                                            data-amount="@line.Amount.ToString("0.00")"
+                                            data-invoice-type-code="@typeCode">
+                                            <td><span class="income-title">@line.Title</span></td>
+                                            <td class="text-center"><span class="income-currency">@line.Currency</span></td>
+                                            <td class="text-end"><span class="income-amount">@Fmt(line.Amount)</span></td>
+                                        </tr>
+                                    }
                                 }
                             </tbody>
                             <tfoot>
-                                <tr class="petty-cash-totals">
-                                    <td colspan="4">
-                                        <div class="d-flex justify-content-between flex-wrap gap-1">
+                                <tr class="petty-cash-totals table-light">
+                                    <td colspan="3">
+                                        <div class="d-flex justify-content-between flex-wrap gap-1 text-success fw-bold">
                                             <span>Total Income (LKR)</span>
-                                            <span id="totalIncomeLkrDisplay">Rs. @Model.TotalIncomeBaseCurry.ToString("0.00")</span>
+                                            <span id="totalIncomeLkrDisplay">Rs. @Fmt(Model.TotalIncomeBaseCurry)</span>
+                                        </div>
+                                        <div id="totalIncomeOtherCurrencies" class="petty-cash-other-currency-totals small text-muted mt-1">
+                                            @{
+                                                var otherIncomeTotals = (Model.TotalIncome ?? new List<HotelManagement.Models.Entities.PettyCashCurrencyTotal>())
+                                                    .Where(t => !string.Equals(t.Currency, "LKR", StringComparison.OrdinalIgnoreCase))
+                                                    .OrderBy(t => t.Currency)
+                                                    .ToList();
+                                            }
+                                            @foreach (var t in otherIncomeTotals)
+                                            {
+                                                <div class="d-flex justify-content-between flex-wrap gap-1">
+                                                    <span>Total Income (@t.Currency)</span>
+                                                    <span>@t.Currency @Fmt(t.Total)</span>
+                                                </div>
+                                            }
                                         </div>
                                     </td>
                                 </tr>
@@ -106,49 +136,49 @@
                 <!-- Expenses -->
                 <div class="col-lg-6 col-12 petty-cash-panel">
                     <div class="d-flex justify-content-between align-items-center mb-2">
-                        <h5 class="mb-0 text-danger fw-bold">Expenses</h5>
-                        <button type="button" id="btnAddExpense" class="btn btn-sm btn-outline-danger">
-                            <i class="bi bi-plus"></i> Add
+                        <h5 class="mb-0 text-danger fw-bold">Expenses (Cash)</h5>
+                        <button type="button" id="btnRefreshExpenses" class="btn btn-sm btn-outline-danger" title="Reload cash expenses">
+                            <i class="bi bi-arrow-clockwise"></i> Refresh
                         </button>
                     </div>
-                    <div class="table-responsive">
+                    <div class="table-responsive petty-cash-table-scroll">
                         <table class="table table-bordered align-middle" id="expenseTable">
                             <thead class="table-light">
                                 <tr>
                                     <th style="width:55%">Title</th>
                                     <th class="petty-cash-currency-col">Currency</th>
-                                    <th style="width:25%">Amount</th>
-                                    <th style="width:10%"></th>
+                                    <th style="width:28%" class="text-end">Amount</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                @for (int i = 0; i < Model.Expences.Count; i++)
+                                @if (Model.Expences == null || Model.Expences.Count == 0)
                                 {
-                                    var line = Model.Expences[i];
-                                    <tr data-line-id="@line.Id">
-                                        <td>
-                                            <input type="text" class="form-control expense-title" maxlength="100" value="@line.Title" placeholder="Title" />
-                                        </td>
-                                        <td>
-                                            <input type="text" class="form-control expense-currency text-center" value="LKR" readonly tabindex="-1" />
-                                        </td>
-                                        <td>
-                                            <input type="number" class="form-control expense-amount text-end" step="0.01" min="0" value="@line.Amount.ToString("0.00")" />
-                                        </td>
-                                        <td class="text-center">
-                                            <button type="button" class="btn btn-sm btn-outline-danger btn-remove-expense" title="Remove">
-                                                <i class="bi bi-x"></i> <span class="d-inline d-md-none">Remove</span>
-                                            </button>
-                                        </td>
+                                    <tr class="expense-empty-row">
+                                        <td colspan="3" class="text-center text-muted py-3">No cash expenses for this date.</td>
                                     </tr>
+                                }
+                                else
+                                {
+                                    @for (int i = 0; i < Model.Expences.Count; i++)
+                                    {
+                                        var line = Model.Expences[i];
+                                        <tr data-line-id="@line.Id"
+                                            data-title="@line.Title"
+                                            data-currency="@line.Currency"
+                                            data-amount="@line.Amount.ToString("0.00")">
+                                            <td><span class="expense-title">@line.Title</span></td>
+                                            <td class="text-center"><span class="expense-currency">@line.Currency</span></td>
+                                            <td class="text-end"><span class="expense-amount">@Fmt(line.Amount)</span></td>
+                                        </tr>
+                                    }
                                 }
                             </tbody>
                             <tfoot>
-                                <tr class="petty-cash-totals">
-                                    <td colspan="4">
-                                        <div class="d-flex justify-content-between flex-wrap gap-1">
+                                <tr class="petty-cash-totals table-light">
+                                    <td colspan="3">
+                                        <div class="d-flex justify-content-between flex-wrap gap-1 text-danger fw-bold">
                                             <span>Total Expenses (LKR)</span>
-                                            <span id="totalExpensesLkrDisplay">Rs. @Model.TotalExpences.ToString("0.00")</span>
+                                            <span id="totalExpensesLkrDisplay">Rs. @Fmt(Model.TotalExpences)</span>
                                         </div>
                                     </td>
                                 </tr>
@@ -160,35 +190,37 @@
 
             <hr class="my-4" />
 
-            <div class="row">
-                <div class="col-lg-6 col-12 ms-lg-auto petty-cash-summary">
-                    <div class="summary-row">
-                        <span>Petty Cash (Opening)</span>
-                        <span id="summaryOpening">Rs. @Model.OpeningBalance.ToString("0.00")</span>
+            <div class="row g-4">
+                <div class="col-lg-6 col-12 petty-cash-summary">
+                    <div class="summary-row fw-bold pcb-summary-opening">
+                        <span><i class="bi bi-wallet2 me-1"></i>Petty Cash (Opening)</span>
+                        <span id="summaryOpening">Rs. @Fmt(Model.OpeningBalance)</span>
                     </div>
-                    <div class="summary-row">
-                        <label class="mb-0 fw-bold" for="pettyCashRefillOpening">Refill (Opening)</label>
+                    <div class="summary-row pcb-summary-refill-opening">
+                        <label class="mb-0 fw-bold" for="pettyCashRefillOpening">Petty Cash Refill (Opening)</label>
                         <div class="input-group">
                             <span class="input-group-text">Rs.</span>
                             <input type="number" id="pettyCashRefillOpening" class="form-control text-end" step="0.01" min="0"
                                    value="@Model.PettyCashRefillOpening.ToString("0.00")" />
                         </div>
                     </div>
-                    <div class="summary-row fw-bold">
+                    <div class="summary-row fw-bold pcb-summary-balance">
                         <span>Petty Cash (Balance)</span>
-                        <span id="summaryPettyCashBalance">Rs. @((Model.OpeningBalance + Model.PettyCashRefillOpening).ToString("0.00"))</span>
+                        <span id="summaryPettyCashBalance">Rs. @Fmt(Model.OpeningBalance + Model.PettyCashRefillOpening)</span>
                     </div>
-                    <div class="summary-row">
+                </div>
+                <div class="col-lg-6 col-12 petty-cash-summary">
+                    <div class="summary-row text-success">
                         <span>➕ Income (LKR)</span>
-                        <span id="summaryIncome">Rs. @Model.TotalIncomeBaseCurry.ToString("0.00")</span>
+                        <span id="summaryIncome">Rs. @Fmt(Model.TotalIncomeBaseCurry)</span>
                     </div>
-                    <div class="summary-row">
+                    <div class="summary-row text-danger">
                         <span>➖ Expenses</span>
-                        <span id="summaryExpenses">Rs. @Model.TotalExpences.ToString("0.00")</span>
+                        <span id="summaryExpenses">Rs. @Fmt(Model.TotalExpences)</span>
                     </div>
                     <div class="summary-row">
                         <span>Daily Balance</span>
-                        <span id="summaryBalance">Rs. @Model.Balance.ToString("0.00")</span>
+                        <span id="summaryBalance">Rs. @Fmt(Model.Balance)</span>
                     </div>
                     <div class="summary-row">
                         <label class="mb-0 fw-bold" for="handedOver">🤝 Handed Over</label>
@@ -198,7 +230,7 @@
                                    value="@Model.HandedOver.ToString("0.00")" />
                         </div>
                     </div>
-                    <div class="summary-row">
+                    <div class="summary-row pcb-summary-refill-closing">
                         <label class="mb-0 fw-bold" for="pettyCashRefillClosing">Petty Cash Refill (Closing)</label>
                         <div class="input-group">
                             <span class="input-group-text">Rs.</span>
@@ -206,9 +238,9 @@
                                    value="@Model.PettyCashRefillClosing.ToString("0.00")" />
                         </div>
                     </div>
-                    <div class="summary-row">
-                        <span>Petty Cash (Closing)</span>
-                        <span id="summaryCloseBalance">Rs. @Model.ClosingBalance.ToString("0.00")</span>
+                    <div class="summary-row fw-bold pcb-summary-closing">
+                        <span><i class="bi bi-cash-stack me-1"></i>Petty Cash (Closing)</span>
+                        <span id="summaryCloseBalance">Rs. @Fmt(Model.ClosingBalance)</span>
                     </div>
                 </div>
             </div>
