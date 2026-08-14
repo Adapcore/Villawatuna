@@ -34,16 +34,6 @@
                     <input type="number" id="openingBalance" class="form-control form-control-lg text-end" step="0.01"
                            value="@Model.OpeningBalance.ToString("0.00")" readonly />
                 </div>
-                <div class="petty-cash-meta-field">
-                    <label class="form-label fw-bold" for="pettyCashRefillOpening">Refill (Opening)</label>
-                    <input type="number" id="pettyCashRefillOpening" class="form-control form-control-lg text-end" step="0.01" min="0"
-                           value="@Model.PettyCashRefillOpening.ToString("0.00")" />
-                </div>
-                <div class="petty-cash-meta-field">
-                    <label class="form-label fw-bold" for="pettyCashBalance">Petty Cash (Balance)</label>
-                    <input type="number" id="pettyCashBalance" class="form-control form-control-lg text-end" step="0.01"
-                           value="@((Model.OpeningBalance + Model.PettyCashRefillOpening).ToString("0.00"))" readonly tabindex="-1" />
-                </div>
             </div>
 
             <div class="row g-4">
@@ -172,6 +162,22 @@
 
             <div class="row">
                 <div class="col-lg-6 col-12 ms-lg-auto petty-cash-summary">
+                    <div class="summary-row">
+                        <span>Petty Cash (Opening)</span>
+                        <span id="summaryOpening">Rs. @Model.OpeningBalance.ToString("0.00")</span>
+                    </div>
+                    <div class="summary-row">
+                        <label class="mb-0 fw-bold" for="pettyCashRefillOpening">Refill (Opening)</label>
+                        <div class="input-group">
+                            <span class="input-group-text">Rs.</span>
+                            <input type="number" id="pettyCashRefillOpening" class="form-control text-end" step="0.01" min="0"
+                                   value="@Model.PettyCashRefillOpening.ToString("0.00")" />
+                        </div>
+                    </div>
+                    <div class="summary-row fw-bold">
+                        <span>Petty Cash (Balance)</span>
+                        <span id="summaryPettyCashBalance">Rs. @((Model.OpeningBalance + Model.PettyCashRefillOpening).ToString("0.00"))</span>
+                    </div>
                     <div class="summary-row">
                         <span>➕ Income (LKR)</span>
                         <span id="summaryIncome">Rs. @Model.TotalIncomeBaseCurry.ToString("0.00")</span>

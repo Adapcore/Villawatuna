@@ -200,7 +200,7 @@ function renderDesktopTable(entries) {
     $tbody.empty();
 
     if (!entries.length) {
-        $tbody.append('<tr><td colspan="8" class="text-center text-muted py-4">No entries found.</td></tr>');
+        $tbody.append('<tr><td colspan="10" class="text-center text-muted py-4">No entries found.</td></tr>');
         return;
     }
 
@@ -208,10 +208,12 @@ function renderDesktopTable(entries) {
         var row = '<tr>' +
             '<td>' + e.date + '</td>' +
             '<td class="text-end">' + formatMoney(e.openingBalance) + '</td>' +
+            '<td class="text-end">' + formatMoney(e.pettyCashRefillOpening) + '</td>' +
             '<td class="text-end">' + formatMoney(e.totalIncomeBaseCurry) + '</td>' +
             '<td class="text-end">' + formatMoney(e.totalExpences) + '</td>' +
             '<td class="text-end">' + formatMoney(e.balance) + '</td>' +
             '<td class="text-end">' + formatMoney(e.handedOver) + '</td>' +
+            '<td class="text-end">' + formatMoney(e.pettyCashRefillClosing) + '</td>' +
             '<td class="text-end">' + formatMoney(e.closeBalance) + '</td>' +
             '<td class="text-center">' +
             '<a href="/PettyCashBook/Edit/' + e.id + '" class="btn btn-sm btn-outline-primary me-1" title="Edit"><i class="bi bi-pencil"></i></a>' +
@@ -243,10 +245,12 @@ function renderMobileCards(entries) {
 
         html += '<div class="pcb-card-grid">';
         html += '<div class="pcb-metric"><span class="pcb-metric-label">Opening</span><span class="pcb-metric-value">' + formatMoney(e.openingBalance) + '</span></div>';
+        html += '<div class="pcb-metric"><span class="pcb-metric-label">Refill (Opening)</span><span class="pcb-metric-value">' + formatMoney(e.pettyCashRefillOpening) + '</span></div>';
         html += '<div class="pcb-metric"><span class="pcb-metric-label">Income (LKR)</span><span class="pcb-metric-value is-income">' + formatMoney(e.totalIncomeBaseCurry) + '</span></div>';
         html += '<div class="pcb-metric"><span class="pcb-metric-label">Expenses</span><span class="pcb-metric-value is-expense">' + formatMoney(e.totalExpences) + '</span></div>';
-        html += '<div class="pcb-metric"><span class="pcb-metric-label">Balance</span><span class="pcb-metric-value">' + formatMoney(e.balance) + '</span></div>';
+        html += '<div class="pcb-metric"><span class="pcb-metric-label">Daily Balance</span><span class="pcb-metric-value">' + formatMoney(e.balance) + '</span></div>';
         html += '<div class="pcb-metric"><span class="pcb-metric-label">Handed Over</span><span class="pcb-metric-value">' + formatMoney(e.handedOver) + '</span></div>';
+        html += '<div class="pcb-metric"><span class="pcb-metric-label">Refill (Closing)</span><span class="pcb-metric-value">' + formatMoney(e.pettyCashRefillClosing) + '</span></div>';
         html += '<div class="pcb-metric"><span class="pcb-metric-label">Closing</span><span class="pcb-metric-value">' + formatMoney(e.closeBalance) + '</span></div>';
         html += '</div>';
 

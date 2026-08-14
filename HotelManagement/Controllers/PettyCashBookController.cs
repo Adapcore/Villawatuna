@@ -63,10 +63,12 @@ namespace HotelManagement.Controllers
                 id = e.Id,
                 date = e.Date.ToString("yyyy-MM-dd"),
                 openingBalance = e.OpeningBalance,
+                pettyCashRefillOpening = e.PettyCashRefillOpening,
                 totalIncomeBaseCurry = e.TotalIncomeBaseCurry,
                 totalExpences = e.TotalExpences,
                 balance = e.Balance,
                 handedOver = e.HandedOver,
+                pettyCashRefillClosing = e.PettyCashRefillClosing,
                 closeBalance = e.ClosingBalance
             }).ToList();
 

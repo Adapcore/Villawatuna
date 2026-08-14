@@ -97,9 +97,10 @@
         var balance = Math.round((openingBalance + refillOpening + totalIncomeLkr - totalExpensesLkr) * 100) / 100;
         var closeBalance = Math.round((balance - handedOver + refillClosing) * 100) / 100;
 
-        $('#pettyCashBalance').val(pettyCashBalance.toFixed(2));
         $('#totalIncomeLkrDisplay').text(money(totalIncomeLkr));
         $('#totalExpensesLkrDisplay').text(money(totalExpensesLkr));
+        $('#summaryOpening').text(money(openingBalance));
+        $('#summaryPettyCashBalance').text(money(pettyCashBalance));
         $('#summaryIncome').text(money(totalIncomeLkr));
         $('#summaryExpenses').text(money(totalExpensesLkr));
         $('#summaryBalance').text(money(balance));
