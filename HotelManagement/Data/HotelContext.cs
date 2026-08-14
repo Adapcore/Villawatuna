@@ -187,14 +187,15 @@ namespace HotelManagement.Data
 				entity.HasIndex(e => e.Date).IsUnique();
 
 				entity.Property(e => e.OpeningBalance).HasColumnType("decimal(18,2)");
+				entity.Property(e => e.PettyCashRefillOpening).HasColumnType("decimal(18,2)");
 				entity.Property(e => e.ClosingBalance)
 					.HasColumnType("decimal(18,2)")
 					.HasColumnName("CloseBalance");
+				entity.Property(e => e.PettyCashRefillClosing).HasColumnType("decimal(18,2)");
 				entity.Property(e => e.TotalIncomeBaseCurry).HasColumnType("decimal(18,2)");
 				entity.Property(e => e.TotalExpences).HasColumnType("decimal(18,2)");
 				entity.Property(e => e.Balance).HasColumnType("decimal(18,2)");
 				entity.Property(e => e.HandedOver).HasColumnType("decimal(18,2)");
-				entity.Property(e => e.MoneyInHand).HasColumnType("decimal(18,2)");
 
 				entity.OwnsMany(p => p.Income, b => b.ToJson("Income"));
 				entity.OwnsMany(p => p.Expences, b => b.ToJson("Expences"));

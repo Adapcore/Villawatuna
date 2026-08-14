@@ -114,6 +114,8 @@ namespace HotelManagement.Controllers
             {
                 Date = entryDate,
                 OpeningBalance = openingBalance,
+                PettyCashRefillOpening = 0,
+                PettyCashRefillClosing = 0,
                 Income = new List<PettyCashIncomeLine> { blankIncome },
                 Expences = new List<PettyCashExpenseLine> { blankExpense }
             };

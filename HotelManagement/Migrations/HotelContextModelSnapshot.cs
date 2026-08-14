@@ -595,10 +595,13 @@ namespace HotelManagement.Migrations
                     b.Property<DateTime?>("LastModifiedDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<decimal>("MoneyInHand")
+                    b.Property<decimal>("OpeningBalance")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<decimal>("OpeningBalance")
+                    b.Property<decimal>("PettyCashRefillClosing")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("PettyCashRefillOpening")
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<decimal>("TotalExpences")

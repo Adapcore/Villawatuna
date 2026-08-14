@@ -16,7 +16,13 @@ namespace HotelManagement.Models.Entities
         public decimal OpeningBalance { get; set; }
 
         [Column(TypeName = "decimal(18,2)")]
+        public decimal PettyCashRefillOpening { get; set; }
+
+        [Column(TypeName = "decimal(18,2)")]
         public decimal ClosingBalance { get; set; }
+
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal PettyCashRefillClosing { get; set; }
 
         [Column(TypeName = "decimal(18,2)")]
         public decimal TotalIncomeBaseCurry { get; set; }
@@ -29,9 +35,7 @@ namespace HotelManagement.Models.Entities
 
         [Column(TypeName = "decimal(18,2)")]
         public decimal HandedOver { get; set; }
-
-        [Column(TypeName = "decimal(18,2)")]
-        public decimal MoneyInHand { get; set; }
+        
 
         public List<PettyCashCurrencyTotal> TotalIncome { get; set; } = new();
 

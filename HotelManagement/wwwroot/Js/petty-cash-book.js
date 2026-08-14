@@ -51,6 +51,19 @@
         return rows;
     }
 
+    function enforceHandedOverRefillExclusive(changedId) {
+        var $handed = $('#handedOver');
+        var $refill = $('#pettyCashRefillClosing');
+        var handed = parseAmount($handed);
+        var refill = parseAmount($refill);
+
+        if (changedId === 'handedOver' && handed > 0) {
+            $refill.val('0.00');
+        } else if (changedId === 'pettyCashRefillClosing' && refill > 0) {
+            $handed.val('0.00');
+        }
+    }
+
     function recalculateTotals() {
         var income = collectIncomeRows();
         var expenses = collectExpenseRows();
@@ -77,11 +90,14 @@
         totalExpensesLkr = Math.round(totalExpensesLkr * 100) / 100;
 
         var openingBalance = parseAmount($('#openingBalance'));
+        var refillOpening = parseAmount($('#pettyCashRefillOpening'));
+        var refillClosing = parseAmount($('#pettyCashRefillClosing'));
         var handedOver = parseAmount($('#handedOver'));
-        var balance = Math.round((openingBalance + totalIncomeLkr - totalExpensesLkr) * 100) / 100;
-        var closeBalance = Math.round((balance - handedOver) * 100) / 100;
+        var pettyCashBalance = Math.round((openingBalance + refillOpening) * 100) / 100;
+        var balance = Math.round((openingBalance + refillOpening + totalIncomeLkr - totalExpensesLkr) * 100) / 100;
+        var closeBalance = Math.round((balance - handedOver + refillClosing) * 100) / 100;
 
-        $('#summaryOpeningBalance').text(money(openingBalance));
+        $('#pettyCashBalance').val(pettyCashBalance.toFixed(2));
         $('#totalIncomeLkrDisplay').text(money(totalIncomeLkr));
         $('#totalExpensesLkrDisplay').text(money(totalExpensesLkr));
         $('#summaryIncome').text(money(totalIncomeLkr));
@@ -93,7 +109,9 @@
             totalIncomeLkr: totalIncomeLkr,
             totalExpensesLkr: totalExpensesLkr,
             balance: balance,
-            closeBalance: closeBalance
+            closeBalance: closeBalance,
+            refillOpening: refillOpening,
+            refillClosing: refillClosing
         });
     }
 
@@ -135,7 +153,6 @@
                 }
                 $('#dateWarning').hide().text('');
                 $('#openingBalance').val(parseFloat(res.openingBalance || 0).toFixed(2));
-                $('#summaryOpeningBalance').text(money(res.openingBalance || 0));
                 recalculateTotals();
             });
     }
@@ -143,6 +160,9 @@
     function saveEntry() {
         var $btn = $('#btnSave');
         $btn.prop('disabled', true);
+
+        enforceHandedOverRefillExclusive('handedOver');
+        enforceHandedOverRefillExclusive('pettyCashRefillClosing');
 
         recalculateTotals().then(function () {
             var income = collectIncomeRows().filter(function (r) {
@@ -156,7 +176,8 @@
                 id: parseInt($('#entryId').val(), 10) || 0,
                 date: $('#entryDate').val(),
                 openingBalance: parseAmount($('#openingBalance')),
-                moneyInHand: 0,
+                pettyCashRefillOpening: parseAmount($('#pettyCashRefillOpening')),
+                pettyCashRefillClosing: parseAmount($('#pettyCashRefillClosing')),
                 handedOver: parseAmount($('#handedOver')),
                 income: income,
                 expences: expenses
@@ -221,7 +242,12 @@
             recalculateTotals();
         });
 
-        $(document).on('input change', '.income-title, .income-currency, .income-amount, .expense-title, .expense-amount, #handedOver', function () {
+        $(document).on('input change', '.income-title, .income-currency, .income-amount, .expense-title, .expense-amount, #pettyCashRefillOpening', function () {
+            recalculateTotals();
+        });
+
+        $(document).on('input change', '#handedOver, #pettyCashRefillClosing', function () {
+            enforceHandedOverRefillExclusive(this.id);
             recalculateTotals();
         });
 

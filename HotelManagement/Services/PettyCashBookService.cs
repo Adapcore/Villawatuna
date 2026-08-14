@@ -44,12 +44,13 @@ namespace HotelManagement.Services
         public async Task<decimal> GetPreviousCloseBalanceAsync(DateTime date)
         {
             var day = date.Date;
-            var previous = await _context.PettyCashBooks
+            var previousClose = await _context.PettyCashBooks
                 .Where(e => e.Date < day)
                 .OrderByDescending(e => e.Date)
+                .Select(e => (decimal?)e.ClosingBalance)
                 .FirstOrDefaultAsync();
 
-            return previous?.ClosingBalance ?? 0m;
+            return previousClose ?? 0m;
         }
 
         public void CalculateTotals(PettyCashBook book)
@@ -102,16 +103,24 @@ namespace HotelManagement.Services
 
             book.TotalExpences = Math.Round(book.Expences.Sum(e => e.Amount), 2);
 
-            // MoneyInHand hidden in UI for now — keep at 0
-            book.MoneyInHand = 0m;
             book.OpeningBalance = Math.Round(book.OpeningBalance, 2);
-            book.HandedOver = Math.Round(book.HandedOver, 2);
+            book.PettyCashRefillOpening = Math.Round(book.PettyCashRefillOpening, 2);
+            book.PettyCashRefillClosing = Math.Max(0, Math.Round(book.PettyCashRefillClosing, 2));
+            book.HandedOver = Math.Max(0, Math.Round(book.HandedOver, 2));
 
-            // Balance = OpeningBalance + LKR income - LKR expenses
-            book.Balance = Math.Round(book.OpeningBalance + book.TotalIncomeBaseCurry - book.TotalExpences, 2);
+            // Only one of Handed Over or Refill (Closing) may be greater than zero
+            if (book.HandedOver > 0)
+                book.PettyCashRefillClosing = 0;
+            else if (book.PettyCashRefillClosing > 0)
+                book.HandedOver = 0;
 
-            // ClosingBalance = Balance - HandedOver
-            book.ClosingBalance = Math.Round(book.Balance - book.HandedOver, 2);
+            // Daily Balance = Opening + Refill Opening + LKR income - LKR expenses
+            book.Balance = Math.Round(
+                book.OpeningBalance + book.PettyCashRefillOpening + book.TotalIncomeBaseCurry - book.TotalExpences, 2);
+
+            // Petty Cash (Closing) = Daily Balance - Handed Over + Refill (Closing)
+            book.ClosingBalance = Math.Round(
+                book.Balance - book.HandedOver + book.PettyCashRefillClosing, 2);
         }
 
         public async Task<PettyCashBook> CreateAsync(PettyCashBook book)
@@ -144,6 +153,8 @@ namespace HotelManagement.Services
 
             // Opening balance is fixed at create time (no cascade to future days)
             existing.Date = book.Date;
+            existing.PettyCashRefillOpening = book.PettyCashRefillOpening;
+            existing.PettyCashRefillClosing = book.PettyCashRefillClosing;
             existing.HandedOver = book.HandedOver;
             existing.Income = book.Income ?? new List<PettyCashIncomeLine>();
             existing.Expences = book.Expences ?? new List<PettyCashExpenseLine>();

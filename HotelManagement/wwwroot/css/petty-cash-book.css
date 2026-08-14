@@ -24,6 +24,19 @@
     white-space: nowrap;
 }
 
+.petty-cash-currency-col {
+    width: 5.5rem;
+}
+
+#incomeTable .income-currency,
+#expenseTable .expense-currency {
+    width: 5.25rem;
+    min-width: 5.25rem;
+    max-width: 5.25rem;
+    padding-left: 0.4rem;
+    padding-right: 0.4rem;
+}
+
 .petty-cash-totals {
     font-weight: 600;
     background: #f8f9fa;
@@ -41,6 +54,34 @@
     display: flex;
     gap: 0.5rem;
     flex-wrap: wrap;
+    justify-content: flex-end;
+}
+
+/* Header meta fields — single row on tablet/desktop */
+.petty-cash-meta {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: flex-start;
+    gap: 0.75rem;
+}
+
+.petty-cash-meta-field {
+    flex: 1 1 0;
+    min-width: 0;
+}
+
+.petty-cash-meta-field .form-label {
+    font-size: 0.875rem;
+    line-height: 1.25;
+    margin-bottom: 0.35rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.petty-cash-meta-field .form-control-lg {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
 }
 
 /* Index list — desktop/mobile visibility */
@@ -200,8 +241,16 @@
         padding: 1rem !important;
     }
 
-    .petty-cash-meta .col-md-3 {
-        width: 100%;
+    .petty-cash-meta {
+        flex-wrap: wrap;
+    }
+
+    .petty-cash-meta-field {
+        flex: 1 1 100%;
+    }
+
+    .petty-cash-meta-field .form-label {
+        white-space: normal;
     }
 
     .petty-cash-meta .form-control-lg {
@@ -311,6 +360,14 @@
     #expenseTable tbody td:not(:first-child) select {
         max-width: 55% !important;
         margin-left: auto;
+    }
+
+    #incomeTable tbody td:has(.income-currency) select,
+    #expenseTable tbody td:has(.expense-currency) input {
+        max-width: 5.5rem !important;
+        width: 5.5rem !important;
+        min-width: 5.5rem !important;
+        flex: 0 0 5.5rem;
     }
 
     #incomeTable tbody td:last-child,
