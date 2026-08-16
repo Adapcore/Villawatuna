@@ -55,16 +55,17 @@
                         <table class="table table-bordered align-middle" id="incomeTable">
                             <thead class="table-light">
                                 <tr>
-                                    <th style="width:55%">Title</th>
+                                    <th style="width:52%">Title</th>
                                     <th class="petty-cash-currency-col">Currency</th>
-                                    <th style="width:28%" class="text-end">Amount</th>
+                                    <th style="width:24%" class="text-end">Amount</th>
+                                    <th class="petty-cash-action-col"></th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @if (Model.Income == null || Model.Income.Count == 0)
                                 {
                                     <tr class="income-empty-row">
-                                        <td colspan="3" class="text-center text-muted py-3">No cash payments for this date.</td>
+                                        <td colspan="4" class="text-center text-muted py-3">No cash payments for this date.</td>
                                     </tr>
                                 }
                                 else
@@ -100,13 +101,18 @@
                                             <td><span class="income-title">@line.Title</span></td>
                                             <td class="text-center"><span class="income-currency">@line.Currency</span></td>
                                             <td class="text-end"><span class="income-amount">@Fmt(line.Amount)</span></td>
+                                            <td class="text-center petty-cash-line-action">
+                                                <button type="button" class="btn btn-sm btn-outline-danger pcb-remove-line" title="Remove line">
+                                                    <i class="bi bi-x-lg"></i>
+                                                </button>
+                                            </td>
                                         </tr>
                                     }
                                 }
                             </tbody>
                             <tfoot>
                                 <tr class="petty-cash-totals table-light">
-                                    <td colspan="3">
+                                    <td colspan="4">
                                         <div class="d-flex justify-content-between flex-wrap gap-1 text-success fw-bold">
                                             <span>Total Income (LKR)</span>
                                             <span id="totalIncomeLkrDisplay">Rs. @Fmt(Model.TotalIncomeBaseCurry)</span>
@@ -145,16 +151,17 @@
                         <table class="table table-bordered align-middle" id="expenseTable">
                             <thead class="table-light">
                                 <tr>
-                                    <th style="width:55%">Title</th>
+                                    <th style="width:52%">Title</th>
                                     <th class="petty-cash-currency-col">Currency</th>
-                                    <th style="width:28%" class="text-end">Amount</th>
+                                    <th style="width:24%" class="text-end">Amount</th>
+                                    <th class="petty-cash-action-col"></th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @if (Model.Expences == null || Model.Expences.Count == 0)
                                 {
                                     <tr class="expense-empty-row">
-                                        <td colspan="3" class="text-center text-muted py-3">No cash expenses for this date.</td>
+                                        <td colspan="4" class="text-center text-muted py-3">No cash expenses for this date.</td>
                                     </tr>
                                 }
                                 else
@@ -169,13 +176,18 @@
                                             <td><span class="expense-title">@line.Title</span></td>
                                             <td class="text-center"><span class="expense-currency">@line.Currency</span></td>
                                             <td class="text-end"><span class="expense-amount">@Fmt(line.Amount)</span></td>
+                                            <td class="text-center petty-cash-line-action">
+                                                <button type="button" class="btn btn-sm btn-outline-danger pcb-remove-line" title="Remove line">
+                                                    <i class="bi bi-x-lg"></i>
+                                                </button>
+                                            </td>
                                         </tr>
                                     }
                                 }
                             </tbody>
                             <tfoot>
                                 <tr class="petty-cash-totals table-light">
-                                    <td colspan="3">
+                                    <td colspan="4">
                                         <div class="d-flex justify-content-between flex-wrap gap-1 text-danger fw-bold">
                                             <span>Total Expenses (LKR)</span>
                                             <span id="totalExpensesLkrDisplay">Rs. @Fmt(Model.TotalExpences)</span>

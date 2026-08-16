@@ -115,6 +115,22 @@
     width: 5.5rem;
 }
 
+.petty-cash-action-col {
+    width: 2.75rem;
+}
+
+#incomeTable .pcb-remove-line,
+#expenseTable .pcb-remove-line {
+    padding: 0.15rem 0.35rem;
+    line-height: 1;
+}
+
+#incomeTable .petty-cash-line-action,
+#expenseTable .petty-cash-line-action {
+    width: 2.75rem;
+    white-space: nowrap;
+}
+
 #incomeTable .income-currency,
 #expenseTable .expense-currency {
     width: 5.25rem;
@@ -124,75 +140,81 @@
     padding-right: 0.4rem;
 }
 
-/* Income rows colored by invoice type (full row; palette avoids summary colors) */
+/* Income rows by invoice type — matches Invoices/SelectType Bootstrap colors */
 #incomeTable tbody tr[class*="income-type-"] td {
     background-color: inherit;
     border-color: #dee2e6;
 }
 
+/* Dining — danger */
 #incomeTable tbody tr.income-type-dining {
-    background-color: #ecfccb;
+    background-color: #f8d7da;
 }
 
 #incomeTable tbody tr.income-type-dining .income-title,
 #incomeTable tbody tr.income-type-dining .income-currency,
 #incomeTable tbody tr.income-type-dining .income-amount {
-    color: #3f6212;
+    color: #b02a37;
     font-weight: 600;
 }
 
+/* Take Away — warning */
 #incomeTable tbody tr.income-type-takeaway {
-    background-color: #ccfbf1;
+    background-color: #fff3cd;
 }
 
 #incomeTable tbody tr.income-type-takeaway .income-title,
 #incomeTable tbody tr.income-type-takeaway .income-currency,
 #incomeTable tbody tr.income-type-takeaway .income-amount {
-    color: #115e59;
+    color: #997404;
     font-weight: 600;
 }
 
+/* Stay — primary */
 #incomeTable tbody tr.income-type-stay {
-    background-color: #f5d0fe;
+    background-color: #cfe2ff;
 }
 
 #incomeTable tbody tr.income-type-stay .income-title,
 #incomeTable tbody tr.income-type-stay .income-currency,
 #incomeTable tbody tr.income-type-stay .income-amount {
-    color: #86198f;
+    color: #084298;
     font-weight: 600;
 }
 
+/* Other — secondary */
 #incomeTable tbody tr.income-type-other {
-    background-color: #e2e8f0;
+    background-color: #e2e3e5;
 }
 
 #incomeTable tbody tr.income-type-other .income-title,
 #incomeTable tbody tr.income-type-other .income-currency,
 #incomeTable tbody tr.income-type-other .income-amount {
-    color: #1e293b;
+    color: #41464b;
     font-weight: 600;
 }
 
+/* Tour — success */
 #incomeTable tbody tr.income-type-tour {
-    background-color: #ffedd5;
+    background-color: #d1e7dd;
 }
 
 #incomeTable tbody tr.income-type-tour .income-title,
 #incomeTable tbody tr.income-type-tour .income-currency,
 #incomeTable tbody tr.income-type-tour .income-amount {
-    color: #7c2d12;
+    color: #0f5132;
     font-weight: 600;
 }
 
+/* Laundry — info */
 #incomeTable tbody tr.income-type-laundry {
-    background-color: #e0e7ff;
+    background-color: #cff4fc;
 }
 
 #incomeTable tbody tr.income-type-laundry .income-title,
 #incomeTable tbody tr.income-type-laundry .income-currency,
 #incomeTable tbody tr.income-type-laundry .income-amount {
-    color: #312e81;
+    color: #055160;
     font-weight: 600;
 }
 
@@ -502,32 +524,32 @@
     }
 
     #incomeTable tbody tr.income-type-dining {
-        background-color: #ecfccb;
+        background-color: #f8d7da;
         box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
     }
 
     #incomeTable tbody tr.income-type-takeaway {
-        background-color: #ccfbf1;
+        background-color: #fff3cd;
         box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
     }
 
     #incomeTable tbody tr.income-type-stay {
-        background-color: #f5d0fe;
+        background-color: #cfe2ff;
         box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
     }
 
     #incomeTable tbody tr.income-type-other {
-        background-color: #e2e8f0;
+        background-color: #e2e3e5;
         box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
     }
 
     #incomeTable tbody tr.income-type-tour {
-        background-color: #ffedd5;
+        background-color: #d1e7dd;
         box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
     }
 
     #incomeTable tbody tr.income-type-laundry {
-        background-color: #e0e7ff;
+        background-color: #cff4fc;
         box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
     }
 
@@ -583,6 +605,19 @@
         color: #6c757d;
         font-size: 0.9rem;
         flex-shrink: 0;
+    }
+
+    #incomeTable tbody td.petty-cash-line-action,
+    #expenseTable tbody td.petty-cash-line-action {
+        justify-content: flex-end;
+        background: transparent !important;
+        padding: 4px 0 !important;
+        margin-bottom: 0;
+    }
+
+    #incomeTable tbody td.petty-cash-line-action::before,
+    #expenseTable tbody td.petty-cash-line-action::before {
+        content: none;
     }
 
     #incomeTable tfoot,

@@ -164,12 +164,19 @@
         });
     }
 
+    function removeLineButtonHtml() {
+        return '<td class="text-center petty-cash-line-action">' +
+            '<button type="button" class="btn btn-sm btn-outline-danger pcb-remove-line" title="Remove line">' +
+            '<i class="bi bi-x-lg"></i>' +
+            '</button></td>';
+    }
+
     function renderReadonlyRows(tableSelector, lines, emptyClass, emptyMessage, titleClass, currencyClass, amountClass) {
         var $tbody = $(tableSelector + ' tbody');
         $tbody.empty();
 
         if (!lines || !lines.length) {
-            $tbody.append('<tr class="' + emptyClass + '"><td colspan="3" class="text-center text-muted py-3">' + emptyMessage + '</td></tr>');
+            $tbody.append('<tr class="' + emptyClass + '"><td colspan="4" class="text-center text-muted py-3">' + emptyMessage + '</td></tr>');
             return;
         }
 
@@ -197,9 +204,30 @@
                 '<td><span class="' + titleClass + '">' + escapeHtml(title) + '</span></td>' +
                 '<td class="text-center"><span class="' + currencyClass + '">' + escapeHtml(currency) + '</span></td>' +
                 '<td class="text-end"><span class="' + amountClass + '">' + formatNumber(amount) + '</span></td>' +
+                removeLineButtonHtml() +
                 '</tr>';
             $tbody.append(html);
         });
+    }
+
+    function removeTableLine($btn) {
+        var $tr = $btn.closest('tr');
+        var $table = $tr.closest('table');
+        var $tbody = $table.find('tbody');
+        var isIncome = $table.attr('id') === 'incomeTable';
+        var emptyClass = isIncome ? 'income-empty-row' : 'expense-empty-row';
+        var emptyMessage = isIncome ? 'No cash payments for this date.' : 'No cash expenses for this date.';
+
+        $tr.remove();
+
+        if ($tbody.find('tr:not(.' + emptyClass + ')').length === 0) {
+            $tbody.append(
+                '<tr class="' + emptyClass + '"><td colspan="4" class="text-center text-muted py-3">' +
+                emptyMessage + '</td></tr>'
+            );
+        }
+
+        recalculateTotals();
     }
 
     function renderIncomeRows(lines) {
@@ -408,6 +436,11 @@
         $('#btnRefreshIncome').on('click', refreshIncomeFromPayments);
         $('#btnRefreshExpenses').on('click', refreshExpensesFromExpenses);
         $('#btnSave').on('click', saveEntry);
+
+        $(document).on('click', '#incomeTable .pcb-remove-line, #expenseTable .pcb-remove-line', function (e) {
+            e.preventDefault();
+            removeTableLine($(this));
+        });
 
         recalculateTotals();
     });
