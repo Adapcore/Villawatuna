@@ -117,7 +117,7 @@
                                     <td colspan="4">
                                         <div class="d-flex justify-content-between flex-wrap gap-1 text-success fw-bold">
                                             <span>Total Income (LKR)</span>
-                                            <span id="totalIncomeLkrDisplay">Rs. @Fmt(Model.TotalIncomeBaseCurry)</span>
+                                            <span id="totalIncomeLkrDisplay">LKR @Fmt(Model.TotalIncomeBaseCurry)</span>
                                         </div>
                                         <div id="totalIncomeOtherCurrencies" class="petty-cash-other-currency-totals small text-muted mt-1">
                                             @{
@@ -194,7 +194,7 @@
                                     <td colspan="4">
                                         <div class="d-flex justify-content-between flex-wrap gap-1 text-danger fw-bold">
                                             <span>Total Expenses (LKR)</span>
-                                            <span id="totalExpensesLkrDisplay">Rs. @Fmt(Model.TotalExpences)</span>
+                                            <span id="totalExpensesLkrDisplay">LKR @Fmt(Model.TotalExpences)</span>
                                         </div>
                                     </td>
                                 </tr>
@@ -210,38 +210,38 @@
                 <div class="col-lg-6 col-12 petty-cash-summary">
                     <div class="summary-row fw-bold pcb-summary-opening">
                         <span><i class="bi bi-wallet2 me-1"></i>Petty Cash (Opening)</span>
-                        <span id="summaryOpening">Rs. @Fmt(Model.OpeningBalance)</span>
+                        <span id="summaryOpening">LKR @Fmt(Model.OpeningBalance)</span>
                     </div>
                     <div class="summary-row pcb-summary-refill-opening">
                         <label class="mb-0 fw-bold" for="pettyCashRefillOpening">Petty Cash Refill (Opening)</label>
                         <div class="input-group">
-                            <span class="input-group-text">Rs.</span>
+                            <span class="input-group-text">LKR</span>
                             <input type="number" id="pettyCashRefillOpening" class="form-control text-end" step="0.01" min="0"
                                    value="@Model.PettyCashRefillOpening.ToString("0.00")" />
                         </div>
                     </div>
                     <div class="summary-row fw-bold pcb-summary-balance">
                         <span>Petty Cash (Balance)</span>
-                        <span id="summaryPettyCashBalance">Rs. @Fmt(Model.OpeningBalance + Model.PettyCashRefillOpening)</span>
+                        <span id="summaryPettyCashBalance">LKR @Fmt(Model.OpeningBalance + Model.PettyCashRefillOpening)</span>
                     </div>
                 </div>
                 <div class="col-lg-6 col-12 petty-cash-summary">
                     <div class="summary-row text-success">
                         <span>➕ Income (LKR)</span>
-                        <span id="summaryIncome">Rs. @Fmt(Model.TotalIncomeBaseCurry)</span>
+                        <span id="summaryIncome">LKR @Fmt(Model.TotalIncomeBaseCurry)</span>
                     </div>
                     <div class="summary-row text-danger">
                         <span>➖ Expenses</span>
-                        <span id="summaryExpenses">Rs. @Fmt(Model.TotalExpences)</span>
+                        <span id="summaryExpenses">LKR @Fmt(Model.TotalExpences)</span>
                     </div>
                     <div class="summary-row">
                         <span>Daily Balance</span>
-                        <span id="summaryBalance">Rs. @Fmt(Model.Balance)</span>
+                        <span id="summaryBalance">LKR @Fmt(Model.Balance)</span>
                     </div>
                     <div class="summary-row">
                         <label class="mb-0 fw-bold" for="handedOver">🤝 Handed Over</label>
                         <div class="input-group">
-                            <span class="input-group-text">Rs.</span>
+                            <span class="input-group-text">LKR</span>
                             <input type="number" id="handedOver" class="form-control text-end" step="0.01" min="0"
                                    value="@Model.HandedOver.ToString("0.00")" />
                         </div>
@@ -249,14 +249,14 @@
                     <div class="summary-row pcb-summary-refill-closing">
                         <label class="mb-0 fw-bold" for="pettyCashRefillClosing">Petty Cash Refill (Closing)</label>
                         <div class="input-group">
-                            <span class="input-group-text">Rs.</span>
+                            <span class="input-group-text">LKR</span>
                             <input type="number" id="pettyCashRefillClosing" class="form-control text-end" step="0.01" min="0"
                                    value="@Model.PettyCashRefillClosing.ToString("0.00")" />
                         </div>
                     </div>
                     <div class="summary-row fw-bold pcb-summary-closing">
                         <span><i class="bi bi-cash-stack me-1"></i>Petty Cash (Closing)</span>
-                        <span id="summaryCloseBalance">Rs. @Fmt(Model.ClosingBalance)</span>
+                        <span id="summaryCloseBalance">LKR @Fmt(Model.ClosingBalance)</span>
                     </div>
                 </div>
             </div>

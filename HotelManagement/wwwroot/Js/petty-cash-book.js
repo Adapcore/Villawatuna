@@ -12,7 +12,7 @@
     }
 
     function money(n) {
-        return 'Rs. ' + formatNumber(n);
+        return 'LKR ' + formatNumber(n);
     }
 
     function moneyWithCurrency(currency, n) {

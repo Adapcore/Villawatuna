@@ -20,7 +20,7 @@ function formatDateLocal(date) {
 function formatMoney(value) {
     var n = parseFloat(value);
     if (isNaN(n)) n = 0;
-    return 'Rs. ' + n.toLocaleString('en-US', {
+    return 'LKR ' + n.toLocaleString('en-US', {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2
     });
