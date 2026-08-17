@@ -601,9 +601,6 @@ namespace HotelManagement.Migrations
                     b.Property<decimal>("PettyCashRefillClosing")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<decimal>("PettyCashRefillOpening")
-                        .HasColumnType("decimal(18,2)");
-
                     b.Property<decimal>("TotalExpences")
                         .HasColumnType("decimal(18,2)");
 
@@ -735,8 +732,8 @@ namespace HotelManagement.Migrations
 
                             b1.Property<string>("Title")
                                 .IsRequired()
-                                .HasMaxLength(100)
-                                .HasColumnType("nvarchar(100)");
+                                .HasMaxLength(250)
+                                .HasColumnType("nvarchar(250)");
 
                             b1.HasKey("PettyCashBookId", "__synthesizedOrdinal");
 
@@ -768,10 +765,14 @@ namespace HotelManagement.Migrations
                             b1.Property<int>("Id")
                                 .HasColumnType("int");
 
+                            b1.Property<string>("InvoiceTypeCode")
+                                .HasMaxLength(50)
+                                .HasColumnType("nvarchar(50)");
+
                             b1.Property<string>("Title")
                                 .IsRequired()
-                                .HasMaxLength(100)
-                                .HasColumnType("nvarchar(100)");
+                                .HasMaxLength(250)
+                                .HasColumnType("nvarchar(250)");
 
                             b1.HasKey("PettyCashBookId", "__synthesizedOrdinal");
 
@@ -783,9 +784,41 @@ namespace HotelManagement.Migrations
                                 .HasForeignKey("PettyCashBookId");
                         });
 
+                    b.OwnsMany("HotelManagement.Models.Entities.PettyCashRefillLine", "Refills", b1 =>
+                        {
+                            b1.Property<int>("PettyCashBookId")
+                                .HasColumnType("int");
+
+                            b1.Property<int>("__synthesizedOrdinal")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("int");
+
+                            b1.Property<decimal>("Amount")
+                                .HasColumnType("decimal(18,2)");
+
+                            b1.Property<int>("Id")
+                                .HasColumnType("int");
+
+                            b1.Property<string>("Title")
+                                .IsRequired()
+                                .HasMaxLength(250)
+                                .HasColumnType("nvarchar(250)");
+
+                            b1.HasKey("PettyCashBookId", "__synthesizedOrdinal");
+
+                            b1.ToTable("PettyCashBook");
+
+                            b1.ToJson("Refills");
+
+                            b1.WithOwner()
+                                .HasForeignKey("PettyCashBookId");
+                        });
+
                     b.Navigation("Expences");
 
                     b.Navigation("Income");
+
+                    b.Navigation("Refills");
 
                     b.Navigation("TotalIncome");
                 });

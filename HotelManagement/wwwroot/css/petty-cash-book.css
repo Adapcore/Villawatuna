@@ -49,8 +49,52 @@
     color: #0d6efd;
 }
 
-.petty-cash-summary .pcb-summary-refill-opening #pettyCashRefillOpening,
-.petty-cash-summary .pcb-summary-refill-opening .input-group-text {
+.pcb-refill-block {
+    padding: 0.35rem 0 0.5rem;
+    border-bottom: 1px dashed #dee2e6;
+    font-size: 0.875rem;
+}
+
+.pcb-refill-block .table {
+    margin-bottom: 0;
+    font-size: 0.8125rem;
+}
+
+#refillTable th,
+#refillTable td {
+    padding: 0.25rem 0.35rem;
+    vertical-align: middle;
+}
+
+#refillTable .refill-title {
+    min-width: 6.5rem;
+}
+
+#refillTable .form-control,
+#refillTable .input-group-text {
+    min-height: 1.75rem;
+    padding: 0.15rem 0.4rem;
+    font-size: 0.8125rem;
+}
+
+#refillTable .pcb-remove-refill {
+    padding: 0.1rem 0.28rem;
+    line-height: 1;
+    font-size: 0.75rem;
+}
+
+#refillTable .petty-cash-action-col {
+    width: 2.1rem;
+}
+
+#btnAddRefill {
+    padding: 0.15rem 0.45rem;
+    font-size: 0.75rem;
+}
+
+.petty-cash-summary .pcb-summary-refill-opening .input-group-text,
+.pcb-refill-block.pcb-summary-refill-opening .input-group-text,
+.pcb-refill-block.pcb-summary-refill-opening #refillOpeningTotalDisplay {
     color: #0d6efd !important;
     font-weight: 600;
 }
@@ -153,7 +197,8 @@
 
 #incomeTable tbody tr.income-type-dining .income-title,
 #incomeTable tbody tr.income-type-dining .income-currency,
-#incomeTable tbody tr.income-type-dining .income-amount {
+#incomeTable tbody tr.income-type-dining .income-amount,
+#incomeTable tbody tr.income-type-dining .petty-cash-amount-cell {
     color: #b02a37;
     font-weight: 600;
 }
@@ -165,7 +210,8 @@
 
 #incomeTable tbody tr.income-type-takeaway .income-title,
 #incomeTable tbody tr.income-type-takeaway .income-currency,
-#incomeTable tbody tr.income-type-takeaway .income-amount {
+#incomeTable tbody tr.income-type-takeaway .income-amount,
+#incomeTable tbody tr.income-type-takeaway .petty-cash-amount-cell {
     color: #997404;
     font-weight: 600;
 }
@@ -177,7 +223,8 @@
 
 #incomeTable tbody tr.income-type-stay .income-title,
 #incomeTable tbody tr.income-type-stay .income-currency,
-#incomeTable tbody tr.income-type-stay .income-amount {
+#incomeTable tbody tr.income-type-stay .income-amount,
+#incomeTable tbody tr.income-type-stay .petty-cash-amount-cell {
     color: #084298;
     font-weight: 600;
 }
@@ -189,7 +236,8 @@
 
 #incomeTable tbody tr.income-type-other .income-title,
 #incomeTable tbody tr.income-type-other .income-currency,
-#incomeTable tbody tr.income-type-other .income-amount {
+#incomeTable tbody tr.income-type-other .income-amount,
+#incomeTable tbody tr.income-type-other .petty-cash-amount-cell {
     color: #41464b;
     font-weight: 600;
 }
@@ -201,7 +249,8 @@
 
 #incomeTable tbody tr.income-type-tour .income-title,
 #incomeTable tbody tr.income-type-tour .income-currency,
-#incomeTable tbody tr.income-type-tour .income-amount {
+#incomeTable tbody tr.income-type-tour .income-amount,
+#incomeTable tbody tr.income-type-tour .petty-cash-amount-cell {
     color: #0f5132;
     font-weight: 600;
 }
@@ -213,7 +262,8 @@
 
 #incomeTable tbody tr.income-type-laundry .income-title,
 #incomeTable tbody tr.income-type-laundry .income-currency,
-#incomeTable tbody tr.income-type-laundry .income-amount {
+#incomeTable tbody tr.income-type-laundry .income-amount,
+#incomeTable tbody tr.income-type-laundry .petty-cash-amount-cell {
     color: #055160;
     font-weight: 600;
 }
@@ -589,6 +639,10 @@
     #incomeTable tbody tr:not(.income-empty-row) td.petty-cash-amount-cell,
     #expenseTable tbody tr:not(.expense-empty-row) td.petty-cash-amount-cell {
         grid-area: amount;
+        display: flex;
+        justify-content: flex-end;
+        align-items: baseline;
+        gap: 0.35rem;
         text-align: right !important;
         font-weight: 600;
         padding-top: 0.15rem;
@@ -598,12 +652,7 @@
 
     #incomeTable tbody tr:not(.income-empty-row) td.petty-cash-amount-cell::before,
     #expenseTable tbody tr:not(.expense-empty-row) td.petty-cash-amount-cell::before {
-        content: none;
-    }
-
-    #incomeTable tbody tr:not(.income-empty-row) td.petty-cash-amount-cell::after,
-    #expenseTable tbody tr:not(.expense-empty-row) td.petty-cash-amount-cell::after {
-        content: " " attr(data-currency);
+        content: attr(data-currency);
         font-weight: 600;
     }
 
@@ -642,6 +691,74 @@
         width: 100% !important;
         padding: 12px !important;
         background-color: var(--bs-table-bg, #f8f9fa) !important;
+    }
+
+    .pcb-refill-block #refillTable thead {
+        display: none;
+    }
+
+    .pcb-refill-block #refillTable,
+    .pcb-refill-block #refillTable tbody {
+        display: block;
+        border: none !important;
+    }
+
+    .pcb-refill-block #refillTable tbody tr:not(.refill-empty-row) {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        grid-template-areas:
+            "title action"
+            "amount amount";
+        gap: 0.35rem 0.5rem;
+        margin-bottom: 10px;
+        border: 1px solid #cfe2ff;
+        border-radius: 10px;
+        padding: 10px;
+        background: #f8fbff;
+    }
+
+    .pcb-refill-block #refillTable tbody tr.refill-empty-row {
+        display: block;
+        border: 1px dashed #dee2e6;
+        border-radius: 10px;
+        padding: 10px;
+    }
+
+    .pcb-refill-block #refillTable tbody td {
+        border: none;
+        padding: 0;
+        width: auto !important;
+    }
+
+    .pcb-refill-block #refillTable tbody tr:not(.refill-empty-row) td:first-child {
+        grid-area: title;
+    }
+
+    .pcb-refill-block #refillTable tbody tr:not(.refill-empty-row) td:nth-child(2) {
+        grid-area: amount;
+    }
+
+    .pcb-refill-block #refillTable tbody tr:not(.refill-empty-row) td.petty-cash-line-action {
+        grid-area: action;
+        justify-self: end;
+    }
+
+    .pcb-refill-block #refillTable tfoot {
+        display: block;
+    }
+
+    .pcb-refill-block #refillTable tfoot tr {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 8px 10px;
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        background: #f8f9fa;
+    }
+
+    .pcb-refill-block #refillTable tfoot td:last-child {
+        display: none;
     }
 
     .petty-cash-summary {

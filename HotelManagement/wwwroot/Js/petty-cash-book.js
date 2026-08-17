@@ -81,6 +81,54 @@
         return rows;
     }
 
+    function collectRefillRows() {
+        var rows = [];
+        $('#refillTable tbody tr').each(function (index) {
+            var $tr = $(this);
+            if ($tr.hasClass('refill-empty-row')) return;
+
+            var title = ($tr.find('.refill-title').val() || '').trim();
+            var amount = parseFloat($tr.find('.refill-amount').val());
+            if (isNaN(amount)) amount = 0;
+
+            rows.push({
+                id: index + 1,
+                title: title,
+                amount: amount
+            });
+        });
+        return rows;
+    }
+
+    function refillRowHtml(title, amount) {
+        return '<tr>' +
+            '<td><input type="text" class="form-control form-control-sm refill-title" maxlength="250" value="' + escapeHtml(title || '') + '" placeholder="Title" /></td>' +
+            '<td><div class="input-group input-group-sm">' +
+            '<span class="input-group-text">LKR</span>' +
+            '<input type="number" class="form-control text-end refill-amount" step="0.01" min="0" value="' + (Number(amount) || 0).toFixed(2) + '" />' +
+            '</div></td>' +
+            '<td class="text-center petty-cash-line-action">' +
+            '<button type="button" class="btn btn-sm btn-outline-danger pcb-remove-refill" title="Remove refill">' +
+            '<i class="bi bi-x-lg"></i></button></td>' +
+            '</tr>';
+    }
+
+    function addRefillRow() {
+        var $tbody = $('#refillTable tbody');
+        $tbody.find('.refill-empty-row').remove();
+        $tbody.append(refillRowHtml('', 0));
+        $tbody.find('tr:last .refill-title').focus();
+    }
+
+    function removeRefillRow($btn) {
+        var $tbody = $('#refillTable tbody');
+        $btn.closest('tr').remove();
+        if ($tbody.find('tr:not(.refill-empty-row)').length === 0) {
+            $tbody.append('<tr class="refill-empty-row"><td colspan="3" class="text-center text-muted py-2">No refills. Click Add to enter one.</td></tr>');
+        }
+        recalculateTotals();
+    }
+
     function collectIncomeRows() {
         return collectReadonlyRows('#incomeTable', 'income-empty-row', true);
     }
@@ -138,7 +186,13 @@
         totalExpensesLkr = Math.round(totalExpensesLkr * 100) / 100;
 
         var openingBalance = parseAmount($('#openingBalance'));
-        var refillOpening = parseAmount($('#pettyCashRefillOpening'));
+        var refillOpening = 0;
+        collectRefillRows().forEach(function (r) {
+            if (!r.title && r.amount === 0) return;
+            refillOpening += r.amount;
+        });
+        refillOpening = Math.round(Math.max(0, refillOpening) * 100) / 100;
+        $('#refillOpeningTotalDisplay').text(money(refillOpening));
         var refillClosing = parseAmount($('#pettyCashRefillClosing'));
         var handedOver = parseAmount($('#handedOver'));
         var pettyCashBalance = Math.round((openingBalance + refillOpening) * 100) / 100;
@@ -389,11 +443,13 @@
                 id: parseInt($('#entryId').val(), 10) || 0,
                 date: $('#entryDate').val(),
                 openingBalance: parseAmount($('#openingBalance')),
-                pettyCashRefillOpening: parseAmount($('#pettyCashRefillOpening')),
                 pettyCashRefillClosing: parseAmount($('#pettyCashRefillClosing')),
                 handedOver: parseAmount($('#handedOver')),
                 income: income,
-                expences: expenses
+                expences: expenses,
+                refills: collectRefillRows().filter(function (r) {
+                    return r.title || r.amount !== 0;
+                })
             };
 
             return $.ajax({
@@ -424,7 +480,7 @@
     }
 
     $(document).ready(function () {
-        $(document).on('input change', '#pettyCashRefillOpening', function () {
+        $(document).on('input change', '#refillTable .refill-title, #refillTable .refill-amount', function () {
             recalculateTotals();
         });
 
@@ -437,10 +493,16 @@
         $('#btnRefreshIncome').on('click', refreshIncomeFromPayments);
         $('#btnRefreshExpenses').on('click', refreshExpensesFromExpenses);
         $('#btnSave').on('click', saveEntry);
+        $('#btnAddRefill').on('click', addRefillRow);
 
         $(document).on('click', '#incomeTable .pcb-remove-line, #expenseTable .pcb-remove-line', function (e) {
             e.preventDefault();
             removeTableLine($(this));
+        });
+
+        $(document).on('click', '#refillTable .pcb-remove-refill', function (e) {
+            e.preventDefault();
+            removeRefillRow($(this));
         });
 
         recalculateTotals();

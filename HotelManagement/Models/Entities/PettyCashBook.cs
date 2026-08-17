@@ -16,9 +16,6 @@ namespace HotelManagement.Models.Entities
         public decimal OpeningBalance { get; set; }
 
         [Column(TypeName = "decimal(18,2)")]
-        public decimal PettyCashRefillOpening { get; set; }
-
-        [Column(TypeName = "decimal(18,2)")]
         public decimal ClosingBalance { get; set; }
 
         [Column(TypeName = "decimal(18,2)")]
@@ -42,5 +39,11 @@ namespace HotelManagement.Models.Entities
         public List<PettyCashIncomeLine> Income { get; set; } = new();
 
         public List<PettyCashExpenseLine> Expences { get; set; } = new();
+
+        public List<PettyCashRefillLine> Refills { get; set; } = new();
+
+        [NotMapped]
+        public decimal RefillOpeningTotal =>
+            Math.Round((Refills ?? new List<PettyCashRefillLine>()).Sum(r => r.Amount), 2);
     }
 }

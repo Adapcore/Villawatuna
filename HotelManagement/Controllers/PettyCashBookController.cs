@@ -63,7 +63,7 @@ namespace HotelManagement.Controllers
                 id = e.Id,
                 date = e.Date.ToString("yyyy-MM-dd"),
                 openingBalance = e.OpeningBalance,
-                pettyCashRefillOpening = e.PettyCashRefillOpening,
+                pettyCashRefillOpening = e.RefillOpeningTotal,
                 totalIncomeBaseCurry = e.TotalIncomeBaseCurry,
                 totalExpences = e.TotalExpences,
                 balance = e.Balance,
@@ -107,10 +107,10 @@ namespace HotelManagement.Controllers
             {
                 Date = entryDate ?? default,
                 OpeningBalance = 0,
-                PettyCashRefillOpening = 0,
                 PettyCashRefillClosing = 0,
                 Income = new List<PettyCashIncomeLine>(),
-                Expences = new List<PettyCashExpenseLine>()
+                Expences = new List<PettyCashExpenseLine>(),
+                Refills = new List<PettyCashRefillLine>()
             };
 
             if (entryDate.HasValue)
@@ -134,6 +134,7 @@ namespace HotelManagement.Controllers
 
             model.Income ??= new List<PettyCashIncomeLine>();
             model.Expences ??= new List<PettyCashExpenseLine>();
+            model.Refills ??= new List<PettyCashRefillLine>();
 
             ViewBag.HasEntryDate = true;
             await PopulateCurrencyViewBagAsync();
