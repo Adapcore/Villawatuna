@@ -100,7 +100,9 @@
                                             data-invoice-type-code="@typeCode">
                                             <td><span class="income-title">@line.Title</span></td>
                                             <td class="text-center"><span class="income-currency">@line.Currency</span></td>
-                                            <td class="text-end"><span class="income-amount">@Fmt(line.Amount)</span></td>
+                                            <td class="text-end petty-cash-amount-cell" data-currency="@line.Currency">
+                                                <span class="income-amount">@Fmt(line.Amount)</span>
+                                            </td>
                                             <td class="text-center petty-cash-line-action">
                                                 <button type="button" class="btn btn-sm btn-outline-danger pcb-remove-line" title="Remove line">
                                                     <i class="bi bi-x-lg"></i>
@@ -175,7 +177,9 @@
                                             data-amount="@line.Amount.ToString("0.00")">
                                             <td><span class="expense-title">@line.Title</span></td>
                                             <td class="text-center"><span class="expense-currency">@line.Currency</span></td>
-                                            <td class="text-end"><span class="expense-amount">@Fmt(line.Amount)</span></td>
+                                            <td class="text-end petty-cash-amount-cell" data-currency="@line.Currency">
+                                                <span class="expense-amount">@Fmt(line.Amount)</span>
+                                            </td>
                                             <td class="text-center petty-cash-line-action">
                                                 <button type="button" class="btn btn-sm btn-outline-danger pcb-remove-line" title="Remove line">
                                                     <i class="bi bi-x-lg"></i>

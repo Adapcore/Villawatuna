@@ -203,7 +203,8 @@
                 typeAttr + '>' +
                 '<td><span class="' + titleClass + '">' + escapeHtml(title) + '</span></td>' +
                 '<td class="text-center"><span class="' + currencyClass + '">' + escapeHtml(currency) + '</span></td>' +
-                '<td class="text-end"><span class="' + amountClass + '">' + formatNumber(amount) + '</span></td>' +
+                '<td class="text-end petty-cash-amount-cell" data-currency="' + escapeHtml(currency) + '">' +
+                '<span class="' + amountClass + '">' + formatNumber(amount) + '</span></td>' +
                 removeLineButtonHtml() +
                 '</tr>';
             $tbody.append(html);

@@ -500,8 +500,24 @@
         display: block;
     }
 
-    #incomeTable tbody tr,
-    #expenseTable tbody tr {
+    #incomeTable tbody tr:not(.income-empty-row),
+    #expenseTable tbody tr:not(.expense-empty-row) {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        grid-template-areas:
+            "title action"
+            "amount amount";
+        gap: 0.35rem 0.5rem;
+        align-items: start;
+        margin-bottom: 12px;
+        border: 1px solid #e9ecef;
+        border-radius: 12px;
+        padding: 12px;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+    }
+
+    #incomeTable tbody tr.income-empty-row,
+    #expenseTable tbody tr.expense-empty-row {
         display: block;
         margin-bottom: 12px;
         background: #ffffff;
@@ -519,100 +535,86 @@
         background-color: #ffe4e6;
     }
 
-    #expenseTable tbody tr:not(.expense-empty-row) td:not(:first-child) {
-        background: transparent;
-    }
-
     #incomeTable tbody tr.income-type-dining {
         background-color: #f8d7da;
-        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
     }
 
     #incomeTable tbody tr.income-type-takeaway {
         background-color: #fff3cd;
-        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
     }
 
     #incomeTable tbody tr.income-type-stay {
         background-color: #cfe2ff;
-        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
     }
 
     #incomeTable tbody tr.income-type-other {
         background-color: #e2e3e5;
-        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
     }
 
     #incomeTable tbody tr.income-type-tour {
         background-color: #d1e7dd;
-        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
     }
 
     #incomeTable tbody tr.income-type-laundry {
         background-color: #cff4fc;
-        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
     }
 
     #incomeTable tbody tr[class*="income-type-"] td:not(:first-child) {
         background: transparent;
     }
 
-    #incomeTable tbody tr[class*="income-type-"] td:first-child {
-        border-bottom-color: rgba(0, 0, 0, 0.12);
-    }
-
     #incomeTable tbody td,
     #expenseTable tbody td {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 0.5rem;
+        display: block;
         border: none;
-        padding: 8px 0;
-        width: 100% !important;
+        padding: 0;
+        width: auto !important;
         text-align: left !important;
     }
 
-    #incomeTable tbody td:first-child,
-    #expenseTable tbody td:first-child {
-        display: block;
-        padding-bottom: 10px;
-        margin-bottom: 4px;
-        border-bottom: 1px solid #e9ecef;
-    }
-
-    #incomeTable tbody td:not(:first-child),
-    #expenseTable tbody td:not(:first-child) {
-        padding: 8px 10px;
-        margin-bottom: 6px;
-        background: rgba(108, 117, 125, 0.05);
-        border-radius: 8px;
-    }
-
-    #incomeTable tbody td:has(.income-currency)::before,
-    #expenseTable tbody td:has(.expense-currency)::before {
-        content: "Currency:";
-        font-weight: 600;
-        color: #6c757d;
-        font-size: 0.9rem;
-        flex-shrink: 0;
-    }
-
-    #incomeTable tbody td:has(.income-amount)::before,
-    #expenseTable tbody td:has(.expense-amount)::before {
-        content: "Amount:";
-        font-weight: 600;
-        color: #6c757d;
-        font-size: 0.9rem;
-        flex-shrink: 0;
-    }
-
-    #incomeTable tbody td.petty-cash-line-action,
-    #expenseTable tbody td.petty-cash-line-action {
-        justify-content: flex-end;
-        background: transparent !important;
-        padding: 4px 0 !important;
+    #incomeTable tbody tr:not(.income-empty-row) td:first-child,
+    #expenseTable tbody tr:not(.expense-empty-row) td:first-child {
+        grid-area: title;
+        padding-right: 0.5rem;
         margin-bottom: 0;
+        border-bottom: none;
+        word-break: break-word;
+    }
+
+    #incomeTable tbody tr:not(.income-empty-row) td:has(.income-currency),
+    #expenseTable tbody tr:not(.expense-empty-row) td:has(.expense-currency) {
+        display: none !important;
+    }
+
+    #incomeTable tbody tr:not(.income-empty-row) td.petty-cash-amount-cell,
+    #expenseTable tbody tr:not(.expense-empty-row) td.petty-cash-amount-cell {
+        grid-area: amount;
+        text-align: right !important;
+        font-weight: 600;
+        padding-top: 0.15rem;
+        background: transparent !important;
+        margin-bottom: 0;
+    }
+
+    #incomeTable tbody tr:not(.income-empty-row) td.petty-cash-amount-cell::before,
+    #expenseTable tbody tr:not(.expense-empty-row) td.petty-cash-amount-cell::before {
+        content: none;
+    }
+
+    #incomeTable tbody tr:not(.income-empty-row) td.petty-cash-amount-cell::after,
+    #expenseTable tbody tr:not(.expense-empty-row) td.petty-cash-amount-cell::after {
+        content: " " attr(data-currency);
+        font-weight: 600;
+    }
+
+    #incomeTable tbody tr:not(.income-empty-row) td.petty-cash-line-action,
+    #expenseTable tbody tr:not(.expense-empty-row) td.petty-cash-line-action {
+        grid-area: action;
+        align-self: start;
+        justify-self: end;
+        padding: 0 !important;
+        margin-bottom: 0;
+        background: transparent !important;
     }
 
     #incomeTable tbody td.petty-cash-line-action::before,
