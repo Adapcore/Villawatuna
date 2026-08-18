@@ -235,6 +235,9 @@
                                 <tbody>
                                     @{
                                         var refillLines = Model.Refills ?? new List<HotelManagement.Models.Entities.PettyCashRefillLine>();
+                                        var refillTotal = refillLines.Sum(r => r.Amount);
+                                        if (refillTotal == 0)
+                                            refillTotal = Model.PettyCashRefillOpening;
                                     }
                                     @if (refillLines.Count == 0)
                                     {
@@ -269,7 +272,7 @@
                                 <tfoot>
                                     <tr class="petty-cash-totals table-light">
                                         <td class="fw-bold">Total</td>
-                                        <td class="text-end fw-bold" id="refillOpeningTotalDisplay">LKR @Fmt(Model.RefillOpeningTotal)</td>
+                                        <td class="text-end fw-bold" id="refillOpeningTotalDisplay">LKR @Fmt(refillTotal)</td>
                                         <td></td>
                                     </tr>
                                 </tfoot>
@@ -278,7 +281,7 @@
                     </div>
                     <div class="summary-row fw-bold pcb-summary-balance">
                         <span>Petty Cash (Balance)</span>
-                        <span id="summaryPettyCashBalance">LKR @Fmt(Model.OpeningBalance + Model.RefillOpeningTotal)</span>
+                        <span id="summaryPettyCashBalance">LKR @Fmt(Model.OpeningBalance + refillTotal)</span>
                     </div>
                 </div>
                 <div class="col-lg-6 col-12 petty-cash-summary">

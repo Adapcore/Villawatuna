@@ -187,6 +187,7 @@ namespace HotelManagement.Data
 				entity.HasIndex(e => e.Date).IsUnique();
 
 				entity.Property(e => e.OpeningBalance).HasColumnType("decimal(18,2)");
+				entity.Property(e => e.PettyCashRefillOpening).HasColumnType("decimal(18,2)");
 				entity.Property(e => e.ClosingBalance)
 					.HasColumnType("decimal(18,2)")
 					.HasColumnName("CloseBalance");

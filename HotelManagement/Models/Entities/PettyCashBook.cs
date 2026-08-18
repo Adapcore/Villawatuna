@@ -19,6 +19,9 @@ namespace HotelManagement.Models.Entities
         public decimal ClosingBalance { get; set; }
 
         [Column(TypeName = "decimal(18,2)")]
+        public decimal PettyCashRefillOpening { get; set; }
+
+        [Column(TypeName = "decimal(18,2)")]
         public decimal PettyCashRefillClosing { get; set; }
 
         [Column(TypeName = "decimal(18,2)")]

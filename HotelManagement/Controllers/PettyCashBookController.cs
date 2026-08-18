@@ -63,7 +63,9 @@ namespace HotelManagement.Controllers
                 id = e.Id,
                 date = e.Date.ToString("yyyy-MM-dd"),
                 openingBalance = e.OpeningBalance,
-                pettyCashRefillOpening = e.RefillOpeningTotal,
+                pettyCashRefillOpening = e.PettyCashRefillOpening != 0
+                    ? e.PettyCashRefillOpening
+                    : e.RefillOpeningTotal,
                 totalIncomeBaseCurry = e.TotalIncomeBaseCurry,
                 totalExpences = e.TotalExpences,
                 balance = e.Balance,
