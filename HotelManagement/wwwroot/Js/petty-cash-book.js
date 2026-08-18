@@ -201,12 +201,12 @@
 
         $('#totalIncomeLkrDisplay').text(money(totalIncomeLkr));
         $('#totalExpensesLkrDisplay').text(money(totalExpensesLkr));
-        $('#summaryOpening').text(money(openingBalance));
-        $('#summaryPettyCashBalance').text(money(pettyCashBalance));
-        $('#summaryIncome').text(money(totalIncomeLkr));
-        $('#summaryExpenses').text(money(totalExpensesLkr));
-        $('#summaryBalance').text(money(balance));
-        $('#summaryCloseBalance').text(money(closeBalance));
+        $('#summaryOpening').text(formatNumber(openingBalance));
+        $('.js-summary-petty-cash-balance').text(formatNumber(pettyCashBalance));
+        $('#summaryIncome').text(formatNumber(totalIncomeLkr));
+        $('#summaryExpenses').text(formatNumber(totalExpensesLkr));
+        $('#summaryBalance').text(formatNumber(balance));
+        $('#summaryCloseBalance').text(formatNumber(closeBalance));
 
         return Promise.resolve({
             totalIncomeLkr: totalIncomeLkr,

@@ -15,36 +15,25 @@
 <div class="container-fluid py-4">
     <div class="petty-cash-page-header">
         <h2 class="fw-bold text-primary mb-0">📅 Daily Cash Summary</h2>
-        <a asp-action="Index" class="btn btn-outline-secondary">Back to List</a>
+        <div class="petty-cash-header-actions">
+            <div class="petty-cash-title-date-field">
+                <label class="form-label fw-bold mb-0" for="entryDate">Date</label>
+                <input type="date" id="entryDate" class="form-control petty-cash-title-date-input"
+                       value="@(hasEntryDate ? Model.Date.ToString("yyyy-MM-dd") : "")"
+                       @(isEdit ? "readonly" : "") />
+            </div>
+            <a asp-action="Index" class="btn btn-outline-secondary">Back to List</a>
+        </div>
     </div>
+    <div id="dateWarning" class="text-danger small mb-3" style="display:none;"></div>
 
     <div class="card shadow-sm petty-cash-form-card">
         <div class="card-body p-4">
             <input type="hidden" id="entryId" value="@Model.Id" />
             <input type="hidden" id="isEdit" value="@(isEdit ? "true" : "false")" />
-
-            <div class="petty-cash-meta mb-4">
-                <div class="petty-cash-meta-field">
-                    <div class="petty-cash-meta-row">
-                        <label class="form-label fw-bold mb-0" for="entryDate">Date</label>
-                        <input type="date" id="entryDate" class="form-control form-control-lg"
-                               value="@(hasEntryDate ? Model.Date.ToString("yyyy-MM-dd") : "")"
-                               @(isEdit ? "readonly" : "") />
-                    </div>
-                    <div id="dateWarning" class="text-danger small mt-1" style="display:none;"></div>
-                </div>
-                <div class="petty-cash-meta-field">
-                    <div class="petty-cash-meta-row">
-                        <label class="form-label fw-bold mb-0 pcb-summary-opening" for="openingBalanceDisplay">
-                            <i class="bi bi-wallet2 me-1"></i>Petty Cash (Opening)
-                        </label>
-                        <input type="hidden" id="openingBalance"
-                               value="@(hasEntryDate ? Model.OpeningBalance.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture) : "0.00")" />
-                        <input type="text" id="openingBalanceDisplay" class="form-control form-control-lg text-end pcb-opening-amount"
-                               value="@(hasEntryDate ? Fmt(Model.OpeningBalance) : "0.00")" readonly tabindex="-1" />
-                    </div>
-                </div>
-            </div>
+            <input type="hidden" id="openingBalance"
+                   value="@(hasEntryDate ? Model.OpeningBalance.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture) : "0.00")" />
+            <input type="hidden" id="openingBalanceDisplay" value="@(hasEntryDate ? Fmt(Model.OpeningBalance) : "0.00")" />
 
             <div class="row g-4">
                 <!-- Income -->
@@ -210,26 +199,27 @@
 
             <hr class="my-4" />
 
-            <div class="row g-4">
+            <div class="row g-4 pcb-summary-grid">
                 <div class="col-lg-6 col-12 petty-cash-summary">
                     <div class="summary-row fw-bold pcb-summary-opening">
                         <span><i class="bi bi-wallet2 me-1"></i>Petty Cash (Opening)</span>
-                        <span id="summaryOpening">LKR @Fmt(Model.OpeningBalance)</span>
+                        <span class="pcb-amount">
+                            <span class="pcb-ccy">LKR</span>
+                            <span class="pcb-val" id="summaryOpening">@Fmt(Model.OpeningBalance)</span>
+                        </span>
                     </div>
                     <div class="pcb-refill-block pcb-summary-refill-opening">
-                        <div class="d-flex justify-content-between align-items-center mb-1">
-                            <span class="fw-bold">Petty Cash Refill (Opening)</span>
-                            <button type="button" id="btnAddRefill" class="btn btn-sm btn-outline-primary">
-                                <i class="bi bi-plus-lg"></i> Add
-                            </button>
-                        </div>
                         <div class="table-responsive">
                             <table class="table table-sm table-bordered align-middle mb-1" id="refillTable">
                                 <thead class="table-light">
                                     <tr>
                                         <th>Title</th>
                                         <th class="text-end" style="width:38%">Amount</th>
-                                        <th class="petty-cash-action-col"></th>
+                                        <th class="petty-cash-action-col text-center">
+                                            <button type="button" id="btnAddRefill" class="btn btn-sm btn-outline-primary" title="Add refill">
+                                                <i class="bi bi-plus-lg"></i>
+                                            </button>
+                                        </th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -271,7 +261,7 @@
                                 </tbody>
                                 <tfoot>
                                     <tr class="petty-cash-totals table-light">
-                                        <td class="fw-bold">Total</td>
+                                        <td class="fw-bold">Petty Cash Refill (Opening)</td>
                                         <td class="text-end fw-bold" id="refillOpeningTotalDisplay">LKR @Fmt(refillTotal)</td>
                                         <td></td>
                                     </tr>
@@ -281,21 +271,40 @@
                     </div>
                     <div class="summary-row fw-bold pcb-summary-balance">
                         <span>Petty Cash (Balance)</span>
-                        <span id="summaryPettyCashBalance">LKR @Fmt(Model.OpeningBalance + refillTotal)</span>
+                        <span class="pcb-amount">
+                            <span class="pcb-ccy">LKR</span>
+                            <span class="pcb-val js-summary-petty-cash-balance" id="summaryPettyCashBalance">@Fmt(Model.OpeningBalance + refillTotal)</span>
+                        </span>
                     </div>
                 </div>
                 <div class="col-lg-6 col-12 petty-cash-summary">
+                    <div class="summary-row fw-bold pcb-summary-balance pcb-summary-balance-dup">
+                        <span>Petty Cash (Balance)</span>
+                        <span class="pcb-amount">
+                            <span class="pcb-ccy">LKR</span>
+                            <span class="pcb-val js-summary-petty-cash-balance">@Fmt(Model.OpeningBalance + refillTotal)</span>
+                        </span>
+                    </div>
                     <div class="summary-row fw-bold text-success">
                         <span>➕ Income (LKR)</span>
-                        <span id="summaryIncome">LKR @Fmt(Model.TotalIncomeBaseCurry)</span>
+                        <span class="pcb-amount">
+                            <span class="pcb-ccy">LKR</span>
+                            <span class="pcb-val" id="summaryIncome">@Fmt(Model.TotalIncomeBaseCurry)</span>
+                        </span>
                     </div>
                     <div class="summary-row fw-bold text-danger">
                         <span>➖ Expenses</span>
-                        <span id="summaryExpenses">LKR @Fmt(Model.TotalExpences)</span>
+                        <span class="pcb-amount">
+                            <span class="pcb-ccy">LKR</span>
+                            <span class="pcb-val" id="summaryExpenses">@Fmt(Model.TotalExpences)</span>
+                        </span>
                     </div>
-                    <div class="summary-row">
+                    <div class="summary-row fw-bold pcb-summary-daily-balance">
                         <span>Daily Balance</span>
-                        <span id="summaryBalance">LKR @Fmt(Model.Balance)</span>
+                        <span class="pcb-amount">
+                            <span class="pcb-ccy">LKR</span>
+                            <span class="pcb-val" id="summaryBalance">@Fmt(Model.Balance)</span>
+                        </span>
                     </div>
                     <div class="summary-row">
                         <label class="mb-0 fw-bold" for="handedOver">🤝 Handed Over</label>
@@ -315,7 +324,10 @@
                     </div>
                     <div class="summary-row fw-bold pcb-summary-closing">
                         <span><i class="bi bi-cash-stack me-1"></i>Petty Cash (Closing)</span>
-                        <span id="summaryCloseBalance">LKR @Fmt(Model.ClosingBalance)</span>
+                        <span class="pcb-amount">
+                            <span class="pcb-ccy">LKR</span>
+                            <span class="pcb-val" id="summaryCloseBalance">@Fmt(Model.ClosingBalance)</span>
+                        </span>
                     </div>
                 </div>
             </div>

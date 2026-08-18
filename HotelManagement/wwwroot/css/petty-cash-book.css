@@ -5,7 +5,7 @@
     justify-content: space-between;
     align-items: center;
     gap: 0.75rem;
-    padding: 0.4rem 0;
+    padding: 0.4rem 0.65rem;
     border-bottom: 1px dashed #dee2e6;
     font-size: 1.05rem;
 }
@@ -22,6 +22,23 @@
 .petty-cash-summary .summary-row .input-group {
     max-width: 220px;
     flex-shrink: 0;
+}
+
+.petty-cash-summary .pcb-amount {
+    display: grid;
+    grid-template-columns: 2.6rem 8.75rem;
+    column-gap: 0.4rem;
+    align-items: baseline;
+    flex-shrink: 0;
+}
+
+.petty-cash-summary .pcb-ccy {
+    text-align: left;
+}
+
+.petty-cash-summary .pcb-val {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
 }
 
 .petty-cash-summary .pcb-summary-opening,
@@ -41,6 +58,8 @@
     font-weight: 700;
 }
 
+.petty-cash-summary .pcb-summary-opening .pcb-ccy,
+.petty-cash-summary .pcb-summary-opening .pcb-val,
 .petty-cash-summary .pcb-summary-opening #summaryOpening {
     color: #0d6efd;
 }
@@ -94,7 +113,8 @@
 
 .petty-cash-summary .pcb-summary-refill-opening .input-group-text,
 .pcb-refill-block.pcb-summary-refill-opening .input-group-text,
-.pcb-refill-block.pcb-summary-refill-opening #refillOpeningTotalDisplay {
+.pcb-refill-block.pcb-summary-refill-opening #refillOpeningTotalDisplay,
+.pcb-refill-block.pcb-summary-refill-opening #refillTable tfoot td {
     color: #0d6efd !important;
     font-weight: 600;
 }
@@ -103,8 +123,23 @@
     color: #0d6efd;
 }
 
-.petty-cash-summary .pcb-summary-balance #summaryPettyCashBalance {
+.petty-cash-summary .pcb-summary-balance .pcb-ccy,
+.petty-cash-summary .pcb-summary-balance .pcb-val {
     color: #0d6efd;
+}
+
+.petty-cash-summary .pcb-summary-daily-balance {
+    color: #C46A00;
+    background-color: #fff4e0;
+    padding: 0.5rem 0.65rem;
+    border-radius: 6px;
+    border-bottom: none;
+}
+
+.petty-cash-summary .pcb-summary-daily-balance .pcb-ccy,
+.petty-cash-summary .pcb-summary-daily-balance .pcb-val,
+.petty-cash-summary .pcb-summary-daily-balance #summaryBalance {
+    color: #C46A00;
 }
 
 .petty-cash-summary .pcb-summary-refill-closing {
@@ -125,6 +160,8 @@
     border-bottom: none;
 }
 
+.petty-cash-summary .pcb-summary-closing .pcb-ccy,
+.petty-cash-summary .pcb-summary-closing .pcb-val,
 .petty-cash-summary .pcb-summary-closing #summaryCloseBalance {
     color: #6f42c1;
 }
@@ -345,6 +382,39 @@
     margin-bottom: 1.5rem;
 }
 
+.petty-cash-header-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+
+.petty-cash-title-date-field {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.petty-cash-title-date-field .form-label {
+    margin-bottom: 0;
+    white-space: nowrap;
+}
+
+.petty-cash-title-date-input,
+#entryDate.petty-cash-title-date-input {
+    width: 12.5rem !important;
+    max-width: 100%;
+    flex: 0 0 12.5rem;
+    font-size: 0.95rem;
+    min-height: 2.25rem;
+    text-align: center;
+}
+
+#entryDate.petty-cash-title-date-input::-webkit-date-and-time-value {
+    text-align: center;
+}
+
 .petty-cash-actions {
     display: flex;
     gap: 0.5rem;
@@ -432,6 +502,43 @@
         flex: 1 1 10rem;
         max-width: 58%;
         min-width: 0;
+    }
+
+    /* Two summary columns stack below lg — keep Balance only on the left */
+    .pcb-summary-balance-dup {
+        display: none !important;
+    }
+
+    .pcb-summary-grid {
+        --bs-gutter-y: 0.15rem;
+    }
+
+    .pcb-summary-grid > .petty-cash-summary:first-child .pcb-summary-balance {
+        padding-bottom: 0.4rem;
+        border-bottom: 1px solid #dee2e6;
+    }
+
+    .pcb-summary-grid > .petty-cash-summary:last-child .summary-row.text-success {
+        padding-top: 0.15rem;
+    }
+
+    .petty-cash-summary .pcb-amount {
+        display: inline;
+        grid-template-columns: none;
+        column-gap: 0;
+        flex-shrink: 1;
+        white-space: nowrap;
+    }
+
+    .petty-cash-summary .pcb-ccy,
+    .petty-cash-summary .pcb-val {
+        display: inline;
+        text-align: left;
+        width: auto;
+    }
+
+    .petty-cash-summary .pcb-ccy::after {
+        content: " ";
     }
 }
 
@@ -584,8 +691,22 @@
         font-size: 1.35rem;
     }
 
-    .petty-cash-page-header .btn {
+    .petty-cash-header-actions {
         width: 100%;
+        justify-content: flex-start;
+    }
+
+    .petty-cash-title-date-input,
+    #entryDate.petty-cash-title-date-input {
+        width: 12.5rem !important;
+        flex: 0 0 12.5rem;
+        min-height: 40px;
+        font-size: 1rem;
+    }
+
+    .petty-cash-page-header .btn {
+        width: auto;
+        min-height: 40px;
     }
 
     .petty-cash-form-card .card-body {
@@ -734,20 +855,19 @@
     #incomeTable tbody tr:not(.income-empty-row) td.petty-cash-amount-cell,
     #expenseTable tbody tr:not(.expense-empty-row) td.petty-cash-amount-cell {
         grid-area: amount;
-        display: flex;
-        justify-content: flex-end;
-        align-items: baseline;
-        gap: 0.35rem;
+        display: block;
+        justify-content: unset;
         text-align: right !important;
         font-weight: 600;
         padding-top: 0.15rem;
         background: transparent !important;
         margin-bottom: 0;
+        white-space: nowrap;
     }
 
     #incomeTable tbody tr:not(.income-empty-row) td.petty-cash-amount-cell::before,
     #expenseTable tbody tr:not(.expense-empty-row) td.petty-cash-amount-cell::before {
-        content: attr(data-currency);
+        content: attr(data-currency) " ";
         font-weight: 600;
     }
 
@@ -789,7 +909,26 @@
     }
 
     .pcb-refill-block #refillTable thead {
+        display: block;
+        margin-bottom: 8px;
+    }
+
+    .pcb-refill-block #refillTable thead tr {
+        display: flex;
+        justify-content: flex-end;
+        border: none;
+        background: transparent;
+    }
+
+    .pcb-refill-block #refillTable thead th {
         display: none;
+        border: none;
+        background: transparent;
+        padding: 0;
+    }
+
+    .pcb-refill-block #refillTable thead th:last-child {
+        display: block;
     }
 
     .pcb-refill-block #refillTable,
