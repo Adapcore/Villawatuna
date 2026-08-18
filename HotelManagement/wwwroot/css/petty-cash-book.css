@@ -155,33 +155,51 @@
     white-space: nowrap;
 }
 
+.petty-cash-panel h5 {
+    font-size: 1.05rem;
+}
+
+#incomeTable,
+#expenseTable {
+    font-size: 0.8125rem;
+}
+
+#incomeTable th,
+#incomeTable td,
+#expenseTable th,
+#expenseTable td {
+    padding: 0.28rem 0.4rem;
+    vertical-align: middle;
+}
+
 .petty-cash-currency-col {
-    width: 5.5rem;
+    width: 4.75rem;
 }
 
 .petty-cash-action-col {
-    width: 2.75rem;
+    width: 2.1rem;
 }
 
 #incomeTable .pcb-remove-line,
 #expenseTable .pcb-remove-line {
-    padding: 0.15rem 0.35rem;
+    padding: 0.1rem 0.28rem;
     line-height: 1;
+    font-size: 0.75rem;
 }
 
 #incomeTable .petty-cash-line-action,
 #expenseTable .petty-cash-line-action {
-    width: 2.75rem;
+    width: 2.1rem;
     white-space: nowrap;
 }
 
 #incomeTable .income-currency,
 #expenseTable .expense-currency {
-    width: 5.25rem;
-    min-width: 5.25rem;
-    max-width: 5.25rem;
-    padding-left: 0.4rem;
-    padding-right: 0.4rem;
+    width: 4.5rem;
+    min-width: 4.5rem;
+    max-width: 4.5rem;
+    padding-left: 0.25rem;
+    padding-right: 0.25rem;
 }
 
 /* Income rows by invoice type — matches Invoices/SelectType Bootstrap colors */
@@ -297,9 +315,9 @@
 
 /* Scroll after ~8 body rows; header & footer stay visible */
 .petty-cash-table-scroll {
-    --pcb-head-h: 2.75rem;
-    --pcb-row-h: 3.05rem;
-    --pcb-foot-h: 3.5rem;
+    --pcb-head-h: 2.35rem;
+    --pcb-row-h: 2.45rem;
+    --pcb-foot-h: 2.85rem;
     max-height: calc(var(--pcb-head-h) + (8 * var(--pcb-row-h)) + var(--pcb-foot-h));
     overflow-y: auto;
     overflow-x: auto;
@@ -334,31 +352,87 @@
     justify-content: flex-end;
 }
 
-/* Header meta fields — single row on tablet/desktop */
+/* Header meta fields — label left, input right, 50/50 on desktop */
 .petty-cash-meta {
     display: flex;
     flex-wrap: nowrap;
     align-items: flex-start;
-    gap: 0.75rem;
+    gap: 1rem;
 }
 
 .petty-cash-meta-field {
-    flex: 1 1 0;
+    flex: 1 1 50%;
+    max-width: 50%;
     min-width: 0;
 }
 
-.petty-cash-meta-field .form-label {
-    font-size: 0.875rem;
-    line-height: 1.25;
-    margin-bottom: 0.35rem;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+.petty-cash-meta-row {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.6rem;
+    width: 100%;
 }
 
-.petty-cash-meta-field .form-control-lg {
-    padding-left: 0.5rem;
-    padding-right: 0.5rem;
+.petty-cash-meta-row .form-label {
+    display: inline-block;
+    font-size: 0.95rem;
+    line-height: 1.25;
+    margin-bottom: 0 !important;
+    white-space: nowrap;
+    flex: 0 1 auto;
+    min-width: 0;
+    text-align: left;
+}
+
+.petty-cash-meta-row .form-control,
+.petty-cash-meta-row .form-control-lg,
+#entryDate {
+    width: auto !important;
+    flex: 1 1 auto;
+    max-width: 22rem;
+    min-width: 8rem;
+    margin-left: auto;
+    padding-left: 0.45rem;
+    padding-right: 0.45rem;
+    font-size: 0.95rem;
+    min-height: 2.15rem;
+}
+
+#entryDate {
+    text-align: center;
+}
+
+#entryDate::-webkit-date-and-time-value {
+    text-align: center;
+}
+
+.petty-cash-meta-field #dateWarning {
+    margin-left: 0;
+}
+
+@media (max-width: 991.98px) {
+    .petty-cash-meta {
+        flex-direction: column;
+        flex-wrap: nowrap;
+        gap: 0.75rem;
+    }
+
+    .petty-cash-meta-field {
+        flex: 1 1 100%;
+        max-width: 100%;
+        width: 100%;
+    }
+
+    .petty-cash-meta-row .form-control,
+    .petty-cash-meta-row .form-control-lg,
+    #entryDate {
+        width: auto !important;
+        flex: 1 1 10rem;
+        max-width: 58%;
+        min-width: 0;
+    }
 }
 
 /* Index list — desktop/mobile visibility */
@@ -519,20 +593,39 @@
     }
 
     .petty-cash-meta {
+        flex-direction: column;
         flex-wrap: wrap;
+        gap: 0.75rem;
     }
 
     .petty-cash-meta-field {
         flex: 1 1 100%;
+        max-width: 100%;
+        width: 100%;
     }
 
-    .petty-cash-meta-field .form-label {
+    .petty-cash-meta-row {
+        flex-wrap: nowrap;
+        gap: 0.5rem;
+    }
+
+    .petty-cash-meta-row .form-label {
         white-space: normal;
+        font-size: 0.9rem;
+        max-width: 46%;
+        overflow-wrap: anywhere;
     }
 
-    .petty-cash-meta .form-control-lg {
+    .petty-cash-meta-row .form-control,
+    .petty-cash-meta-row .form-control-lg,
+    #entryDate {
         font-size: 1rem;
-        min-height: 44px;
+        min-height: 40px;
+        width: auto !important;
+        flex: 1 1 9rem;
+        max-width: 54%;
+        min-width: 0;
+        margin-left: auto;
     }
 
     #incomeTable thead,
@@ -629,6 +722,8 @@
         margin-bottom: 0;
         border-bottom: none;
         word-break: break-word;
+        min-width: 0;
+        overflow-wrap: anywhere;
     }
 
     #incomeTable tbody tr:not(.income-empty-row) td:has(.income-currency),
@@ -796,8 +891,8 @@
 
     .petty-cash-panel .petty-cash-table-scroll {
         --pcb-head-h: 0rem;
-        --pcb-row-h: 7.5rem;
-        --pcb-foot-h: 4rem;
+        --pcb-row-h: 6.25rem;
+        --pcb-foot-h: 3.5rem;
         max-height: calc(var(--pcb-head-h) + (8 * var(--pcb-row-h)) + var(--pcb-foot-h));
         overflow-y: auto;
         overflow-x: hidden;
