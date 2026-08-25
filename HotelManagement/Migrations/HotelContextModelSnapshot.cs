@@ -113,10 +113,16 @@ namespace HotelManagement.Migrations
                     b.Property<decimal>("ExchangeRate")
                         .HasColumnType("decimal(18,4)");
 
+                    b.Property<int?>("ExpenseId")
+                        .HasColumnType("int");
+
                     b.Property<decimal>("ForeignAmount")
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<int>("ForeignCurrencyId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("InvoiceNo")
                         .HasColumnType("int");
 
                     b.Property<decimal>("LKRAmount")
@@ -135,6 +141,10 @@ namespace HotelManagement.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("CustomerId");
+
+                    b.HasIndex("ExpenseId");
+
+                    b.HasIndex("InvoiceNo");
 
                     b.ToTable("CurrencyExchanges", (string)null);
                 });
@@ -675,7 +685,21 @@ namespace HotelManagement.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("HotelManagement.Models.Entities.Expense", "Expense")
+                        .WithMany()
+                        .HasForeignKey("ExpenseId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("HotelManagement.Models.Entities.Invoice", "Invoice")
+                        .WithMany()
+                        .HasForeignKey("InvoiceNo")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.Navigation("Customer");
+
+                    b.Navigation("Expense");
+
+                    b.Navigation("Invoice");
                 });
 
             modelBuilder.Entity("HotelManagement.Models.Entities.EmployeeLeave", b =>

@@ -394,7 +394,7 @@ function renderDesktopTable(invoices) {
         html += 'title="' + (isPaymentsDisabled ? 'Payments not available for this invoice status' : 'View Payments') + '">';
         html += '<div class="d-flex flex-column align-items-center"><i class="bi bi-credit-card"></i><span class="btn-text">Payments</span></div>';
         html += '</button>';
-        if (invoiceState.isAdmin === true) {
+        if (invoiceState.isAdmin === true && invoice.type !== 'Exchange') {
             html += '<button type="button" class="btn btn-sm btn-danger btn-delete-invoice" ';
             html += 'data-invoice-id="' + invoice.invoiceNo + '" data-invoice-no="' + invoice.invoiceNo + '">';
             html += '<i class="bi bi-trash"></i>Delete</button>';
@@ -537,8 +537,8 @@ function renderMobileCards(invoices) {
             // Buttons grouped together on the right: Delete, Payment, View
             html += '<div style="display: flex; align-items: center; gap: 8px;">';
             
-            // Delete button if admin
-            if (invoiceState.isAdmin === true) {
+            // Delete button if admin (not for Exchange invoices — managed via Currency Exchange)
+            if (invoiceState.isAdmin === true && invoice.type !== 'Exchange') {
                 html += '<span class="invoice-number">';
                 html += '<button type="button" class="btn-delete-invoice-icon btn-delete-invoice" ';
                 html += 'data-invoice-id="' + invoice.invoiceNo + '" data-invoice-no="' + invoice.invoiceNo + '" ';

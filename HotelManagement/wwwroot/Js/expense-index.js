@@ -282,11 +282,13 @@ function renderDesktopTable(expenses) {
         html += '<td>';
         html += '<div class="d-flex gap-1">';
         html += '<a href="/Expenses/Details/' + expense.id + '" class="btn btn-sm btn-info">View</a>';
-        html += '<a href="/Expenses/Edit/' + expense.id + '" class="btn btn-sm btn-warning">Edit</a>';
-        if (expenseState.isAdmin === true) {
-            html += '<button type="button" class="btn btn-sm btn-danger btn-delete-expense" ';
-            html += 'data-expense-id="' + expense.id + '" data-expense-no="' + expense.id + '">';
-            html += 'Delete</button>';
+        if (!isExchangeExpense(expense)) {
+            html += '<a href="/Expenses/Edit/' + expense.id + '" class="btn btn-sm btn-warning">Edit</a>';
+            if (expenseState.isAdmin === true) {
+                html += '<button type="button" class="btn btn-sm btn-danger btn-delete-expense" ';
+                html += 'data-expense-id="' + expense.id + '" data-expense-no="' + expense.id + '">';
+                html += 'Delete</button>';
+            }
         }
         html += '</div>';
         html += '</td>';
@@ -348,7 +350,7 @@ function renderMobileCards(expenses) {
             html += '</div>';
             html += '<div class="expense-row-footer">';
             html += '<span class="expense-number">';
-            if (expenseState.isAdmin === true) {
+            if (expenseState.isAdmin === true && !isExchangeExpense(expense)) {
                 html += '<button type="button" class="btn-delete-expense-icon btn-delete-expense" ';
                 html += 'data-expense-id="' + expense.id + '" data-expense-no="' + expense.id + '" ';
                 html += 'title="Delete Expense"><i class="bi bi-trash"></i></button>';
@@ -356,7 +358,7 @@ function renderMobileCards(expenses) {
             html += '</span>';
             html += '<span class="expense-type-badge">' + escapeHtml(expense.expenseTypeName || '-') + '</span>';
             html += '<span class="expense-payment-method">' + escapeHtml(expense.paymentMethodDisplay) + '</span>';
-            html += '<a href="/Expenses/Edit/' + expense.id + '" class="btn-view-expense">';
+            html += '<a href="/Expenses/Details/' + expense.id + '" class="btn-view-expense">';
             html += '<i class="bi bi-eye"></i> View</a>';
             if (expense.createdByMember && expense.createdByMember.name) {
                 html += '<span class="expense-creator">' + escapeHtml(expense.createdByMember.name) + '</span>';
@@ -428,6 +430,16 @@ function renderEmptyState() {
     $('#expenseTableDesktop').css('display', '');
     $('#expenseTableMobile').css('display', '');
     $('#expenseTotalAmountContainer').hide();
+}
+
+/**
+ * Exchange expenses are managed from Currency Exchange — no edit/delete here.
+ */
+function isExchangeExpense(expense) {
+    if (!expense) return false;
+    if (expense.isExchangeExpense === true) return true;
+    var typeName = (expense.expenseTypeName || '').toString().trim().toLowerCase();
+    return typeName === 'exchange';
 }
 
 /**

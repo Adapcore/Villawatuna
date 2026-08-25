@@ -18,6 +18,7 @@ namespace HotelManagement.Services
         private readonly IOtherTypeService _otherTypeService;
         private readonly ITourTypeService _tourTypeService;
         private readonly ILaundryService _laundryService;
+        private readonly IExchangeTypeService _exchangeTypeService;
         private readonly IMemberService _memberService;
 
         public InvoiceService(HotelContext context,
@@ -26,6 +27,7 @@ namespace HotelManagement.Services
             IOtherTypeService otherTypeService,
             ITourTypeService tourTypeService,
             ILaundryService laundryService,
+            IExchangeTypeService exchangeTypeService,
             IMemberService memberService)
         {
             _context = context;
@@ -34,6 +36,7 @@ namespace HotelManagement.Services
             _otherTypeService = otherTypeService;
             _tourTypeService = tourTypeService;
             _laundryService = laundryService;
+            _exchangeTypeService = exchangeTypeService;
             _memberService = memberService;
         }
 
@@ -182,6 +185,10 @@ namespace HotelManagement.Services
 
                 case InvoiceType.Laundry:
                     menuItems = await _laundryService.GetItemsAsync();
+                    break;
+
+                case InvoiceType.Exchange:
+                    menuItems = await _exchangeTypeService.GetItemsAsync();
                     break;
             }
 

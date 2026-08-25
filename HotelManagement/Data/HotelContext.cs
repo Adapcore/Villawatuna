@@ -214,6 +214,16 @@ namespace HotelManagement.Data
                       .HasForeignKey(e => e.CustomerId)
                       .OnDelete(DeleteBehavior.Restrict);
 
+                entity.HasOne(e => e.Invoice)
+                      .WithMany()
+                      .HasForeignKey(e => e.InvoiceNo)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(e => e.Expense)
+                      .WithMany()
+                      .HasForeignKey(e => e.ExpenseId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
                 entity.Property(e => e.ExchangeRate).HasColumnType("decimal(18,4)");
                 entity.Property(e => e.ForeignAmount).HasColumnType("decimal(18,2)");
                 entity.Property(e => e.LKRAmount).HasColumnType("decimal(18,2)");

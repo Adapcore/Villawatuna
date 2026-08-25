@@ -44,7 +44,8 @@ namespace HotelManagement.Controllers
             DateTime fromDate = from?.Date ?? DateTime.Today;
             DateTime toDate = (to?.Date ?? DateTime.Today).AddDays(1).AddTicks(-1);
 
-            var payments = _context.Payments.AsNoTracking().Where(i => i.Date >= fromDate && i.Date <= toDate);
+            var payments = _context.Payments.AsNoTracking()
+                .Where(i => i.Date >= fromDate && i.Date <= toDate && i.Invoice.Type != InvoiceType.Exchange);
 
             decimal totalIncome = await payments.SumAsync(i => (decimal?)i.Amount) ?? 0m;
 
@@ -63,7 +64,12 @@ namespace HotelManagement.Controllers
 
             decimal otherRevenue = await payments.Where(e => e.Invoice.Type == InvoiceType.Other).SumAsync(e => (decimal?)e.Amount) ?? 0m;
 
+            var exchangeExpenseType = (await _expenseTypeService.GetExpenseTypesAsync())
+                .FirstOrDefault(t => string.Equals(t.Name, "Exchange", StringComparison.OrdinalIgnoreCase));
+
             var expenses = _context.Expenses.AsNoTracking().Where(e => e.Date >= fromDate && e.Date <= toDate);
+            if (exchangeExpenseType != null)
+                expenses = expenses.Where(e => e.ExpenseTypeID != exchangeExpenseType.Id);
 
             decimal totalExpenses = await expenses.SumAsync(e => (decimal?)e.Amount) ?? 0m;
 
@@ -134,7 +140,7 @@ namespace HotelManagement.Controllers
                     var invoices = await _context.Payments
                         .AsNoTracking()
                         .Include(i => i.Invoice)
-                        .Where(i => i.Date >= fromDate && i.Date <= toDate)
+                        .Where(i => i.Date >= fromDate && i.Date <= toDate && i.Invoice.Type != InvoiceType.Exchange)
                         .OrderByDescending(i => i.Date)
                         .ThenByDescending(i => i.InvoiceNo)
                         .Select(i => new
@@ -155,14 +161,20 @@ namespace HotelManagement.Controllers
                     break;
 
                 case "expenses":
-                    var expensesList = await _context.Expenses
+                    var expenseTypes = await _expenseTypeService.GetExpenseTypesAsync();
+                    var exchangeExpenseTypeId = expenseTypes
+                        .FirstOrDefault(t => string.Equals(t.Name, "Exchange", StringComparison.OrdinalIgnoreCase))?.Id;
+
+                    var expensesQuery = _context.Expenses
                         .AsNoTracking()
-                        .Where(e => e.Date >= fromDate && e.Date <= toDate)
+                        .Where(e => e.Date >= fromDate && e.Date <= toDate);
+                    if (exchangeExpenseTypeId.HasValue)
+                        expensesQuery = expensesQuery.Where(e => e.ExpenseTypeID != exchangeExpenseTypeId.Value);
+
+                    var expensesList = await expensesQuery
                         .OrderByDescending(e => e.Date)
                         .ThenByDescending(e => e.ID)
                         .ToListAsync();
-
-                    var expenseTypes = await _expenseTypeService.GetExpenseTypesAsync();
 
                     var expenses = expensesList.Select(e => new
                     {

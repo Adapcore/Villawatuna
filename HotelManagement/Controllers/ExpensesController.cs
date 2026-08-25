@@ -1,12 +1,15 @@
-﻿using HotelManagement.Enums;
+﻿using HotelManagement.Data;
+using HotelManagement.Enums;
 using HotelManagement.Helper;
 using HotelManagement.Models.DTO;
 using HotelManagement.Models.Entities;
+using HotelManagement.Services;
 using HotelManagement.Services.Interface;
 using HotelManagement.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using System.ComponentModel.DataAnnotations;
 using System.Reflection;
@@ -22,13 +25,15 @@ namespace HotelManagement.Controllers
         private readonly IExpenseService _expenseService;
         private readonly IWebHostEnvironment _env;
         private readonly IExpenseTypeService _expenseTypeService;
+        private readonly HotelContext _context;
         private readonly int _pageSize;
         private readonly IMemberManager _memberManager;
         private readonly IMemberService _memberService;
 
         public ExpensesController(IExpenseService expenseService,
             IWebHostEnvironment env,
-            IExpenseTypeService expenseTypeService, 
+            IExpenseTypeService expenseTypeService,
+            HotelContext context,
             IOptions<PaginationSettings> paginationSettings,
             IMemberManager memberManager,
             IMemberService memberService)
@@ -36,6 +41,7 @@ namespace HotelManagement.Controllers
             _expenseService = expenseService;
             _env = env;
             _expenseTypeService = expenseTypeService;
+            _context = context;
             _pageSize = paginationSettings.Value.DefaultPageSize;
             _memberManager = memberManager;
             _memberService = memberService;
@@ -92,6 +98,17 @@ namespace HotelManagement.Controllers
             
             var pagedList = expenses.ToPagedList(pageNumber, _pageSize);
 
+            var exchangeTypeId = await GetExchangeExpenseTypeIdAsync();
+            var pagedExpenseIds = pagedList.Select(e => e.ID).ToList();
+            var linkedExchangeExpenseIds = pagedExpenseIds.Count == 0
+                ? new HashSet<int>()
+                : (await _context.CurrencyExchanges
+                    .AsNoTracking()
+                    .Where(x => x.ExpenseId.HasValue && pagedExpenseIds.Contains(x.ExpenseId.Value))
+                    .Select(x => x.ExpenseId!.Value)
+                    .ToListAsync())
+                    .ToHashSet();
+
             // Load CreatedByMember data from Umbraco
             var createdByIds = pagedList.Where(e => e.CreatedBy > 0).Select(e => e.CreatedBy).Distinct().ToList();
             
@@ -141,6 +158,7 @@ namespace HotelManagement.Controllers
                 amount = e.Amount,
                 paymentMethod = e.PaymentMethod.ToString(),
                 paymentMethodDisplay = EnumHelper.GetDisplayName(e.PaymentMethod),
+                isExchangeExpense = IsExchangeExpense(e.ID, e.ExpenseTypeID, e.ExpenseType?.Name, exchangeTypeId, linkedExchangeExpenseIds),
                 createdByMember = e.CreatedByMember != null ? new
                 {
                     name = e.CreatedByMember.Name,
@@ -175,25 +193,7 @@ namespace HotelManagement.Controllers
 
         public async Task<IActionResult> Create()
         {
-            var expenseTypes = await _expenseTypeService.GetExpenseTypesAsync();
-            ViewBag.ExpenseTypes = expenseTypes.Select(c => new SelectListItem
-            {
-                Value = c.Id.ToString(),
-                Text = c.Name
-            }).ToList();
-
-            var paymentMethod = Enum.GetValues(typeof(PaymentMethod))
-                         .Cast<PaymentMethod>().Select(s => new SelectListItem
-                         {
-                             Text = s.GetType()
-                             .GetMember(s.ToString())
-                             .First()
-                             .GetCustomAttribute<DisplayAttribute>()?
-                             .Name ?? s.ToString(),
-                             Value = ((int)s).ToString()
-                         }).ToList();
-            ViewBag.PaymentMethods = paymentMethod;
-
+            await PopulateExpenseFormLookupsAsync();
             return View(new Expense { Date = DateTime.Now });
         }
 
@@ -209,30 +209,16 @@ namespace HotelManagement.Controllers
             if ((expense.Amount <= 0))
                 ModelState.AddModelError(nameof(expense.Amount), "Amount is required.");
 
+            if (await IsExchangeExpenseTypeIdAsync(expense.ExpenseTypeID))
+                ModelState.AddModelError(string.Empty, "Exchange expenses can only be created from Currency Exchange.");
+
             // Skip validation for the non-persistent properties
             ModelState.Remove("ExpenseType");
             ModelState.Remove("CreatedByMember");
 
             if (!ModelState.IsValid)
             {
-                var expenseTypes = await _expenseTypeService.GetExpenseTypesAsync();
-                ViewBag.ExpenseTypes = expenseTypes.Select(c => new SelectListItem
-                {
-                    Value = c.Id.ToString(),
-                    Text = c.Name
-                }).ToList();
-
-                var paymentMethod = Enum.GetValues(typeof(PaymentMethod))
-                             .Cast<PaymentMethod>().Select(s => new SelectListItem
-                             {
-                                 Text = s.GetType()
-                                 .GetMember(s.ToString())
-                                 .First()
-                                 .GetCustomAttribute<DisplayAttribute>()?
-                                 .Name ?? s.ToString(),
-                                 Value = ((int)s).ToString()
-                             }).ToList();
-                ViewBag.PaymentMethods = paymentMethod;
+                await PopulateExpenseFormLookupsAsync();
                 return View(expense);
             }
 
@@ -261,33 +247,31 @@ namespace HotelManagement.Controllers
 
         public async Task<IActionResult> Edit(int id)
         {
-            var expenseTypes = await _expenseTypeService.GetExpenseTypesAsync();
-            ViewBag.ExpenseTypes = expenseTypes.Select(c => new SelectListItem
-            {
-                Value = c.Id.ToString(),
-                Text = c.Name
-            }).ToList();
-
-            var paymentMethod = Enum.GetValues(typeof(PaymentMethod))
-                          .Cast<PaymentMethod>().Select(s => new SelectListItem
-                          {
-                              Text = s.GetType()
-                              .GetMember(s.ToString())
-                              .First()
-                              .GetCustomAttribute<DisplayAttribute>()?
-                              .Name ?? s.ToString(),
-                              Value = ((int)s).ToString()
-                          }).ToList();
-            ViewBag.PaymentMethods = paymentMethod;
-
             var expense = await _expenseService.GetByIdAsync(id);
             if (expense == null) return NotFound();
+
+            if (await IsExchangeExpenseProtectedAsync(expense))
+            {
+                TempData["ErrorMessage"] = "Exchange expenses are managed from Currency Exchange and cannot be edited here.";
+                return RedirectToAction(nameof(Details), new { id });
+            }
+
+            await PopulateExpenseFormLookupsAsync(expense.ExpenseTypeID);
             return View(expense);
         }
 
         [HttpPost]
         public async Task<IActionResult> Edit(Expense expense, IFormFile? attachment)
         {
+            var existing = await _expenseService.GetByIdAsync(expense.ID);
+            if (existing == null) return NotFound();
+
+            if (await IsExchangeExpenseProtectedAsync(existing))
+            {
+                TempData["ErrorMessage"] = "Exchange expenses are managed from Currency Exchange and cannot be edited here.";
+                return RedirectToAction(nameof(Details), new { id = expense.ID });
+            }
+
             // Skip validation for the non-persistent properties
             ModelState.Remove("ExpenseType");
             ModelState.Remove("CreatedByMember");
@@ -300,6 +284,9 @@ namespace HotelManagement.Controllers
             
             if ((expense.Amount<= 0 ))
                 ModelState.AddModelError(nameof(expense.Amount), "Amount is required.");
+
+            if (await IsExchangeExpenseTypeIdAsync(expense.ExpenseTypeID))
+                ModelState.AddModelError(string.Empty, "Exchange expenses can only be managed from Currency Exchange.");
 
             if (ModelState.IsValid)
             {
@@ -322,24 +309,7 @@ namespace HotelManagement.Controllers
             }
             else
             {
-                var expenseTypes = await _expenseTypeService.GetExpenseTypesAsync();
-                ViewBag.ExpenseTypes = expenseTypes.Select(c => new SelectListItem
-                {
-                    Value = c.Id.ToString(),
-                    Text = c.Name
-                }).ToList();
-
-                var paymentMethod = Enum.GetValues(typeof(PaymentMethod))
-                             .Cast<PaymentMethod>().Select(s => new SelectListItem
-                             {
-                                 Text = s.GetType()
-                                 .GetMember(s.ToString())
-                                 .First()
-                                 .GetCustomAttribute<DisplayAttribute>()?
-                                 .Name ?? s.ToString(),
-                                 Value = ((int)s).ToString()
-                             }).ToList();
-                ViewBag.PaymentMethods = paymentMethod;
+                await PopulateExpenseFormLookupsAsync(expense.ExpenseTypeID);
             }
 
             return View(expense);
@@ -349,6 +319,11 @@ namespace HotelManagement.Controllers
         {
             var expense = await _expenseService.GetByIdAsync(id);
             if (expense == null) return NotFound();
+
+            var expenseTypes = await _expenseTypeService.GetExpenseTypesAsync();
+            expense.ExpenseType = expenseTypes.FirstOrDefault(x => x.Id == expense.ExpenseTypeID);
+            ViewBag.IsExchangeExpense = await IsExchangeExpenseProtectedAsync(expense);
+
             return View(expense);
         }
 
@@ -368,6 +343,11 @@ namespace HotelManagement.Controllers
                     return Json(new { success = false, message = "Expense not found." });
                 }
 
+                if (await IsExchangeExpenseProtectedAsync(expense))
+                {
+                    return Json(new { success = false, message = "Exchange expenses can only be deleted from Currency Exchange." });
+                }
+
                 await _expenseService.DeleteAsync(id);
                 return Json(new { success = true, message = "Expense deleted successfully." });
             }
@@ -375,6 +355,78 @@ namespace HotelManagement.Controllers
             {
                 return Json(new { success = false, message = $"Error deleting expense: {ex.Message}" });
             }
+        }
+
+        private async Task PopulateExpenseFormLookupsAsync(int? includeExpenseTypeId = null)
+        {
+            var expenseTypes = await _expenseTypeService.GetExpenseTypesAsync();
+            ViewBag.ExpenseTypes = expenseTypes
+                .Where(t => !IsExchangeExpenseType(t.Name) || (includeExpenseTypeId.HasValue && t.Id == includeExpenseTypeId.Value))
+                .Select(c => new SelectListItem
+                {
+                    Value = c.Id.ToString(),
+                    Text = c.Name
+                })
+                .ToList();
+
+            ViewBag.PaymentMethods = Enum.GetValues(typeof(PaymentMethod))
+                .Cast<PaymentMethod>()
+                .Select(s => new SelectListItem
+                {
+                    Text = s.GetType()
+                        .GetMember(s.ToString())
+                        .First()
+                        .GetCustomAttribute<DisplayAttribute>()?
+                        .Name ?? s.ToString(),
+                    Value = ((int)s).ToString()
+                })
+                .ToList();
+        }
+
+        private static bool IsExchangeExpenseType(string? expenseTypeName)
+        {
+            return string.Equals(expenseTypeName, CurrencyExchangeService.ExchangeExpenseTypeName, StringComparison.OrdinalIgnoreCase);
+        }
+
+        private async Task<int?> GetExchangeExpenseTypeIdAsync()
+        {
+            var expenseTypes = await _expenseTypeService.GetExpenseTypesAsync();
+            return expenseTypes.FirstOrDefault(t => IsExchangeExpenseType(t.Name))?.Id;
+        }
+
+        private static bool IsExchangeExpense(
+            int expenseId,
+            int expenseTypeId,
+            string? expenseTypeName,
+            int? exchangeTypeId,
+            HashSet<int> linkedExchangeExpenseIds)
+        {
+            if (IsExchangeExpenseType(expenseTypeName))
+                return true;
+
+            if (exchangeTypeId.HasValue && expenseTypeId == exchangeTypeId.Value)
+                return true;
+
+            return linkedExchangeExpenseIds.Contains(expenseId);
+        }
+
+        private async Task<bool> IsExchangeExpenseTypeIdAsync(int expenseTypeId)
+        {
+            if (expenseTypeId <= 0)
+                return false;
+
+            var exchangeTypeId = await GetExchangeExpenseTypeIdAsync();
+            return exchangeTypeId.HasValue && expenseTypeId == exchangeTypeId.Value;
+        }
+
+        private async Task<bool> IsExchangeExpenseProtectedAsync(Expense expense)
+        {
+            if (await IsExchangeExpenseTypeIdAsync(expense.ExpenseTypeID))
+                return true;
+
+            return await _context.CurrencyExchanges
+                .AsNoTracking()
+                .AnyAsync(x => x.ExpenseId == expense.ID);
         }
 
         private bool IsAdminUser()

@@ -573,6 +573,14 @@
                     self.BindItemsToPopUp(data);
                 });
             }
+            else if (self._type == 7)// Exchange
+            {
+                $.getJSON("/api/exchangeType/GetItems", function (data) {
+                    self.itemOptions = data.map(i => `<option value="${i.id}" data-price="${i.price}">${i.name}</option>`).join('');
+                    self.SelectDropDownValue();
+                    self.BindItemsToPopUp(data);
+                });
+            }
         },
         BindItemsToPopUp: function (data) {
             var self = this;

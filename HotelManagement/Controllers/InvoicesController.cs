@@ -435,6 +435,11 @@ namespace HotelManagement.Controllers
                     return Json(new { success = false, message = "Invoice not found." });
                 }
 
+                if (invoice.Type == InvoiceType.Exchange)
+                {
+                    return Json(new { success = false, message = "Exchange invoices can only be deleted from Currency Exchange." });
+                }
+
                 await _invoiceService.DeleteInvoiceAsync(id);
                 return Json(new { success = true, message = "Invoice deleted successfully." });
             }

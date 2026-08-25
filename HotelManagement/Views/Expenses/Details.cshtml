@@ -3,6 +3,7 @@
 @{
     ViewData["Title"] = "Expense Detail";
     Layout = "~/Views/Shared/_Layout.cshtml";
+    bool isExchangeExpense = ViewBag.IsExchangeExpense != null && (bool)ViewBag.IsExchangeExpense;
 }
 
 <div class="container my-4">
@@ -10,7 +11,10 @@
         <h2 class="fw-bold text-primary mb-0">Expense Details</h2>
         <div class="d-flex gap-2">
             <a class="btn btn-sm btn-secondary" href="@Url.Action("Index","Expenses")">Back</a>
-            <a class="btn btn-sm btn-warning" href="@Url.Action("Edit","Expenses", new { id = Model.ID })">Edit</a>
+            @if (!isExchangeExpense)
+            {
+                <a class="btn btn-sm btn-warning" href="@Url.Action("Edit","Expenses", new { id = Model.ID })">Edit</a>
+            }
         </div>
     </div>
 
@@ -29,7 +33,7 @@
                 <dd class="col-sm-9">@Model.Date.ToString("yyyy-MM-dd")</dd>
 
                 <dt class="col-sm-3">Expense Type</dt>
-                <dd class="col-sm-9">@Model.ExpenseType</dd>
+                <dd class="col-sm-9">@(Model.ExpenseType?.Name ?? "-")</dd>
 
                 <dt class="col-sm-3">Payee Name</dt>
                 <dd class="col-sm-9">@Model.PayeeName</dd>

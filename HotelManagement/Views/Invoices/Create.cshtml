@@ -97,9 +97,12 @@
                     <div class="d-flex justify-content-between align-items-center">
                         <h5 class="mb-0">Invoice Summary</h5>
                         <div class="d-flex align-items-center gap-2">
-                            <a href="@Url.Action("Create", "Invoices", new { type = Model.Type })" class="btn btn-sm btn-light fw-bold" title="Create new @invoiceTypeName invoice">
-                                <i class="bi bi-plus-circle"></i> New
-                            </a>
+                            @if (Model.Type != (int)InvoiceType.Exchange)
+                            {
+                                <a href="@Url.Action("Create", "Invoices", new { type = Model.Type })" class="btn btn-sm btn-light fw-bold" title="Create new @invoiceTypeName invoice">
+                                    <i class="bi bi-plus-circle"></i> New
+                                </a>
+                            }
                             <span class="badge bg-warning text-dark">@invoiceTypeName</span>
                         </div>
                     </div>

@@ -34,6 +34,7 @@ builder.Services.AddScoped<IExpenseService, ExpenseService>();
 builder.Services.AddScoped<IExpenseTypeService, ExpenseTypeService>();
 builder.Services.AddScoped<IPaymentService, PaymentService>();
 builder.Services.AddScoped<ILaundryService, LaundryService>();
+builder.Services.AddScoped<IExchangeTypeService, ExchangeTypeService>();
 builder.Services.AddScoped<IEmployeeLeaveRepository, EmployeeLeaveRepository>();
 builder.Services.AddScoped<IEmployeeLeaveService, EmployeeLeaveService>();
 builder.Services.AddScoped<IPettyCashBookService, PettyCashBookService>();

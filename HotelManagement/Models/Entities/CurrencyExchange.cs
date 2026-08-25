@@ -46,5 +46,11 @@ namespace HotelManagement.Models.Entities
         [MaxLength(500)]
         [Display(Name = "Remarks")]
         public string? Remarks { get; set; }
+
+        public int? InvoiceNo { get; set; }
+        public Invoice? Invoice { get; set; }
+
+        public int? ExpenseId { get; set; }
+        public Expense? Expense { get; set; }
     }
 }

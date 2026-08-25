@@ -125,7 +125,16 @@ namespace HotelManagement.Controllers
                 return View(model);
             }
 
-            await _currencyExchangeService.AddAsync(model);
+            try
+            {
+                await _currencyExchangeService.AddAsync(model);
+            }
+            catch (InvalidOperationException ex)
+            {
+                ModelState.AddModelError(string.Empty, ex.Message);
+                await PopulateLookupsAsync(selectedCustomerId: model.CustomerId);
+                return View(model);
+            }
             return RedirectToAction(nameof(Index));
         }
 
@@ -156,9 +165,11 @@ namespace HotelManagement.Controllers
             {
                 await _currencyExchangeService.UpdateAsync(model);
             }
-            catch (InvalidOperationException)
+            catch (InvalidOperationException ex)
             {
-                return NotFound();
+                ModelState.AddModelError(string.Empty, ex.Message);
+                await PopulateLookupsAsync(selectedCustomerId: model.CustomerId);
+                return View("Create", model);
             }
 
             return RedirectToAction(nameof(Index));
@@ -192,6 +203,8 @@ namespace HotelManagement.Controllers
             ModelState.Remove(nameof(model.Customer));
             ModelState.Remove(nameof(model.ForeignCurrency));
             ModelState.Remove(nameof(model.CreatedByMember));
+            ModelState.Remove(nameof(model.Invoice));
+            ModelState.Remove(nameof(model.Expense));
 
             if (model.CustomerId <= 0)
                 ModelState.AddModelError(nameof(model.CustomerId), "Customer is required.");
