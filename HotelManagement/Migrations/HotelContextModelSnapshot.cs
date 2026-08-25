@@ -90,6 +90,55 @@ namespace HotelManagement.Migrations
                     b.ToTable("Customers", (string)null);
                 });
 
+            modelBuilder.Entity("HotelManagement.Models.Entities.CurrencyExchange", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("CreatedBy")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("CustomerId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("datetime2");
+
+                    b.Property<decimal>("ExchangeRate")
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<decimal>("ForeignAmount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("ForeignCurrencyId")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("LKRAmount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int?>("LastModifiedBy")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("LastModifiedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Remarks")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CustomerId");
+
+                    b.ToTable("CurrencyExchanges", (string)null);
+                });
+
             modelBuilder.Entity("HotelManagement.Models.Entities.Employee", b =>
                 {
                     b.Property<int>("ID")
@@ -616,6 +665,17 @@ namespace HotelManagement.Migrations
                         .IsUnique();
 
                     b.ToTable("PettyCashBook", (string)null);
+                });
+
+            modelBuilder.Entity("HotelManagement.Models.Entities.CurrencyExchange", b =>
+                {
+                    b.HasOne("HotelManagement.Models.Entities.Customer", "Customer")
+                        .WithMany()
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Customer");
                 });
 
             modelBuilder.Entity("HotelManagement.Models.Entities.EmployeeLeave", b =>

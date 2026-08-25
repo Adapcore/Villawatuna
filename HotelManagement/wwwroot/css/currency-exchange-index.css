@@ -1,0 +1,118 @@
+.btn-add-exchange {
+    font-size: 0.875rem;
+    white-space: nowrap;
+}
+
+@media (min-width: 768px) {
+    .exchange-table-mobile {
+        display: none;
+    }
+
+    .exchange-table-desktop {
+        display: block;
+    }
+}
+
+@media (max-width: 767px) {
+    .btn-add-exchange {
+        font-size: 0.7rem !important;
+        padding: 0.25rem 0.4rem !important;
+    }
+
+    .btn-add-exchange span {
+        display: none !important;
+    }
+
+    .btn-add-exchange::after {
+        content: "New";
+        font-size: 0.7rem !important;
+        margin-left: 0.25rem;
+    }
+
+    .exchange-table-desktop {
+        display: none;
+    }
+
+    .exchange-table-mobile {
+        display: block;
+    }
+}
+
+.cex-empty {
+    text-align: center;
+    color: #6c757d;
+    padding: 2.5rem 1rem;
+}
+
+.cex-card {
+    background: #fff;
+    border: 1px solid #dee2e6;
+    border-left: 4px solid #0d6efd;
+    border-radius: 6px;
+    padding: 12px;
+    margin-bottom: 10px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.cex-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+
+.cex-card-txn {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #6c757d;
+}
+
+.cex-card-date {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #212529;
+    margin: 0;
+}
+
+.cex-card-lkr {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #198754;
+    white-space: nowrap;
+}
+
+.cex-card-body {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px 12px;
+    margin-bottom: 10px;
+}
+
+.cex-metric {
+    display: flex;
+    flex-direction: column;
+}
+
+.cex-metric-full {
+    grid-column: 1 / -1;
+}
+
+.cex-metric-label {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    color: #6c757d;
+}
+
+.cex-metric-value {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #212529;
+}
+
+.cex-card-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+}

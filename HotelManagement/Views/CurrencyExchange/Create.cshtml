@@ -1,0 +1,124 @@
+@using HotelManagement.Models.DTO
+@using Newtonsoft.Json
+@using Newtonsoft.Json.Serialization
+@model HotelManagement.Models.Entities.CurrencyExchange
+
+@{
+    bool isEdit = Model.Id > 0;
+    ViewData["Title"] = isEdit ? "Edit Currency Exchange" : "New Currency Exchange";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<form asp-action="@(isEdit ? "Edit" : "Create")" class="p-4 shadow-sm rounded bg-light">
+    <input type="hidden" asp-for="Id" />
+    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold text-primary mb-0">
+            @(isEdit ? $"💱 Edit Exchange - [ {Model.Id} ]" : "💱 New Currency Exchange")
+        </h2>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-md-3">
+            <label class="form-label fw-bold">Exchange Transaction No</label>
+            <div class="form-control form-control-lg bg-light">
+                @if (isEdit)
+                {
+                    <strong>#@Model.Id</strong>
+                }
+                else
+                {
+                    <span class="text-muted">Auto-generated</span>
+                }
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <label class="form-label fw-bold">Exchange Date</label>
+            <input asp-for="Date" type="date" class="form-control form-control-lg" />
+            <span asp-validation-for="Date" class="text-danger"></span>
+        </div>
+
+        <div class="col-md-6">
+            <label class="form-label fw-bold">Customer</label>
+            <select asp-for="CustomerId" class="form-select form-select-lg" asp-items="ViewBag.Customers">
+                <option value="">-- Select Customer --</option>
+            </select>
+            <span asp-validation-for="CustomerId" class="text-danger"></span>
+        </div>
+
+        <div class="col-md-3">
+            <label class="form-label fw-bold">Foreign Currency</label>
+            <select asp-for="ForeignCurrencyId" id="ForeignCurrencyId" class="form-select form-select-lg" asp-items="ViewBag.Currencies">
+                <option value="">-- Select Currency --</option>
+            </select>
+            <span asp-validation-for="ForeignCurrencyId" class="text-danger"></span>
+        </div>
+
+        <div class="col-md-3">
+            <label class="form-label fw-bold">Exchange Rate (LKR)</label>
+            <input asp-for="ExchangeRate" id="ExchangeRate" type="number" step="0.0001" min="0.0001" class="form-control form-control-lg text-end" placeholder="LKR per 1 unit" />
+            <span asp-validation-for="ExchangeRate" class="text-danger"></span>
+        </div>
+
+        <div class="col-md-3">
+            <label class="form-label fw-bold">Foreign Amount</label>
+            <input asp-for="ForeignAmount" id="ForeignAmount" type="number" step="0.01" min="0.01" class="form-control form-control-lg text-end" placeholder="Amount received" />
+            <span asp-validation-for="ForeignAmount" class="text-danger"></span>
+        </div>
+
+        <div class="col-md-3">
+            <label class="form-label fw-bold">LKR Amount</label>
+            <input asp-for="LKRAmount" id="LKRAmount" type="number" step="0.01" class="form-control form-control-lg text-end bg-light" readonly tabindex="-1" />
+            <span asp-validation-for="LKRAmount" class="text-danger"></span>
+        </div>
+
+        <div class="col-md-12">
+            <label class="form-label fw-bold">Remarks</label>
+            <textarea asp-for="Remarks" class="form-control form-control-lg" rows="3" placeholder="Optional reference / note"></textarea>
+            <span asp-validation-for="Remarks" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-end mt-4 gap-3">
+        <button type="submit" id="btnSaveExchange" class="btn btn-success btn-lg px-5">
+            💾 Save
+        </button>
+        <a asp-action="Index" class="btn btn-secondary btn-lg px-5">Cancel</a>
+    </div>
+</form>
+
+<style>
+    .form-label {
+        font-weight: 600;
+    }
+
+    .form-control-lg,
+    .form-select-lg {
+        font-size: 1.1rem;
+        padding: 0.75rem 1rem;
+    }
+
+    @@media (max-width: 768px) {
+        .form-control-lg,
+        .form-select-lg {
+            font-size: 1rem;
+        }
+    }
+</style>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script>
+        const currencyData = @Html.Raw(JsonConvert.SerializeObject(
+            (ViewBag.CurrencyData as IEnumerable<CurrencyDTO>) ?? new List<CurrencyDTO>(),
+            new JsonSerializerSettings
+            {
+                ContractResolver = new CamelCasePropertyNamesContractResolver()
+            }));
+    </script>
+    <script src="~/js/currency-exchange-form.js?v=@Configuration["Assets:Version"]"></script>
+}

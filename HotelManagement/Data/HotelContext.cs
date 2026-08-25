@@ -24,6 +24,7 @@ namespace HotelManagement.Data
         public DbSet<Payment> Payments { get; set; }
 		public DbSet<EmployeeLeave> EmployeeLeaves { get; set; }
 		public DbSet<PettyCashBook> PettyCashBooks { get; set; }
+        public DbSet<CurrencyExchange> CurrencyExchanges { get; set; }
 
 
         public override int SaveChanges()
@@ -202,6 +203,21 @@ namespace HotelManagement.Data
 				entity.OwnsMany(p => p.TotalIncome, b => b.ToJson("TotalIncome"));
 				entity.OwnsMany(p => p.Refills, b => b.ToJson("Refills"));
 			});
+
+            modelBuilder.Entity<CurrencyExchange>(entity =>
+            {
+                entity.ToTable("CurrencyExchanges");
+                entity.HasKey(e => e.Id);
+
+                entity.HasOne(e => e.Customer)
+                      .WithMany()
+                      .HasForeignKey(e => e.CustomerId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                entity.Property(e => e.ExchangeRate).HasColumnType("decimal(18,4)");
+                entity.Property(e => e.ForeignAmount).HasColumnType("decimal(18,2)");
+                entity.Property(e => e.LKRAmount).HasColumnType("decimal(18,2)");
+            });
         }
 	}
 }
