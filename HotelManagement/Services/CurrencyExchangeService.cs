@@ -189,6 +189,19 @@ namespace HotelManagement.Services
             await _context.SaveChangesAsync();
         }
 
+        /// <summary>
+        /// Resolves Umbraco catalog values required to create the linked invoice and expense
+        /// for a currency exchange: the "Currency Exchange" invoice item id, the "Exchange"
+        /// expense type id, the foreign currency code, and the customer display name.
+        /// </summary>
+        /// <param name="exchange">The exchange whose foreign currency and customer are resolved.</param>
+        /// <returns>
+        /// ItemId (Umbraco exchange item), ExpenseTypeId (Umbraco expense type),
+        /// CurrencyCode, and CustomerName.
+        /// </returns>
+        /// <exception cref="InvalidOperationException">
+        /// Thrown when the Umbraco "Currency Exchange" item or "Exchange" expense type is missing.
+        /// </exception>
         private async Task<(int ItemId, int ExpenseTypeId, string CurrencyCode, string CustomerName)> ResolveCatalogAsync(CurrencyExchange exchange)
         {
             var item = await _exchangeTypeService.GetCurrencyExchangeItemAsync();
@@ -231,10 +244,11 @@ namespace HotelManagement.Services
             var rate = exchange.ExchangeRate;
             var reference = $"EXC #{exchange.Id}";
             var note = $"{foreignAmount:0.##} {catalog.CurrencyCode} @ {rate:0.####}";
+
             if (!string.IsNullOrWhiteSpace(exchange.Remarks))
                 note = $"{note} — {exchange.Remarks}";
 
-            Invoice? invoice;
+            Invoice? invoice = null;
             if (!isNew && exchange.InvoiceNo.HasValue)
             {
                 invoice = await _context.Invoices
@@ -242,18 +256,16 @@ namespace HotelManagement.Services
                     .Include(i => i.Payments)
                     .FirstOrDefaultAsync(i => i.InvoiceNo == exchange.InvoiceNo.Value);
             }
-            else
-            {
-                invoice = null;
-            }
 
             if (invoice == null)
             {
                 invoice = CreateInvoice(exchange, catalog, reference);
                 _context.Invoices.Add(invoice);
             }
-
-            ApplyInvoiceValues(invoice, exchange, catalog, reference);
+            else
+            {
+                ApplyInvoiceValues(invoice, exchange, catalog, reference);
+            }
 
             var detail = invoice.InvoiceDetails?.FirstOrDefault();
             if (detail == null)
@@ -284,14 +296,10 @@ namespace HotelManagement.Services
             payment.PaidCurrency = PaidCurrency.SelectedCurrency;
             payment.Reference = reference;
 
-            Expense? expense;
+            Expense? expense = null;
             if (!isNew && exchange.ExpenseId.HasValue)
             {
                 expense = await _context.Expenses.FindAsync(exchange.ExpenseId.Value);
-            }
-            else
-            {
-                expense = null;
             }
 
             if (expense == null)
@@ -299,14 +307,10 @@ namespace HotelManagement.Services
                 expense = CreateExpense(exchange, catalog, note);
                 _context.Expenses.Add(expense);
             }
-
-            expense.Date = exchange.Date.Date;
-            expense.ExpenseTypeID = catalog.ExpenseTypeId;
-            expense.PayeeName = catalog.CustomerName;
-            expense.Amount = lkrAmount;
-            expense.PaymentMethod = PaymentMethod.Cash;
-            expense.Description = note.Length > 500 ? note.Substring(0, 500) : note;
-            expense.ExpenseType = null;
+            else
+            {
+                ApplyExpenseValues(expense, exchange, catalog, note);
+            }
 
             await _context.SaveChangesAsync();
 
@@ -364,15 +368,24 @@ namespace HotelManagement.Services
             (int ItemId, int ExpenseTypeId, string CurrencyCode, string CustomerName) catalog,
             string note)
         {
-            return new Expense
-            {
-                Date = exchange.Date.Date,
-                ExpenseTypeID = catalog.ExpenseTypeId,
-                PayeeName = catalog.CustomerName,
-                Amount = exchange.LKRAmount,
-                PaymentMethod = PaymentMethod.Cash,
-                Description = note.Length > 500 ? note.Substring(0, 500) : note
-            };
+            var expense = new Expense();
+            ApplyExpenseValues(expense, exchange, catalog, note);
+            return expense;
+        }
+
+        private static void ApplyExpenseValues(
+            Expense expense,
+            CurrencyExchange exchange,
+            (int ItemId, int ExpenseTypeId, string CurrencyCode, string CustomerName) catalog,
+            string note)
+        {
+            expense.Date = exchange.Date.Date;
+            expense.ExpenseTypeID = catalog.ExpenseTypeId;
+            expense.PayeeName = catalog.CustomerName;
+            expense.Amount = exchange.LKRAmount;
+            expense.PaymentMethod = PaymentMethod.Cash;
+            expense.Description = note.Length > 500 ? note.Substring(0, 500) : note;
+            expense.ExpenseType = null;
         }
 
         private static void PrepareForSave(CurrencyExchange exchange)
