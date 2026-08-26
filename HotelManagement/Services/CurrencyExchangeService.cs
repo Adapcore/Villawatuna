@@ -3,6 +3,8 @@ using HotelManagement.Enums;
 using HotelManagement.Models.Entities;
 using HotelManagement.Services.Interface;
 using Microsoft.EntityFrameworkCore;
+using X.PagedList;
+using X.PagedList.Extensions;
 
 namespace HotelManagement.Services
 {
@@ -36,7 +38,56 @@ namespace HotelManagement.Services
             int? customerId = null,
             int? foreignCurrencyId = null)
         {
+            var query = BuildFilteredQuery(startDate, endDate, customerId, foreignCurrencyId)
+                .OrderByDescending(e => e.Id);
+
+            var exchanges = await query.ToListAsync();
+            await AttachCurrenciesAsync(exchanges);
+            return exchanges;
+        }
+
+        public async Task<(IPagedList<CurrencyExchange> Items, decimal TotalLkr)> GetPagedAsync(
+            int pageNumber,
+            int pageSize,
+            DateTime? startDate = null,
+            DateTime? endDate = null,
+            int? customerId = null,
+            int? foreignCurrencyId = null)
+        {
+            var filtered = BuildFilteredQuery(startDate, endDate, customerId, foreignCurrencyId);
+
+            var totalLkr = await filtered.SumAsync(e => (decimal?)e.LKRAmount) ?? 0m;
+
+            var paged = filtered
+                .OrderByDescending(e => e.Id)
+                .ToPagedList(pageNumber, pageSize);
+
+            await AttachCurrenciesAsync(paged);
+
+            return (paged, totalLkr);
+        }
+
+        public async Task<CurrencyExchange?> GetByIdAsync(int id)
+        {
+            var exchange = await _context.CurrencyExchanges
+                .Include(e => e.Customer)
+                .FirstOrDefaultAsync(e => e.Id == id);
+
+            if (exchange == null)
+                return null;
+
+            await AttachCurrenciesAsync(new[] { exchange });
+            return exchange;
+        }
+
+        private IQueryable<CurrencyExchange> BuildFilteredQuery(
+            DateTime? startDate,
+            DateTime? endDate,
+            int? customerId,
+            int? foreignCurrencyId)
+        {
             var query = _context.CurrencyExchanges
+                .AsNoTracking()
                 .Include(e => e.Customer)
                 .AsQueryable();
 
@@ -52,31 +103,16 @@ namespace HotelManagement.Services
             if (foreignCurrencyId.HasValue && foreignCurrencyId.Value > 0)
                 query = query.Where(e => e.ForeignCurrencyId == foreignCurrencyId.Value);
 
-            var exchanges = await query
-                .OrderByDescending(e => e.Id)
-                .ToListAsync();
+            return query;
+        }
 
+        private async Task AttachCurrenciesAsync(IEnumerable<CurrencyExchange> exchanges)
+        {
             var currencies = (await _currencyService.GetCurencyTypesAsync()).ToList();
             foreach (var item in exchanges)
             {
                 item.ForeignCurrency = currencies.FirstOrDefault(c => c.Id == item.ForeignCurrencyId);
             }
-
-            return exchanges;
-        }
-
-        public async Task<CurrencyExchange?> GetByIdAsync(int id)
-        {
-            var exchange = await _context.CurrencyExchanges
-                .Include(e => e.Customer)
-                .FirstOrDefaultAsync(e => e.Id == id);
-
-            if (exchange == null)
-                return null;
-
-            var currencies = await _currencyService.GetCurencyTypesAsync();
-            exchange.ForeignCurrency = currencies.FirstOrDefault(c => c.Id == exchange.ForeignCurrencyId);
-            return exchange;
         }
 
         public async Task AddAsync(CurrencyExchange exchange)

@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Options;
 using Umbraco.Cms.Core.Security;
 using Umbraco.Cms.Core.Services;
-using X.PagedList.Extensions;
 
 namespace HotelManagement.Controllers
 {
@@ -67,11 +66,13 @@ namespace HotelManagement.Controllers
             int? customerFilter = customerId > 0 ? customerId : null;
             int? currencyFilter = foreignCurrencyId > 0 ? foreignCurrencyId : null;
 
-            var exchanges = await _currencyExchangeService.GetAllAsync(
-                startDateParsed, endDateParsed, customerFilter, currencyFilter);
-
-            decimal totalLkr = exchanges.Sum(e => e.LKRAmount);
-            var pagedList = exchanges.ToPagedList(pageNumber, _pageSize);
+            var (pagedList, totalLkr) = await _currencyExchangeService.GetPagedAsync(
+                pageNumber,
+                _pageSize,
+                startDateParsed,
+                endDateParsed,
+                customerFilter,
+                currencyFilter);
 
             var list = pagedList.Select(e => new
             {
