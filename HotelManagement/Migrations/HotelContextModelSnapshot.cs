@@ -22,6 +22,65 @@ namespace HotelManagement.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("HotelManagement.Models.Entities.CurrencyExchange", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("CreatedBy")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("CustomerId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("datetime2");
+
+                    b.Property<decimal>("ExchangeRate")
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<int?>("ExpenseId")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("ForeignAmount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("ForeignCurrencyId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("InvoiceNo")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("LKRAmount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int?>("LastModifiedBy")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("LastModifiedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Remarks")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CustomerId");
+
+                    b.HasIndex("ExpenseId");
+
+                    b.HasIndex("InvoiceNo");
+
+                    b.ToTable("CurrencyExchanges", (string)null);
+                });
+
             modelBuilder.Entity("HotelManagement.Models.Entities.Customer", b =>
                 {
                     b.Property<int>("ID")
@@ -90,65 +149,6 @@ namespace HotelManagement.Migrations
                     b.ToTable("Customers", (string)null);
                 });
 
-            modelBuilder.Entity("HotelManagement.Models.Entities.CurrencyExchange", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("CreatedBy")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("CustomerId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("Date")
-                        .HasColumnType("datetime2");
-
-                    b.Property<decimal>("ExchangeRate")
-                        .HasColumnType("decimal(18,4)");
-
-                    b.Property<int?>("ExpenseId")
-                        .HasColumnType("int");
-
-                    b.Property<decimal>("ForeignAmount")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<int>("ForeignCurrencyId")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("InvoiceNo")
-                        .HasColumnType("int");
-
-                    b.Property<decimal>("LKRAmount")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<int?>("LastModifiedBy")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime?>("LastModifiedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Remarks")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CustomerId");
-
-                    b.HasIndex("ExpenseId");
-
-                    b.HasIndex("InvoiceNo");
-
-                    b.ToTable("CurrencyExchanges", (string)null);
-                });
-
             modelBuilder.Entity("HotelManagement.Models.Entities.Employee", b =>
                 {
                     b.Property<int>("ID")
@@ -157,10 +157,24 @@ namespace HotelManagement.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
 
-                    b.Property<string>("Address")
-                        .IsRequired()
-                        .HasMaxLength(250)
-                        .HasColumnType("nvarchar(250)");
+                    b.Property<decimal?>("AgreedSalary")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("BankAccountHolderName")
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.Property<string>("BankAccountNumber")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("BankBranchName")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("BankName")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("ContactNo")
                         .IsRequired()
@@ -173,8 +187,16 @@ namespace HotelManagement.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("CurrentAddress")
+                        .HasMaxLength(250)
+                        .HasColumnType("nvarchar(250)");
+
                     b.Property<DateTime>("DOB")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("Department")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("EPFNo")
                         .HasMaxLength(50)
@@ -185,8 +207,34 @@ namespace HotelManagement.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
+                    b.Property<string>("EmergencyContactAddress")
+                        .HasMaxLength(250)
+                        .HasColumnType("nvarchar(250)");
+
+                    b.Property<string>("EmergencyContactMobile")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("EmergencyContactName")
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.Property<string>("EmergencyContactRelationship")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<int?>("EmploymentType")
+                        .HasColumnType("int");
+
                     b.Property<string>("FirstName")
                         .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<int?>("Gender")
+                        .HasColumnType("int");
+
+                    b.Property<string>("JobTitle")
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
@@ -204,10 +252,38 @@ namespace HotelManagement.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
+                    b.Property<int?>("MaritalStatus")
+                        .HasColumnType("int");
+
                     b.Property<string>("NIC")
                         .IsRequired()
                         .HasMaxLength(12)
                         .HasColumnType("nvarchar(12)");
+
+                    b.Property<string>("NameWithInitials")
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.Property<string>("PermanentAddress")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("nvarchar(250)");
+
+                    b.Property<string>("WorkingDays")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("WorkingDaysOther")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("WorkingHours")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("WorkingLocation")
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
 
                     b.HasKey("ID");
 
@@ -333,7 +409,7 @@ namespace HotelManagement.Migrations
 
                     b.HasKey("ID");
 
-                    b.ToTable("Expenses", (string)null);
+                    b.ToTable("Expenses");
                 });
 
             modelBuilder.Entity("HotelManagement.Models.Entities.Invoice", b =>
@@ -618,7 +694,7 @@ namespace HotelManagement.Migrations
 
                     b.HasIndex("InvoiceNo");
 
-                    b.ToTable("Payments", (string)null);
+                    b.ToTable("Payments");
                 });
 
             modelBuilder.Entity("HotelManagement.Models.Entities.PettyCashBook", b =>
@@ -770,6 +846,33 @@ namespace HotelManagement.Migrations
 
             modelBuilder.Entity("HotelManagement.Models.Entities.PettyCashBook", b =>
                 {
+                    b.OwnsMany("HotelManagement.Models.Entities.PettyCashCurrencyTotal", "TotalIncome", b1 =>
+                        {
+                            b1.Property<int>("PettyCashBookId")
+                                .HasColumnType("int");
+
+                            b1.Property<int>("__synthesizedOrdinal")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("int");
+
+                            b1.Property<string>("Currency")
+                                .IsRequired()
+                                .HasMaxLength(3)
+                                .HasColumnType("nvarchar(3)");
+
+                            b1.Property<decimal>("Total")
+                                .HasColumnType("decimal(18,2)");
+
+                            b1.HasKey("PettyCashBookId", "__synthesizedOrdinal");
+
+                            b1.ToTable("PettyCashBook");
+
+                            b1.ToJson("TotalIncome");
+
+                            b1.WithOwner()
+                                .HasForeignKey("PettyCashBookId");
+                        });
+
                     b.OwnsMany("HotelManagement.Models.Entities.PettyCashExpenseLine", "Expences", b1 =>
                         {
                             b1.Property<int>("PettyCashBookId")
@@ -797,7 +900,7 @@ namespace HotelManagement.Migrations
 
                             b1.HasKey("PettyCashBookId", "__synthesizedOrdinal");
 
-                            b1.ToTable("PettyCashBook", (string)null);
+                            b1.ToTable("PettyCashBook");
 
                             b1.ToJson("Expences");
 
@@ -836,7 +939,7 @@ namespace HotelManagement.Migrations
 
                             b1.HasKey("PettyCashBookId", "__synthesizedOrdinal");
 
-                            b1.ToTable("PettyCashBook", (string)null);
+                            b1.ToTable("PettyCashBook");
 
                             b1.ToJson("Income");
 
@@ -866,36 +969,9 @@ namespace HotelManagement.Migrations
 
                             b1.HasKey("PettyCashBookId", "__synthesizedOrdinal");
 
-                            b1.ToTable("PettyCashBook", (string)null);
+                            b1.ToTable("PettyCashBook");
 
                             b1.ToJson("Refills");
-
-                            b1.WithOwner()
-                                .HasForeignKey("PettyCashBookId");
-                        });
-
-                    b.OwnsMany("HotelManagement.Models.Entities.PettyCashCurrencyTotal", "TotalIncome", b1 =>
-                        {
-                            b1.Property<int>("PettyCashBookId")
-                                .HasColumnType("int");
-
-                            b1.Property<int>("__synthesizedOrdinal")
-                                .ValueGeneratedOnAdd()
-                                .HasColumnType("int");
-
-                            b1.Property<string>("Currency")
-                                .IsRequired()
-                                .HasMaxLength(3)
-                                .HasColumnType("nvarchar(3)");
-
-                            b1.Property<decimal>("Total")
-                                .HasColumnType("decimal(18,2)");
-
-                            b1.HasKey("PettyCashBookId", "__synthesizedOrdinal");
-
-                            b1.ToTable("PettyCashBook", (string)null);
-
-                            b1.ToJson("TotalIncome");
 
                             b1.WithOwner()
                                 .HasForeignKey("PettyCashBookId");

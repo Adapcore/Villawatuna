@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace HotelManagement.Services
 {
-    public class EmployeeService : IEmployeeService
+	public class EmployeeService : IEmployeeService
 	{
 		private readonly HotelContext _dbContext;
 
@@ -51,10 +51,52 @@ namespace HotelManagement.Services
 
 		public async Task UpdateAsync(Employee employee)
 		{
-			_dbContext.Entry(employee).State = EntityState.Modified;
+			Employee? existing = await _dbContext.Employees.FindAsync(employee.ID);
+			if (existing == null)
+			{
+				throw new InvalidOperationException($"Employee {employee.ID} was not found.");
+			}
+
+			// Personal
+			existing.FirstName = employee.FirstName;
+			existing.LastName = employee.LastName;
+			existing.NameWithInitials = employee.NameWithInitials;
+			existing.Email = employee.Email;
+			existing.ContactNo = employee.ContactNo;
+			existing.PermanentAddress = employee.PermanentAddress;
+			existing.CurrentAddress = employee.CurrentAddress;
+			existing.NIC = employee.NIC;
+			existing.DOB = employee.DOB;
+			existing.Gender = employee.Gender;
+			existing.MaritalStatus = employee.MaritalStatus;
+
+			// Emergency
+			existing.EmergencyContactName = employee.EmergencyContactName;
+			existing.EmergencyContactRelationship = employee.EmergencyContactRelationship;
+			existing.EmergencyContactMobile = employee.EmergencyContactMobile;
+			existing.EmergencyContactAddress = employee.EmergencyContactAddress;
+
+			// Employment
+			existing.JobTitle = employee.JobTitle;
+			existing.Department = employee.Department;
+			existing.JoinedDate = employee.JoinedDate;
+			existing.EmploymentType = employee.EmploymentType;
+			existing.AgreedSalary = employee.AgreedSalary;
+			existing.WorkingLocation = employee.WorkingLocation;
+			existing.WorkingDays = employee.WorkingDays;
+			existing.WorkingDaysOther = employee.WorkingDaysOther;
+			existing.WorkingHours = employee.WorkingHours;
+			existing.EPFNo = employee.EPFNo;
+
+			// Bank
+			existing.BankAccountHolderName = employee.BankAccountHolderName;
+			existing.BankName = employee.BankName;
+			existing.BankBranchName = employee.BankBranchName;
+			existing.BankAccountNumber = employee.BankAccountNumber;
+
+			existing.LastModifiedDate = DateTime.UtcNow;
+
 			await _dbContext.SaveChangesAsync();
 		}
 	}
 }
-
-

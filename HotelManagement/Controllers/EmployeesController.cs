@@ -63,19 +63,7 @@ namespace HotelManagement.Controllers
 		[ValidateAntiForgeryToken]
 		public async Task<IActionResult> Create(Employee model)
 		{
-			// Require FirstName and LastName on create
-			if (string.IsNullOrWhiteSpace(model.FirstName))
-			{
-				ModelState.AddModelError(nameof(model.FirstName), "First name is required.");
-			}
-			if (string.IsNullOrWhiteSpace(model.LastName))
-			{
-				ModelState.AddModelError(nameof(model.LastName), "Last name is required.");
-			}
-			if (string.IsNullOrWhiteSpace(model.ContactNo))
-			{
-				ModelState.AddModelError(nameof(model.ContactNo), "Contact No is required.");
-			}
+			ValidateEmployeeForm(model, requireContactNo: true);
 
 			if (!ModelState.IsValid)
 			{
@@ -126,15 +114,7 @@ namespace HotelManagement.Controllers
 				return BadRequest();
 			}
 
-			// Require FirstName and LastName on update
-			if (string.IsNullOrWhiteSpace(model.FirstName))
-			{
-				ModelState.AddModelError(nameof(model.FirstName), "First name is required.");
-			}
-			if (string.IsNullOrWhiteSpace(model.LastName))
-			{
-				ModelState.AddModelError(nameof(model.LastName), "Last name is required.");
-			}
+			ValidateEmployeeForm(model, requireContactNo: false);
 
 			if (!ModelState.IsValid)
 			{
@@ -153,6 +133,33 @@ namespace HotelManagement.Controllers
 
 			await _employeeService.UpdateAsync(model);
 			return RedirectToAction(nameof(Index));
+		}
+
+		private void ValidateEmployeeForm(Employee model, bool requireContactNo)
+		{
+			if (string.IsNullOrWhiteSpace(model.FirstName))
+			{
+				ModelState.AddModelError(nameof(model.FirstName), "First name is required.");
+			}
+			if (string.IsNullOrWhiteSpace(model.LastName))
+			{
+				ModelState.AddModelError(nameof(model.LastName), "Last name is required.");
+			}
+			if (requireContactNo && string.IsNullOrWhiteSpace(model.ContactNo))
+			{
+				ModelState.AddModelError(nameof(model.ContactNo), "Mobile Number is required.");
+			}
+
+			if (string.Equals(model.WorkingDays, "Other", StringComparison.OrdinalIgnoreCase)
+				&& string.IsNullOrWhiteSpace(model.WorkingDaysOther))
+			{
+				ModelState.AddModelError(nameof(model.WorkingDaysOther), "Please enter working days when Other is selected.");
+			}
+
+			if (!string.Equals(model.WorkingDays, "Other", StringComparison.OrdinalIgnoreCase))
+			{
+				model.WorkingDaysOther = null;
+			}
 		}
 	}
 }

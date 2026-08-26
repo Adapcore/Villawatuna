@@ -4,8 +4,12 @@
     ViewData["Title"] = "Employee Details";
     Layout = "~/Views/Shared/_Layout.cshtml";
 
-    var fullName = string.Join(" ", new[] { Model.FirstName, Model.LastName }
-        .Where(s => !string.IsNullOrWhiteSpace(s)));
+    string Val(string? value) => string.IsNullOrWhiteSpace(value) ? "-" : value;
+    string DateVal(DateTime? value) => value.HasValue ? value.Value.ToString("yyyy-MM-dd") : "-";
+    string MoneyVal(decimal? value) => value.HasValue ? value.Value.ToString("N2") : "-";
+    var workingDaysDisplay = string.Equals(Model.WorkingDays, "Other", StringComparison.OrdinalIgnoreCase)
+        ? (string.IsNullOrWhiteSpace(Model.WorkingDaysOther) ? "Other" : $"Other ({Model.WorkingDaysOther})")
+        : Val(Model.WorkingDays);
 }
 
 <div class="container my-4">
@@ -22,35 +26,117 @@
         <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
     }
 
-    <div class="card">
+    <div class="card mb-4">
+        <div class="card-header fw-semibold">1. Personal Information</div>
         <div class="card-body">
             <dl class="row mb-0">
                 <dt class="col-sm-3">ID</dt>
                 <dd class="col-sm-9">@Model.ID</dd>
 
-                <dt class="col-sm-3">Name</dt>
-                <dd class="col-sm-9">@(string.IsNullOrWhiteSpace(fullName) ? "-" : fullName)</dd>
+                <dt class="col-sm-3">First Name</dt>
+                <dd class="col-sm-9">@Val(Model.FirstName)</dd>
 
-                <dt class="col-sm-3">EPF No</dt>
-                <dd class="col-sm-9">@(string.IsNullOrWhiteSpace(Model.EPFNo) ? "-" : Model.EPFNo)</dd>
+                <dt class="col-sm-3">Last Name</dt>
+                <dd class="col-sm-9">@Val(Model.LastName)</dd>
 
-                <dt class="col-sm-3">Email</dt>
-                <dd class="col-sm-9">@(string.IsNullOrWhiteSpace(Model.Email) ? "-" : Model.Email)</dd>
-
-                <dt class="col-sm-3">Contact No</dt>
-                <dd class="col-sm-9">@(string.IsNullOrWhiteSpace(Model.ContactNo) ? "-" : Model.ContactNo)</dd>
+                <dt class="col-sm-3">Name with Initials</dt>
+                <dd class="col-sm-9">@Val(Model.NameWithInitials)</dd>
 
                 <dt class="col-sm-3">NIC</dt>
-                <dd class="col-sm-9">@(string.IsNullOrWhiteSpace(Model.NIC) ? "-" : Model.NIC)</dd>
-
-                <dt class="col-sm-3">Address</dt>
-                <dd class="col-sm-9">@(string.IsNullOrWhiteSpace(Model.Address) ? "-" : Model.Address)</dd>
+                <dd class="col-sm-9">@Val(Model.NIC)</dd>
 
                 <dt class="col-sm-3">Date of Birth</dt>
                 <dd class="col-sm-9">@Model.DOB.ToString("yyyy-MM-dd")</dd>
 
-                <dt class="col-sm-3">Joined Date</dt>
-                <dd class="col-sm-9">@(Model.JoinedDate.HasValue ? Model.JoinedDate.Value.ToString("yyyy-MM-dd") : "-")</dd>
+                <dt class="col-sm-3">Gender</dt>
+                <dd class="col-sm-9">@(Model.Gender.HasValue ? EnumHelper.GetDisplayName(Model.Gender.Value) : "-")</dd>
+
+                <dt class="col-sm-3">Marital Status</dt>
+                <dd class="col-sm-9">@(Model.MaritalStatus.HasValue ? EnumHelper.GetDisplayName(Model.MaritalStatus.Value) : "-")</dd>
+
+                <dt class="col-sm-3">Mobile Number</dt>
+                <dd class="col-sm-9">@Val(Model.ContactNo)</dd>
+
+                <dt class="col-sm-3">Email Address</dt>
+                <dd class="col-sm-9">@Val(Model.Email)</dd>
+
+                <dt class="col-sm-3">Permanent Address</dt>
+                <dd class="col-sm-9">@Val(Model.PermanentAddress)</dd>
+
+                <dt class="col-sm-3">Current Address</dt>
+                <dd class="col-sm-9">@Val(Model.CurrentAddress)</dd>
+            </dl>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header fw-semibold">2. Emergency Contact Person</div>
+        <div class="card-body">
+            <dl class="row mb-0">
+                <dt class="col-sm-3">Contact Person's Name</dt>
+                <dd class="col-sm-9">@Val(Model.EmergencyContactName)</dd>
+
+                <dt class="col-sm-3">Relationship</dt>
+                <dd class="col-sm-9">@Val(Model.EmergencyContactRelationship)</dd>
+
+                <dt class="col-sm-3">Mobile Number</dt>
+                <dd class="col-sm-9">@Val(Model.EmergencyContactMobile)</dd>
+
+                <dt class="col-sm-3">Address</dt>
+                <dd class="col-sm-9">@Val(Model.EmergencyContactAddress)</dd>
+            </dl>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header fw-semibold">3. Employee Information</div>
+        <div class="card-body">
+            <dl class="row mb-0">
+                <dt class="col-sm-3">Position / Job Title</dt>
+                <dd class="col-sm-9">@Val(Model.JobTitle)</dd>
+
+                <dt class="col-sm-3">Department</dt>
+                <dd class="col-sm-9">@Val(Model.Department)</dd>
+
+                <dt class="col-sm-3">Joining Date</dt>
+                <dd class="col-sm-9">@DateVal(Model.JoinedDate)</dd>
+
+                <dt class="col-sm-3">Employment Type</dt>
+                <dd class="col-sm-9">@(Model.EmploymentType.HasValue ? EnumHelper.GetDisplayName(Model.EmploymentType.Value) : "-")</dd>
+
+                <dt class="col-sm-3">Agreed Salary / Wage</dt>
+                <dd class="col-sm-9">@MoneyVal(Model.AgreedSalary)</dd>
+
+                <dt class="col-sm-3">Working Location</dt>
+                <dd class="col-sm-9">@Val(Model.WorkingLocation)</dd>
+
+                <dt class="col-sm-3">Working Days</dt>
+                <dd class="col-sm-9">@workingDaysDisplay</dd>
+
+                <dt class="col-sm-3">Working Hours</dt>
+                <dd class="col-sm-9">@Val(Model.WorkingHours)</dd>
+
+                <dt class="col-sm-3">EPF No</dt>
+                <dd class="col-sm-9">@Val(Model.EPFNo)</dd>
+            </dl>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header fw-semibold">4. Bank Account Details</div>
+        <div class="card-body">
+            <dl class="row mb-0">
+                <dt class="col-sm-3">Account Holder's Name</dt>
+                <dd class="col-sm-9">@Val(Model.BankAccountHolderName)</dd>
+
+                <dt class="col-sm-3">Bank Name</dt>
+                <dd class="col-sm-9">@Val(Model.BankName)</dd>
+
+                <dt class="col-sm-3">Branch Name</dt>
+                <dd class="col-sm-9">@Val(Model.BankBranchName)</dd>
+
+                <dt class="col-sm-3">Account Number</dt>
+                <dd class="col-sm-9">@Val(Model.BankAccountNumber)</dd>
             </dl>
         </div>
     </div>
