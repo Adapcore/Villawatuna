@@ -4,6 +4,8 @@ using HotelManagement.Models.Entities;
 using HotelManagement.Services.Interface;
 using HotelManagement.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using X.PagedList;
+using X.PagedList.Extensions;
 
 namespace HotelManagement.Services
 {
@@ -25,45 +27,34 @@ namespace HotelManagement.Services
             return await GetAllAsync(null, null, null, null);
         }
 
-        public async Task<IEnumerable<Expense>> GetAllAsync(DateTime? startDate, DateTime? endDate, int? expenseTypeId, string payeeName = null)
+        public async Task<IEnumerable<Expense>> GetAllAsync(DateTime? startDate, DateTime? endDate, int? expenseTypeId, string? payeeName = null)
         {
-            var query = _context.Expenses.AsQueryable();
+            var query = BuildFilteredQuery(startDate, endDate, expenseTypeId, payeeName)
+                .OrderByDescending(e => e.ID);
 
-            // Apply date range filter
-            if (startDate.HasValue)
-            {
-                query = query.Where(e => e.Date >= startDate.Value.Date);
-            }
-
-            if (endDate.HasValue)
-            {
-                query = query.Where(e => e.Date <= endDate.Value.Date);
-            }
-
-            // Apply expense type filter
-            if (expenseTypeId.HasValue && expenseTypeId.Value > 0)
-            {
-                query = query.Where(e => e.ExpenseTypeID == expenseTypeId.Value);
-            }
-
-            // Apply payee name filter with wildcard search (case-insensitive)
-            if (!string.IsNullOrWhiteSpace(payeeName))
-            {
-                query = query.Where(e => e.PayeeName != null && EF.Functions.Like(e.PayeeName, $"%{payeeName}%"));
-            }
-
-            IEnumerable<Expense> expenses = await query
-                .OrderByDescending(e => e.ID)
-                .ToListAsync();
-
-            IEnumerable<ExpenseTypeDTO> lstExpenseTypes = await _expenseTypeService.GetExpenseTypesAsync();
-
-            foreach (var item in expenses)
-            {
-                item.ExpenseType = lstExpenseTypes.FirstOrDefault(x => x.Id == item.ExpenseTypeID);
-            }
-
+            var expenses = await query.ToListAsync();
+            await AttachExpenseTypesAsync(expenses);
             return expenses;
+        }
+
+        public async Task<(IPagedList<Expense> Items, decimal TotalAmount)> GetPagedAsync(
+            int pageNumber,
+            int pageSize,
+            DateTime? startDate = null,
+            DateTime? endDate = null,
+            int? expenseTypeId = null,
+            string? payeeName = null)
+        {
+            var filtered = BuildFilteredQuery(startDate, endDate, expenseTypeId, payeeName);
+
+            var totalAmount = await filtered.SumAsync(e => (decimal?)e.Amount) ?? 0m;
+
+            var paged = filtered
+                .OrderByDescending(e => e.ID)
+                .ToPagedList(pageNumber, pageSize);
+
+            await AttachExpenseTypesAsync(paged);
+            return (paged, totalAmount);
         }
 
         public async Task<Expense?> GetByIdAsync(int id)
@@ -90,6 +81,40 @@ namespace HotelManagement.Services
             {
                 _context.Expenses.Remove(expense);
                 await _context.SaveChangesAsync();
+            }
+        }
+
+        private IQueryable<Expense> BuildFilteredQuery(
+            DateTime? startDate,
+            DateTime? endDate,
+            int? expenseTypeId,
+            string? payeeName)
+        {
+            var query = _context.Expenses
+                .AsNoTracking()
+                .AsQueryable();
+
+            if (startDate.HasValue)
+                query = query.Where(e => e.Date >= startDate.Value.Date);
+
+            if (endDate.HasValue)
+                query = query.Where(e => e.Date <= endDate.Value.Date);
+
+            if (expenseTypeId.HasValue && expenseTypeId.Value > 0)
+                query = query.Where(e => e.ExpenseTypeID == expenseTypeId.Value);
+
+            if (!string.IsNullOrWhiteSpace(payeeName))
+                query = query.Where(e => e.PayeeName != null && EF.Functions.Like(e.PayeeName, $"%{payeeName}%"));
+
+            return query;
+        }
+
+        private async Task AttachExpenseTypesAsync(IEnumerable<Expense> expenses)
+        {
+            var expenseTypes = (await _expenseTypeService.GetExpenseTypesAsync()).ToList();
+            foreach (var item in expenses)
+            {
+                item.ExpenseType = expenseTypes.FirstOrDefault(x => x.Id == item.ExpenseTypeID);
             }
         }
     }

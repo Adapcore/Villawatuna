@@ -13,7 +13,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using System.ComponentModel.DataAnnotations;
 using System.Reflection;
-using X.PagedList.Extensions;
 using Umbraco.Cms.Core.Security;
 using Umbraco.Cms.Core.Services;
 
@@ -87,16 +86,16 @@ namespace HotelManagement.Controllers
                 endDateParsed = endDateValue;
 
             // Normalize payee name (trim whitespace, null if empty)
-            string payeeFilter = !string.IsNullOrWhiteSpace(payeeName) ? payeeName.Trim() : null;
+            string? payeeFilter = !string.IsNullOrWhiteSpace(payeeName) ? payeeName.Trim() : null;
 
-            // Get filtered expenses
             int? expenseTypeFilter = expenseTypeId > 0 ? expenseTypeId : null;
-            IEnumerable<Expense> expenses = await _expenseService.GetAllAsync(startDateParsed, endDateParsed, expenseTypeFilter, payeeFilter);
-            
-            // Calculate total amount across all pages (before pagination)
-            decimal totalAmount = expenses.Sum(e => e.Amount);
-            
-            var pagedList = expenses.ToPagedList(pageNumber, _pageSize);
+            var (pagedList, totalAmount) = await _expenseService.GetPagedAsync(
+                pageNumber,
+                _pageSize,
+                startDateParsed,
+                endDateParsed,
+                expenseTypeFilter,
+                payeeFilter);
 
             var exchangeTypeId = await GetExchangeExpenseTypeIdAsync();
             var pagedExpenseIds = pagedList.Select(e => e.ID).ToList();
