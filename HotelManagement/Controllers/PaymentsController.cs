@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Options;
-using X.PagedList.Extensions;
 
 namespace HotelManagement.Controllers
 {
@@ -41,23 +40,17 @@ namespace HotelManagement.Controllers
         {
             int pageNumber = page < 1 ? 1 : page;
 
-            var payments = await _paymentService.GetAllAsync();
-            var query = payments.AsQueryable();
-
-            // Parse dates (expect yyyy-MM-dd)
             DateTime? fromParsed = null;
             DateTime? toParsed = null;
             if (!string.IsNullOrWhiteSpace(fromDate) && DateTime.TryParse(fromDate, out var fd)) fromParsed = fd.Date;
             if (!string.IsNullOrWhiteSpace(toDate) && DateTime.TryParse(toDate, out var td)) toParsed = td.Date;
 
-            if (fromParsed.HasValue) query = query.Where(p => p.Date.Date >= fromParsed.Value);
-            if (toParsed.HasValue) query = query.Where(p => p.Date.Date <= toParsed.Value);
-            if (type.HasValue) query = query.Where(p => p.Type == type.Value);
-
-            // Keep original ordering from view (Date desc, ID desc)
-            query = query.OrderByDescending(p => p.Date).ThenByDescending(p => p.ID);
-
-            var pagedList = query.ToPagedList(pageNumber, _pageSize);
+            var pagedList = await _paymentService.GetPagedAsync(
+                pageNumber,
+                _pageSize,
+                fromParsed,
+                toParsed,
+                type);
 
             var items = pagedList.Select(p => new
             {
