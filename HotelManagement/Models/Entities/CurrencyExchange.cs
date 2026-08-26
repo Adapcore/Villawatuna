@@ -1,6 +1,5 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using HotelManagement.Models.DTO;
 
 namespace HotelManagement.Models.Entities
 {
@@ -22,12 +21,13 @@ namespace HotelManagement.Models.Entities
 
         public Customer? Customer { get; set; }
 
+        /// <summary>
+        /// Foreign currency code stored like Invoice.Currency (e.g. USD, GBP).
+        /// </summary>
         [Required]
+        [MaxLength(5)]
         [Display(Name = "Foreign Currency")]
-        public int ForeignCurrencyId { get; set; }
-
-        [NotMapped]
-        public CurrencyDTO? ForeignCurrency { get; set; }
+        public string ForeignCurrency { get; set; } = string.Empty;
 
         [Required]
         [Display(Name = "Exchange Rate")]

@@ -51,8 +51,10 @@ namespace HotelManagement.Migrations
                     b.Property<decimal>("ForeignAmount")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<int>("ForeignCurrencyId")
-                        .HasColumnType("int");
+                    b.Property<string>("ForeignCurrency")
+                        .IsRequired()
+                        .HasMaxLength(5)
+                        .HasColumnType("nvarchar(5)");
 
                     b.Property<int?>("InvoiceNo")
                         .HasColumnType("int");

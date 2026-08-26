@@ -1,21 +1,27 @@
 $(document).ready(function () {
-    $('#ForeignCurrencyId').on('change', function () {
-        var selectedId = parseInt($(this).val(), 10);
-        if (!selectedId || !Array.isArray(currencyData)) {
+    var $currency = $('#ForeignCurrency');
+
+    function applyDefaultExchangeRate() {
+        var selectedCode = (($currency.val() || '') + '').trim();
+        if (!selectedCode || !Array.isArray(currencyData)) {
             calculateLkrAmount();
             return;
         }
 
         var currency = currencyData.find(function (c) {
-            return c.id === selectedId;
+            var code = ((c.code || c.Code || '') + '').trim();
+            return code.toLowerCase() === selectedCode.toLowerCase();
         });
 
-        if (currency && currency.exchangeRate > 0) {
-            $('#ExchangeRate').val(currency.exchangeRate);
+        var rate = currency ? parseFloat(currency.exchangeRate ?? currency.ExchangeRate) : NaN;
+        if (!isNaN(rate) && rate > 0) {
+            $('#ExchangeRate').val(rate);
         }
 
         calculateLkrAmount();
-    });
+    }
+
+    $currency.on('change', applyDefaultExchangeRate);
 
     $('#ExchangeRate, #ForeignAmount').on('input change', calculateLkrAmount);
 
@@ -30,7 +36,12 @@ $(document).ready(function () {
         $submitBtn.html('<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Saving...');
     });
 
-    calculateLkrAmount();
+    // Load rate when editing (currency already selected) or after a selection.
+    if ($currency.val()) {
+        applyDefaultExchangeRate();
+    } else {
+        calculateLkrAmount();
+    }
 });
 
 function calculateLkrAmount() {

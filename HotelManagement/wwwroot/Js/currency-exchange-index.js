@@ -6,7 +6,7 @@ var exchangeState = {
     startDate: null,
     endDate: null,
     customerId: 0,
-    foreignCurrencyId: 0,
+    foreignCurrency: '',
     isInternalCallScope: false,
     isAdmin: false
 };
@@ -84,9 +84,9 @@ $(document).ready(function () {
         }
     });
 
-    $('#customerId, #foreignCurrencyId').on('change', function () {
+    $('#customerId, #foreignCurrency').on('change', function () {
         exchangeState.customerId = parseInt($('#customerId').val()) || 0;
-        exchangeState.foreignCurrencyId = parseInt($('#foreignCurrencyId').val()) || 0;
+        exchangeState.foreignCurrency = (($('#foreignCurrency').val() || '') + '').trim();
         exchangeState.currentPage = 1;
         loadExchanges();
     });
@@ -133,13 +133,13 @@ $(document).ready(function () {
         $('#startDate').val('');
         $('#endDate').val('');
         $('#customerId').val('0');
-        $('#foreignCurrencyId').val('0');
+        $('#foreignCurrency').val('');
         exchangeState.isInternalCallScope = false;
 
         exchangeState.startDate = null;
         exchangeState.endDate = null;
         exchangeState.customerId = 0;
-        exchangeState.foreignCurrencyId = 0;
+        exchangeState.foreignCurrency = '';
         exchangeState.currentPage = 1;
         $('#btnToday, #btnYesterday, #btnMonth, #btnYear').removeClass('active');
         loadExchanges();
@@ -187,7 +187,7 @@ function onDateBtnAction(fromDate, toDate, ele) {
 
 function loadExchanges() {
     exchangeState.customerId = parseInt($('#customerId').val()) || 0;
-    exchangeState.foreignCurrencyId = parseInt($('#foreignCurrencyId').val()) || 0;
+    exchangeState.foreignCurrency = (($('#foreignCurrency').val() || '') + '').trim();
 
     $('#exchangeLoadingIndicator').show();
     $('#exchangeTableDesktop').hide();
@@ -202,7 +202,7 @@ function loadExchanges() {
             startDate: exchangeState.startDate,
             endDate: exchangeState.endDate,
             customerId: exchangeState.customerId,
-            foreignCurrencyId: exchangeState.foreignCurrencyId
+            foreignCurrency: exchangeState.foreignCurrency
         },
         success: function (response) {
             $('#exchangeLoadingIndicator').hide();

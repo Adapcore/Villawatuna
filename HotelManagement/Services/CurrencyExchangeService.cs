@@ -13,20 +13,17 @@ namespace HotelManagement.Services
         public const string ExchangeExpenseTypeName = "Exchange";
 
         private readonly HotelContext _context;
-        private readonly ICurrencyService _currencyService;
         private readonly ICustomerService _customerService;
         private readonly IExchangeTypeService _exchangeTypeService;
         private readonly IExpenseTypeService _expenseTypeService;
 
         public CurrencyExchangeService(
             HotelContext context,
-            ICurrencyService currencyService,
             ICustomerService customerService,
             IExchangeTypeService exchangeTypeService,
             IExpenseTypeService expenseTypeService)
         {
             _context = context;
-            _currencyService = currencyService;
             _customerService = customerService;
             _exchangeTypeService = exchangeTypeService;
             _expenseTypeService = expenseTypeService;
@@ -36,14 +33,12 @@ namespace HotelManagement.Services
             DateTime? startDate = null,
             DateTime? endDate = null,
             int? customerId = null,
-            int? foreignCurrencyId = null)
+            string? foreignCurrency = null)
         {
-            var query = BuildFilteredQuery(startDate, endDate, customerId, foreignCurrencyId)
+            var query = BuildFilteredQuery(startDate, endDate, customerId, foreignCurrency)
                 .OrderByDescending(e => e.Id);
 
-            var exchanges = await query.ToListAsync();
-            await AttachCurrenciesAsync(exchanges);
-            return exchanges;
+            return await query.ToListAsync();
         }
 
         public async Task<(IPagedList<CurrencyExchange> Items, decimal TotalLkr)> GetPagedAsync(
@@ -52,9 +47,9 @@ namespace HotelManagement.Services
             DateTime? startDate = null,
             DateTime? endDate = null,
             int? customerId = null,
-            int? foreignCurrencyId = null)
+            string? foreignCurrency = null)
         {
-            var filtered = BuildFilteredQuery(startDate, endDate, customerId, foreignCurrencyId);
+            var filtered = BuildFilteredQuery(startDate, endDate, customerId, foreignCurrency);
 
             var totalLkr = await filtered.SumAsync(e => (decimal?)e.LKRAmount) ?? 0m;
 
@@ -62,29 +57,21 @@ namespace HotelManagement.Services
                 .OrderByDescending(e => e.Id)
                 .ToPagedList(pageNumber, pageSize);
 
-            await AttachCurrenciesAsync(paged);
-
             return (paged, totalLkr);
         }
 
         public async Task<CurrencyExchange?> GetByIdAsync(int id)
         {
-            var exchange = await _context.CurrencyExchanges
+            return await _context.CurrencyExchanges
                 .Include(e => e.Customer)
                 .FirstOrDefaultAsync(e => e.Id == id);
-
-            if (exchange == null)
-                return null;
-
-            await AttachCurrenciesAsync(new[] { exchange });
-            return exchange;
         }
 
         private IQueryable<CurrencyExchange> BuildFilteredQuery(
             DateTime? startDate,
             DateTime? endDate,
             int? customerId,
-            int? foreignCurrencyId)
+            string? foreignCurrency)
         {
             var query = _context.CurrencyExchanges
                 .AsNoTracking()
@@ -100,19 +87,13 @@ namespace HotelManagement.Services
             if (customerId.HasValue && customerId.Value > 0)
                 query = query.Where(e => e.CustomerId == customerId.Value);
 
-            if (foreignCurrencyId.HasValue && foreignCurrencyId.Value > 0)
-                query = query.Where(e => e.ForeignCurrencyId == foreignCurrencyId.Value);
+            if (!string.IsNullOrWhiteSpace(foreignCurrency))
+            {
+                var code = foreignCurrency.Trim();
+                query = query.Where(e => e.ForeignCurrency == code);
+            }
 
             return query;
-        }
-
-        private async Task AttachCurrenciesAsync(IEnumerable<CurrencyExchange> exchanges)
-        {
-            var currencies = (await _currencyService.GetCurencyTypesAsync()).ToList();
-            foreach (var item in exchanges)
-            {
-                item.ForeignCurrency = currencies.FirstOrDefault(c => c.Id == item.ForeignCurrencyId);
-            }
         }
 
         public async Task AddAsync(CurrencyExchange exchange)
@@ -121,11 +102,23 @@ namespace HotelManagement.Services
 
             var catalog = await ResolveCatalogAsync(exchange);
 
-            _context.CurrencyExchanges.Add(exchange);
-            await _context.SaveChangesAsync();
+            await using var tx = await _context.Database.BeginTransactionAsync();
+            try
+            {
+                // Save first so exchange.Id is available for "EXC #{Id}" on invoice/payment.
+                _context.CurrencyExchanges.Add(exchange);
+                await _context.SaveChangesAsync();
 
-            await UpsertLinkedRecordsAsync(exchange, catalog, isNew: true);
-            await _context.SaveChangesAsync();
+                await UpsertLinkedRecordsAsync(exchange, catalog, isNew: true);
+                await _context.SaveChangesAsync();
+
+                await tx.CommitAsync();
+            }
+            catch
+            {
+                await tx.RollbackAsync();
+                throw;
+            }
         }
 
         public async Task UpdateAsync(CurrencyExchange exchange)
@@ -134,18 +127,30 @@ namespace HotelManagement.Services
             if (existing == null)
                 throw new InvalidOperationException("Currency exchange not found.");
 
+            PrepareForSave(exchange);
+
             existing.Date = exchange.Date.Date;
             existing.CustomerId = exchange.CustomerId;
-            existing.ForeignCurrencyId = exchange.ForeignCurrencyId;
+            existing.ForeignCurrency = exchange.ForeignCurrency;
             existing.ExchangeRate = exchange.ExchangeRate;
             existing.ForeignAmount = exchange.ForeignAmount;
-            existing.LKRAmount = CalculateLkrAmount(exchange.ExchangeRate, exchange.ForeignAmount);
-            existing.Remarks = string.IsNullOrWhiteSpace(exchange.Remarks) ? null : exchange.Remarks.Trim();
-            existing.ForeignCurrency = null;
+            existing.LKRAmount = exchange.LKRAmount;
+            existing.Remarks = exchange.Remarks;
 
             var catalog = await ResolveCatalogAsync(existing);
-            await UpsertLinkedRecordsAsync(existing, catalog, isNew: false);
-            await _context.SaveChangesAsync();
+
+            await using var tx = await _context.Database.BeginTransactionAsync();
+            try
+            {
+                await UpsertLinkedRecordsAsync(existing, catalog, isNew: false);
+                await _context.SaveChangesAsync();
+                await tx.CommitAsync();
+            }
+            catch
+            {
+                await tx.RollbackAsync();
+                throw;
+            }
         }
 
         public async Task DeleteAsync(int id)
@@ -157,52 +162,61 @@ namespace HotelManagement.Services
             var invoiceNo = existing.InvoiceNo;
             var expenseId = existing.ExpenseId;
 
-            existing.InvoiceNo = null;
-            existing.ExpenseId = null;
-            await _context.SaveChangesAsync();
-
-            if (invoiceNo.HasValue)
+            await using var tx = await _context.Database.BeginTransactionAsync();
+            try
             {
-                var invoice = await _context.Invoices
-                    .Include(i => i.InvoiceDetails)
-                    .Include(i => i.Payments)
-                    .FirstOrDefaultAsync(i => i.InvoiceNo == invoiceNo.Value);
+                existing.InvoiceNo = null;
+                existing.ExpenseId = null;
+                await _context.SaveChangesAsync();
 
-                if (invoice != null)
+                if (invoiceNo.HasValue)
                 {
-                    if (invoice.InvoiceDetails?.Any() == true)
-                        _context.InvoiceDetails.RemoveRange(invoice.InvoiceDetails);
-                    if (invoice.Payments?.Any() == true)
-                        _context.Payments.RemoveRange(invoice.Payments);
-                    _context.Invoices.Remove(invoice);
+                    var invoice = await _context.Invoices
+                        .Include(i => i.InvoiceDetails)
+                        .Include(i => i.Payments)
+                        .FirstOrDefaultAsync(i => i.InvoiceNo == invoiceNo.Value);
+
+                    if (invoice != null)
+                    {
+                        if (invoice.InvoiceDetails?.Any() == true)
+                            _context.InvoiceDetails.RemoveRange(invoice.InvoiceDetails);
+                        if (invoice.Payments?.Any() == true)
+                            _context.Payments.RemoveRange(invoice.Payments);
+                        _context.Invoices.Remove(invoice);
+                    }
                 }
-            }
 
-            if (expenseId.HasValue)
+                if (expenseId.HasValue)
+                {
+                    var expense = await _context.Expenses.FindAsync(expenseId.Value);
+                    if (expense != null)
+                        _context.Expenses.Remove(expense);
+                }
+
+                _context.CurrencyExchanges.Remove(existing);
+                await _context.SaveChangesAsync();
+                await tx.CommitAsync();
+            }
+            catch
             {
-                var expense = await _context.Expenses.FindAsync(expenseId.Value);
-                if (expense != null)
-                    _context.Expenses.Remove(expense);
+                await tx.RollbackAsync();
+                throw;
             }
-
-            _context.CurrencyExchanges.Remove(existing);
-            await _context.SaveChangesAsync();
         }
 
         /// <summary>
         /// Resolves Umbraco catalog values required to create the linked invoice and expense
         /// for a currency exchange: the "Currency Exchange" invoice item id, the "Exchange"
-        /// expense type id, the foreign currency code, and the customer display name.
+        /// expense type id, and the customer display name.
         /// </summary>
-        /// <param name="exchange">The exchange whose foreign currency and customer are resolved.</param>
+        /// <param name="exchange">The exchange whose customer is resolved.</param>
         /// <returns>
-        /// ItemId (Umbraco exchange item), ExpenseTypeId (Umbraco expense type),
-        /// CurrencyCode, and CustomerName.
+        /// ItemId (Umbraco exchange item), ExpenseTypeId (Umbraco expense type), and CustomerName.
         /// </returns>
         /// <exception cref="InvalidOperationException">
         /// Thrown when the Umbraco "Currency Exchange" item or "Exchange" expense type is missing.
         /// </exception>
-        private async Task<(int ItemId, int ExpenseTypeId, string CurrencyCode, string CustomerName)> ResolveCatalogAsync(CurrencyExchange exchange)
+        private async Task<(int ItemId, int ExpenseTypeId, string CustomerName)> ResolveCatalogAsync(CurrencyExchange exchange)
         {
             var item = await _exchangeTypeService.GetCurrencyExchangeItemAsync();
             if (item == null)
@@ -220,33 +234,31 @@ namespace HotelManagement.Services
                     "Umbraco expense type 'Exchange' was not found. Please create it before saving.");
             }
 
-            var currencies = await _currencyService.GetCurencyTypesAsync();
-            var currency = currencies.FirstOrDefault(c => c.Id == exchange.ForeignCurrencyId);
-            var currencyCode = (currency?.Code ?? "USD").Trim();
-            if (currencyCode.Length > 5)
-                currencyCode = currencyCode.Substring(0, 5);
-
             var customer = exchange.Customer ?? await _customerService.GetByIdAsync(exchange.CustomerId);
             var customerName = customer == null
                 ? string.Empty
                 : $"{customer.FirstName} {customer.LastName}".Trim();
 
-            return (item.Id, expenseType.Id, currencyCode, customerName);
+            return (item.Id, expenseType.Id, customerName);
         }
 
         private async Task UpsertLinkedRecordsAsync(
             CurrencyExchange exchange,
-            (int ItemId, int ExpenseTypeId, string CurrencyCode, string CustomerName) catalog,
+            (int ItemId, int ExpenseTypeId, string CustomerName) catalog,
             bool isNew)
         {
             var lkrAmount = exchange.LKRAmount;
             var foreignAmount = exchange.ForeignAmount;
             var rate = exchange.ExchangeRate;
             var reference = $"EXC #{exchange.Id}";
-            var note = $"{foreignAmount:0.##} {catalog.CurrencyCode} @ {rate:0.####}";
+            var note = $"{foreignAmount:0.##} {exchange.ForeignCurrency} @ {rate:0.####}";
 
             if (!string.IsNullOrWhiteSpace(exchange.Remarks))
                 note = $"{note} — {exchange.Remarks}";
+
+            var expenseDescription = $"{reference} — {note}";
+            if (expenseDescription.Length > 500)
+                expenseDescription = expenseDescription.Substring(0, 500);
 
             Invoice? invoice = null;
             if (!isNew && exchange.InvoiceNo.HasValue)
@@ -259,12 +271,12 @@ namespace HotelManagement.Services
 
             if (invoice == null)
             {
-                invoice = CreateInvoice(exchange, catalog, reference);
+                invoice = CreateInvoice(exchange, reference);
                 _context.Invoices.Add(invoice);
             }
             else
             {
-                ApplyInvoiceValues(invoice, exchange, catalog, reference);
+                ApplyInvoiceValues(invoice, exchange, reference);
             }
 
             var detail = invoice.InvoiceDetails?.FirstOrDefault();
@@ -304,12 +316,12 @@ namespace HotelManagement.Services
 
             if (expense == null)
             {
-                expense = CreateExpense(exchange, catalog, note);
+                expense = CreateExpense(exchange, catalog, expenseDescription);
                 _context.Expenses.Add(expense);
             }
             else
             {
-                ApplyExpenseValues(expense, exchange, catalog, note);
+                ApplyExpenseValues(expense, exchange, catalog, expenseDescription);
             }
 
             await _context.SaveChangesAsync();
@@ -320,7 +332,6 @@ namespace HotelManagement.Services
 
         private static Invoice CreateInvoice(
             CurrencyExchange exchange,
-            (int ItemId, int ExpenseTypeId, string CurrencyCode, string CustomerName) catalog,
             string reference)
         {
             var invoice = new Invoice
@@ -328,19 +339,18 @@ namespace HotelManagement.Services
                 InvoiceDetails = new List<InvoiceDetail>(),
                 Payments = new List<Payment>()
             };
-            ApplyInvoiceValues(invoice, exchange, catalog, reference);
+            ApplyInvoiceValues(invoice, exchange, reference);
             return invoice;
         }
 
         private static void ApplyInvoiceValues(
             Invoice invoice,
             CurrencyExchange exchange,
-            (int ItemId, int ExpenseTypeId, string CurrencyCode, string CustomerName) catalog,
             string reference)
         {
             invoice.Date = exchange.Date.Date;
             invoice.Type = InvoiceType.Exchange;
-            invoice.Currency = catalog.CurrencyCode;
+            invoice.Currency = exchange.ForeignCurrency;
             invoice.ReferenceNo = reference;
             invoice.CustomerId = exchange.CustomerId;
             invoice.Status = InvoiceStatus.Paid;
@@ -365,7 +375,7 @@ namespace HotelManagement.Services
 
         private static Expense CreateExpense(
             CurrencyExchange exchange,
-            (int ItemId, int ExpenseTypeId, string CurrencyCode, string CustomerName) catalog,
+            (int ItemId, int ExpenseTypeId, string CustomerName) catalog,
             string note)
         {
             var expense = new Expense();
@@ -376,7 +386,7 @@ namespace HotelManagement.Services
         private static void ApplyExpenseValues(
             Expense expense,
             CurrencyExchange exchange,
-            (int ItemId, int ExpenseTypeId, string CurrencyCode, string CustomerName) catalog,
+            (int ItemId, int ExpenseTypeId, string CustomerName) catalog,
             string note)
         {
             expense.Date = exchange.Date.Date;
@@ -390,10 +400,9 @@ namespace HotelManagement.Services
 
         private static void PrepareForSave(CurrencyExchange exchange)
         {
-            // Keep FK ids only — nulling tracked navigations severs required relationships in EF.
-            exchange.ForeignCurrency = null;
             exchange.Date = exchange.Date.Date;
             exchange.Remarks = string.IsNullOrWhiteSpace(exchange.Remarks) ? null : exchange.Remarks.Trim();
+            exchange.ForeignCurrency = (exchange.ForeignCurrency ?? string.Empty).Trim();
             exchange.LKRAmount = CalculateLkrAmount(exchange.ExchangeRate, exchange.ForeignAmount);
         }
 

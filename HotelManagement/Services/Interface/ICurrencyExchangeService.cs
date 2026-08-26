@@ -5,7 +5,11 @@ namespace HotelManagement.Services.Interface
 {
     public interface ICurrencyExchangeService
     {
-        Task<IEnumerable<CurrencyExchange>> GetAllAsync(DateTime? startDate = null, DateTime? endDate = null, int? customerId = null, int? foreignCurrencyId = null);
+        Task<IEnumerable<CurrencyExchange>> GetAllAsync(
+            DateTime? startDate = null,
+            DateTime? endDate = null,
+            int? customerId = null,
+            string? foreignCurrency = null);
 
         Task<(IPagedList<CurrencyExchange> Items, decimal TotalLkr)> GetPagedAsync(
             int pageNumber,
@@ -13,7 +17,7 @@ namespace HotelManagement.Services.Interface
             DateTime? startDate = null,
             DateTime? endDate = null,
             int? customerId = null,
-            int? foreignCurrencyId = null);
+            string? foreignCurrency = null);
 
         Task<CurrencyExchange?> GetByIdAsync(int id);
         Task AddAsync(CurrencyExchange exchange);

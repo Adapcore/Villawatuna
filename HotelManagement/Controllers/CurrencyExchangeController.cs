@@ -50,7 +50,7 @@ namespace HotelManagement.Controllers
             string? startDate = null,
             string? endDate = null,
             int customerId = 0,
-            int foreignCurrencyId = 0)
+            string? foreignCurrency = null)
         {
             int pageNumber = page < 1 ? 1 : page;
 
@@ -64,7 +64,7 @@ namespace HotelManagement.Controllers
                 endDateParsed = endDateValue;
 
             int? customerFilter = customerId > 0 ? customerId : null;
-            int? currencyFilter = foreignCurrencyId > 0 ? foreignCurrencyId : null;
+            string? currencyFilter = string.IsNullOrWhiteSpace(foreignCurrency) ? null : foreignCurrency.Trim();
 
             var (pagedList, totalLkr) = await _currencyExchangeService.GetPagedAsync(
                 pageNumber,
@@ -82,8 +82,7 @@ namespace HotelManagement.Controllers
                 customerName = e.Customer != null
                     ? $"{e.Customer.FirstName} {e.Customer.LastName}".Trim()
                     : "",
-                foreignCurrencyId = e.ForeignCurrencyId,
-                foreignCurrencyCode = e.ForeignCurrency?.Code ?? "",
+                foreignCurrencyCode = e.ForeignCurrency ?? "",
                 exchangeRate = e.ExchangeRate,
                 foreignAmount = e.ForeignAmount,
                 lkrAmount = e.LKRAmount,
@@ -202,7 +201,6 @@ namespace HotelManagement.Controllers
         private async Task ValidateExchangeAsync(CurrencyExchange model)
         {
             ModelState.Remove(nameof(model.Customer));
-            ModelState.Remove(nameof(model.ForeignCurrency));
             ModelState.Remove(nameof(model.CreatedByMember));
             ModelState.Remove(nameof(model.Invoice));
             ModelState.Remove(nameof(model.Expense));
@@ -210,8 +208,8 @@ namespace HotelManagement.Controllers
             if (model.CustomerId <= 0)
                 ModelState.AddModelError(nameof(model.CustomerId), "Customer is required.");
 
-            if (model.ForeignCurrencyId <= 0)
-                ModelState.AddModelError(nameof(model.ForeignCurrencyId), "Foreign currency is required.");
+            if (string.IsNullOrWhiteSpace(model.ForeignCurrency))
+                ModelState.AddModelError(nameof(model.ForeignCurrency), "Foreign currency is required.");
 
             if (model.ExchangeRate <= 0)
                 ModelState.AddModelError(nameof(model.ExchangeRate), "Exchange rate must be greater than zero.");
@@ -229,14 +227,17 @@ namespace HotelManagement.Controllers
                     ModelState.AddModelError(nameof(model.CustomerId), "Selected customer was not found.");
             }
 
-            if (model.ForeignCurrencyId > 0)
+            if (!string.IsNullOrWhiteSpace(model.ForeignCurrency))
             {
+                model.ForeignCurrency = model.ForeignCurrency.Trim();
+
                 var currencies = await _currencyService.GetCurencyTypesAsync();
-                if (!currencies.Any(c => c.Id == model.ForeignCurrencyId
-                    && !string.Equals(c.Code, "LKR", StringComparison.OrdinalIgnoreCase)))
-                {
-                    ModelState.AddModelError(nameof(model.ForeignCurrencyId), "Selected currency is not valid.");
-                }
+                var match = currencies.FirstOrDefault(c =>
+                    string.Equals(c.Code?.Trim(), model.ForeignCurrency, StringComparison.OrdinalIgnoreCase)
+                    && !string.Equals(c.Code, "LKR", StringComparison.OrdinalIgnoreCase));
+
+                if (match == null)
+                    ModelState.AddModelError(nameof(model.ForeignCurrency), "Selected currency is not valid.");
             }
 
             model.LKRAmount = Math.Round(model.ExchangeRate * model.ForeignAmount, 2, MidpointRounding.AwayFromZero);
@@ -273,7 +274,7 @@ namespace HotelManagement.Controllers
 
             var currencyItems = currencies.Select(c => new SelectListItem
             {
-                Value = c.Id.ToString(),
+                Value = (c.Code ?? string.Empty).Trim(),
                 Text = string.IsNullOrWhiteSpace(c.Code) ? c.Name : c.Code
             }).ToList();
 
@@ -281,7 +282,7 @@ namespace HotelManagement.Controllers
             {
                 currencyItems.Insert(0, new SelectListItem
                 {
-                    Value = "0",
+                    Value = "",
                     Text = "-- All Currencies --"
                 });
             }

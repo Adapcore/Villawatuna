@@ -50,10 +50,10 @@
 
         <div class="col-md-3">
             <label class="form-label fw-bold">Foreign Currency</label>
-            <select asp-for="ForeignCurrencyId" id="ForeignCurrencyId" class="form-select form-select-lg" asp-items="ViewBag.Currencies">
+            <select asp-for="ForeignCurrency" id="ForeignCurrency" class="form-select form-select-lg" asp-items="ViewBag.Currencies">
                 <option value="">-- Select Currency --</option>
             </select>
-            <span asp-validation-for="ForeignCurrencyId" class="text-danger"></span>
+            <span asp-validation-for="ForeignCurrency" class="text-danger"></span>
         </div>
 
         <div class="col-md-3">
@@ -120,5 +120,5 @@
                 ContractResolver = new CamelCasePropertyNamesContractResolver()
             }));
     </script>
-    <script src="~/js/currency-exchange-form.js?v=@Configuration["Assets:Version"]"></script>
+    <script src="~/Js/currency-exchange-form.js?v=@Configuration["Assets:Version"]&r=fc2"></script>
 }
