@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Options;
 using Umbraco.Cms.Core.Security;
 using Umbraco.Cms.Core.Services;
-using X.PagedList.Extensions;
 
 namespace HotelManagement.Controllers
 {
@@ -55,8 +54,11 @@ namespace HotelManagement.Controllers
             if (!string.IsNullOrWhiteSpace(endDate) && DateTime.TryParse(endDate, out var endDateValue))
                 endDateParsed = endDateValue;
 
-            var entries = await _service.GetAllAsync(startDateParsed, endDateParsed);
-            var pagedList = entries.ToPagedList(pageNumber, _pageSize);
+            var pagedList = await _service.GetPagedAsync(
+                pageNumber,
+                _pageSize,
+                startDateParsed,
+                endDateParsed);
 
             var list = pagedList.Select(e => new
             {

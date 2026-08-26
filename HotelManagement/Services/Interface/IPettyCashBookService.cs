@@ -1,10 +1,18 @@
 using HotelManagement.Models.Entities;
+using X.PagedList;
 
 namespace HotelManagement.Services.Interface
 {
     public interface IPettyCashBookService
     {
         Task<IEnumerable<PettyCashBook>> GetAllAsync(DateTime? startDate = null, DateTime? endDate = null);
+
+        Task<IPagedList<PettyCashBook>> GetPagedAsync(
+            int pageNumber,
+            int pageSize,
+            DateTime? startDate = null,
+            DateTime? endDate = null);
+
         Task<PettyCashBook?> GetByIdAsync(int id);
         Task<PettyCashBook?> GetByDateAsync(DateTime date);
         Task<decimal> GetPreviousCloseBalanceAsync(DateTime date);

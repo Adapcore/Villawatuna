@@ -4,6 +4,8 @@ using HotelManagement.Helper;
 using HotelManagement.Models.Entities;
 using HotelManagement.Services.Interface;
 using Microsoft.EntityFrameworkCore;
+using X.PagedList;
+using X.PagedList.Extensions;
 
 namespace HotelManagement.Services
 {
@@ -20,7 +22,29 @@ namespace HotelManagement.Services
 
         public async Task<IEnumerable<PettyCashBook>> GetAllAsync(DateTime? startDate = null, DateTime? endDate = null)
         {
-            var query = _context.PettyCashBooks.AsQueryable();
+            return await BuildFilteredQuery(startDate, endDate)
+                .OrderByDescending(e => e.Date)
+                .ToListAsync();
+        }
+
+        public Task<IPagedList<PettyCashBook>> GetPagedAsync(
+            int pageNumber,
+            int pageSize,
+            DateTime? startDate = null,
+            DateTime? endDate = null)
+        {
+            var paged = BuildFilteredQuery(startDate, endDate)
+                .OrderByDescending(e => e.Date)
+                .ToPagedList(pageNumber, pageSize);
+
+            return Task.FromResult(paged);
+        }
+
+        private IQueryable<PettyCashBook> BuildFilteredQuery(DateTime? startDate, DateTime? endDate)
+        {
+            var query = _context.PettyCashBooks
+                .AsNoTracking()
+                .AsQueryable();
 
             if (startDate.HasValue)
                 query = query.Where(e => e.Date >= startDate.Value.Date);
@@ -28,9 +52,7 @@ namespace HotelManagement.Services
             if (endDate.HasValue)
                 query = query.Where(e => e.Date <= endDate.Value.Date);
 
-            return await query
-                .OrderByDescending(e => e.Date)
-                .ToListAsync();
+            return query;
         }
 
         public async Task<PettyCashBook?> GetByIdAsync(int id)
