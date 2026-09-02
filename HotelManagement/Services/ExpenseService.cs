@@ -70,7 +70,19 @@ namespace HotelManagement.Services
 
         public async Task UpdateAsync(Expense expense)
         {
-            _context.Expenses.Update(expense);
+            var existing = await _context.Expenses.FindAsync(expense.ID)
+                ?? throw new InvalidOperationException("Expense not found.");
+
+            existing.Date = expense.Date;
+            existing.ExpenseTypeID = expense.ExpenseTypeID;
+            existing.PayeeName = expense.PayeeName;
+            existing.Amount = expense.Amount;
+            existing.PaymentMethod = expense.PaymentMethod;
+            existing.Description = expense.Description;
+
+            if (!string.IsNullOrEmpty(expense.Attachment))
+                existing.Attachment = expense.Attachment;
+
             await _context.SaveChangesAsync();
         }
 
