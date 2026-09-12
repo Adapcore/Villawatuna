@@ -50,7 +50,10 @@ namespace HotelManagement.Enums
         Card = 2,
 
         [Display(Name = "Bank Transfer")]
-        BankTransfer = 3
+        BankTransfer = 3,
+
+        [Display(Name = "Direct Cash")]
+        DirectCash = 4
     }
 
     public enum PaymentMethod
@@ -62,7 +65,10 @@ namespace HotelManagement.Enums
         Card = 2,
 
         [Display(Name = "Bank Transfer")]
-        BankTransfer = 3
+        BankTransfer = 3,
+
+        [Display(Name = "Direct Cash")]
+        DirectCash = 4
     }
 
     public enum PaidCurrency
