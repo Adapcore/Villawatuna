@@ -197,6 +197,9 @@ namespace HotelManagement.Data
 				entity.Property(e => e.TotalExpences).HasColumnType("decimal(18,2)");
 				entity.Property(e => e.Balance).HasColumnType("decimal(18,2)");
 				entity.Property(e => e.HandedOver).HasColumnType("decimal(18,2)");
+				entity.Property(e => e.Status)
+					.HasConversion<int>()
+					.HasDefaultValue(HotelManagement.Enums.PettyCashStatus.Open);
 
 				entity.OwnsMany(p => p.Income, b => b.ToJson("Income"));
 				entity.OwnsMany(p => p.Expences, b => b.ToJson("Expences"));

@@ -21,6 +21,8 @@ namespace HotelManagement.Services.Interface
         void CalculateTotals(PettyCashBook book);
         Task<PettyCashBook> CreateAsync(PettyCashBook book);
         Task<PettyCashBook> UpdateAsync(PettyCashBook book);
+        Task ApproveAsync(int id);
+        Task ReopenAsync(int id);
         Task DeleteAsync(int id);
     }
 }

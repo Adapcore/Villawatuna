@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using HotelManagement.Enums;
 
 namespace HotelManagement.Models.Entities
 {
@@ -35,7 +36,8 @@ namespace HotelManagement.Models.Entities
 
         [Column(TypeName = "decimal(18,2)")]
         public decimal HandedOver { get; set; }
-        
+
+        public PettyCashStatus Status { get; set; } = PettyCashStatus.Open;
 
         public List<PettyCashCurrencyTotal> TotalIncome { get; set; } = new();
 
@@ -48,5 +50,8 @@ namespace HotelManagement.Models.Entities
         [NotMapped]
         public decimal RefillOpeningTotal =>
             Math.Round((Refills ?? new List<PettyCashRefillLine>()).Sum(r => r.Amount), 2);
+
+        [NotMapped]
+        public bool IsApproved => Status == PettyCashStatus.Approved;
     }
 }

@@ -1,3 +1,4 @@
+using HotelManagement.Enums;
 using HotelManagement.Models.DTO;
 using HotelManagement.Models.Entities;
 using HotelManagement.Services.Interface;
@@ -73,7 +74,10 @@ namespace HotelManagement.Controllers
                 balance = e.Balance,
                 handedOver = e.HandedOver,
                 pettyCashRefillClosing = e.PettyCashRefillClosing,
-                closeBalance = e.ClosingBalance
+                closeBalance = e.ClosingBalance,
+                status = e.Status.ToString(),
+                statusValue = (int)e.Status,
+                isApproved = e.Status == PettyCashStatus.Approved
             }).ToList();
 
             return Json(new
@@ -126,6 +130,7 @@ namespace HotelManagement.Controllers
 
             ViewBag.HasEntryDate = entryDate.HasValue;
             ViewBag.IsViewMode = false;
+            ViewBag.IsAdmin = IsAdminUser();
             await PopulateCurrencyViewBagAsync();
             return View(model);
         }
@@ -137,12 +142,16 @@ namespace HotelManagement.Controllers
             if (model == null)
                 return NotFound();
 
+            if (model.Status == PettyCashStatus.Approved)
+                return RedirectToAction(nameof(Details), new { id });
+
             model.Income ??= new List<PettyCashIncomeLine>();
             model.Expences ??= new List<PettyCashExpenseLine>();
             model.Refills ??= new List<PettyCashRefillLine>();
 
             ViewBag.HasEntryDate = true;
             ViewBag.IsViewMode = false;
+            ViewBag.IsAdmin = IsAdminUser();
             await PopulateCurrencyViewBagAsync();
             return View("Create", model);
         }
@@ -160,8 +169,55 @@ namespace HotelManagement.Controllers
 
             ViewBag.HasEntryDate = true;
             ViewBag.IsViewMode = true;
+            ViewBag.IsAdmin = IsAdminUser();
             await PopulateCurrencyViewBagAsync();
             return View("Create", model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Route("PettyCashBook/Approve")]
+        public async Task<IActionResult> Approve(int id)
+        {
+            if (!IsAdminUser())
+                return Json(new { success = false, message = "Only admin users can approve petty cash entries." });
+
+            try
+            {
+                await _service.ApproveAsync(id);
+                return Json(new { success = true, message = "Petty cash entry approved.", redirectUrl = Url.Action(nameof(Details), new { id }) });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { success = false, message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { success = false, message = ex.Message });
+            }
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Route("PettyCashBook/Reopen")]
+        public async Task<IActionResult> Reopen(int id)
+        {
+            if (!IsAdminUser())
+                return Json(new { success = false, message = "Only admin users can reopen petty cash entries." });
+
+            try
+            {
+                await _service.ReopenAsync(id);
+                return Json(new { success = true, message = "Petty cash entry reopened.", redirectUrl = Url.Action(nameof(Edit), new { id }) });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { success = false, message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { success = false, message = ex.Message });
+            }
         }
 
         [HttpGet]
@@ -317,6 +373,10 @@ namespace HotelManagement.Controllers
             {
                 await _service.DeleteAsync(id);
                 return Json(new { success = true, message = "Entry deleted." });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Json(new { success = false, message = ex.Message });
             }
             catch (Exception ex)
             {

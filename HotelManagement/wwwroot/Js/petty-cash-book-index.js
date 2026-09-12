@@ -203,11 +203,15 @@ function renderDesktopTable(entries) {
     $tbody.empty();
 
     if (!entries.length) {
-        $tbody.append('<tr><td colspan="10" class="text-center text-muted py-4">No entries found.</td></tr>');
+        $tbody.append('<tr><td colspan="11" class="text-center text-muted py-4">No entries found.</td></tr>');
         return;
     }
 
     entries.forEach(function (e) {
+        var statusBadge = e.isApproved
+            ? '<span class="badge bg-success">Approved</span>'
+            : '<span class="badge bg-warning text-dark">Open</span>';
+        var canDelete = pettyCashState.isAdmin && !e.isApproved;
         var row = '<tr>' +
             '<td>' + e.date + '</td>' +
             '<td class="text-end">' + formatMoney(e.openingBalance) + '</td>' +
@@ -218,9 +222,10 @@ function renderDesktopTable(entries) {
             '<td class="text-end">' + formatMoney(e.handedOver) + '</td>' +
             '<td class="text-end">' + formatMoney(e.pettyCashRefillClosing) + '</td>' +
             '<td class="text-end">' + formatMoney(e.closeBalance) + '</td>' +
+            '<td class="text-center">' + statusBadge + '</td>' +
             '<td class="text-center">' +
             '<a href="/PettyCashBook/Details/' + e.id + '" class="btn btn-sm btn-outline-secondary me-1" title="View"><i class="bi bi-eye"></i></a>' +
-            (pettyCashState.isAdmin
+            (canDelete
                 ? '<button type="button" class="btn btn-sm btn-outline-danger btn-delete-petty-cash" data-id="' + e.id + '" data-date="' + e.date + '" title="Delete"><i class="bi bi-trash"></i></button>'
                 : '') +
             '</td>' +
@@ -255,11 +260,16 @@ function renderMobileCards(entries) {
         html += '<div class="pcb-metric"><span class="pcb-metric-label">Handed Over</span><span class="pcb-metric-value">' + formatMoney(e.handedOver) + '</span></div>';
         html += '<div class="pcb-metric"><span class="pcb-metric-label">Refill (Closing)</span><span class="pcb-metric-value">' + formatMoney(e.pettyCashRefillClosing) + '</span></div>';
         html += '<div class="pcb-metric"><span class="pcb-metric-label">Closing</span><span class="pcb-metric-value">' + formatMoney(e.closeBalance) + '</span></div>';
+        html += '<div class="pcb-metric"><span class="pcb-metric-label">Status</span><span class="pcb-metric-value">' +
+            (e.isApproved
+                ? '<span class="badge bg-success">Approved</span>'
+                : '<span class="badge bg-warning text-dark">Open</span>') +
+            '</span></div>';
         html += '</div>';
 
         html += '<div class="pcb-card-actions">';
         html += '<a href="/PettyCashBook/Details/' + e.id + '" class="btn btn-sm btn-outline-secondary"><i class="bi bi-eye"></i> View</a>';
-        if (pettyCashState.isAdmin) {
+        if (pettyCashState.isAdmin && !e.isApproved) {
             html += '<button type="button" class="btn btn-sm btn-outline-danger btn-delete-petty-cash" data-id="' + e.id + '" data-date="' + e.date + '"><i class="bi bi-trash"></i> Delete</button>';
         }
         html += '</div>';

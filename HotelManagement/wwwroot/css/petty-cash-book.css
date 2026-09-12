@@ -382,6 +382,12 @@
     margin-bottom: 1.5rem;
 }
 
+.pcb-status-badge {
+    font-size: 0.85rem;
+    padding: 0.4em 0.65em;
+    vertical-align: middle;
+}
+
 .petty-cash-header-actions {
     display: flex;
     align-items: center;

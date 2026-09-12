@@ -294,6 +294,7 @@ namespace HotelManagement.Services
             book.Income ??= new List<PettyCashIncomeLine>();
             book.Expences ??= new List<PettyCashExpenseLine>();
             book.Refills ??= new List<PettyCashRefillLine>();
+            book.Status = PettyCashStatus.Open;
             CalculateTotals(book);
 
             _context.PettyCashBooks.Add(book);
@@ -305,6 +306,9 @@ namespace HotelManagement.Services
         {
             var existing = await _context.PettyCashBooks.FindAsync(book.Id)
                 ?? throw new InvalidOperationException("Petty cash entry not found.");
+
+            if (existing.Status == PettyCashStatus.Approved)
+                throw new InvalidOperationException("Approved petty cash entries cannot be edited. Reopen the entry first.");
 
             book.Date = book.Date.Date;
 
@@ -321,6 +325,7 @@ namespace HotelManagement.Services
             existing.Income = book.Income ?? new List<PettyCashIncomeLine>();
             existing.Expences = book.Expences ?? new List<PettyCashExpenseLine>();
             existing.Refills = book.Refills ?? new List<PettyCashRefillLine>();
+            existing.Status = PettyCashStatus.Open;
 
             CalculateTotals(existing);
 
@@ -328,11 +333,38 @@ namespace HotelManagement.Services
             return existing;
         }
 
+        public async Task ApproveAsync(int id)
+        {
+            var entity = await _context.PettyCashBooks.FindAsync(id)
+                ?? throw new InvalidOperationException("Petty cash entry not found.");
+
+            if (entity.Status == PettyCashStatus.Approved)
+                throw new InvalidOperationException("This entry is already approved.");
+
+            entity.Status = PettyCashStatus.Approved;
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task ReopenAsync(int id)
+        {
+            var entity = await _context.PettyCashBooks.FindAsync(id)
+                ?? throw new InvalidOperationException("Petty cash entry not found.");
+
+            if (entity.Status != PettyCashStatus.Approved)
+                throw new InvalidOperationException("Only approved entries can be reopened.");
+
+            entity.Status = PettyCashStatus.Open;
+            await _context.SaveChangesAsync();
+        }
+
         public async Task DeleteAsync(int id)
         {
             var entity = await _context.PettyCashBooks.FindAsync(id);
             if (entity == null)
                 return;
+
+            if (entity.Status == PettyCashStatus.Approved)
+                throw new InvalidOperationException("Approved petty cash entries cannot be deleted. Reopen the entry first.");
 
             _context.PettyCashBooks.Remove(entity);
             await _context.SaveChangesAsync();

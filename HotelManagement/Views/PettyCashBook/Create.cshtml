@@ -1,7 +1,10 @@
 @model HotelManagement.Models.Entities.PettyCashBook
 @using Microsoft.AspNetCore.Mvc.Rendering
+@using HotelManagement.Enums
 @{
-    bool isViewMode = ViewBag.IsViewMode != null && (bool)ViewBag.IsViewMode;
+    bool isApproved = Model.Id > 0 && Model.Status == PettyCashStatus.Approved;
+    bool isViewMode = (ViewBag.IsViewMode != null && (bool)ViewBag.IsViewMode) || isApproved;
+    bool isAdmin = ViewBag.IsAdmin != null && (bool)ViewBag.IsAdmin;
     bool isEdit = Model.Id > 0 && !isViewMode;
     ViewData["Title"] = isViewMode
         ? "View Petty Cash Entry"
@@ -11,13 +14,21 @@
     var currencyCodes = (ViewBag.CurrencyCodes as IEnumerable<string>)?.ToList() ?? new List<string> { "LKR", "USD", "GBP", "EUR" };
     bool hasEntryDate = isEdit || isViewMode || (ViewBag.HasEntryDate != null && (bool)ViewBag.HasEntryDate);
     string Fmt(decimal value) => value.ToString("N2", System.Globalization.CultureInfo.GetCultureInfo("en-US"));
+    string statusBadgeClass = isApproved ? "bg-success" : "bg-warning text-dark";
+    string statusLabel = Model.Id > 0 ? Model.Status.ToString() : PettyCashStatus.Open.ToString();
 }
 
 <link rel="stylesheet" href="~/css/petty-cash-book.css?v=@Configuration["Assets:Version"]" />
 
 <div class="container-fluid py-4@(isViewMode ? " pcb-view-mode" : "")">
     <div class="petty-cash-page-header">
-        <h2 class="fw-bold text-primary mb-0">📅 Daily Cash Summary</h2>
+        <div class="d-flex align-items-center flex-wrap gap-2">
+            <h2 class="fw-bold text-primary mb-0">📅 Daily Cash Summary</h2>
+            @if (Model.Id > 0)
+            {
+                <span class="badge @statusBadgeClass pcb-status-badge">@statusLabel</span>
+            }
+        </div>
         <div class="petty-cash-header-actions">
             <div class="petty-cash-title-date-field">
                 <label class="form-label fw-bold mb-0" for="entryDate">Date</label>
@@ -25,11 +36,23 @@
                        value="@(hasEntryDate ? Model.Date.ToString("yyyy-MM-dd") : "")"
                        @(isEdit || isViewMode ? "readonly" : "") />
             </div>
-            @if (isViewMode)
+            @if (isViewMode && !isApproved)
             {
                 <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">
                     <i class="bi bi-pencil"></i> Edit
                 </a>
+            }
+            @if (isViewMode && isAdmin && !isApproved)
+            {
+                <button type="button" id="btnApprovePettyCash" class="btn btn-success" data-id="@Model.Id">
+                    <i class="bi bi-check2-circle"></i> Approve
+                </button>
+            }
+            @if (isViewMode && isAdmin && isApproved)
+            {
+                <button type="button" id="btnReopenPettyCash" class="btn btn-warning" data-id="@Model.Id">
+                    <i class="bi bi-unlock"></i> Reopen
+                </button>
             }
             <a asp-action="Index" class="btn btn-outline-secondary">Back to List</a>
         </div>
@@ -413,4 +436,9 @@
         window.pettyCashCurrencies = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(currencyCodes));
     </script>
     <script src="~/js/petty-cash-book.js?v=@Configuration["Assets:Version"]"></script>
+}
+else
+{
+    @Html.AntiForgeryToken()
+    <script src="~/js/petty-cash-book-details.js?v=@Configuration["Assets:Version"]"></script>
 }

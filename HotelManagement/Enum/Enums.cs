@@ -79,4 +79,13 @@ namespace HotelManagement.Enums
         [Display(Name = "Selected Currency")]
         SelectedCurrency = 1
     }
+
+    public enum PettyCashStatus
+    {
+        [Display(Name = "Open")]
+        Open = 1,
+
+        [Display(Name = "Approved")]
+        Approved = 2
+    }
 }

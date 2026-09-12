@@ -741,6 +741,11 @@ namespace HotelManagement.Migrations
                     b.Property<decimal>("PettyCashRefillOpening")
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<int>("Status")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(1);
+
                     b.Property<decimal>("TotalExpences")
                         .HasColumnType("decimal(18,2)");
 
