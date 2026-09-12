@@ -810,6 +810,11 @@ function getPaymentTypeBadge(type) {
             badgeClass = 'bg-success';
             icon = 'bi-cash-stack';
             break;
+        case 'directcash':
+        case 'direct cash':
+            badgeClass = 'bg-success';
+            icon = 'bi-cash';
+            break;
         case 'card':
             badgeClass = 'bg-primary';
             icon = 'bi-credit-card';

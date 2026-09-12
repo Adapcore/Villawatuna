@@ -219,7 +219,7 @@ function renderDesktopTable(entries) {
             '<td class="text-end">' + formatMoney(e.pettyCashRefillClosing) + '</td>' +
             '<td class="text-end">' + formatMoney(e.closeBalance) + '</td>' +
             '<td class="text-center">' +
-            '<a href="/PettyCashBook/Edit/' + e.id + '" class="btn btn-sm btn-outline-primary me-1" title="Edit"><i class="bi bi-pencil"></i></a>' +
+            '<a href="/PettyCashBook/Details/' + e.id + '" class="btn btn-sm btn-outline-secondary me-1" title="View"><i class="bi bi-eye"></i></a>' +
             (pettyCashState.isAdmin
                 ? '<button type="button" class="btn btn-sm btn-outline-danger btn-delete-petty-cash" data-id="' + e.id + '" data-date="' + e.date + '" title="Delete"><i class="bi bi-trash"></i></button>'
                 : '') +
@@ -258,7 +258,7 @@ function renderMobileCards(entries) {
         html += '</div>';
 
         html += '<div class="pcb-card-actions">';
-        html += '<a href="/PettyCashBook/Edit/' + e.id + '" class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i> Edit</a>';
+        html += '<a href="/PettyCashBook/Details/' + e.id + '" class="btn btn-sm btn-outline-secondary"><i class="bi bi-eye"></i> View</a>';
         if (pettyCashState.isAdmin) {
             html += '<button type="button" class="btn btn-sm btn-outline-danger btn-delete-petty-cash" data-id="' + e.id + '" data-date="' + e.date + '"><i class="bi bi-trash"></i> Delete</button>';
         }

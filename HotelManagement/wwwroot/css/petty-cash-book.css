@@ -1049,4 +1049,24 @@
         bottom: 0;
         z-index: 2;
     }
+
+    /* View mode: no remove action — title uses full width */
+    .pcb-view-mode #incomeTable tbody tr:not(.income-empty-row),
+    .pcb-view-mode #expenseTable tbody tr:not(.expense-empty-row) {
+        grid-template-columns: 1fr;
+        grid-template-areas:
+            "title"
+            "amount";
+    }
+
+    .pcb-view-mode .pcb-refill-block #refillTable thead {
+        display: none;
+    }
+
+    .pcb-view-mode .pcb-refill-block #refillTable tbody tr:not(.refill-empty-row) {
+        grid-template-columns: 1fr;
+        grid-template-areas:
+            "title"
+            "amount";
+    }
 }

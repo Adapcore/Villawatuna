@@ -125,6 +125,7 @@ namespace HotelManagement.Controllers
             }
 
             ViewBag.HasEntryDate = entryDate.HasValue;
+            ViewBag.IsViewMode = false;
             await PopulateCurrencyViewBagAsync();
             return View(model);
         }
@@ -141,6 +142,24 @@ namespace HotelManagement.Controllers
             model.Refills ??= new List<PettyCashRefillLine>();
 
             ViewBag.HasEntryDate = true;
+            ViewBag.IsViewMode = false;
+            await PopulateCurrencyViewBagAsync();
+            return View("Create", model);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Details(int id)
+        {
+            var model = await _service.GetByIdAsync(id);
+            if (model == null)
+                return NotFound();
+
+            model.Income ??= new List<PettyCashIncomeLine>();
+            model.Expences ??= new List<PettyCashExpenseLine>();
+            model.Refills ??= new List<PettyCashRefillLine>();
+
+            ViewBag.HasEntryDate = true;
+            ViewBag.IsViewMode = true;
             await PopulateCurrencyViewBagAsync();
             return View("Create", model);
         }
