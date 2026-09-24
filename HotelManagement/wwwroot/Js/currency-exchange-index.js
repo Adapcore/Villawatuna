@@ -250,7 +250,7 @@ function renderDesktopTable(exchanges) {
             '<td>' + escapeHtml(e.remarks) + '</td>' +
             '<td class="text-center">' +
             '<div class="d-flex gap-1 justify-content-center">' +
-            '<a href="/CurrencyExchange/Edit/' + e.id + '" class="btn btn-sm btn-outline-primary" title="Edit"><i class="bi bi-pencil"></i></a>' +
+            '<a href="/CurrencyExchange/Details/' + e.id + '" class="btn btn-sm btn-outline-secondary" title="View"><i class="bi bi-eye"></i></a>' +
             (exchangeState.isAdmin
                 ? '<button type="button" class="btn btn-sm btn-outline-danger btn-delete-exchange" data-id="' + e.id + '" title="Delete"><i class="bi bi-trash"></i></button>'
                 : '') +
@@ -290,7 +290,7 @@ function renderMobileCards(exchanges) {
         }
         html += '</div>';
         html += '<div class="cex-card-actions">';
-        html += '<a href="/CurrencyExchange/Edit/' + e.id + '" class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i> Edit</a>';
+        html += '<a href="/CurrencyExchange/Details/' + e.id + '" class="btn btn-sm btn-outline-secondary"><i class="bi bi-eye"></i> View</a>';
         if (exchangeState.isAdmin) {
             html += '<button type="button" class="btn btn-sm btn-outline-danger btn-delete-exchange" data-id="' + e.id + '"><i class="bi bi-trash"></i> Delete</button>';
         }

@@ -113,6 +113,16 @@ namespace HotelManagement.Controllers
             return View(new CurrencyExchange { Date = DateTime.Today });
         }
 
+        [HttpGet]
+        public async Task<IActionResult> Details(int id)
+        {
+            var model = await _currencyExchangeService.GetByIdAsync(id);
+            if (model == null)
+                return NotFound();
+
+            return View(model);
+        }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(CurrencyExchange model)
