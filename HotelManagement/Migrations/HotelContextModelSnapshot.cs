@@ -56,8 +56,16 @@ namespace HotelManagement.Migrations
                         .HasMaxLength(5)
                         .HasColumnType("nvarchar(5)");
 
+                    b.Property<int?>("InvoiceId")
+                        .HasColumnType("int");
+
                     b.Property<int?>("InvoiceNo")
                         .HasColumnType("int");
+
+                    b.Property<bool>("IsInvoiceBalanceExchange")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
 
                     b.Property<decimal>("LKRAmount")
                         .HasColumnType("decimal(18,2)");
@@ -77,6 +85,8 @@ namespace HotelManagement.Migrations
                     b.HasIndex("CustomerId");
 
                     b.HasIndex("ExpenseId");
+
+                    b.HasIndex("InvoiceId");
 
                     b.HasIndex("InvoiceNo");
 
@@ -466,6 +476,9 @@ namespace HotelManagement.Migrations
                     b.Property<DateTime>("Date")
                         .HasColumnType("datetime2");
 
+                    b.Property<int?>("ExchangeId")
+                        .HasColumnType("int");
+
                     b.Property<decimal>("GrossAmount")
                         .HasColumnType("decimal(18,2)");
 
@@ -511,6 +524,8 @@ namespace HotelManagement.Migrations
                     b.HasKey("InvoiceNo");
 
                     b.HasIndex("CustomerId");
+
+                    b.HasIndex("ExchangeId");
 
                     b.ToTable("Invoices", (string)null);
                 });
@@ -773,6 +788,11 @@ namespace HotelManagement.Migrations
                         .HasForeignKey("ExpenseId")
                         .OnDelete(DeleteBehavior.Restrict);
 
+                    b.HasOne("HotelManagement.Models.Entities.Invoice", "SourceInvoice")
+                        .WithMany()
+                        .HasForeignKey("InvoiceId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("HotelManagement.Models.Entities.Invoice", "Invoice")
                         .WithMany()
                         .HasForeignKey("InvoiceNo")
@@ -783,6 +803,8 @@ namespace HotelManagement.Migrations
                     b.Navigation("Expense");
 
                     b.Navigation("Invoice");
+
+                    b.Navigation("SourceInvoice");
                 });
 
             modelBuilder.Entity("HotelManagement.Models.Entities.EmployeeLeave", b =>
@@ -803,6 +825,13 @@ namespace HotelManagement.Migrations
                         .HasForeignKey("CustomerId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.HasOne("HotelManagement.Models.Entities.CurrencyExchange", "BalanceSettlementExchange")
+                        .WithMany()
+                        .HasForeignKey("ExchangeId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("BalanceSettlementExchange");
 
                     b.Navigation("Customer");
                 });

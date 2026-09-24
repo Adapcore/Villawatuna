@@ -43,6 +43,8 @@ namespace HotelManagement.Models.ViewModels
         public decimal? CurryBalance { get; set; }
         public decimal? CurryChange { get; set; }
         public decimal? CurryTotalPaid { get; set; }
+        public string? BalanceSettlementCurrency { get; set; }
+        public int? ExchangeId { get; set; }
         public List<CreateInvoiceDetailViewModel> InvoiceDetails { get; set; } = new();
 
         public CreateInvoiceViewModel()
@@ -76,6 +78,7 @@ namespace HotelManagement.Models.ViewModels
             CurryBalance = invoice.CurryBalance;
             CurryChange = invoice.CurryChange;
             CurryTotalPaid = invoice.CurryTotalPaid;
+            ExchangeId = invoice.ExchangeId;
 
             InvoiceDetails = invoice.InvoiceDetails.Select(d => new CreateInvoiceDetailViewModel
             {

@@ -133,6 +133,11 @@ namespace HotelManagement.Data
 					  .HasForeignKey(i => i.CustomerId)
 					  .OnDelete(DeleteBehavior.Restrict);
 
+				entity.HasOne(i => i.BalanceSettlementExchange)
+					  .WithMany()
+					  .HasForeignKey(i => i.ExchangeId)
+					  .OnDelete(DeleteBehavior.Restrict);
+
 				entity.Property(i => i.SubTotal).HasColumnType("decimal(18,2)");
 				entity.Property(i => i.ServiceCharge).HasColumnType("decimal(18,2)");
 				entity.Property(i => i.GrossAmount).HasColumnType("decimal(18,2)");
@@ -222,6 +227,11 @@ namespace HotelManagement.Data
                       .HasForeignKey(e => e.InvoiceNo)
                       .OnDelete(DeleteBehavior.Restrict);
 
+                entity.HasOne(e => e.SourceInvoice)
+                      .WithMany()
+                      .HasForeignKey(e => e.InvoiceId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
                 entity.HasOne(e => e.Expense)
                       .WithMany()
                       .HasForeignKey(e => e.ExpenseId)
@@ -230,6 +240,7 @@ namespace HotelManagement.Data
                 entity.Property(e => e.ExchangeRate).HasColumnType("decimal(18,4)");
                 entity.Property(e => e.ForeignAmount).HasColumnType("decimal(18,2)");
                 entity.Property(e => e.LKRAmount).HasColumnType("decimal(18,2)");
+                entity.Property(e => e.IsInvoiceBalanceExchange).HasDefaultValue(false);
             });
         }
 	}

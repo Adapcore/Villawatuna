@@ -91,6 +91,15 @@
             } else {
                 $("#lblInvoiceNoDisplay").html('<span class="text-muted">Auto-generated</span>');
             }
+
+            if (self._invoice.exchangeId && self._invoice.exchangeId > 0) {
+                $('#btnBalanceExchange')
+                    .attr('href', '/CurrencyExchange/Edit?id=' + self._invoice.exchangeId)
+                    .removeClass('d-none');
+            } else {
+                $('#btnBalanceExchange').addClass('d-none').attr('href', '#');
+            }
+
             $("#Status").val(self._invoice.status);
 
             // Set invoice date to client's local date (only for new invoices)
@@ -324,6 +333,23 @@
                 self.Save();
             });
 
+            $("#btnConfirmBalanceSettlement").on("click", function () {
+                var settlementCurrency = $('input[name="balanceSettlementCurrency"]:checked').val();
+                if (!settlementCurrency) {
+                    $('#balanceSettlementError').removeClass('d-none');
+                    return;
+                }
+
+                $('#balanceSettlementError').addClass('d-none');
+                var modalElement = document.getElementById('balanceSettlementModal');
+                var modal = bootstrap.Modal.getInstance(modalElement);
+                if (modal) {
+                    modal.hide();
+                }
+
+                self.Save({ balanceSettlementCurrency: settlementCurrency });
+            });
+
             $("#ddlCurrency").on("change", function () {
                 self.LoadCurrencyRate();
                 self.CalculateTotals();
@@ -438,6 +464,42 @@
             if (currentStatus === 2) { // Complete
                 $('#chkPaidInForeignCurrency').prop('disabled', false);
             }
+        },
+
+        GetBalanceSettlementDetails: function () {
+            var selectedCurrency = $("#ddlCurrency").val() || this._baseCurrency;
+            var selectedPaidCurrency = $('input[name="currencyDisplay"]:checked').val();
+            var cash = this.ParseNumber($("#txtCash").val());
+            var foreignBalance = this.ParseNumber($("#txtCurryBalance").html());
+            var rate = this.ParseNumber($("#txtCurrencyRate").val() || 1);
+            var foreignChange = Math.max(cash - foreignBalance, 0);
+
+            if (selectedCurrency === this._baseCurrency ||
+                selectedPaidCurrency != 1 ||
+                foreignChange <= 0) {
+                return null;
+            }
+
+            return {
+                foreignCurrency: selectedCurrency,
+                foreignChange: foreignChange,
+                lkrChange: foreignChange * rate
+            };
+        },
+
+        ShowBalanceSettlementModal: function (settlement) {
+            $('#settleWithForeignCurrency').val(settlement.foreignCurrency);
+            $('#settleWithForeignCurrencyLabel').text(
+                settlement.foreignCurrency + ' -' + this._formatter.format(settlement.foreignChange)
+            );
+            $('#settleWithLkrLabel').text(
+                this._baseCurrency + ' -' + this._formatter.format(settlement.lkrChange)
+            );
+            $('input[name="balanceSettlementCurrency"]').prop('checked', false);
+            $('#balanceSettlementError').addClass('d-none');
+
+            var modalElement = document.getElementById('balanceSettlementModal');
+            bootstrap.Modal.getOrCreateInstance(modalElement).show();
         },
 
         LoadServiceCharge: function () {
@@ -1358,6 +1420,12 @@
                 return;
             }
 
+            var balanceSettlement = self.GetBalanceSettlementDetails();
+            if (balanceSettlement && !saveOptions.balanceSettlementCurrency) {
+                self.ShowBalanceSettlementModal(balanceSettlement);
+                return;
+            }
+
             self._isSaving = true;
 
             var currentStatus = parseInt($("#Status").val(), 10);
@@ -1454,6 +1522,7 @@
                 CurryBalance: 0, // this is calculated from API
                 CurryChange: curryChange,
                 CurryTotalPaid: 0, // this is calculated from API
+                BalanceSettlementCurrency: saveOptions.balanceSettlementCurrency || null,
                 InvoiceDetails: []
             };
 

@@ -3,6 +3,7 @@ using HotelManagement.Enums;
 using HotelManagement.Models.Entities;
 using HotelManagement.Services.Interface;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 using X.PagedList;
 using X.PagedList.Extensions;
 
@@ -121,6 +122,45 @@ namespace HotelManagement.Services
             }
         }
 
+        public async Task AddForInvoiceBalanceSettlementAsync(
+            CurrencyExchange exchange,
+            Invoice sourceInvoice)
+        {
+            PrepareForSave(exchange);
+            exchange.InvoiceId = sourceInvoice.InvoiceNo;
+
+            var catalog = await ResolveCatalogAsync(exchange);
+            IDbContextTransaction? transaction = null;
+            var ownsTransaction = _context.Database.CurrentTransaction == null;
+
+            if (ownsTransaction)
+                transaction = await _context.Database.BeginTransactionAsync();
+
+            try
+            {
+                _context.CurrencyExchanges.Add(exchange);
+                await _context.SaveChangesAsync();
+
+                await UpsertLinkedRecordsAsync(exchange, catalog, isNew: true);
+                sourceInvoice.ExchangeId = exchange.Id;
+                await _context.SaveChangesAsync();
+
+                if (transaction != null)
+                    await transaction.CommitAsync();
+            }
+            catch
+            {
+                if (transaction != null)
+                    await transaction.RollbackAsync();
+                throw;
+            }
+            finally
+            {
+                if (transaction != null)
+                    await transaction.DisposeAsync();
+            }
+        }
+
         public async Task UpdateAsync(CurrencyExchange exchange)
         {
             var existing = await _context.CurrencyExchanges.FirstOrDefaultAsync(e => e.Id == exchange.Id);
@@ -160,13 +200,23 @@ namespace HotelManagement.Services
                 return;
 
             var invoiceNo = existing.InvoiceNo;
+            var sourceInvoiceId = existing.InvoiceId;
             var expenseId = existing.ExpenseId;
 
             await using var tx = await _context.Database.BeginTransactionAsync();
             try
             {
                 existing.InvoiceNo = null;
+                existing.InvoiceId = null;
                 existing.ExpenseId = null;
+
+                if (sourceInvoiceId.HasValue)
+                {
+                    var sourceInvoice = await _context.Invoices.FindAsync(sourceInvoiceId.Value);
+                    if (sourceInvoice?.ExchangeId == existing.Id)
+                        sourceInvoice.ExchangeId = null;
+                }
+
                 await _context.SaveChangesAsync();
 
                 if (invoiceNo.HasValue)

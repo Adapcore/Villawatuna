@@ -75,6 +75,9 @@ namespace HotelManagement.Models.Entities
 
         public PaidCurrency PaidCurrency { get; set; } = PaidCurrency.BaseCurrency;
 
+        public int? ExchangeId { get; set; }
+        public CurrencyExchange? BalanceSettlementExchange { get; set; }
+
         public ICollection<InvoiceDetail> InvoiceDetails { get; set; }
         public ICollection<Payment>? Payments { get; set; }
 

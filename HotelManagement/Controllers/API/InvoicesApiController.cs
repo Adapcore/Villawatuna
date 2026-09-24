@@ -1,4 +1,5 @@
-﻿using HotelManagement.Enums;
+﻿using HotelManagement.Data;
+using HotelManagement.Enums;
 using HotelManagement.Models.Entities;
 using HotelManagement.Models.ViewModels;
 using HotelManagement.Services.Interface;
@@ -14,11 +15,19 @@ namespace HotelManagement.Controllers.API
     {
         private readonly IInvoiceService _invoiceService;
         private readonly IPaymentService _paymentService;
+        private readonly ICurrencyExchangeService _currencyExchangeService;
+        private readonly HotelContext _context;
 
-        public InvoicesApiController(IInvoiceService invoiceService, IPaymentService paymentService)
+        public InvoicesApiController(
+            IInvoiceService invoiceService,
+            IPaymentService paymentService,
+            ICurrencyExchangeService currencyExchangeService,
+            HotelContext context)
         {
             _invoiceService = invoiceService;
             _paymentService = paymentService;
+            _currencyExchangeService = currencyExchangeService;
+            _context = context;
         }
 
         [HttpPost("Save")]
@@ -47,8 +56,27 @@ namespace HotelManagement.Controllers.API
                 }
             }
 
+            var hasForeignCurrencyChange =
+                model.Paid > 0 &&
+                model.PaidCurrency == PaidCurrency.SelectedCurrency &&
+                !string.Equals(model.Currency, "LKR", StringComparison.OrdinalIgnoreCase) &&
+                model.CurryChange.GetValueOrDefault() > 0;
+
+            var settlementCurrency = model.BalanceSettlementCurrency?.Trim().ToUpperInvariant();
+            if (hasForeignCurrencyChange)
+            {
+                var foreignCurrency = model.Currency?.Trim().ToUpperInvariant();
+                if (string.IsNullOrWhiteSpace(settlementCurrency))
+                    return BadRequest(new { message = "Please select a balance settlement currency." });
+
+                if (settlementCurrency != "LKR" && settlementCurrency != foreignCurrency)
+                    return BadRequest(new { message = "The selected balance settlement currency is invalid." });
+            }
+
+            await using var transaction = await _context.Database.BeginTransactionAsync();
+
             // Get the existing invoice
-            Invoice invoice = await _invoiceService.GetByIdAsync(model.InvoiceNo);
+            Invoice? invoice = await _invoiceService.GetByIdAsync(model.InvoiceNo);
 
             if (invoice == null)
             {
@@ -153,6 +181,29 @@ namespace HotelManagement.Controllers.API
                 }
             }
 
+            if (hasForeignCurrencyChange && settlementCurrency == "LKR")
+            {
+                if (invoice.ExchangeId.HasValue)
+                    return BadRequest(new { message = "A balance-settlement exchange is already linked to this invoice." });
+
+                var exchange = new CurrencyExchange
+                {
+                    Date = DateTime.Today,
+                    CustomerId = invoice.CustomerId,
+                    ForeignCurrency = invoice.Currency,
+                    ExchangeRate = invoice.CurrencyRate.GetValueOrDefault(),
+                    ForeignAmount = model.CurryChange!.Value,
+                    IsInvoiceBalanceExchange = true,
+                    Remarks = $"Balance settlement for Invoice #{invoice.InvoiceNo}"
+                };
+
+                if (exchange.ExchangeRate <= 0)
+                    return BadRequest(new { message = "A valid currency exchange rate is required for LKR settlement." });
+
+                await _currencyExchangeService.AddForInvoiceBalanceSettlementAsync(exchange, invoice);
+            }
+
+            await transaction.CommitAsync();
             return Ok(new { success = true, invoice = new CreateInvoiceViewModel(invoice) });
         }
 

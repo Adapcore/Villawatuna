@@ -313,6 +313,13 @@
                 <button id="btnPay" type="button" class="btn btn-danger btn-lg py-2"><i class="bi bi-currency-dollar"></i> Pay</button>
                 <button id="btnComplete" type="button" class="btn btn-warning btn-lg py-2"><i class="bi bi-check2"></i> Complete</button>
                 <button id="btnReOpen" type="button" class="btn btn-primary btn-lg py-2"><i class="bi bi-back"></i> Re-Open</button>
+                <a id="btnBalanceExchange"
+                   href="@(Model.ExchangeId.HasValue ? Url.Action("Edit", "CurrencyExchange", new { id = Model.ExchangeId.Value }) : "#")"
+                   target="_blank"
+                   rel="noopener"
+                   class="btn btn-info btn-lg py-2 @(Model.ExchangeId.HasValue ? "" : "d-none")">
+                    <i class="bi bi-currency-exchange"></i> View Balance Exchange
+                </a>
                 <a id="btn_print" href="@Url.Action("PrintThermal", "Invoices", new { id = Model.InvoiceNo })" target="_blank" class="btn btn-warning btn-lg py-2">
                     <i class="bi bi-printer"></i> Print
                 </a>
@@ -420,6 +427,44 @@
 
             <div id="itemContainer" style="display: flex; flex-direction: column; flex: 1 1 auto; overflow: hidden;"></div>
 
+        </div>
+    </div>
+</div>
+
+<!-- Foreign-currency overpayment settlement modal -->
+<div class="modal fade" id="balanceSettlementModal" tabindex="-1" aria-labelledby="balanceSettlementModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="balanceSettlementModalLabel">Balance Settlement</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <fieldset>
+                    <legend class="fw-bold mb-3" style="font-size: 1.1rem;">Settle with</legend>
+                    <div class="d-flex justify-content-between align-items-center gap-4 text-danger fw-bold" style="font-size: 1.1rem; margin: 0 4rem;">
+                        <div class="form-check mb-0">
+                            <input class="form-check-input" type="radio" name="balanceSettlementCurrency"
+                                   id="settleWithForeignCurrency" value="">
+                            <label class="form-check-label" for="settleWithForeignCurrency"
+                                   id="settleWithForeignCurrencyLabel"></label>
+                        </div>
+                        <div class="form-check mb-0">
+                            <input class="form-check-input" type="radio" name="balanceSettlementCurrency"
+                                   id="settleWithLkr" value="LKR">
+                            <label class="form-check-label" for="settleWithLkr"
+                                   id="settleWithLkrLabel"></label>
+                        </div>
+                    </div>
+                </fieldset>
+                <div id="balanceSettlementError" class="text-danger small mt-3 d-none">
+                    Please select a settlement currency.
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" id="btnConfirmBalanceSettlement" class="btn btn-primary">OK</button>
+            </div>
         </div>
     </div>
 </div>

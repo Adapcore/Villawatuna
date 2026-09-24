@@ -43,12 +43,20 @@ namespace HotelManagement.Models.Entities
         [Column(TypeName = "decimal(18,2)")]
         public decimal LKRAmount { get; set; }
 
+        public bool IsInvoiceBalanceExchange { get; set; } = false;
+
         [MaxLength(500)]
         [Display(Name = "Remarks")]
         public string? Remarks { get; set; }
 
         public int? InvoiceNo { get; set; }
         public Invoice? Invoice { get; set; }
+
+        /// <summary>
+        /// Original invoice whose foreign-currency customer change was settled in LKR.
+        /// </summary>
+        public int? InvoiceId { get; set; }
+        public Invoice? SourceInvoice { get; set; }
 
         public int? ExpenseId { get; set; }
         public Expense? Expense { get; set; }

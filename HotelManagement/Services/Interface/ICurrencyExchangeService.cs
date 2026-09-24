@@ -21,6 +21,7 @@ namespace HotelManagement.Services.Interface
 
         Task<CurrencyExchange?> GetByIdAsync(int id);
         Task AddAsync(CurrencyExchange exchange);
+        Task AddForInvoiceBalanceSettlementAsync(CurrencyExchange exchange, Invoice sourceInvoice);
         Task UpdateAsync(CurrencyExchange exchange);
         Task DeleteAsync(int id);
     }
