@@ -424,6 +424,7 @@
             var self = this;
 
             $('#btnPay').fadeOut();
+            $('#btnReOpen').hide();
             //$('#dv_balance').removeClass('d-none');
             //$('#dv_cash').show();
             //$('#dv_payment').show();
