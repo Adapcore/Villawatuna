@@ -129,7 +129,7 @@ namespace HotelManagement.Services
                     ? EnumHelper.GetDisplayName(invoice.Type)
                     : string.Empty;
 
-                var title = $"#{payment.InvoiceNo} - #{customerId} - {customerName} - {invoiceType}";
+                var title = $"#{payment.InvoiceNo} - #{customer?.RoomNo} - {customerName} - {invoiceType}";
                 if (title.Length > 250)
                     title = title.Substring(0, 250);
 
