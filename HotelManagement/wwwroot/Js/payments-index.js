@@ -7,69 +7,39 @@ var paymentState = {
   currentPage: 1,
   fromDate: null,
   toDate: null,
-  type: null,
-  isInternalCallScope: false
+  type: null
 };
 
+var paymentDateFilter = null;
+
 $(document).ready(function () {
-  // Filter changes
+  $('#paymentFilterForm').on('submit', function (e) {
+    e.preventDefault();
+  });
+
+  paymentState.type = $('#paymentType').val() || null;
+
+  paymentDateFilter = $('#paymentDateFilter').periodDateFilter({
+    defaultMode: 'range',
+    onChange: function (state) {
+      paymentState.fromDate = state.fromDate;
+      paymentState.toDate = state.toDate;
+      paymentState.currentPage = 1;
+      loadPayments();
+    }
+  }).data('periodDateFilter');
+
   $('#paymentType').on('change', function () {
     paymentState.type = $('#paymentType').val() || null;
     paymentState.currentPage = 1;
     loadPayments();
   });
 
-  $('#paymentFromDate, #paymentToDate').on('change', function () {
-    if (!paymentState.isInternalCallScope) {
-      paymentState.fromDate = $('#paymentFromDate').val() || null;
-      paymentState.toDate = $('#paymentToDate').val() || null;
-      clearRangeButtonActive();
-      paymentState.currentPage = 1;
-      loadPayments();
-    }
-  });
-
-  // Quick range buttons (invoice style)
-  $(document).on('click', '[data-range]', function (e) {
-    e.preventDefault();
-    var v = $(this).data('range') || '';
-    var now = new Date();
-    now = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-
-    if (v === 'today') {
-      var t = formatDateLocal(now);
-      setDatesInternal(t, t);
-    } else if (v === 'yesterday') {
-      var y = new Date(now);
-      y.setDate(y.getDate() - 1);
-      var ys = formatDateLocal(y);
-      setDatesInternal(ys, ys);
-    } else if (v === 'month') {
-      var firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
-      var lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-      setDatesInternal(formatDateLocal(firstDay), formatDateLocal(lastDay));
-    } else if (v === 'year') {
-      var fy = new Date(now.getFullYear(), 0, 1);
-      var ly = new Date(now.getFullYear(), 11, 31);
-      setDatesInternal(formatDateLocal(fy), formatDateLocal(ly));
-    } else {
-      setDatesInternal(null, null);
-    }
-
-    setRangeButtonActive(v);
-    paymentState.currentPage = 1;
-    loadPayments();
-  });
-
-  // Clear filters (delegated)
   $(document).on('click', '#btnPaymentClear', function (e) {
     e.preventDefault();
-    setDatesInternal(null, null);
     $('#paymentType').val('');
     paymentState.type = null;
-    clearRangeButtonActive();
-    paymentState.currentPage = 1;
-    loadPayments();
+    paymentDateFilter.selectMode('range');
   });
 
   // Pagination (delegated)
@@ -85,12 +55,6 @@ $(document).ready(function () {
     }
   });
 
-  // Initial state from controls
-  paymentState.fromDate = $('#paymentFromDate').val() || null;
-  paymentState.toDate = $('#paymentToDate').val() || null;
-  paymentState.type = $('#paymentType').val() || null;
-
-  loadPayments();
 });
 
 function loadPayments() {
@@ -264,37 +228,6 @@ function showPaymentError(message) {
   $('#paymentTableBody').html('<tr><td colspan="6">' + html + '</td></tr>');
   $('#paymentTableMobile').html(html);
   $('#paymentPaginationContainer').html('');
-}
-
-function formatDateLocal(date) {
-  var year = date.getFullYear();
-  var month = String(date.getMonth() + 1).padStart(2, '0');
-  var day = String(date.getDate()).padStart(2, '0');
-  return year + '-' + month + '-' + day;
-}
-
-function setDatesInternal(fromDate, toDate) {
-  paymentState.isInternalCallScope = true;
-  $('#paymentFromDate').val(fromDate || '');
-  $('#paymentToDate').val(toDate || '');
-  paymentState.isInternalCallScope = false;
-  paymentState.fromDate = fromDate || null;
-  paymentState.toDate = toDate || null;
-}
-
-function setRangeButtonActive(rangeValue) {
-  $('[data-range]').each(function () {
-    var $b = $(this);
-    var isActive = ($b.data('range') || '') === rangeValue;
-    $b.toggleClass('btn-primary', isActive);
-    $b.toggleClass('btn-outline-secondary', !isActive);
-  });
-}
-
-function clearRangeButtonActive() {
-  $('[data-range]').each(function () {
-    $(this).removeClass('btn-primary').addClass('btn-outline-secondary');
-  });
 }
 
 function formatAmount(v) {
