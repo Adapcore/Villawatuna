@@ -46,91 +46,23 @@ $(document).ready(function () {
         loadInvoices();
     });
 
-    $('#fromDate, #toDate').on('change', function () {
-        if (!invoiceState.isInternalCallScope) {
-            invoiceState.fromDate = $('#fromDate').val() || null;
-            invoiceState.toDate = $('#toDate').val() || null;
-            // Remove active state from all date buttons when dates are manually changed
-            $('#btnToday, #btnYesterday, #btnMonth, #btnYear').removeClass('active');
+    $('#invoiceDateFilter').periodDateFilter({
+        defaultMode: 'range',
+        onClear: function () {
+            $('#customerId').val('0');
+            $('#invoiceType').val('');
+            invoiceState.customerId = 0;
+            invoiceState.invoiceType = null;
+            invoiceState.invoiceStatus = null;
+            $('.invoice-status-tab').removeClass('active');
+            $('.invoice-status-tab[data-status=""]').addClass('active');
+        },
+        onChange: function (state) {
+            invoiceState.fromDate = state.fromDate;
+            invoiceState.toDate = state.toDate;
             invoiceState.currentPage = 1;
             loadInvoices();
         }
-    });
-
-    var formatDateLocal = function (date) {
-        var year = date.getFullYear();
-        var month = String(date.getMonth() + 1).padStart(2, '0');
-        var day = String(date.getDate()).padStart(2, '0');
-        return year + '-' + month + '-' + day;
-    };
-
-    // Date quick buttons
-    $('#btnToday').on('click', function () {
-        var today = new Date();
-        var todayStr = formatDateLocal(today);
-        onDateBtnAction(todayStr, todayStr, this);        
-    });
-
-    $('#btnYesterday').on('click', function () {
-        var yesterday = new Date();
-        yesterday.setDate(yesterday.getDate() - 1);
-        var dateStr = formatDateLocal(yesterday);
-        onDateBtnAction(dateStr, dateStr, this);        
-    });
-
-    $('#btnMonth').on('click', function () {
-        var now = new Date();
-        // Get first day of current month (1st)
-        var firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
-        // Get last day of current month (end of current month)
-        var lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-
-        var firstDayStr = formatDateLocal(firstDay);
-        var lastDayStr = formatDateLocal(lastDay);
-
-        onDateBtnAction(firstDayStr, lastDayStr, this);
-    });
-
-    $('#btnYear').on('click', function () {
-        var now = new Date();
-        // Get first day of current year (January 1st)
-        var firstDay = new Date(now.getFullYear(), 0, 1);
-        // Get last day of current year (December 31st)
-        var lastDay = new Date(now.getFullYear(), 11, 31);
-
-        var firstDayStr = formatDateLocal(firstDay);
-        var lastDayStr = formatDateLocal(lastDay);
-
-        onDateBtnAction(firstDayStr, lastDayStr, this);        
-    });
-
-    // Clear filters
-    $(document).on('click', '#btnInvoiceClear', function (e) {
-        e.preventDefault();
-
-        // reset dropdowns
-        invoiceState.isInternalCallScope = true;
-        $('#customerId').val('0');
-        $('#invoiceType').val('');
-        $('#fromDate').val('');
-        $('#toDate').val('');
-        invoiceState.isInternalCallScope = false;
-
-        invoiceState.customerId = 0;
-        invoiceState.invoiceType = null;
-        invoiceState.fromDate = null;
-        invoiceState.toDate = null;
-        invoiceState.currentPage = 1;
-
-        // reset status tab to All
-        invoiceState.invoiceStatus = null;
-        $('.invoice-status-tab').removeClass('active');
-        $('.invoice-status-tab[data-status=""]').addClass('active');
-
-        // clear quick button active highlight
-        $('#btnToday, #btnYesterday, #btnMonth, #btnYear').removeClass('active');
-
-        loadInvoices();
     });
 
     // Status tab clicks
@@ -238,23 +170,7 @@ $(document).ready(function () {
     });
 
 
-    // Load initial data(current month)
-    $('#btnMonth').click();    
 });
-
-function onDateBtnAction(fromDate, toDate, ele) {
-    invoiceState.isInternalCallScope = true;
-    $('#fromDate').val(fromDate);
-    $('#toDate').val(toDate);
-    invoiceState.isInternalCallScope = false;
-
-    invoiceState.fromDate = fromDate;
-    invoiceState.toDate = toDate;
-
-    $('.btn', $("#invoiceFilterForm")).removeClass("active")
-    $(ele).addClass("active");
-    loadInvoices();
-}
 
 /**
  * Load invoices via AJAX

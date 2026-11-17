@@ -6,17 +6,15 @@
 @{
     ViewData["Title"] = "Leaves";
     Layout = "~/Views/Shared/_Layout.cshtml";
-    var today = DateTime.UtcNow.Date;
     bool isAdmin = ViewBag.IsAdmin != null && (bool)ViewBag.IsAdmin;
 
     string FormatDays(decimal days) => days == decimal.Truncate(days)
         ? decimal.Truncate(days).ToString("0")
         : days.ToString("0.#");
-
-    var activeRange = (Context?.Request?.Query["range"].ToString() ?? "").Trim().ToLowerInvariant();
 }
 
 <link rel="stylesheet" href="~/css/leaves-index.css?v=@Configuration["Assets:Version"]" />
+<link rel="stylesheet" href="~/css/period-date-filter.css?v=@Configuration["Assets:Version"]" />
 
 <div class="container-fluid py-3">
     <div class="d-flex justify-content-between align-items-center mb-3">
@@ -49,8 +47,7 @@
     <!-- Filters -->
     <div class="card mb-3">
         <div class="card-body p-3">
-            <form method="get" class="row g-3 align-items-end" id="leaveFilterForm">
-                <input type="hidden" name="range" id="range" value="@activeRange" />
+            <form method="get" class="row g-3 align-items-end" id="leaveDateFilter">
                 <div class="col-md-3 col-sm-6">
                     <label class="form-label fw-bold">Employee</label>
                     <select name="employeeId" id="employeeId" class="form-select form-select-sm" asp-items="Model.Employees">
@@ -58,26 +55,10 @@
                     </select>
                 </div>
                 <div class="col-md-2 col-sm-6">
-                    <label class="form-label fw-bold">From Date</label>
-                    <input type="date" name="fromDate" id="fromDate" class="form-control form-control-sm" value="@(Model.FromDate?.ToString("yyyy-MM-dd") ?? "")" />
-                </div>
-                <div class="col-md-2 col-sm-6">
-                    <label class="form-label fw-bold">To Date</label>
-                    <input type="date" name="toDate" id="toDate" class="form-control form-control-sm" value="@(Model.ToDate?.ToString("yyyy-MM-dd") ?? "")" />
-                </div>
-                <div class="col-md-2 col-sm-6">
                     <label class="form-label fw-bold">Status</label>
                     <select name="status" id="status" class="form-select form-select-sm" asp-items="Model.Statuses"></select>
                 </div>
-                <div class="col-md-3 col-12">
-                    <div class="d-flex gap-2 flex-nowrap justify-content-md-end">
-                        <button type="button" class="btn btn-sm @(activeRange == "today" ? "btn-secondary" : "btn-outline-secondary")" data-range="today">Today</button>
-                        <button type="button" class="btn btn-sm @(activeRange == "yesterday" ? "btn-secondary" : "btn-outline-secondary")" data-range="yesterday">Yesterday</button>
-                        <button type="button" class="btn btn-sm @(activeRange == "month" ? "btn-secondary" : "btn-outline-secondary")" data-range="month">Month</button>
-                        <button type="button" class="btn btn-sm @(activeRange == "year" ? "btn-secondary" : "btn-outline-secondary")" data-range="year">Year</button>
-                        <a class="btn btn-outline-dark btn-sm" asp-action="Index">Clear</a>
-                    </div>
-                </div>
+                <partial name="_PeriodDateFilterFields" />
             </form>
         </div>
     </div>
@@ -131,6 +112,7 @@
 </div>
 
 @section Scripts {
+    <script src="~/js/period-date-filter.js" asp-append-version="true"></script>
     <script src="~/js/leaves-index.js" asp-append-version="true"></script>
 }
 

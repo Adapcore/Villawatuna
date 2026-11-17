@@ -99,104 +99,22 @@ $(document).ready(function () {
         }, 500); // Wait 500ms after user stops typing
     });
 
-    $('#startDate, #endDate').on('change', function () {
-        if (!expenseState.isInternalCallScope) {
-            expenseState.startDate = $('#startDate').val() || null;
-            expenseState.endDate = $('#endDate').val() || null;
-            // Remove active state from all date buttons when dates are manually changed
-            $('#btnToday, #btnYesterday, #btnMonth, #btnYear').removeClass('active');
+    $('#expenseDateFilter').periodDateFilter({
+        defaultMode: 'range',
+        onClear: function () {
+            $('#expenseTypeId').val('0');
+            $('#payeeName').val('');
+            expenseState.expenseTypeId = 0;
+            expenseState.payeeName = null;
+        },
+        onChange: function (state) {
+            expenseState.startDate = state.fromDate;
+            expenseState.endDate = state.toDate;
             expenseState.currentPage = 1;
             loadExpenses();
         }
     });
-
-    // Helper function to format date as YYYY-MM-DD using local time
-    var formatDateLocal = function (date) {
-        var year = date.getFullYear();
-        var month = String(date.getMonth() + 1).padStart(2, '0');
-        var day = String(date.getDate()).padStart(2, '0');
-        return year + '-' + month + '-' + day;
-    };
-
-    // Date quick buttons
-    $('#btnToday').on('click', function () {
-        var today = new Date();
-        var todayStr = formatDateLocal(today);
-        onDateBtnAction(todayStr, todayStr, this);
-    });
-
-    $('#btnYesterday').on('click', function () {
-        var yesterday = new Date();
-        yesterday.setDate(yesterday.getDate() - 1);
-        var dateStr = formatDateLocal(yesterday);
-        onDateBtnAction(dateStr, dateStr, this);
-    });
-
-    $('#btnMonth').on('click', function () {
-        var now = new Date();
-        // Get first day of current month (1st)
-        var firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
-        // Get last day of current month (end of current month)
-        var lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-
-        var firstDayStr = formatDateLocal(firstDay);
-        var lastDayStr = formatDateLocal(lastDay);
-
-        onDateBtnAction(firstDayStr, lastDayStr, this);
-    });
-
-    $('#btnYear').on('click', function () {
-        var now = new Date();
-        // Get first day of current year (January 1st)
-        var firstDay = new Date(now.getFullYear(), 0, 1);
-        // Get last day of current year (December 31st)
-        var lastDay = new Date(now.getFullYear(), 11, 31);
-
-        var firstDayStr = formatDateLocal(firstDay);
-        var lastDayStr = formatDateLocal(lastDay);
-
-        onDateBtnAction(firstDayStr, lastDayStr, this);
-    });
-
-    // Clear filters
-    $('#btnExpenseClear').on('click', function (e) {
-        e.preventDefault();
-
-        expenseState.isInternalCallScope = true;
-        $('#startDate').val('');
-        $('#endDate').val('');
-        $('#expenseTypeId').val('0');
-        $('#payeeName').val('');
-        expenseState.isInternalCallScope = false;
-
-        expenseState.startDate = null;
-        expenseState.endDate = null;
-        expenseState.expenseTypeId = 0;
-        expenseState.payeeName = null;
-        expenseState.currentPage = 1;
-
-        $('#btnToday, #btnYesterday, #btnMonth, #btnYear').removeClass('active');
-        loadExpenses();
-    });
-
-    //Load initial data(current month)
-    $('#btnMonth').click();
 });
-
-function onDateBtnAction(fromDate, toDate, ele) {
-    expenseState.isInternalCallScope = true;
-    $('#startDate').val(fromDate);
-    $('#endDate').val(toDate);
-    expenseState.isInternalCallScope = false;
-
-    expenseState.startDate = fromDate;
-    expenseState.endDate = toDate;
-    expenseState.currentPage = 1;
-
-    $('.btn', $("#expenseFilterForm")).removeClass("active")
-    $(ele).addClass("active");
-    loadExpenses();
-}
 
 /**
  * Load expenses via AJAX

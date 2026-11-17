@@ -22,83 +22,25 @@ $(document).ready(function () {
     loadLeaves();
   });
 
-  $('#fromDate, #toDate').on('change', function () {
-    if (!leaveState.isInternalCallScope) {
-      leaveState.fromDate = $('#fromDate').val() || null;
-      leaveState.toDate = $('#toDate').val() || null;
-      // Manual date change clears quick-range button highlight
-      clearRangeButtonActive();
+  leaveState.employeeId = $('#employeeId').val() || null;
+  leaveState.status = $('#status').val() || null;
+
+  $('#leaveDateFilter').periodDateFilter({
+    defaultMode: 'range',
+    onClear: function () {
+      $('#employeeId').val('');
+      $('#status').val('');
+      leaveState.employeeId = null;
+      leaveState.status = null;
+      leaveState.range = null;
+    },
+    onChange: function (state) {
+      leaveState.fromDate = state.fromDate;
+      leaveState.toDate = state.toDate;
+      leaveState.range = null;
       leaveState.currentPage = 1;
       loadLeaves();
     }
-  });
-
-  function formatDateLocal(date) {
-    var year = date.getFullYear();
-    var month = String(date.getMonth() + 1).padStart(2, '0');
-    var day = String(date.getDate()).padStart(2, '0');
-    return year + '-' + month + '-' + day;
-  }
-
-  function setDatesInternal(fromDate, toDate) {
-    leaveState.isInternalCallScope = true;
-    $('#fromDate').val(fromDate || '');
-    $('#toDate').val(toDate || '');
-    leaveState.isInternalCallScope = false;
-    leaveState.fromDate = fromDate || null;
-    leaveState.toDate = toDate || null;
-  }
-
-  function setRangeButtonActive(rangeValue) {
-    // Match invoice feel: one selected at a time.
-    $('[data-range]').each(function () {
-      var $b = $(this);
-      var isActive = ($b.data('range') || '') === rangeValue;
-      $b.toggleClass('btn-primary', isActive);
-      $b.toggleClass('btn-outline-secondary', !isActive);
-    });
-  }
-
-  function clearRangeButtonActive() {
-    $('[data-range]').each(function () {
-      $(this).removeClass('btn-primary').addClass('btn-outline-secondary');
-    });
-  }
-
-  // Today / Month / Year buttons: keep Employee + Status; set explicit From/To like Invoice
-  $(document).on('click', '[data-range]', function (e) {
-    e.preventDefault();
-    var v = $(this).data('range') || '';
-
-    var now = new Date();
-    now = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-
-    if (v === 'today') {
-      var t = formatDateLocal(now);
-      setDatesInternal(t, t);
-    } else if (v === 'yesterday') {
-      var y = new Date(now);
-      y.setDate(y.getDate() - 1);
-      var ys = formatDateLocal(y);
-      setDatesInternal(ys, ys);
-    } else if (v === 'month') {
-      var firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
-      var lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-      setDatesInternal(formatDateLocal(firstDay), formatDateLocal(lastDay));
-    } else if (v === 'year') {
-      var fy = new Date(now.getFullYear(), 0, 1);
-      var ly = new Date(now.getFullYear(), 11, 31);
-      setDatesInternal(formatDateLocal(fy), formatDateLocal(ly));
-    } else {
-      setDatesInternal(null, null);
-    }
-
-    // Keep range for server consistency (and initial render), but also set explicit dates.
-    $('#range').val(v);
-    leaveState.range = v;
-    setRangeButtonActive(v);
-    leaveState.currentPage = 1;
-    loadLeaves();
   });
 
   // Pagination clicks (delegated)
@@ -149,17 +91,6 @@ $(document).ready(function () {
 
     return false;
   });
-
-  // Initial load (use current filter values already on the page)
-  leaveState.employeeId = $('#employeeId').val() || null;
-  leaveState.status = $('#status').val() || null;
-  leaveState.fromDate = $('#fromDate').val() || null;
-  leaveState.toDate = $('#toDate').val() || null;
-  leaveState.range = $('#range').val() || null;
-
-  if (leaveState.range) setRangeButtonActive(leaveState.range);
-
-  loadLeaves();
 });
 
 function highlightClickedActionButton($btn) {

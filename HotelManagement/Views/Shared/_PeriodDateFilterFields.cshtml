@@ -1,0 +1,76 @@
+@{
+    var fromName = ViewData["pfFromName"] as string ?? "fromDate";
+    var toName = ViewData["pfToName"] as string ?? "toDate";
+    var fromId = ViewData["pfFromId"] as string ?? fromName;
+    var toId = ViewData["pfToId"] as string ?? toName;
+}
+<div class="col-md-3 col-sm-6 pf-date-col pf-period d-none">
+    <label class="form-label fw-bold pf-field-label">Date</label>
+    <div class="input-group input-group-sm pf-stepper">
+        <button type="button" class="btn btn-outline-secondary pf-prev" aria-label="Previous">&lt;</button>
+        <div class="pf-period-center">
+            <div class="pf-popup-picker pf-day-picker pf-visible-picker">
+                <button type="button" class="form-control form-control-sm pf-display pf-day-display" aria-haspopup="dialog"><span class="pf-value">Today</span><i class="bi bi-calendar3" aria-hidden="true"></i></button>
+                <div class="pf-panel pf-day-panel d-none" role="dialog" aria-label="Choose date">
+                    <div class="pf-panel-nav">
+                        <button type="button" class="btn btn-outline-secondary btn-sm pf-day-month-prev" aria-label="Previous month">&lt;</button>
+                        <span class="pf-day-month-label"></span>
+                        <button type="button" class="btn btn-outline-secondary btn-sm pf-day-month-next" aria-label="Next month">&gt;</button>
+                    </div>
+                    <div class="pf-day-weekdays" aria-hidden="true">
+                        <span>Su</span><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span>
+                    </div>
+                    <div class="pf-day-grid"></div>
+                    <button type="button" class="pf-day-today">Today</button>
+                </div>
+            </div>
+            <div class="pf-popup-picker pf-month-picker pf-visible-picker d-none">
+                <button type="button" class="form-control form-control-sm pf-display pf-month-display" aria-haspopup="dialog"><span class="pf-value">November 2026</span><i class="bi bi-calendar3" aria-hidden="true"></i></button>
+                <div class="pf-panel pf-month-panel d-none" role="dialog" aria-label="Choose month">
+                    <div class="pf-panel-nav">
+                        <button type="button" class="btn btn-outline-secondary btn-sm pf-month-year-prev" aria-label="Previous year">&lt;</button>
+                        <span class="pf-month-year-label"></span>
+                        <button type="button" class="btn btn-outline-secondary btn-sm pf-month-year-next" aria-label="Next year">&gt;</button>
+                    </div>
+                    <div class="pf-month-grid"></div>
+                </div>
+            </div>
+            <div class="pf-popup-picker pf-year-picker pf-visible-picker d-none">
+                <button type="button" class="form-control form-control-sm pf-display pf-year-display" aria-haspopup="dialog"><span class="pf-value">2026</span><i class="bi bi-calendar3" aria-hidden="true"></i></button>
+                <div class="pf-panel pf-year-panel d-none" role="dialog" aria-label="Choose year">
+                    <div class="pf-panel-nav">
+                        <button type="button" class="btn btn-outline-secondary btn-sm pf-year-page-prev" aria-label="Earlier years">&lt;</button>
+                        <span class="pf-year-page-label"></span>
+                        <button type="button" class="btn btn-outline-secondary btn-sm pf-year-page-next" aria-label="Later years">&gt;</button>
+                    </div>
+                    <div class="pf-year-grid"></div>
+                </div>
+            </div>
+        </div>
+        <button type="button" class="btn btn-outline-secondary pf-next" aria-label="Next">&gt;</button>
+    </div>
+</div>
+<div class="col-md-3 col-sm-6 pf-date-col pf-from-wrap">
+    <label class="form-label fw-bold">From Date</label>
+    <div class="pf-date-field">
+        <input type="date" name="@fromName" id="@fromId" class="form-control form-control-sm pf-from" />
+        <i class="bi bi-calendar3" aria-hidden="true"></i>
+    </div>
+</div>
+<div class="col-md-3 col-sm-6 pf-date-col pf-to-wrap">
+    <label class="form-label fw-bold">To Date</label>
+    <div class="pf-date-field">
+        <input type="date" name="@toName" id="@toId" class="form-control form-control-sm pf-to" />
+        <i class="bi bi-calendar3" aria-hidden="true"></i>
+    </div>
+</div>
+<div class="col-auto pf-mode-buttons">
+    <div class="d-flex gap-1 flex-wrap">
+        <button type="button" class="btn btn-outline-secondary btn-sm" data-range="daily">Daily</button>
+        <button type="button" class="btn btn-outline-secondary btn-sm" data-range="weekly">Weekly</button>
+        <button type="button" class="btn btn-outline-secondary btn-sm" data-range="monthly">Monthly</button>
+        <button type="button" class="btn btn-outline-secondary btn-sm" data-range="yearly">Yearly</button>
+        <button type="button" class="btn btn-primary btn-sm" data-range="range"><span class="d-none d-md-inline">Date </span>Range</button>
+        <button type="button" class="btn btn-outline-dark btn-sm pf-clear">Clear</button>
+    </div>
+</div>

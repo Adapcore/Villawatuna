@@ -19,13 +19,6 @@ function getIsAdminFlag() {
     return !!val;
 }
 
-function formatDateLocal(date) {
-    var year = date.getFullYear();
-    var month = String(date.getMonth() + 1).padStart(2, '0');
-    var day = String(date.getDate()).padStart(2, '0');
-    return year + '-' + month + '-' + day;
-}
-
 function formatDateDisplay(dateStr) {
     if (!dateStr) return '';
     var d = new Date(dateStr + 'T00:00:00');
@@ -91,58 +84,20 @@ $(document).ready(function () {
         loadExchanges();
     });
 
-    $('#startDate, #endDate').on('change', function () {
-        if (!exchangeState.isInternalCallScope) {
-            exchangeState.startDate = $('#startDate').val() || null;
-            exchangeState.endDate = $('#endDate').val() || null;
-            $('#btnToday, #btnYesterday, #btnMonth, #btnYear').removeClass('active');
+    $('#exchangeDateFilter').periodDateFilter({
+        defaultMode: 'range',
+        onClear: function () {
+            $('#customerId').val('0');
+            $('#foreignCurrency').val('');
+            exchangeState.customerId = 0;
+            exchangeState.foreignCurrency = '';
+        },
+        onChange: function (state) {
+            exchangeState.startDate = state.fromDate;
+            exchangeState.endDate = state.toDate;
             exchangeState.currentPage = 1;
             loadExchanges();
         }
-    });
-
-    $('#btnToday').on('click', function () {
-        var today = formatDateLocal(new Date());
-        onDateBtnAction(today, today, this);
-    });
-
-    $('#btnYesterday').on('click', function () {
-        var d = new Date();
-        d.setDate(d.getDate() - 1);
-        var str = formatDateLocal(d);
-        onDateBtnAction(str, str, this);
-    });
-
-    $('#btnMonth').on('click', function () {
-        var now = new Date();
-        var firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
-        var lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-        onDateBtnAction(formatDateLocal(firstDay), formatDateLocal(lastDay), this);
-    });
-
-    $('#btnYear').on('click', function () {
-        var now = new Date();
-        var firstDay = new Date(now.getFullYear(), 0, 1);
-        var lastDay = new Date(now.getFullYear(), 11, 31);
-        onDateBtnAction(formatDateLocal(firstDay), formatDateLocal(lastDay), this);
-    });
-
-    $('#btnClear').on('click', function (e) {
-        e.preventDefault();
-        exchangeState.isInternalCallScope = true;
-        $('#startDate').val('');
-        $('#endDate').val('');
-        $('#customerId').val('0');
-        $('#foreignCurrency').val('');
-        exchangeState.isInternalCallScope = false;
-
-        exchangeState.startDate = null;
-        exchangeState.endDate = null;
-        exchangeState.customerId = 0;
-        exchangeState.foreignCurrency = '';
-        exchangeState.currentPage = 1;
-        $('#btnToday, #btnYesterday, #btnMonth, #btnYear').removeClass('active');
-        loadExchanges();
     });
 
     $(document).on('click', '.btn-delete-exchange', function (e) {
@@ -166,24 +121,7 @@ $(document).ready(function () {
             }
         );
     });
-
-    $('#btnMonth').click();
 });
-
-function onDateBtnAction(fromDate, toDate, ele) {
-    exchangeState.isInternalCallScope = true;
-    $('#startDate').val(fromDate);
-    $('#endDate').val(toDate);
-    exchangeState.isInternalCallScope = false;
-
-    exchangeState.startDate = fromDate;
-    exchangeState.endDate = toDate;
-    exchangeState.currentPage = 1;
-
-    $('#btnToday, #btnYesterday, #btnMonth, #btnYear').removeClass('active');
-    $(ele).addClass('active');
-    loadExchanges();
-}
 
 function loadExchanges() {
     exchangeState.customerId = parseInt($('#customerId').val()) || 0;

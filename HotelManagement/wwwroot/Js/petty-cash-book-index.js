@@ -10,13 +10,6 @@ var pettyCashState = {
     isAdmin: false
 };
 
-function formatDateLocal(date) {
-    var year = date.getFullYear();
-    var month = String(date.getMonth() + 1).padStart(2, '0');
-    var day = String(date.getDate()).padStart(2, '0');
-    return year + '-' + month + '-' + day;
-}
-
 function formatMoney(value) {
     var n = parseFloat(value);
     if (isNaN(n)) n = 0;
@@ -63,53 +56,14 @@ $(document).ready(function () {
         }
     });
 
-    $('#startDate, #endDate').on('change', function () {
-        if (!pettyCashState.isInternalCallScope) {
-            pettyCashState.startDate = $('#startDate').val() || null;
-            pettyCashState.endDate = $('#endDate').val() || null;
-            $('#btnToday, #btnYesterday, #btnMonth, #btnYear').removeClass('active');
+    $('#pettyCashDateFilter').periodDateFilter({
+        defaultMode: 'range',
+        onChange: function (state) {
+            pettyCashState.startDate = state.fromDate;
+            pettyCashState.endDate = state.toDate;
             pettyCashState.currentPage = 1;
             loadEntries();
         }
-    });
-
-    $('#btnToday').on('click', function () {
-        var today = formatDateLocal(new Date());
-        onDateBtnAction(today, today, this);
-    });
-
-    $('#btnYesterday').on('click', function () {
-        var d = new Date();
-        d.setDate(d.getDate() - 1);
-        var str = formatDateLocal(d);
-        onDateBtnAction(str, str, this);
-    });
-
-    $('#btnMonth').on('click', function () {
-        var now = new Date();
-        var firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
-        var lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-        onDateBtnAction(formatDateLocal(firstDay), formatDateLocal(lastDay), this);
-    });
-
-    $('#btnYear').on('click', function () {
-        var now = new Date();
-        var firstDay = new Date(now.getFullYear(), 0, 1);
-        var lastDay = new Date(now.getFullYear(), 11, 31);
-        onDateBtnAction(formatDateLocal(firstDay), formatDateLocal(lastDay), this);
-    });
-
-    $('#btnClear').on('click', function (e) {
-        e.preventDefault();
-        pettyCashState.isInternalCallScope = true;
-        $('#startDate').val('');
-        $('#endDate').val('');
-        pettyCashState.isInternalCallScope = false;
-        pettyCashState.startDate = null;
-        pettyCashState.endDate = null;
-        pettyCashState.currentPage = 1;
-        $('#btnToday, #btnYesterday, #btnMonth, #btnYear').removeClass('active');
-        loadEntries();
     });
 
     $(document).on('click', '.btn-delete-petty-cash', function (e) {
@@ -134,24 +88,7 @@ $(document).ready(function () {
             }
         );
     });
-
-    $('#btnMonth').click();
 });
-
-function onDateBtnAction(fromDate, toDate, ele) {
-    pettyCashState.isInternalCallScope = true;
-    $('#startDate').val(fromDate);
-    $('#endDate').val(toDate);
-    pettyCashState.isInternalCallScope = false;
-
-    pettyCashState.startDate = fromDate;
-    pettyCashState.endDate = toDate;
-    pettyCashState.currentPage = 1;
-
-    $('#btnToday, #btnYesterday, #btnMonth, #btnYear').removeClass('active');
-    $(ele).addClass('active');
-    loadEntries();
-}
 
 function loadEntries() {
     $('#pettyCashLoadingIndicator').show();

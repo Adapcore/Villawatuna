@@ -8,6 +8,10 @@
     display: inline-block;
 }
 
+.card:has(.pf-mode-buttons) {
+    overflow: visible;
+}
+
 @media (min-width: 576px) {
     .pf-date-col {
         flex: 0 0 210px;
@@ -262,6 +266,7 @@
     .pf-period.pf-date-col.pf-period-weekly,
     .pf-from-wrap.pf-date-col,
     .pf-to-wrap.pf-date-col {
+        order: 2;
         flex: 0 0 100% !important;
         width: 100% !important;
         max-width: 100% !important;
@@ -275,7 +280,7 @@
     }
 
     .pf-mode-buttons {
-        order: -1;
+        order: 1;
         flex: 0 0 100% !important;
         width: 100% !important;
         max-width: 100% !important;
@@ -285,7 +290,7 @@
         width: 100%;
     }
 
-    .pf-mode-buttons .btn {
+    .row .pf-mode-buttons .btn {
         flex: 0 0 calc((100% - 0.5rem) / 3) !important;
         width: calc((100% - 0.5rem) / 3) !important;
         max-width: calc((100% - 0.5rem) / 3) !important;
