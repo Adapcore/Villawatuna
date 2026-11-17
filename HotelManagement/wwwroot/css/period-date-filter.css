@@ -1,3 +1,13 @@
+.pf-mode-buttons [data-range],
+.pf-mode-buttons .pf-clear {
+    display: none;
+}
+
+.pf-mode-buttons [data-range].pf-button-on,
+.pf-mode-buttons .pf-clear.pf-button-on {
+    display: inline-block;
+}
+
 @media (min-width: 576px) {
     .pf-date-col {
         flex: 0 0 210px;
@@ -38,18 +48,21 @@
     border-right: 0;
 }
 
-.pf-stepper > .pf-prev,
-.pf-stepper > .pf-next {
+.pf-stepper > .btn.pf-prev,
+.pf-stepper > .btn.pf-next {
+    flex: 0 0 auto;
+    width: auto !important;
+    max-width: none;
     border: var(--bs-border-width) solid var(--bs-border-color);
     background-color: #fff;
     color: #6c757d;
     box-shadow: none;
 }
 
-.pf-stepper > .pf-prev:hover,
-.pf-stepper > .pf-next:hover,
-.pf-stepper > .pf-prev:focus,
-.pf-stepper > .pf-next:focus {
+.pf-stepper > .btn.pf-prev:hover,
+.pf-stepper > .btn.pf-next:hover,
+.pf-stepper > .btn.pf-prev:focus,
+.pf-stepper > .btn.pf-next:focus {
     border: var(--bs-border-width) solid var(--bs-border-color);
     background-color: #f8f9fa;
     color: #495057;
@@ -137,6 +150,12 @@
     gap: 6px;
     margin-bottom: 8px;
     font-size: 0.875rem;
+}
+
+.row .pf-panel .pf-panel-nav > .btn {
+    flex: 0 0 auto;
+    width: auto !important;
+    max-width: none;
 }
 
 .pf-year-grid,
@@ -260,5 +279,27 @@
         flex: 0 0 100% !important;
         width: 100% !important;
         max-width: 100% !important;
+    }
+
+    .pf-mode-buttons .d-flex {
+        width: 100%;
+    }
+
+    .pf-mode-buttons .btn {
+        flex: 0 0 calc((100% - 0.5rem) / 3) !important;
+        width: calc((100% - 0.5rem) / 3) !important;
+        max-width: calc((100% - 0.5rem) / 3) !important;
+        padding-left: 0.25rem !important;
+        padding-right: 0.25rem !important;
+        white-space: normal;
+    }
+
+    .pf-mode-buttons .btn.pf-clear:hover,
+    .pf-mode-buttons .btn.pf-clear:focus,
+    .pf-mode-buttons .btn.pf-clear:active {
+        color: var(--bs-btn-color);
+        background-color: transparent;
+        border-color: var(--bs-btn-border-color);
+        box-shadow: none;
     }
 }

@@ -21,6 +21,10 @@ $(document).ready(function () {
 
   paymentDateFilter = $('#paymentDateFilter').periodDateFilter({
     defaultMode: 'range',
+    onClear: function () {
+      $('#paymentType').val('');
+      paymentState.type = null;
+    },
     onChange: function (state) {
       paymentState.fromDate = state.fromDate;
       paymentState.toDate = state.toDate;
@@ -33,13 +37,6 @@ $(document).ready(function () {
     paymentState.type = $('#paymentType').val() || null;
     paymentState.currentPage = 1;
     loadPayments();
-  });
-
-  $(document).on('click', '#btnPaymentClear', function (e) {
-    e.preventDefault();
-    $('#paymentType').val('');
-    paymentState.type = null;
-    paymentDateFilter.selectMode('range');
   });
 
   // Pagination (delegated)

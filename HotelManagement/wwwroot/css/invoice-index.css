@@ -696,6 +696,13 @@
         width: 100% !important;
         max-width: 100%;
     }
+
+    .row.g-3 .pf-stepper > .btn,
+    .row.g-3 .pf-panel .btn {
+        flex: 0 0 auto !important;
+        width: auto !important;
+        max-width: none !important;
+    }
     
     /* Customer filter card */
     .card {

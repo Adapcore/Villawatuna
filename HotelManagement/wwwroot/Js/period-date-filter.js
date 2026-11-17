@@ -5,7 +5,16 @@
  * Another page can copy that markup and call:
  *
  * $('#myFilter').periodDateFilter({
- *   defaultMode: 'range',
+ *   defaultMode: 'range', // daily, weekly, monthly, yearly, or range
+ *   buttons: {            // omit a key, or leave it true, to keep that button
+ *     daily: true,
+ *     weekly: true,
+ *     monthly: true,
+ *     yearly: true,
+ *     range: true,
+ *     clear: true
+ *   },
+ *   onClear: function () {},
  *   onChange: function (state) {
  *     // state.mode, state.fromDate, state.toDate (yyyy-MM-dd or null)
  *   }
@@ -19,12 +28,26 @@
   var shortMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
   var instanceCount = 0;
 
+  var periodModes = ['daily', 'weekly', 'monthly', 'yearly', 'range'];
+
   function PeriodDateFilter(root, options) {
     this.$root = $(root);
     this.options = $.extend({
       defaultMode: 'range',
-      onChange: function () {}
+      onChange: function () {},
+      onClear: function () {}
     }, options || {});
+    this.options.buttons = $.extend({
+      daily: true,
+      weekly: true,
+      monthly: true,
+      yearly: true,
+      range: true,
+      clear: true
+    }, (options && options.buttons) || {});
+    if (periodModes.indexOf(this.options.defaultMode) === -1) {
+      this.options.defaultMode = 'range';
+    }
     this.mode = this.options.defaultMode;
     this.anchor = null;
     this.fromDate = null;
@@ -35,6 +58,7 @@
     this.monthView = null;
     this.ns = '.periodDateFilter' + (++instanceCount);
     this.bind();
+    this.applyButtonVisibility();
     this.selectMode(this.mode);
   }
 
@@ -58,6 +82,15 @@
     this.$('.pf-next').on('click', function (e) {
       e.preventDefault();
       self.shift(1);
+    });
+
+    this.$root.on('click', '.pf-clear', function (e) {
+      e.preventDefault();
+      if (typeof self.options.onClear === 'function') {
+        self.options.onClear();
+      }
+      self.selectMode(self.options.defaultMode);
+      this.blur();
     });
 
     this.$('.pf-from, .pf-to').on('change', function () {
@@ -185,6 +218,15 @@
       fromDate: this.fromDate,
       toDate: this.toDate
     });
+  };
+
+  PeriodDateFilter.prototype.applyButtonVisibility = function () {
+    var buttons = this.options.buttons;
+    this.$('[data-range]').each(function () {
+      var mode = $(this).data('range');
+      $(this).toggleClass('pf-button-on', buttons[mode] !== false);
+    });
+    this.$('.pf-clear').toggleClass('pf-button-on', buttons.clear !== false);
   };
 
   PeriodDateFilter.prototype.selectMode = function (mode) {

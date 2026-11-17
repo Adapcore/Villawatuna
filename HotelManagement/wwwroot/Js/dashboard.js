@@ -1,18 +1,19 @@
 // Dashboard metrics functionality
+var dashboardDates = {
+    fromDate: null,
+    toDate: null
+};
+
+var dashboardDateFilter = null;
+
 function formatCurrency(value) {
     const num = Number(value || 0);
     return 'LKR ' + num.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
-function loadMetrics(ele) {
-    const from = $('#fromDate').val();
-    const to = $('#toDate').val();
-
-    // Update button states only if a button element is provided
-    if (ele && ele.length > 0) {
-        $('.btn', $(".filter-section")).removeClass("btn-primary").addClass("btn-outline-secondary");
-        ele.removeClass("btn-outline-secondary").addClass("btn-primary");
-    }
+function loadMetrics() {
+    const from = dashboardDates.fromDate;
+    const to = dashboardDates.toDate;
 
     $.getJSON('/Home/GetMetrics', { from: from, to: to }, function (res) {
         if (res && res.success && res.data) {
@@ -44,8 +45,8 @@ function handleDashboardTileClick() {
         const $tile = $(this);
         const tileType = $tile.data('tile-type');
         const tileTitle = $tile.data('tile-title') || 'Details';
-        const from = $('#fromDate').val();
-        const to = $('#toDate').val();
+        const from = dashboardDates.fromDate;
+        const to = dashboardDates.toDate;
 
         if (!tileType) {
             console.error('Tile type not found on element:', $tile);
@@ -89,69 +90,16 @@ function handleDashboardTileClick() {
 
 function InitializeDashboard() {
     $(function () {
-        // Format YYYY-MM-DD using local time (avoid UTC date shifts around midnight)
-        const formatLocalYMD = (d) =>
-            d.getFullYear() + '-' +
-            String(d.getMonth() + 1).padStart(2, '0') + '-' +
-            String(d.getDate()).padStart(2, '0');
+        dashboardDateFilter = $('#dashboardDateFilter').periodDateFilter({
+            defaultMode: 'daily',
+            buttons: { clear: false },
+            onChange: function (state) {
+                dashboardDates.fromDate = state.fromDate;
+                dashboardDates.toDate = state.toDate;
+                loadMetrics();
+            }
+        }).data('periodDateFilter');
 
-        // Default to today
-        const today = formatLocalYMD(new Date());
-        $('#fromDate').val(today);
-        $('#toDate').val(today);
-        
-        // Auto-trigger metrics load when dates change
-        $('#fromDate, #toDate').on('change', function () {
-            // Remove active state from all quick filter buttons when dates are manually changed
-            $('.btn', $(".filter-section")).removeClass("btn-primary").addClass("btn-outline-secondary");
-            // Load metrics without highlighting any button
-            loadMetrics($());
-        });
-        
-        // Initial load
-        loadMetrics($());
-
-        $('#btnToday').on('click', function () {
-            const t = formatLocalYMD(new Date());
-            $('#fromDate').val(t);
-            $('#toDate').val(t);
-
-            loadMetrics($('#btnToday', $(".filter-section")));
-        });
-
-        $('#btnYesterday').on('click', function () {
-            var date = new Date();
-            date.setDate(date.getDate() - 1);
-            const t = formatLocalYMD(date);
-            $('#fromDate').val(t);
-            $('#toDate').val(t);
-
-            loadMetrics($('#btnYesterday', $(".filter-section")));
-        });
-
-        $('#btnMonth').on('click', function () {
-            const now = new Date();
-
-            // Get first day of current month (local time)
-            const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
-            $('#fromDate').val(formatLocalYMD(firstDay));
-            $('#toDate').val(formatLocalYMD(now));
-
-            loadMetrics($('#btnMonth', $(".filter-section")));
-        });
-
-        $('#btnYear').on('click', function () {
-            const now = new Date();
-
-            // Get January 1st of the current year
-            const firstDayOfYear = new Date(now.getFullYear(), 0, 1);
-            $('#fromDate').val(formatLocalYMD(firstDayOfYear));
-            $('#toDate').val(formatLocalYMD(now));
-
-            loadMetrics($('#btnYear', $(".filter-section")));
-        });
-
-        // Attach dashboard tile click handlers
         handleDashboardTileClick();
     });
 }
